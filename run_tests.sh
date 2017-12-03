@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 set -x
 
 export SSHKEYNAME=id_rsa
