@@ -4,6 +4,11 @@ python:
 sudo: required
 dist: trusty
 
+virtualenv:
+  system_site_packages: true
+
+before_install:
+  - sudo apt-get install -y python3.5-dev
 # install: ./.travis_ci/prepare.sh
 
 # script: ./run_tests.sh
