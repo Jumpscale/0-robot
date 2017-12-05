@@ -4,14 +4,14 @@ python:
 sudo: required
 dist: trusty
 
-install: ./.travis_ci/prepare.sh
+# install: ./.travis_ci/prepare.sh
 
-script: ./run_tests.sh
+# script: ./run_tests.sh
 
 
-# install:
-#   - pip3 install pycodestyle nose2
-#   - ./jumpscale_install.sh
-# script:
-#   - pycodestyle --show-source --show-pep8 --ignore=E501 zerorobot
-#   - nose2
+install:
+  - pip3 install pycodestyle nose2
+  - ./jumpscale_install.sh
+script:
+  - pycodestyle --show-source --show-pep8 --ignore=E501 zerorobot
+  - nose2
