@@ -12,6 +12,7 @@ set -e
 # . ./virtualenv/bin/activate
 
 # Install python3.5-dev
+sudo apt-get update
 sudo apt-get install -y python3.5-dev
 
 export ZUTILSBRANCH=${ZUTILSBRANCH:-master}
