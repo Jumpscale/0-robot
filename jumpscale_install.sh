@@ -1,13 +1,26 @@
 #!/bin/bash
 set -e
 
-# Install ays9 in a docker contianer using bash installers
-ssh-keygen -t rsa -N "" -f ~/.ssh/id_rsa
+sudo chown $USER:$USER /opt/
+sudo chown -R $USER:$USER /usr/local
 
-export ZUTILSBRANCH=${ZUTILSBRANCH:-master}
+# settings
+export BRANCH="master"
 
-curl https://raw.githubusercontent.com/Jumpscale/bash/$ZUTILSBRANCH/install.sh?$RANDOM > /tmp/install.sh;sudo -E bash /tmp/install.sh
-sudo -HE bash -c "source /opt/code/github/jumpscale/bash/zlibs.sh; ZCodeGetJS"
-eval $(ssh-agent)
-ssh-add
-sudo -HE bash -c "source /opt/code/github/jumpscale/bash/zlibs.sh; ZInstall_host_js9_full"
+mkdir -p /opt/code/github/jumpscale
+pushd /opt/code/github/jumpscale
+
+
+# cloning source code
+for target in core9 lib9; do
+    git clone --depth=1 -b ${BRANCH} https://github.com/jumpscale/${target}
+done
+
+# installing core and plugins
+for target in core9 lib9; do
+    pushd ${target}
+    pip3 install .
+    popd
+done
+
+popd

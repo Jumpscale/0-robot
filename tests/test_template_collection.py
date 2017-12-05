@@ -7,7 +7,7 @@ from zerorobot.template_collection import TemplateUID
 
 class TestTemplateCollection(unittest.TestCase):
 
-    def tearDown(self):
+    def setUp(self):
         tcol._templates = {}
 
     def test_load_template(self):
@@ -23,7 +23,7 @@ class TestTemplateCollection(unittest.TestCase):
     def test_get_template(self):
         dir_path = os.path.join(os.path.dirname(__file__), 'fixtures/templates/node')
         tcol._load_template("https://github.com/jumpscale/zerorobot", dir_path)
-        self.assertEqual(len(tcol._templates), 1, 'should have loaded a template')
+        self.assertGreater(len(tcol._templates), 0, 'should have loaded template, actual loaded')
 
         template = tcol.get('github.com/jumpscale/zerorobot/node/0.0.1')
         self.assertTrue(template is not None)
