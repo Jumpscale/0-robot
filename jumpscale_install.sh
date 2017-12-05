@@ -7,9 +7,9 @@ sudo apt-get update
 sudo apt-get install -y python3.5-dev
 
 # Instrall virtualenv
-sudo apt-get install -y python-virtualenv
-virtualenv -p python3.5 virtualenv
-. ./virtualenv/bin/activate
+# sudo apt-get install -y python-virtualenv
+# virtualenv -p python3.5 virtualenv
+# . ./virtualenv/bin/activate
 
 export ZUTILSBRANCH=${ZUTILSBRANCH:-master}
 export JSBRANCH=${JSBRANCH:-master}
