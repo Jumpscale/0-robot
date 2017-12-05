@@ -2,8 +2,8 @@
 set -e
 
 # Install python3.5
-# sudo add-apt-repository -y ppa:deadsnakes/ppa
-# sudo apt-get update
+sudo add-apt-repository -y ppa:deadsnakes/ppa
+sudo apt-get update
 # sudo apt-get install -y python3.5
 
 # Instrall virtualenv
@@ -12,7 +12,6 @@ set -e
 # . ./virtualenv/bin/activate
 
 # Install python3.5-dev
-sudo apt-get update
 sudo apt-get install -y python3.5-dev
 
 export ZUTILSBRANCH=${ZUTILSBRANCH:-master}

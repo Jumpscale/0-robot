@@ -5,8 +5,6 @@ sudo: required
 dist: trusty
 
 
-before_install:
-  - sudo apt-get install -y python3.5-dev
 # install: ./.travis_ci/prepare.sh
 
 # script: ./run_tests.sh
