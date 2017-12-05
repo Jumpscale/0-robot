@@ -2,6 +2,14 @@ language: python
 python:
   - "3.5"
 sudo: required
+dist: trusty
+
+
+# install: ./.travis_ci/prepare.sh
+
+# script: ./run_tests.sh
+
+
 install:
   - pip3 install pycodestyle nose2
   - ./jumpscale_install.sh
