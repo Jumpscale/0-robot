@@ -18,7 +18,7 @@ export ZUTILSBRANCH=${ZUTILSBRANCH:-master}
 export JSBRANCH=${JSBRANCH:-master}
 
 echo "INSTALL BASHTOOLS"
-curl https://raw.githubusercontent.com/Jumpscale/bash/$ZUTILSBRANCH/install.sh?$RANDOM > /tmp/install.sh;bash /tmp/install.sh
+curl https://raw.githubusercontent.com/Jumpscale/bash/$ZUTILSBRANCH/install.sh?$RANDOM > /tmp/install.sh;sudo -EH bash /tmp/install.sh
 . /opt/code/github/jumpscale/bash/zlibs.sh
 echo "install js9"
 ZInstall_host_js9
