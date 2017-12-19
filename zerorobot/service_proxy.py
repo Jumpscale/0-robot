@@ -33,6 +33,7 @@ class ServiceProxy():
         self._zrobot_client = zrobot_client
         self.name = name
         self.guid = guid
+        self.template_uid = None
         self.parent = None
         # a proxy service doesn't have direct access to the data of it's remote homologue
         # cause data are always only accessible  by the service itself and locally

@@ -9,6 +9,7 @@ from requests.exceptions import HTTPError
 
 from zerorobot.client import Client
 from zerorobot.service_proxy import ServiceProxy
+from zerorobot.service_collection import ServiceConflictError
 
 
 class TemplateNotFoundError(Exception):
@@ -27,6 +28,7 @@ class ServicesMgr:
 
     def _instantiate(self, data):
         srv = ServiceProxy(data.name, data.guid, self._client)
+        srv.template_uid = data.template
         if data.parent:
             srv.parent = self._get(data.parent)
         return srv
@@ -89,7 +91,9 @@ class ServicesMgr:
         try:
             resp = self._client.api.services.createService(req)
         except HTTPError as err:
-            print(err.response.json())
+            if err.response.status_code == 409:
+                raise ServiceConflictError(err.response.json()['message'])
+            # print(err.response.json())
             raise err
 
         service = ServiceProxy(service_name, resp.data.guid, self._client)
@@ -101,6 +105,17 @@ class TemplatesMgr:
     def __init__(self, robot):
         self._robot = robot
         self._client = robot._client
+
+    def add_repo(self, url, branch='master'):
+        """
+        Add a new template repository
+        """
+        data = {
+            "url": url,
+            "branch": branch,
+        }
+        resp = self._client.api.templates.AddTemplateRepo(data)
+        return resp.data
 
     @property
     def uids(self):

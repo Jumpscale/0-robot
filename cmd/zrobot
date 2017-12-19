@@ -1,44 +1,24 @@
 #!/usr/bin/env python3
 
-from gevent import monkey
-# need to patch sockets to make requests async
-monkey.patch_all(
-    socket=True,
-    dns=True,
-    time=True,
-    select=True,
-    thread=True,
-    os=True,
-    ssl=True,
-    httplib=False,
-    subprocess=False,
-    sys=False,
-    aggressive=True,
-    Event=False,
-    builtins=True,
-    signal=True)
-
 import click
 
-from zerorobot.robot import Robot
+from zerorobot.cli.server import server
+from zerorobot.cli.robot import robot
+from zerorobot.cli.service import service
+from zerorobot.cli.template import template
+from zerorobot.cli.task import task
 
 
-@click.command()
-@click.option('--data-repo', '-D', required=True, help='URL of the git repository where to save the data of the zero robot')
-@click.option('--template-repo', '-T', multiple=True, help='list of templare repository URL')
-@click.option('--listen', '-L', help='listen address', default=':6600')
-@click.option('--robots', '-R', multiple=True, help='address of reachable robots')
-def main(data_repo, template_repo, listen, robots):
-    robot = Robot()
+@click.group()
+def entry_point():
+    pass
 
-    for url in template_repo:
-        robot.add_template_repo(url)
+entry_point.add_command(server)
+entry_point.add_command(robot)
+entry_point.add_command(service)
+entry_point.add_command(template)
+entry_point.add_command(task)
 
-    for addr in robots:
-        robot.add_remote_robot(addr)
-
-    robot.set_data_repo(data_repo)
-    robot.start(listen=listen)
 
 if __name__ == "__main__":
-    main()
+    entry_point()
