@@ -1,0 +1,2 @@
+include zerorobot/api/schema/*.json
+include zerorobot/api/index.html
