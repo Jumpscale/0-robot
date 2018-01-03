@@ -1,2 +1,4 @@
 include zerorobot/api/schema/*.json
 include zerorobot/api/index.html
+include zerorobot/api/apidocs/*
+include zerorobot/api/apidocs/*/*
