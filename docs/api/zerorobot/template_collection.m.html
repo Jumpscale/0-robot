@@ -1188,9 +1188,7 @@ other services and class need to use this module method to load/access the templ
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">template</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
         <span class="n">template</span> <span class="o">=</span> <span class="n">get</span><span class="p">(</span><span class="n">template</span><span class="p">)</span>
 
-    <span class="n">service</span> <span class="o">=</span> <span class="n">template</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">data</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
-        <span class="n">service</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+    <span class="n">service</span> <span class="o">=</span> <span class="n">template</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">)</span>
 
     <span class="n">scol</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">service</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">service</span>
@@ -1391,9 +1389,7 @@ a zerorobot.template_collection.TemplateUID object</p></div>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">template</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
         <span class="n">template</span> <span class="o">=</span> <span class="n">get</span><span class="p">(</span><span class="n">template</span><span class="p">)</span>
 
-    <span class="n">service</span> <span class="o">=</span> <span class="n">template</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">data</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
-        <span class="n">service</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+    <span class="n">service</span> <span class="o">=</span> <span class="n">template</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">)</span>
 
     <span class="n">scol</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">service</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">service</span>

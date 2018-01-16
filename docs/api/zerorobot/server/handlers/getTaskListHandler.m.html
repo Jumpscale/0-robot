@@ -3,8 +3,8 @@
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 
-    <title>zerorobot.client.Blueprint API documentation</title>
-    <meta name="description" content="Auto-generated class for Blueprint" />
+    <title>zerorobot.server.handlers.getTaskListHandler API documentation</title>
+    <meta name="description" content="" />
 
   <link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:400,300' rel='stylesheet' type='text/css'>
   
@@ -1041,23 +1041,14 @@ table {
     <h1>Index</h1>
     <ul id="index">
 
-
-    <li class="set"><h3><a href="#header-classes">Classes</a></h3>
-      <ul>
-        <li class="mono">
-        <span class="class_name"><a href="#zerorobot.client.Blueprint.Blueprint">Blueprint</a></span>
-        
-          
+    <li class="set"><h3><a href="#header-functions">Functions</a></h3>
+      
   <ul>
-    <li class="mono"><a href="#zerorobot.client.Blueprint.Blueprint.__init__">__init__</a></li>
-    <li class="mono"><a href="#zerorobot.client.Blueprint.Blueprint.as_dict">as_dict</a></li>
-    <li class="mono"><a href="#zerorobot.client.Blueprint.Blueprint.as_json">as_json</a></li>
-    <li class="mono"><a href="#zerorobot.client.Blueprint.Blueprint.create">create</a></li>
+    <li class="mono"><a href="#zerorobot.server.handlers.getTaskListHandler.getTaskListHandler">getTaskListHandler</a></li>
   </ul>
 
-        </li>
-      </ul>
     </li>
+
 
     </ul>
   </div>
@@ -1070,51 +1061,40 @@ table {
 
 
   <header id="section-intro">
-  <h1 class="title"><span class="name">zerorobot.client.Blueprint</span> module</h1>
-  <p>Auto-generated class for Blueprint</p>
+  <h1 class="title"><span class="name">zerorobot.server.handlers.getTaskListHandler</span> module</h1>
   
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.client.Blueprint', this);">Show source &equiv;</a></p>
-  <div id="source-zerorobot.client.Blueprint" class="source">
-    <div class="codehilite"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">Auto-generated class for Blueprint</span>
-<span class="sd">&quot;&quot;&quot;</span>
+  
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.server.handlers.getTaskListHandler', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.server.handlers.getTaskListHandler" class="source">
+    <div class="codehilite"><pre><span></span><span class="c1"># THIS FILE IS SAFE TO EDIT. It will not be overwritten when rerunning go-raml.</span>
 
-<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">client_support</span>
+<span class="kn">import</span> <span class="nn">json</span>
+
+<span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">request</span>
+<span class="kn">from</span> <span class="nn">js9</span> <span class="kn">import</span> <span class="n">j</span>
+<span class="kn">from</span> <span class="nn">zerorobot</span> <span class="kn">import</span> <span class="n">service_collection</span> <span class="k">as</span> <span class="n">scol</span>
+<span class="kn">from</span> <span class="nn">zerorobot.server.handlers.views</span> <span class="kn">import</span> <span class="n">task_view</span>
 
 
-<span class="k">class</span> <span class="nc">Blueprint</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    auto-generated. don&#39;t touch.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="k">def</span> <span class="nf">getTaskListHandler</span><span class="p">(</span><span class="n">service_guid</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Return all the action in the task list</span>
+<span class="sd">    It is handler for GET /services/&lt;service_guid&gt;/task_list</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">service</span> <span class="o">=</span> <span class="n">scol</span><span class="o">.</span><span class="n">get_by_guid</span><span class="p">(</span><span class="n">service_guid</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">({</span><span class="s1">&#39;code&#39;</span><span class="p">:</span> <span class="mi">404</span><span class="p">,</span> <span class="s1">&#39;message&#39;</span><span class="p">:</span> <span class="s2">&quot;service with guid &#39;</span><span class="si">%s</span><span class="s2">&#39; not found&quot;</span> <span class="o">%</span> <span class="n">service_guid</span><span class="p">}),</span> \
+            <span class="mi">404</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;Content-type&quot;</span><span class="p">:</span> <span class="s1">&#39;application/json&#39;</span><span class="p">}</span>
 
-    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">create</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        :type content: dict</span>
-<span class="sd">        :rtype: Blueprint</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+    <span class="c1"># return only task waiting or all existing task for this service</span>
+    <span class="n">all_task</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;all&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">all_task</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">all_task</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">types</span><span class="o">.</span><span class="n">bool</span><span class="o">.</span><span class="n">fromString</span><span class="p">(</span><span class="n">all_task</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">Blueprint</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="n">tasks</span> <span class="o">=</span> <span class="p">[</span><span class="n">task_view</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">service</span><span class="p">)</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">service</span><span class="o">.</span><span class="n">task_list</span><span class="o">.</span><span class="n">list_tasks</span><span class="p">(</span><span class="nb">all</span><span class="o">=</span><span class="n">all_task</span><span class="p">)]</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">json</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">json</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">kwargs</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;No data or kwargs present&#39;</span><span class="p">)</span>
-
-        <span class="n">class_name</span> <span class="o">=</span> <span class="s1">&#39;Blueprint&#39;</span>
-        <span class="n">data</span> <span class="o">=</span> <span class="n">json</span> <span class="ow">or</span> <span class="n">kwargs</span>
-
-        <span class="c1"># set attributes</span>
-        <span class="n">data_types</span> <span class="o">=</span> <span class="p">[</span><span class="nb">dict</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">content</span> <span class="o">=</span> <span class="n">client_support</span><span class="o">.</span><span class="n">set_property</span><span class="p">(</span><span class="s1">&#39;content&#39;</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">data_types</span><span class="p">,</span> <span class="bp">False</span><span class="p">,</span> <span class="p">[],</span> <span class="bp">False</span><span class="p">,</span> <span class="bp">True</span><span class="p">,</span> <span class="n">class_name</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">as_json</span><span class="p">(</span><span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">as_json</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">client_support</span><span class="o">.</span><span class="n">to_json</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="n">indent</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">client_support</span><span class="o">.</span><span class="n">to_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">tasks</span><span class="p">),</span> <span class="mi">200</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;Content-type&quot;</span><span class="p">:</span> <span class="s1">&#39;application/json&#39;</span><span class="p">}</span>
 </pre></div>
 
   </div>
@@ -1123,84 +1103,40 @@ table {
 
   <section id="section-items">
 
-
-    <h2 class="section-title" id="header-classes">Classes</h2>
+    <h2 class="section-title" id="header-functions">Functions</h2>
       
-      <div class="item">
-      <p id="zerorobot.client.Blueprint.Blueprint" class="name">class <span class="ident">Blueprint</span></p>
-      
-  
-    <div class="desc"><p>auto-generated. don't touch.</p></div>
-  <div class="source_cont">
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.client.Blueprint.Blueprint', this);">Show source &equiv;</a></p>
-  <div id="source-zerorobot.client.Blueprint.Blueprint" class="source">
-    <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">Blueprint</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    auto-generated. don&#39;t touch.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">create</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        :type content: dict</span>
-<span class="sd">        :rtype: Blueprint</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-
-        <span class="k">return</span> <span class="n">Blueprint</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">json</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">json</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">kwargs</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;No data or kwargs present&#39;</span><span class="p">)</span>
-
-        <span class="n">class_name</span> <span class="o">=</span> <span class="s1">&#39;Blueprint&#39;</span>
-        <span class="n">data</span> <span class="o">=</span> <span class="n">json</span> <span class="ow">or</span> <span class="n">kwargs</span>
-
-        <span class="c1"># set attributes</span>
-        <span class="n">data_types</span> <span class="o">=</span> <span class="p">[</span><span class="nb">dict</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">content</span> <span class="o">=</span> <span class="n">client_support</span><span class="o">.</span><span class="n">set_property</span><span class="p">(</span><span class="s1">&#39;content&#39;</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">data_types</span><span class="p">,</span> <span class="bp">False</span><span class="p">,</span> <span class="p">[],</span> <span class="bp">False</span><span class="p">,</span> <span class="bp">True</span><span class="p">,</span> <span class="n">class_name</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">as_json</span><span class="p">(</span><span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">as_json</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">client_support</span><span class="o">.</span><span class="n">to_json</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="n">indent</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">client_support</span><span class="o">.</span><span class="n">to_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
-</pre></div>
-
-  </div>
-</div>
-
-
-      <div class="class">
-          <h3>Ancestors (in MRO)</h3>
-          <ul class="class_list">
-          <li><a href="#zerorobot.client.Blueprint.Blueprint">Blueprint</a></li>
-          <li>builtins.object</li>
-          </ul>
-          <h3>Static methods</h3>
-            
   <div class="item">
-    <div class="name def" id="zerorobot.client.Blueprint.Blueprint.__init__">
-    <p>def <span class="ident">__init__</span>(</p><p>self, json=None, **kwargs)</p>
+    <div class="name def" id="zerorobot.server.handlers.getTaskListHandler.getTaskListHandler">
+    <p>def <span class="ident">getTaskListHandler</span>(</p><p>service_guid)</p>
     </div>
     
 
     
   
-    <div class="desc"><p>Initialize self.  See help(type(self)) for accurate signature.</p></div>
+    <div class="desc"><p>Return all the action in the task list
+It is handler for GET /services/<service_guid>/task_list</p></div>
   <div class="source_cont">
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.client.Blueprint.Blueprint.__init__', this);">Show source &equiv;</a></p>
-  <div id="source-zerorobot.client.Blueprint.Blueprint.__init__" class="source">
-    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">json</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-    <span class="k">if</span> <span class="n">json</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">kwargs</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;No data or kwargs present&#39;</span><span class="p">)</span>
-    <span class="n">class_name</span> <span class="o">=</span> <span class="s1">&#39;Blueprint&#39;</span>
-    <span class="n">data</span> <span class="o">=</span> <span class="n">json</span> <span class="ow">or</span> <span class="n">kwargs</span>
-    <span class="c1"># set attributes</span>
-    <span class="n">data_types</span> <span class="o">=</span> <span class="p">[</span><span class="nb">dict</span><span class="p">]</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">content</span> <span class="o">=</span> <span class="n">client_support</span><span class="o">.</span><span class="n">set_property</span><span class="p">(</span><span class="s1">&#39;content&#39;</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">data_types</span><span class="p">,</span> <span class="bp">False</span><span class="p">,</span> <span class="p">[],</span> <span class="bp">False</span><span class="p">,</span> <span class="bp">True</span><span class="p">,</span> <span class="n">class_name</span><span class="p">)</span>
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.server.handlers.getTaskListHandler.getTaskListHandler', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.server.handlers.getTaskListHandler.getTaskListHandler" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">getTaskListHandler</span><span class="p">(</span><span class="n">service_guid</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Return all the action in the task list</span>
+<span class="sd">    It is handler for GET /services/&lt;service_guid&gt;/task_list</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">service</span> <span class="o">=</span> <span class="n">scol</span><span class="o">.</span><span class="n">get_by_guid</span><span class="p">(</span><span class="n">service_guid</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">({</span><span class="s1">&#39;code&#39;</span><span class="p">:</span> <span class="mi">404</span><span class="p">,</span> <span class="s1">&#39;message&#39;</span><span class="p">:</span> <span class="s2">&quot;service with guid &#39;</span><span class="si">%s</span><span class="s2">&#39; not found&quot;</span> <span class="o">%</span> <span class="n">service_guid</span><span class="p">}),</span> \
+            <span class="mi">404</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;Content-type&quot;</span><span class="p">:</span> <span class="s1">&#39;application/json&#39;</span><span class="p">}</span>
+
+    <span class="c1"># return only task waiting or all existing task for this service</span>
+    <span class="n">all_task</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;all&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">all_task</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">all_task</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">types</span><span class="o">.</span><span class="n">bool</span><span class="o">.</span><span class="n">fromString</span><span class="p">(</span><span class="n">all_task</span><span class="p">)</span>
+
+    <span class="n">tasks</span> <span class="o">=</span> <span class="p">[</span><span class="n">task_view</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">service</span><span class="p">)</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">service</span><span class="o">.</span><span class="n">task_list</span><span class="o">.</span><span class="n">list_tasks</span><span class="p">(</span><span class="nb">all</span><span class="o">=</span><span class="n">all_task</span><span class="p">)]</span>
+
+    <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">tasks</span><span class="p">),</span> <span class="mi">200</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;Content-type&quot;</span><span class="p">:</span> <span class="s1">&#39;application/json&#39;</span><span class="p">}</span>
 </pre></div>
 
   </div>
@@ -1208,89 +1144,7 @@ table {
 
   </div>
   
-            
-  <div class="item">
-    <div class="name def" id="zerorobot.client.Blueprint.Blueprint.as_dict">
-    <p>def <span class="ident">as_dict</span>(</p><p>self)</p>
-    </div>
-    
 
-    
-  
-  <div class="source_cont">
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.client.Blueprint.Blueprint.as_dict', this);">Show source &equiv;</a></p>
-  <div id="source-zerorobot.client.Blueprint.Blueprint.as_dict" class="source">
-    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-    <span class="k">return</span> <span class="n">client_support</span><span class="o">.</span><span class="n">to_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
-</pre></div>
-
-  </div>
-</div>
-
-  </div>
-  
-            
-  <div class="item">
-    <div class="name def" id="zerorobot.client.Blueprint.Blueprint.as_json">
-    <p>def <span class="ident">as_json</span>(</p><p>self, indent=0)</p>
-    </div>
-    
-
-    
-  
-  <div class="source_cont">
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.client.Blueprint.Blueprint.as_json', this);">Show source &equiv;</a></p>
-  <div id="source-zerorobot.client.Blueprint.Blueprint.as_json" class="source">
-    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">as_json</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
-    <span class="k">return</span> <span class="n">client_support</span><span class="o">.</span><span class="n">to_json</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="n">indent</span><span class="p">)</span>
-</pre></div>
-
-  </div>
-</div>
-
-  </div>
-  
-            
-  <div class="item">
-    <div class="name def" id="zerorobot.client.Blueprint.Blueprint.create">
-    <p>def <span class="ident">create</span>(</p><p>**kwargs)</p>
-    </div>
-    
-
-    
-  
-    <div class="desc"><p>:type content: dict
-:rtype: Blueprint</p></div>
-  <div class="source_cont">
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.client.Blueprint.Blueprint.create', this);">Show source &equiv;</a></p>
-  <div id="source-zerorobot.client.Blueprint.Blueprint.create" class="source">
-    <div class="codehilite"><pre><span></span><span class="nd">@staticmethod</span>
-<span class="k">def</span> <span class="nf">create</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    :type content: dict</span>
-<span class="sd">    :rtype: Blueprint</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">Blueprint</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-</pre></div>
-
-  </div>
-</div>
-
-  </div>
-  
-          <h3>Instance variables</h3>
-            <div class="item">
-            <p id="zerorobot.client.Blueprint.Blueprint.content" class="name">var <span class="ident">content</span></p>
-            
-
-            
-  
-  <div class="source_cont">
-</div>
-
-            </div>
-      </div>
-      </div>
 
   </section>
 

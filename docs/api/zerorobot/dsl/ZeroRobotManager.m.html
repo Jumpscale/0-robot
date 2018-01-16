@@ -1047,12 +1047,22 @@ table {
     <li class="set"><h3><a href="#header-classes">Classes</a></h3>
       <ul>
         <li class="mono">
+        <span class="class_name"><a href="#zerorobot.dsl.ZeroRobotManager.ServiceCreateError">ServiceCreateError</a></span>
+        
+          
+  <ul>
+    <li class="mono"><a href="#zerorobot.dsl.ZeroRobotManager.ServiceCreateError.__init__">__init__</a></li>
+  </ul>
+
+        </li>
+        <li class="mono">
         <span class="class_name"><a href="#zerorobot.dsl.ZeroRobotManager.ServicesMgr">ServicesMgr</a></span>
         
           
   <ul>
     <li class="mono"><a href="#zerorobot.dsl.ZeroRobotManager.ServicesMgr.__init__">__init__</a></li>
     <li class="mono"><a href="#zerorobot.dsl.ZeroRobotManager.ServicesMgr.create">create</a></li>
+    <li class="mono"><a href="#zerorobot.dsl.ZeroRobotManager.ServicesMgr.get">get</a></li>
   </ul>
 
         </li>
@@ -1122,6 +1132,16 @@ We keep this logic in this repository itself and not jumpscale so we don't sprea
     <span class="k">pass</span>
 
 
+<span class="k">class</span> <span class="nc">ServiceCreateError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Exception raised when service fail to create</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">msg</span><span class="p">,</span> <span class="n">original_exception</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">msg</span> <span class="o">+</span> <span class="p">(</span><span class="s2">&quot;: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">original_exception</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">original_exception</span> <span class="o">=</span> <span class="n">original_exception</span>
+
+
 <span class="k">class</span> <span class="nc">ServicesMgr</span><span class="p">:</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">robot</span><span class="p">):</span>
@@ -1138,6 +1158,9 @@ We keep this logic in this repository itself and not jumpscale so we don't sprea
     <span class="k">def</span> <span class="nf">_get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">guid</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="n">resp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">services</span><span class="o">.</span><span class="n">GetService</span><span class="p">(</span><span class="n">guid</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_instantiate</span><span class="p">(</span><span class="n">resp</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">template_uid</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">services</span><span class="o">.</span><span class="n">GetService</span><span class="p">()</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">names</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -1195,8 +1218,8 @@ We keep this logic in this repository itself and not jumpscale so we don't sprea
         <span class="k">except</span> <span class="n">HTTPError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">err</span><span class="o">.</span><span class="n">response</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">409</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="n">ServiceConflictError</span><span class="p">(</span><span class="n">err</span><span class="o">.</span><span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()[</span><span class="s1">&#39;message&#39;</span><span class="p">])</span>
-            <span class="c1"># print(err.response.json())</span>
-            <span class="k">raise</span> <span class="n">err</span>
+            <span class="n">e</span> <span class="o">=</span> <span class="n">err</span><span class="o">.</span><span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+            <span class="k">raise</span> <span class="n">ServiceCreateError</span><span class="p">(</span><span class="n">e</span><span class="p">[</span><span class="s1">&#39;message&#39;</span><span class="p">],</span> <span class="n">err</span><span class="p">)</span>
 
         <span class="n">service</span> <span class="o">=</span> <span class="n">ServiceProxy</span><span class="p">(</span><span class="n">service_name</span><span class="p">,</span> <span class="n">resp</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">guid</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">service</span>
@@ -1246,6 +1269,85 @@ We keep this logic in this repository itself and not jumpscale so we don't sprea
     <h2 class="section-title" id="header-classes">Classes</h2>
       
       <div class="item">
+      <p id="zerorobot.dsl.ZeroRobotManager.ServiceCreateError" class="name">class <span class="ident">ServiceCreateError</span></p>
+      
+  
+    <div class="desc"><p>Exception raised when service fail to create</p></div>
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.dsl.ZeroRobotManager.ServiceCreateError', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.dsl.ZeroRobotManager.ServiceCreateError" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">ServiceCreateError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Exception raised when service fail to create</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">msg</span><span class="p">,</span> <span class="n">original_exception</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">msg</span> <span class="o">+</span> <span class="p">(</span><span class="s2">&quot;: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">original_exception</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">original_exception</span> <span class="o">=</span> <span class="n">original_exception</span>
+</pre></div>
+
+  </div>
+</div>
+
+
+      <div class="class">
+          <h3>Ancestors (in MRO)</h3>
+          <ul class="class_list">
+          <li><a href="#zerorobot.dsl.ZeroRobotManager.ServiceCreateError">ServiceCreateError</a></li>
+          <li>builtins.Exception</li>
+          <li>builtins.BaseException</li>
+          <li>builtins.object</li>
+          </ul>
+          <h3>Class variables</h3>
+            <div class="item">
+            <p id="zerorobot.dsl.ZeroRobotManager.ServiceCreateError.args" class="name">var <span class="ident">args</span></p>
+            
+
+            
+  
+  <div class="source_cont">
+</div>
+
+            </div>
+          <h3>Static methods</h3>
+            
+  <div class="item">
+    <div class="name def" id="zerorobot.dsl.ZeroRobotManager.ServiceCreateError.__init__">
+    <p>def <span class="ident">__init__</span>(</p><p>self, msg, original_exception)</p>
+    </div>
+    
+
+    
+  
+    <div class="desc"><p>Initialize self.  See help(type(self)) for accurate signature.</p></div>
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.dsl.ZeroRobotManager.ServiceCreateError.__init__', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.dsl.ZeroRobotManager.ServiceCreateError.__init__" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">msg</span><span class="p">,</span> <span class="n">original_exception</span><span class="p">):</span>
+    <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">msg</span> <span class="o">+</span> <span class="p">(</span><span class="s2">&quot;: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">original_exception</span><span class="p">))</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">original_exception</span> <span class="o">=</span> <span class="n">original_exception</span>
+</pre></div>
+
+  </div>
+</div>
+
+  </div>
+  
+          <h3>Instance variables</h3>
+            <div class="item">
+            <p id="zerorobot.dsl.ZeroRobotManager.ServiceCreateError.original_exception" class="name">var <span class="ident">original_exception</span></p>
+            
+
+            
+  
+  <div class="source_cont">
+</div>
+
+            </div>
+      </div>
+      </div>
+      
+      <div class="item">
       <p id="zerorobot.dsl.ZeroRobotManager.ServicesMgr" class="name">class <span class="ident">ServicesMgr</span></p>
       
   
@@ -1268,6 +1370,9 @@ We keep this logic in this repository itself and not jumpscale so we don't sprea
     <span class="k">def</span> <span class="nf">_get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">guid</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="n">resp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">services</span><span class="o">.</span><span class="n">GetService</span><span class="p">(</span><span class="n">guid</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_instantiate</span><span class="p">(</span><span class="n">resp</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">template_uid</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">services</span><span class="o">.</span><span class="n">GetService</span><span class="p">()</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">names</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -1325,8 +1430,8 @@ We keep this logic in this repository itself and not jumpscale so we don't sprea
         <span class="k">except</span> <span class="n">HTTPError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">err</span><span class="o">.</span><span class="n">response</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">409</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="n">ServiceConflictError</span><span class="p">(</span><span class="n">err</span><span class="o">.</span><span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()[</span><span class="s1">&#39;message&#39;</span><span class="p">])</span>
-            <span class="c1"># print(err.response.json())</span>
-            <span class="k">raise</span> <span class="n">err</span>
+            <span class="n">e</span> <span class="o">=</span> <span class="n">err</span><span class="o">.</span><span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+            <span class="k">raise</span> <span class="n">ServiceCreateError</span><span class="p">(</span><span class="n">e</span><span class="p">[</span><span class="s1">&#39;message&#39;</span><span class="p">],</span> <span class="n">err</span><span class="p">)</span>
 
         <span class="n">service</span> <span class="o">=</span> <span class="n">ServiceProxy</span><span class="p">(</span><span class="n">service_name</span><span class="p">,</span> <span class="n">resp</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">guid</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">service</span>
@@ -1403,10 +1508,31 @@ We keep this logic in this repository itself and not jumpscale so we don't sprea
     <span class="k">except</span> <span class="n">HTTPError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">err</span><span class="o">.</span><span class="n">response</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">409</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">ServiceConflictError</span><span class="p">(</span><span class="n">err</span><span class="o">.</span><span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()[</span><span class="s1">&#39;message&#39;</span><span class="p">])</span>
-        <span class="c1"># print(err.response.json())</span>
-        <span class="k">raise</span> <span class="n">err</span>
+        <span class="n">e</span> <span class="o">=</span> <span class="n">err</span><span class="o">.</span><span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+        <span class="k">raise</span> <span class="n">ServiceCreateError</span><span class="p">(</span><span class="n">e</span><span class="p">[</span><span class="s1">&#39;message&#39;</span><span class="p">],</span> <span class="n">err</span><span class="p">)</span>
     <span class="n">service</span> <span class="o">=</span> <span class="n">ServiceProxy</span><span class="p">(</span><span class="n">service_name</span><span class="p">,</span> <span class="n">resp</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">guid</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">service</span>
+</pre></div>
+
+  </div>
+</div>
+
+  </div>
+  
+            
+  <div class="item">
+    <div class="name def" id="zerorobot.dsl.ZeroRobotManager.ServicesMgr.get">
+    <p>def <span class="ident">get</span>(</p><p>self, template_uid, name)</p>
+    </div>
+    
+
+    
+  
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.dsl.ZeroRobotManager.ServicesMgr.get', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.dsl.ZeroRobotManager.ServicesMgr.get" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">template_uid</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">services</span><span class="o">.</span><span class="n">GetService</span><span class="p">()</span>
 </pre></div>
 
   </div>

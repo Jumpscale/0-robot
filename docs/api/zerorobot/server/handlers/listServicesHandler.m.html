@@ -3,7 +3,7 @@
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 
-    <title>zerorobot.api.templates_api API documentation</title>
+    <title>zerorobot.server.handlers.listServicesHandler API documentation</title>
     <meta name="description" content="" />
 
   <link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:400,300' rel='stylesheet' type='text/css'>
@@ -1040,24 +1040,11 @@ table {
   <div id="sidebar">
     <h1>Index</h1>
     <ul id="index">
-    <li class="set"><h3><a href="#header-variables">Module variables</a></h3>
-      
-  <ul>
-    <li class="mono"><a href="#zerorobot.api.templates_api.TemplateRepository_schema">TemplateRepository_schema</a></li>
-    <li class="mono"><a href="#zerorobot.api.templates_api.TemplateRepository_schema_resolver">TemplateRepository_schema_resolver</a></li>
-    <li class="mono"><a href="#zerorobot.api.templates_api.TemplateRepository_schema_validator">TemplateRepository_schema_validator</a></li>
-    <li class="mono"><a href="#zerorobot.api.templates_api.dir_path">dir_path</a></li>
-    <li class="mono"><a href="#zerorobot.api.templates_api.templates_api">templates_api</a></li>
-  </ul>
-
-    </li>
 
     <li class="set"><h3><a href="#header-functions">Functions</a></h3>
       
   <ul>
-    <li class="mono"><a href="#zerorobot.api.templates_api.AddTemplateRepo">AddTemplateRepo</a></li>
-    <li class="mono"><a href="#zerorobot.api.templates_api.ListTemplates">ListTemplates</a></li>
-    <li class="mono"><a href="#zerorobot.api.templates_api.template_view">template_view</a></li>
+    <li class="mono"><a href="#zerorobot.server.handlers.listServicesHandler.listServicesHandler">listServicesHandler</a></li>
   </ul>
 
     </li>
@@ -1074,66 +1061,26 @@ table {
 
 
   <header id="section-intro">
-  <h1 class="title"><span class="name">zerorobot.api.templates_api</span> module</h1>
+  <h1 class="title"><span class="name">zerorobot.server.handlers.listServicesHandler</span> module</h1>
   
   
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.api.templates_api', this);">Show source &equiv;</a></p>
-  <div id="source-zerorobot.api.templates_api" class="source">
-    <div class="codehilite"><pre><span></span><span class="kn">import</span> <span class="nn">json</span> <span class="kn">as</span> <span class="nn">JSON</span>
-<span class="kn">import</span> <span class="nn">os</span>
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.server.handlers.listServicesHandler', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.server.handlers.listServicesHandler" class="source">
+    <div class="codehilite"><pre><span></span><span class="c1"># THIS FILE IS SAFE TO EDIT. It will not be overwritten when rerunning go-raml.</span>
 
-<span class="kn">import</span> <span class="nn">jsonschema</span>
-<span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">Blueprint</span><span class="p">,</span> <span class="n">jsonify</span><span class="p">,</span> <span class="n">request</span>
-<span class="kn">from</span> <span class="nn">jsonschema</span> <span class="kn">import</span> <span class="n">Draft4Validator</span>
-<span class="kn">from</span> <span class="nn">zerorobot</span> <span class="kn">import</span> <span class="n">template_collection</span> <span class="k">as</span> <span class="n">tcol</span>
+<span class="kn">import</span> <span class="nn">json</span>
 
-<span class="n">dir_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">realpath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">))</span>
-
-<span class="n">TemplateRepository_schema</span> <span class="o">=</span> <span class="n">JSON</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="n">dir_path</span> <span class="o">+</span> <span class="s1">&#39;/schema/TemplateRepository_schema.json&#39;</span><span class="p">))</span>
-<span class="n">TemplateRepository_schema_resolver</span> <span class="o">=</span> <span class="n">jsonschema</span><span class="o">.</span><span class="n">RefResolver</span><span class="p">(</span><span class="s1">&#39;file://&#39;</span> <span class="o">+</span> <span class="n">dir_path</span> <span class="o">+</span> <span class="s1">&#39;/schema/&#39;</span><span class="p">,</span> <span class="n">TemplateRepository_schema</span><span class="p">)</span>
-<span class="n">TemplateRepository_schema_validator</span> <span class="o">=</span> <span class="n">Draft4Validator</span><span class="p">(</span><span class="n">TemplateRepository_schema</span><span class="p">,</span> <span class="n">resolver</span><span class="o">=</span><span class="n">TemplateRepository_schema_resolver</span><span class="p">)</span>
+<span class="kn">from</span> <span class="nn">zerorobot</span> <span class="kn">import</span> <span class="n">service_collection</span> <span class="k">as</span> <span class="n">scol</span>
+<span class="kn">from</span> <span class="nn">zerorobot.server.handlers.views</span> <span class="kn">import</span> <span class="n">service_view</span>
 
 
-<span class="n">templates_api</span> <span class="o">=</span> <span class="n">Blueprint</span><span class="p">(</span><span class="s1">&#39;templates_api&#39;</span><span class="p">,</span> <span class="vm">__name__</span><span class="p">)</span>
-
-
-<span class="nd">@templates_api.route</span><span class="p">(</span><span class="s1">&#39;/templates&#39;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;GET&#39;</span><span class="p">])</span>
-<span class="k">def</span> <span class="nf">ListTemplates</span><span class="p">():</span>
+<span class="k">def</span> <span class="nf">listServicesHandler</span><span class="p">():</span>
     <span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">    List all the templates available to the ZeroRobot</span>
-<span class="sd">    It is handler for GET /templates</span>
+<span class="sd">    List all the services known by the ZeroRobot.</span>
+<span class="sd">    It is handler for GET /services</span>
 <span class="sd">    &#39;&#39;&#39;</span>
-    <span class="n">templates</span> <span class="o">=</span> <span class="p">[</span><span class="n">template_view</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">tcol</span><span class="o">.</span><span class="n">list_templates</span><span class="p">()]</span>
-    <span class="k">return</span> <span class="n">JSON</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">templates</span><span class="p">),</span> <span class="mi">200</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;Content-type&quot;</span><span class="p">:</span> <span class="s1">&#39;application/json&#39;</span><span class="p">}</span>
-
-
-<span class="nd">@templates_api.route</span><span class="p">(</span><span class="s1">&#39;/templates&#39;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;POST&#39;</span><span class="p">])</span>
-<span class="k">def</span> <span class="nf">AddTemplateRepo</span><span class="p">():</span>
-    <span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">    Clone a template repository and make the templates available to the ZeroRobot</span>
-<span class="sd">    It is handler for POST /templates</span>
-<span class="sd">    &#39;&#39;&#39;</span>
-    <span class="n">inputs</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">get_json</span><span class="p">()</span>
-    <span class="k">try</span><span class="p">:</span>
-        <span class="n">TemplateRepository_schema_validator</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">inputs</span><span class="p">)</span>
-    <span class="k">except</span> <span class="n">jsonschema</span><span class="o">.</span><span class="n">ValidationError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">JSON</span><span class="o">.</span><span class="n">dumps</span><span class="p">({</span><span class="s1">&#39;code&#39;</span><span class="p">:</span> <span class="mi">400</span><span class="p">,</span> <span class="s1">&#39;message&#39;</span><span class="p">:</span> <span class="s2">&quot;bad request body&quot;</span><span class="p">}),</span> <span class="mi">400</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;Content-type&quot;</span><span class="p">:</span> <span class="s1">&#39;application/json&#39;</span><span class="p">}</span>
-
-    <span class="c1"># TODO: handle branches</span>
-    <span class="n">added</span> <span class="o">=</span> <span class="n">tcol</span><span class="o">.</span><span class="n">add_repo</span><span class="p">(</span><span class="n">inputs</span><span class="p">[</span><span class="s1">&#39;url&#39;</span><span class="p">])</span>
-    <span class="n">templates</span> <span class="o">=</span> <span class="p">[</span><span class="n">template_view</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">added</span><span class="p">]</span>
-    <span class="k">return</span> <span class="n">JSON</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">templates</span><span class="p">),</span> <span class="mi">201</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;Content-type&quot;</span><span class="p">:</span> <span class="s1">&#39;application/json&#39;</span><span class="p">}</span>
-
-
-<span class="k">def</span> <span class="nf">template_view</span><span class="p">(</span><span class="n">template</span><span class="p">):</span>
-    <span class="k">return</span> <span class="p">{</span>
-        <span class="s2">&quot;uid&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">template</span><span class="o">.</span><span class="n">template_uid</span><span class="p">),</span>
-        <span class="s2">&quot;host&quot;</span><span class="p">:</span> <span class="n">template</span><span class="o">.</span><span class="n">template_uid</span><span class="o">.</span><span class="n">host</span><span class="p">,</span>
-        <span class="s2">&quot;account&quot;</span><span class="p">:</span> <span class="n">template</span><span class="o">.</span><span class="n">template_uid</span><span class="o">.</span><span class="n">account</span><span class="p">,</span>
-        <span class="s2">&quot;repository&quot;</span><span class="p">:</span> <span class="n">template</span><span class="o">.</span><span class="n">template_uid</span><span class="o">.</span><span class="n">repo</span><span class="p">,</span>
-        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">template</span><span class="o">.</span><span class="n">template_uid</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
-        <span class="s2">&quot;version&quot;</span><span class="p">:</span> <span class="n">template</span><span class="o">.</span><span class="n">template_uid</span><span class="o">.</span><span class="n">version</span><span class="p">,</span>
-    <span class="p">}</span>
+    <span class="n">services</span> <span class="o">=</span> <span class="p">[</span><span class="n">service_view</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">scol</span><span class="o">.</span><span class="n">list_services</span><span class="p">()]</span>
+    <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">services</span><span class="p">),</span> <span class="mi">200</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;Content-type&quot;</span><span class="p">:</span> <span class="s1">&#39;application/json&#39;</span><span class="p">}</span>
 </pre></div>
 
   </div>
@@ -1141,136 +1088,29 @@ table {
   </header>
 
   <section id="section-items">
-    <h2 class="section-title" id="header-variables">Module variables</h2>
-      <div class="item">
-      <p id="zerorobot.api.templates_api.TemplateRepository_schema" class="name">var <span class="ident">TemplateRepository_schema</span></p>
-      
-  
-  <div class="source_cont">
-</div>
-
-      </div>
-      <div class="item">
-      <p id="zerorobot.api.templates_api.TemplateRepository_schema_resolver" class="name">var <span class="ident">TemplateRepository_schema_resolver</span></p>
-      
-  
-  <div class="source_cont">
-</div>
-
-      </div>
-      <div class="item">
-      <p id="zerorobot.api.templates_api.TemplateRepository_schema_validator" class="name">var <span class="ident">TemplateRepository_schema_validator</span></p>
-      
-  
-  <div class="source_cont">
-</div>
-
-      </div>
-      <div class="item">
-      <p id="zerorobot.api.templates_api.dir_path" class="name">var <span class="ident">dir_path</span></p>
-      
-  
-  <div class="source_cont">
-</div>
-
-      </div>
-      <div class="item">
-      <p id="zerorobot.api.templates_api.templates_api" class="name">var <span class="ident">templates_api</span></p>
-      
-  
-  <div class="source_cont">
-</div>
-
-      </div>
 
     <h2 class="section-title" id="header-functions">Functions</h2>
       
   <div class="item">
-    <div class="name def" id="zerorobot.api.templates_api.AddTemplateRepo">
-    <p>def <span class="ident">AddTemplateRepo</span>(</p><p>)</p>
+    <div class="name def" id="zerorobot.server.handlers.listServicesHandler.listServicesHandler">
+    <p>def <span class="ident">listServicesHandler</span>(</p><p>)</p>
     </div>
     
 
     
   
-    <div class="desc"><p>Clone a template repository and make the templates available to the ZeroRobot
-It is handler for POST /templates</p></div>
+    <div class="desc"><p>List all the services known by the ZeroRobot.
+It is handler for GET /services</p></div>
   <div class="source_cont">
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.api.templates_api.AddTemplateRepo', this);">Show source &equiv;</a></p>
-  <div id="source-zerorobot.api.templates_api.AddTemplateRepo" class="source">
-    <div class="codehilite"><pre><span></span><span class="nd">@templates_api.route</span><span class="p">(</span><span class="s1">&#39;/templates&#39;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;POST&#39;</span><span class="p">])</span>
-<span class="k">def</span> <span class="nf">AddTemplateRepo</span><span class="p">():</span>
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.server.handlers.listServicesHandler.listServicesHandler', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.server.handlers.listServicesHandler.listServicesHandler" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">listServicesHandler</span><span class="p">():</span>
     <span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">    Clone a template repository and make the templates available to the ZeroRobot</span>
-<span class="sd">    It is handler for POST /templates</span>
+<span class="sd">    List all the services known by the ZeroRobot.</span>
+<span class="sd">    It is handler for GET /services</span>
 <span class="sd">    &#39;&#39;&#39;</span>
-    <span class="n">inputs</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">get_json</span><span class="p">()</span>
-    <span class="k">try</span><span class="p">:</span>
-        <span class="n">TemplateRepository_schema_validator</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">inputs</span><span class="p">)</span>
-    <span class="k">except</span> <span class="n">jsonschema</span><span class="o">.</span><span class="n">ValidationError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">JSON</span><span class="o">.</span><span class="n">dumps</span><span class="p">({</span><span class="s1">&#39;code&#39;</span><span class="p">:</span> <span class="mi">400</span><span class="p">,</span> <span class="s1">&#39;message&#39;</span><span class="p">:</span> <span class="s2">&quot;bad request body&quot;</span><span class="p">}),</span> <span class="mi">400</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;Content-type&quot;</span><span class="p">:</span> <span class="s1">&#39;application/json&#39;</span><span class="p">}</span>
-
-    <span class="c1"># TODO: handle branches</span>
-    <span class="n">added</span> <span class="o">=</span> <span class="n">tcol</span><span class="o">.</span><span class="n">add_repo</span><span class="p">(</span><span class="n">inputs</span><span class="p">[</span><span class="s1">&#39;url&#39;</span><span class="p">])</span>
-    <span class="n">templates</span> <span class="o">=</span> <span class="p">[</span><span class="n">template_view</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">added</span><span class="p">]</span>
-    <span class="k">return</span> <span class="n">JSON</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">templates</span><span class="p">),</span> <span class="mi">201</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;Content-type&quot;</span><span class="p">:</span> <span class="s1">&#39;application/json&#39;</span><span class="p">}</span>
-</pre></div>
-
-  </div>
-</div>
-
-  </div>
-  
-      
-  <div class="item">
-    <div class="name def" id="zerorobot.api.templates_api.ListTemplates">
-    <p>def <span class="ident">ListTemplates</span>(</p><p>)</p>
-    </div>
-    
-
-    
-  
-    <div class="desc"><p>List all the templates available to the ZeroRobot
-It is handler for GET /templates</p></div>
-  <div class="source_cont">
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.api.templates_api.ListTemplates', this);">Show source &equiv;</a></p>
-  <div id="source-zerorobot.api.templates_api.ListTemplates" class="source">
-    <div class="codehilite"><pre><span></span><span class="nd">@templates_api.route</span><span class="p">(</span><span class="s1">&#39;/templates&#39;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;GET&#39;</span><span class="p">])</span>
-<span class="k">def</span> <span class="nf">ListTemplates</span><span class="p">():</span>
-    <span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">    List all the templates available to the ZeroRobot</span>
-<span class="sd">    It is handler for GET /templates</span>
-<span class="sd">    &#39;&#39;&#39;</span>
-    <span class="n">templates</span> <span class="o">=</span> <span class="p">[</span><span class="n">template_view</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">tcol</span><span class="o">.</span><span class="n">list_templates</span><span class="p">()]</span>
-    <span class="k">return</span> <span class="n">JSON</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">templates</span><span class="p">),</span> <span class="mi">200</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;Content-type&quot;</span><span class="p">:</span> <span class="s1">&#39;application/json&#39;</span><span class="p">}</span>
-</pre></div>
-
-  </div>
-</div>
-
-  </div>
-  
-      
-  <div class="item">
-    <div class="name def" id="zerorobot.api.templates_api.template_view">
-    <p>def <span class="ident">template_view</span>(</p><p>template)</p>
-    </div>
-    
-
-    
-  
-  <div class="source_cont">
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.api.templates_api.template_view', this);">Show source &equiv;</a></p>
-  <div id="source-zerorobot.api.templates_api.template_view" class="source">
-    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">template_view</span><span class="p">(</span><span class="n">template</span><span class="p">):</span>
-    <span class="k">return</span> <span class="p">{</span>
-        <span class="s2">&quot;uid&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">template</span><span class="o">.</span><span class="n">template_uid</span><span class="p">),</span>
-        <span class="s2">&quot;host&quot;</span><span class="p">:</span> <span class="n">template</span><span class="o">.</span><span class="n">template_uid</span><span class="o">.</span><span class="n">host</span><span class="p">,</span>
-        <span class="s2">&quot;account&quot;</span><span class="p">:</span> <span class="n">template</span><span class="o">.</span><span class="n">template_uid</span><span class="o">.</span><span class="n">account</span><span class="p">,</span>
-        <span class="s2">&quot;repository&quot;</span><span class="p">:</span> <span class="n">template</span><span class="o">.</span><span class="n">template_uid</span><span class="o">.</span><span class="n">repo</span><span class="p">,</span>
-        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">template</span><span class="o">.</span><span class="n">template_uid</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
-        <span class="s2">&quot;version&quot;</span><span class="p">:</span> <span class="n">template</span><span class="o">.</span><span class="n">template_uid</span><span class="o">.</span><span class="n">version</span><span class="p">,</span>
-    <span class="p">}</span>
+    <span class="n">services</span> <span class="o">=</span> <span class="p">[</span><span class="n">service_view</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">scol</span><span class="o">.</span><span class="n">list_services</span><span class="p">()]</span>
+    <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">services</span><span class="p">),</span> <span class="mi">200</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;Content-type&quot;</span><span class="p">:</span> <span class="s1">&#39;application/json&#39;</span><span class="p">}</span>
 </pre></div>
 
   </div>

@@ -3,8 +3,8 @@
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 
-    <title>zerorobot.client.TemplateRepository API documentation</title>
-    <meta name="description" content="Auto-generated class for TemplateRepository" />
+    <title>zerorobot.server.handlers.views API documentation</title>
+    <meta name="description" content="" />
 
   <link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:400,300' rel='stylesheet' type='text/css'>
   
@@ -1040,31 +1040,18 @@ table {
   <div id="sidebar">
     <h1>Index</h1>
     <ul id="index">
-    <li class="set"><h3><a href="#header-variables">Module variables</a></h3>
+
+    <li class="set"><h3><a href="#header-functions">Functions</a></h3>
       
   <ul>
-    <li class="mono"><a href="#zerorobot.client.TemplateRepository.string_types">string_types</a></li>
+    <li class="mono"><a href="#zerorobot.server.handlers.views.service_view">service_view</a></li>
+    <li class="mono"><a href="#zerorobot.server.handlers.views.state_view">state_view</a></li>
+    <li class="mono"><a href="#zerorobot.server.handlers.views.task_view">task_view</a></li>
+    <li class="mono"><a href="#zerorobot.server.handlers.views.template_view">template_view</a></li>
   </ul>
 
     </li>
 
-
-    <li class="set"><h3><a href="#header-classes">Classes</a></h3>
-      <ul>
-        <li class="mono">
-        <span class="class_name"><a href="#zerorobot.client.TemplateRepository.TemplateRepository">TemplateRepository</a></span>
-        
-          
-  <ul>
-    <li class="mono"><a href="#zerorobot.client.TemplateRepository.TemplateRepository.__init__">__init__</a></li>
-    <li class="mono"><a href="#zerorobot.client.TemplateRepository.TemplateRepository.as_dict">as_dict</a></li>
-    <li class="mono"><a href="#zerorobot.client.TemplateRepository.TemplateRepository.as_json">as_json</a></li>
-    <li class="mono"><a href="#zerorobot.client.TemplateRepository.TemplateRepository.create">create</a></li>
-  </ul>
-
-        </li>
-      </ul>
-    </li>
 
     </ul>
   </div>
@@ -1077,55 +1064,60 @@ table {
 
 
   <header id="section-intro">
-  <h1 class="title"><span class="name">zerorobot.client.TemplateRepository</span> module</h1>
-  <p>Auto-generated class for TemplateRepository</p>
+  <h1 class="title"><span class="name">zerorobot.server.handlers.views</span> module</h1>
   
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.client.TemplateRepository', this);">Show source &equiv;</a></p>
-  <div id="source-zerorobot.client.TemplateRepository" class="source">
-    <div class="codehilite"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">Auto-generated class for TemplateRepository</span>
-<span class="sd">&quot;&quot;&quot;</span>
-<span class="kn">from</span> <span class="nn">six</span> <span class="kn">import</span> <span class="n">string_types</span>
-
-<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">client_support</span>
+  
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.server.handlers.views', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.server.handlers.views" class="source">
+    <div class="codehilite"><pre><span></span><span class="kn">import</span> <span class="nn">json</span>
 
 
-<span class="k">class</span> <span class="nc">TemplateRepository</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    auto-generated. don&#39;t touch.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="k">def</span> <span class="nf">service_view</span><span class="p">(</span><span class="n">service</span><span class="p">):</span>
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s2">&quot;template&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">service</span><span class="o">.</span><span class="n">template_uid</span><span class="p">),</span>
+        <span class="s2">&quot;version&quot;</span><span class="p">:</span> <span class="n">service</span><span class="o">.</span><span class="n">version</span><span class="p">,</span>
+        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">service</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+        <span class="s2">&quot;guid&quot;</span><span class="p">:</span> <span class="n">service</span><span class="o">.</span><span class="n">guid</span><span class="p">,</span>
+        <span class="s2">&quot;state&quot;</span><span class="p">:</span> <span class="n">state_view</span><span class="p">(</span><span class="n">service</span><span class="o">.</span><span class="n">state</span><span class="p">),</span>
+        <span class="s2">&quot;actions&quot;</span><span class="p">:</span> <span class="p">[],</span>
+        <span class="s2">&quot;parent&quot;</span><span class="p">:</span> <span class="n">service</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">guid</span> <span class="k">if</span> <span class="n">service</span><span class="o">.</span><span class="n">parent</span> <span class="k">else</span> <span class="bp">None</span>
+    <span class="p">}</span>
 
-    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">create</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        :type branch: str</span>
-<span class="sd">        :type url: str</span>
-<span class="sd">        :rtype: TemplateRepository</span>
-<span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="k">return</span> <span class="n">TemplateRepository</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">state_view</span><span class="p">(</span><span class="n">state</span><span class="p">):</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">category</span><span class="p">,</span> <span class="n">tags</span> <span class="ow">in</span> <span class="n">state</span><span class="o">.</span><span class="n">categories</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">for</span> <span class="n">tag</span><span class="p">,</span> <span class="n">state</span> <span class="ow">in</span> <span class="n">tags</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+                <span class="s1">&#39;category&#39;</span><span class="p">:</span> <span class="n">category</span><span class="p">,</span>
+                <span class="s1">&#39;tag&#39;</span><span class="p">:</span> <span class="n">tag</span><span class="p">,</span>
+                <span class="s1">&#39;state&#39;</span><span class="p">:</span> <span class="n">state</span><span class="p">,</span>
+            <span class="p">})</span>
+    <span class="k">return</span> <span class="n">out</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">json</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">json</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">kwargs</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;No data or kwargs present&#39;</span><span class="p">)</span>
 
-        <span class="n">class_name</span> <span class="o">=</span> <span class="s1">&#39;TemplateRepository&#39;</span>
-        <span class="n">data</span> <span class="o">=</span> <span class="n">json</span> <span class="ow">or</span> <span class="n">kwargs</span>
+<span class="k">def</span> <span class="nf">task_view</span><span class="p">(</span><span class="n">task</span><span class="p">,</span> <span class="n">service</span><span class="p">):</span>
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s1">&#39;template_name&#39;</span><span class="p">:</span> <span class="n">service</span><span class="o">.</span><span class="n">template_name</span><span class="p">,</span>
+        <span class="s1">&#39;service_name&#39;</span><span class="p">:</span> <span class="n">service</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+        <span class="s1">&#39;service_guid&#39;</span><span class="p">:</span> <span class="n">service</span><span class="o">.</span><span class="n">guid</span><span class="p">,</span>
+        <span class="s1">&#39;action_name&#39;</span><span class="p">:</span> <span class="n">task</span><span class="o">.</span><span class="n">action_name</span><span class="p">,</span>
+        <span class="s1">&#39;state&#39;</span><span class="p">:</span> <span class="n">task</span><span class="o">.</span><span class="n">state</span><span class="p">,</span>
+        <span class="s1">&#39;guid&#39;</span><span class="p">:</span> <span class="n">task</span><span class="o">.</span><span class="n">guid</span><span class="p">,</span>
+        <span class="s1">&#39;created&#39;</span><span class="p">:</span> <span class="n">task</span><span class="o">.</span><span class="n">created</span><span class="p">,</span>
+        <span class="s1">&#39;eco&#39;</span><span class="p">:</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">task</span><span class="o">.</span><span class="n">eco</span><span class="o">.</span><span class="n">toJson</span><span class="p">())</span> <span class="k">if</span> <span class="n">task</span><span class="o">.</span><span class="n">eco</span> <span class="k">else</span> <span class="bp">None</span>
+    <span class="p">}</span>
 
-        <span class="c1"># set attributes</span>
-        <span class="n">data_types</span> <span class="o">=</span> <span class="p">[</span><span class="n">string_types</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">branch</span> <span class="o">=</span> <span class="n">client_support</span><span class="o">.</span><span class="n">set_property</span><span class="p">(</span><span class="s1">&#39;branch&#39;</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">data_types</span><span class="p">,</span> <span class="bp">False</span><span class="p">,</span> <span class="p">[],</span> <span class="bp">False</span><span class="p">,</span> <span class="bp">False</span><span class="p">,</span> <span class="n">class_name</span><span class="p">)</span>
-        <span class="n">data_types</span> <span class="o">=</span> <span class="p">[</span><span class="n">string_types</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">url</span> <span class="o">=</span> <span class="n">client_support</span><span class="o">.</span><span class="n">set_property</span><span class="p">(</span><span class="s1">&#39;url&#39;</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">data_types</span><span class="p">,</span> <span class="bp">False</span><span class="p">,</span> <span class="p">[],</span> <span class="bp">False</span><span class="p">,</span> <span class="bp">True</span><span class="p">,</span> <span class="n">class_name</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">as_json</span><span class="p">(</span><span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">as_json</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">client_support</span><span class="o">.</span><span class="n">to_json</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="n">indent</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">client_support</span><span class="o">.</span><span class="n">to_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">template_view</span><span class="p">(</span><span class="n">template</span><span class="p">):</span>
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s2">&quot;uid&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">template</span><span class="o">.</span><span class="n">template_uid</span><span class="p">),</span>
+        <span class="s2">&quot;host&quot;</span><span class="p">:</span> <span class="n">template</span><span class="o">.</span><span class="n">template_uid</span><span class="o">.</span><span class="n">host</span><span class="p">,</span>
+        <span class="s2">&quot;account&quot;</span><span class="p">:</span> <span class="n">template</span><span class="o">.</span><span class="n">template_uid</span><span class="o">.</span><span class="n">account</span><span class="p">,</span>
+        <span class="s2">&quot;repository&quot;</span><span class="p">:</span> <span class="n">template</span><span class="o">.</span><span class="n">template_uid</span><span class="o">.</span><span class="n">repo</span><span class="p">,</span>
+        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">template</span><span class="o">.</span><span class="n">template_uid</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+        <span class="s2">&quot;version&quot;</span><span class="p">:</span> <span class="n">template</span><span class="o">.</span><span class="n">template_uid</span><span class="o">.</span><span class="n">version</span><span class="p">,</span>
+    <span class="p">}</span>
 </pre></div>
 
   </div>
@@ -1133,120 +1125,89 @@ table {
   </header>
 
   <section id="section-items">
-    <h2 class="section-title" id="header-variables">Module variables</h2>
-      <div class="item">
-      <p id="zerorobot.client.TemplateRepository.string_types" class="name">var <span class="ident">string_types</span></p>
+
+    <h2 class="section-title" id="header-functions">Functions</h2>
       
+  <div class="item">
+    <div class="name def" id="zerorobot.server.handlers.views.service_view">
+    <p>def <span class="ident">service_view</span>(</p><p>service)</p>
+    </div>
+    
+
+    
   
   <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.server.handlers.views.service_view', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.server.handlers.views.service_view" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">service_view</span><span class="p">(</span><span class="n">service</span><span class="p">):</span>
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s2">&quot;template&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">service</span><span class="o">.</span><span class="n">template_uid</span><span class="p">),</span>
+        <span class="s2">&quot;version&quot;</span><span class="p">:</span> <span class="n">service</span><span class="o">.</span><span class="n">version</span><span class="p">,</span>
+        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">service</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+        <span class="s2">&quot;guid&quot;</span><span class="p">:</span> <span class="n">service</span><span class="o">.</span><span class="n">guid</span><span class="p">,</span>
+        <span class="s2">&quot;state&quot;</span><span class="p">:</span> <span class="n">state_view</span><span class="p">(</span><span class="n">service</span><span class="o">.</span><span class="n">state</span><span class="p">),</span>
+        <span class="s2">&quot;actions&quot;</span><span class="p">:</span> <span class="p">[],</span>
+        <span class="s2">&quot;parent&quot;</span><span class="p">:</span> <span class="n">service</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">guid</span> <span class="k">if</span> <span class="n">service</span><span class="o">.</span><span class="n">parent</span> <span class="k">else</span> <span class="bp">None</span>
+    <span class="p">}</span>
+</pre></div>
+
+  </div>
 </div>
 
-      </div>
-
-
-    <h2 class="section-title" id="header-classes">Classes</h2>
+  </div>
+  
       
-      <div class="item">
-      <p id="zerorobot.client.TemplateRepository.TemplateRepository" class="name">class <span class="ident">TemplateRepository</span></p>
+  <div class="item">
+    <div class="name def" id="zerorobot.server.handlers.views.state_view">
+    <p>def <span class="ident">state_view</span>(</p><p>state)</p>
+    </div>
+    
+
+    
+  
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.server.handlers.views.state_view', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.server.handlers.views.state_view" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">state_view</span><span class="p">(</span><span class="n">state</span><span class="p">):</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">category</span><span class="p">,</span> <span class="n">tags</span> <span class="ow">in</span> <span class="n">state</span><span class="o">.</span><span class="n">categories</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">for</span> <span class="n">tag</span><span class="p">,</span> <span class="n">state</span> <span class="ow">in</span> <span class="n">tags</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+                <span class="s1">&#39;category&#39;</span><span class="p">:</span> <span class="n">category</span><span class="p">,</span>
+                <span class="s1">&#39;tag&#39;</span><span class="p">:</span> <span class="n">tag</span><span class="p">,</span>
+                <span class="s1">&#39;state&#39;</span><span class="p">:</span> <span class="n">state</span><span class="p">,</span>
+            <span class="p">})</span>
+    <span class="k">return</span> <span class="n">out</span>
+</pre></div>
+
+  </div>
+</div>
+
+  </div>
+  
       
-  
-    <div class="desc"><p>auto-generated. don't touch.</p></div>
-  <div class="source_cont">
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.client.TemplateRepository.TemplateRepository', this);">Show source &equiv;</a></p>
-  <div id="source-zerorobot.client.TemplateRepository.TemplateRepository" class="source">
-    <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">TemplateRepository</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    auto-generated. don&#39;t touch.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">create</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        :type branch: str</span>
-<span class="sd">        :type url: str</span>
-<span class="sd">        :rtype: TemplateRepository</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-
-        <span class="k">return</span> <span class="n">TemplateRepository</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">json</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">json</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">kwargs</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;No data or kwargs present&#39;</span><span class="p">)</span>
-
-        <span class="n">class_name</span> <span class="o">=</span> <span class="s1">&#39;TemplateRepository&#39;</span>
-        <span class="n">data</span> <span class="o">=</span> <span class="n">json</span> <span class="ow">or</span> <span class="n">kwargs</span>
-
-        <span class="c1"># set attributes</span>
-        <span class="n">data_types</span> <span class="o">=</span> <span class="p">[</span><span class="n">string_types</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">branch</span> <span class="o">=</span> <span class="n">client_support</span><span class="o">.</span><span class="n">set_property</span><span class="p">(</span><span class="s1">&#39;branch&#39;</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">data_types</span><span class="p">,</span> <span class="bp">False</span><span class="p">,</span> <span class="p">[],</span> <span class="bp">False</span><span class="p">,</span> <span class="bp">False</span><span class="p">,</span> <span class="n">class_name</span><span class="p">)</span>
-        <span class="n">data_types</span> <span class="o">=</span> <span class="p">[</span><span class="n">string_types</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">url</span> <span class="o">=</span> <span class="n">client_support</span><span class="o">.</span><span class="n">set_property</span><span class="p">(</span><span class="s1">&#39;url&#39;</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">data_types</span><span class="p">,</span> <span class="bp">False</span><span class="p">,</span> <span class="p">[],</span> <span class="bp">False</span><span class="p">,</span> <span class="bp">True</span><span class="p">,</span> <span class="n">class_name</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">as_json</span><span class="p">(</span><span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">as_json</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">client_support</span><span class="o">.</span><span class="n">to_json</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="n">indent</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">client_support</span><span class="o">.</span><span class="n">to_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
-</pre></div>
-
-  </div>
-</div>
-
-
-      <div class="class">
-          <h3>Ancestors (in MRO)</h3>
-          <ul class="class_list">
-          <li><a href="#zerorobot.client.TemplateRepository.TemplateRepository">TemplateRepository</a></li>
-          <li>builtins.object</li>
-          </ul>
-          <h3>Static methods</h3>
-            
   <div class="item">
-    <div class="name def" id="zerorobot.client.TemplateRepository.TemplateRepository.__init__">
-    <p>def <span class="ident">__init__</span>(</p><p>self, json=None, **kwargs)</p>
-    </div>
-    
-
-    
-  
-    <div class="desc"><p>Initialize self.  See help(type(self)) for accurate signature.</p></div>
-  <div class="source_cont">
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.client.TemplateRepository.TemplateRepository.__init__', this);">Show source &equiv;</a></p>
-  <div id="source-zerorobot.client.TemplateRepository.TemplateRepository.__init__" class="source">
-    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">json</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-    <span class="k">if</span> <span class="n">json</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">kwargs</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;No data or kwargs present&#39;</span><span class="p">)</span>
-    <span class="n">class_name</span> <span class="o">=</span> <span class="s1">&#39;TemplateRepository&#39;</span>
-    <span class="n">data</span> <span class="o">=</span> <span class="n">json</span> <span class="ow">or</span> <span class="n">kwargs</span>
-    <span class="c1"># set attributes</span>
-    <span class="n">data_types</span> <span class="o">=</span> <span class="p">[</span><span class="n">string_types</span><span class="p">]</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">branch</span> <span class="o">=</span> <span class="n">client_support</span><span class="o">.</span><span class="n">set_property</span><span class="p">(</span><span class="s1">&#39;branch&#39;</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">data_types</span><span class="p">,</span> <span class="bp">False</span><span class="p">,</span> <span class="p">[],</span> <span class="bp">False</span><span class="p">,</span> <span class="bp">False</span><span class="p">,</span> <span class="n">class_name</span><span class="p">)</span>
-    <span class="n">data_types</span> <span class="o">=</span> <span class="p">[</span><span class="n">string_types</span><span class="p">]</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">url</span> <span class="o">=</span> <span class="n">client_support</span><span class="o">.</span><span class="n">set_property</span><span class="p">(</span><span class="s1">&#39;url&#39;</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">data_types</span><span class="p">,</span> <span class="bp">False</span><span class="p">,</span> <span class="p">[],</span> <span class="bp">False</span><span class="p">,</span> <span class="bp">True</span><span class="p">,</span> <span class="n">class_name</span><span class="p">)</span>
-</pre></div>
-
-  </div>
-</div>
-
-  </div>
-  
-            
-  <div class="item">
-    <div class="name def" id="zerorobot.client.TemplateRepository.TemplateRepository.as_dict">
-    <p>def <span class="ident">as_dict</span>(</p><p>self)</p>
+    <div class="name def" id="zerorobot.server.handlers.views.task_view">
+    <p>def <span class="ident">task_view</span>(</p><p>task, service)</p>
     </div>
     
 
     
   
   <div class="source_cont">
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.client.TemplateRepository.TemplateRepository.as_dict', this);">Show source &equiv;</a></p>
-  <div id="source-zerorobot.client.TemplateRepository.TemplateRepository.as_dict" class="source">
-    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-    <span class="k">return</span> <span class="n">client_support</span><span class="o">.</span><span class="n">to_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.server.handlers.views.task_view', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.server.handlers.views.task_view" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">task_view</span><span class="p">(</span><span class="n">task</span><span class="p">,</span> <span class="n">service</span><span class="p">):</span>
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s1">&#39;template_name&#39;</span><span class="p">:</span> <span class="n">service</span><span class="o">.</span><span class="n">template_name</span><span class="p">,</span>
+        <span class="s1">&#39;service_name&#39;</span><span class="p">:</span> <span class="n">service</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+        <span class="s1">&#39;service_guid&#39;</span><span class="p">:</span> <span class="n">service</span><span class="o">.</span><span class="n">guid</span><span class="p">,</span>
+        <span class="s1">&#39;action_name&#39;</span><span class="p">:</span> <span class="n">task</span><span class="o">.</span><span class="n">action_name</span><span class="p">,</span>
+        <span class="s1">&#39;state&#39;</span><span class="p">:</span> <span class="n">task</span><span class="o">.</span><span class="n">state</span><span class="p">,</span>
+        <span class="s1">&#39;guid&#39;</span><span class="p">:</span> <span class="n">task</span><span class="o">.</span><span class="n">guid</span><span class="p">,</span>
+        <span class="s1">&#39;created&#39;</span><span class="p">:</span> <span class="n">task</span><span class="o">.</span><span class="n">created</span><span class="p">,</span>
+        <span class="s1">&#39;eco&#39;</span><span class="p">:</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">task</span><span class="o">.</span><span class="n">eco</span><span class="o">.</span><span class="n">toJson</span><span class="p">())</span> <span class="k">if</span> <span class="n">task</span><span class="o">.</span><span class="n">eco</span> <span class="k">else</span> <span class="bp">None</span>
+    <span class="p">}</span>
 </pre></div>
 
   </div>
@@ -1254,20 +1215,27 @@ table {
 
   </div>
   
-            
+      
   <div class="item">
-    <div class="name def" id="zerorobot.client.TemplateRepository.TemplateRepository.as_json">
-    <p>def <span class="ident">as_json</span>(</p><p>self, indent=0)</p>
+    <div class="name def" id="zerorobot.server.handlers.views.template_view">
+    <p>def <span class="ident">template_view</span>(</p><p>template)</p>
     </div>
     
 
     
   
   <div class="source_cont">
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.client.TemplateRepository.TemplateRepository.as_json', this);">Show source &equiv;</a></p>
-  <div id="source-zerorobot.client.TemplateRepository.TemplateRepository.as_json" class="source">
-    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">as_json</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
-    <span class="k">return</span> <span class="n">client_support</span><span class="o">.</span><span class="n">to_json</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="n">indent</span><span class="p">)</span>
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.server.handlers.views.template_view', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.server.handlers.views.template_view" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">template_view</span><span class="p">(</span><span class="n">template</span><span class="p">):</span>
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s2">&quot;uid&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">template</span><span class="o">.</span><span class="n">template_uid</span><span class="p">),</span>
+        <span class="s2">&quot;host&quot;</span><span class="p">:</span> <span class="n">template</span><span class="o">.</span><span class="n">template_uid</span><span class="o">.</span><span class="n">host</span><span class="p">,</span>
+        <span class="s2">&quot;account&quot;</span><span class="p">:</span> <span class="n">template</span><span class="o">.</span><span class="n">template_uid</span><span class="o">.</span><span class="n">account</span><span class="p">,</span>
+        <span class="s2">&quot;repository&quot;</span><span class="p">:</span> <span class="n">template</span><span class="o">.</span><span class="n">template_uid</span><span class="o">.</span><span class="n">repo</span><span class="p">,</span>
+        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">template</span><span class="o">.</span><span class="n">template_uid</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+        <span class="s2">&quot;version&quot;</span><span class="p">:</span> <span class="n">template</span><span class="o">.</span><span class="n">template_uid</span><span class="o">.</span><span class="n">version</span><span class="p">,</span>
+    <span class="p">}</span>
 </pre></div>
 
   </div>
@@ -1275,59 +1243,7 @@ table {
 
   </div>
   
-            
-  <div class="item">
-    <div class="name def" id="zerorobot.client.TemplateRepository.TemplateRepository.create">
-    <p>def <span class="ident">create</span>(</p><p>**kwargs)</p>
-    </div>
-    
 
-    
-  
-    <div class="desc"><p>:type branch: str
-:type url: str
-:rtype: TemplateRepository</p></div>
-  <div class="source_cont">
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.client.TemplateRepository.TemplateRepository.create', this);">Show source &equiv;</a></p>
-  <div id="source-zerorobot.client.TemplateRepository.TemplateRepository.create" class="source">
-    <div class="codehilite"><pre><span></span><span class="nd">@staticmethod</span>
-<span class="k">def</span> <span class="nf">create</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    :type branch: str</span>
-<span class="sd">    :type url: str</span>
-<span class="sd">    :rtype: TemplateRepository</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">TemplateRepository</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-</pre></div>
-
-  </div>
-</div>
-
-  </div>
-  
-          <h3>Instance variables</h3>
-            <div class="item">
-            <p id="zerorobot.client.TemplateRepository.TemplateRepository.branch" class="name">var <span class="ident">branch</span></p>
-            
-
-            
-  
-  <div class="source_cont">
-</div>
-
-            </div>
-            <div class="item">
-            <p id="zerorobot.client.TemplateRepository.TemplateRepository.url" class="name">var <span class="ident">url</span></p>
-            
-
-            
-  
-  <div class="source_cont">
-</div>
-
-            </div>
-      </div>
-      </div>
 
   </section>
 

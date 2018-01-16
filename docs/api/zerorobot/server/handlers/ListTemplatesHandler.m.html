@@ -3,10 +3,8 @@
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 
-    <title>zerorobot.client API documentation</title>
-    <meta name="description" content="This package is generated using [go-raml](https://github.com/Jumpscale/go-raml)
-
-It is the client of..." />
+    <title>zerorobot.server.handlers.ListTemplatesHandler API documentation</title>
+    <meta name="description" content="" />
 
   <link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:400,300' rel='stylesheet' type='text/css'>
   
@@ -1043,46 +1041,15 @@ table {
     <h1>Index</h1>
     <ul id="index">
 
-
-    <li class="set"><h3><a href="#header-classes">Classes</a></h3>
-      <ul>
-        <li class="mono">
-        <span class="class_name"><a href="#zerorobot.client.Client">Client</a></span>
-        
-          
+    <li class="set"><h3><a href="#header-functions">Functions</a></h3>
+      
   <ul>
-    <li class="mono"><a href="#zerorobot.client.Client.__init__">__init__</a></li>
+    <li class="mono"><a href="#zerorobot.server.handlers.ListTemplatesHandler.ListTemplatesHandler">ListTemplatesHandler</a></li>
   </ul>
 
-        </li>
-      </ul>
     </li>
 
-    <li class="set"><h3><a href="#header-submodules">Sub-modules</a></h3>
-      <ul>
-        <li class="mono"><a href="Action.m.html">zerorobot.client.Action</a></li>
-        <li class="mono"><a href="Blueprint.m.html">zerorobot.client.Blueprint</a></li>
-        <li class="mono"><a href="Eco.m.html">zerorobot.client.Eco</a></li>
-        <li class="mono"><a href="EnumServiceStateState.m.html">zerorobot.client.EnumServiceStateState</a></li>
-        <li class="mono"><a href="EnumTaskState.m.html">zerorobot.client.EnumTaskState</a></li>
-        <li class="mono"><a href="Error.m.html">zerorobot.client.Error</a></li>
-        <li class="mono"><a href="Service.m.html">zerorobot.client.Service</a></li>
-        <li class="mono"><a href="ServiceCreate.m.html">zerorobot.client.ServiceCreate</a></li>
-        <li class="mono"><a href="ServiceState.m.html">zerorobot.client.ServiceState</a></li>
-        <li class="mono"><a href="Task.m.html">zerorobot.client.Task</a></li>
-        <li class="mono"><a href="TaskCreate.m.html">zerorobot.client.TaskCreate</a></li>
-        <li class="mono"><a href="Template.m.html">zerorobot.client.Template</a></li>
-        <li class="mono"><a href="TemplateRepository.m.html">zerorobot.client.TemplateRepository</a></li>
-        <li class="mono"><a href="api_response.m.html">zerorobot.client.api_response</a></li>
-        <li class="mono"><a href="blueprints_service.m.html">zerorobot.client.blueprints_service</a></li>
-        <li class="mono"><a href="client.m.html">zerorobot.client.client</a></li>
-        <li class="mono"><a href="client_support.m.html">zerorobot.client.client_support</a></li>
-        <li class="mono"><a href="client_utils.m.html">zerorobot.client.client_utils</a></li>
-        <li class="mono"><a href="services_service.m.html">zerorobot.client.services_service</a></li>
-        <li class="mono"><a href="templates_service.m.html">zerorobot.client.templates_service</a></li>
-        <li class="mono"><a href="unmarshall_error.m.html">zerorobot.client.unmarshall_error</a></li>
-      </ul>
-    </li>
+
     </ul>
   </div>
 
@@ -1094,42 +1061,26 @@ table {
 
 
   <header id="section-intro">
-  <h1 class="title"><span class="name">zerorobot.client</span> module</h1>
-  <p>This package is generated using <a href="https://github.com/Jumpscale/go-raml">go-raml</a></p>
-<p>It is the client of the REST API of the ZeroRobot</p>
+  <h1 class="title"><span class="name">zerorobot.server.handlers.ListTemplatesHandler</span> module</h1>
   
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.client', this);">Show source &equiv;</a></p>
-  <div id="source-zerorobot.client" class="source">
-    <div class="codehilite"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">This package is generated using [go-raml](https://github.com/Jumpscale/go-raml)</span>
+  
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.server.handlers.ListTemplatesHandler', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.server.handlers.ListTemplatesHandler" class="source">
+    <div class="codehilite"><pre><span></span><span class="c1"># THIS FILE IS SAFE TO EDIT. It will not be overwritten when rerunning go-raml.</span>
 
-<span class="sd">It is the client of the REST API of the ZeroRobot</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">json</span>
 
-
-<span class="kn">import</span> <span class="nn">requests</span>
-
-
-<span class="kn">from</span> <span class="nn">.Action</span> <span class="kn">import</span> <span class="n">Action</span>
-<span class="kn">from</span> <span class="nn">.Blueprint</span> <span class="kn">import</span> <span class="n">Blueprint</span>
-<span class="kn">from</span> <span class="nn">.EnumServiceStateState</span> <span class="kn">import</span> <span class="n">EnumServiceStateState</span>
-<span class="kn">from</span> <span class="nn">.EnumTaskState</span> <span class="kn">import</span> <span class="n">EnumTaskState</span>
-<span class="kn">from</span> <span class="nn">.Error</span> <span class="kn">import</span> <span class="n">Error</span>
-<span class="kn">from</span> <span class="nn">.Service</span> <span class="kn">import</span> <span class="n">Service</span>
-<span class="kn">from</span> <span class="nn">.ServiceCreate</span> <span class="kn">import</span> <span class="n">ServiceCreate</span>
-<span class="kn">from</span> <span class="nn">.ServiceState</span> <span class="kn">import</span> <span class="n">ServiceState</span>
-<span class="kn">from</span> <span class="nn">.Task</span> <span class="kn">import</span> <span class="n">Task</span>
-<span class="kn">from</span> <span class="nn">.TaskCreate</span> <span class="kn">import</span> <span class="n">TaskCreate</span>
-<span class="kn">from</span> <span class="nn">.Template</span> <span class="kn">import</span> <span class="n">Template</span>
-<span class="kn">from</span> <span class="nn">.TemplateRepository</span> <span class="kn">import</span> <span class="n">TemplateRepository</span>
-
-<span class="kn">from</span> <span class="nn">.client</span> <span class="kn">import</span> <span class="n">Client</span> <span class="k">as</span> <span class="n">APIClient</span>
+<span class="kn">from</span> <span class="nn">zerorobot</span> <span class="kn">import</span> <span class="n">template_collection</span> <span class="k">as</span> <span class="n">tcol</span>
+<span class="kn">from</span> <span class="nn">zerorobot.server.handlers.views</span> <span class="kn">import</span> <span class="n">template_view</span>
 
 
-<span class="k">class</span> <span class="nc">Client</span><span class="p">:</span>
-
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">base_uri</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">api</span> <span class="o">=</span> <span class="n">APIClient</span><span class="p">(</span><span class="n">base_uri</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">ListTemplatesHandler</span><span class="p">():</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    List all the templates available to the ZeroRobot</span>
+<span class="sd">    It is handler for GET /templates</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">templates</span> <span class="o">=</span> <span class="p">[</span><span class="n">template_view</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">tcol</span><span class="o">.</span><span class="n">list_templates</span><span class="p">()]</span>
+    <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">templates</span><span class="p">),</span> <span class="mi">200</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;Content-type&quot;</span><span class="p">:</span> <span class="s1">&#39;application/json&#39;</span><span class="p">}</span>
 </pre></div>
 
   </div>
@@ -1138,48 +1089,28 @@ table {
 
   <section id="section-items">
 
-
-    <h2 class="section-title" id="header-classes">Classes</h2>
+    <h2 class="section-title" id="header-functions">Functions</h2>
       
-      <div class="item">
-      <p id="zerorobot.client.Client" class="name">class <span class="ident">Client</span></p>
-      
-  
-  <div class="source_cont">
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.client.Client', this);">Show source &equiv;</a></p>
-  <div id="source-zerorobot.client.Client" class="source">
-    <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">Client</span><span class="p">:</span>
-
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">base_uri</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">api</span> <span class="o">=</span> <span class="n">APIClient</span><span class="p">(</span><span class="n">base_uri</span><span class="p">)</span>
-</pre></div>
-
-  </div>
-</div>
-
-
-      <div class="class">
-          <h3>Ancestors (in MRO)</h3>
-          <ul class="class_list">
-          <li><a href="#zerorobot.client.Client">Client</a></li>
-          <li>builtins.object</li>
-          </ul>
-          <h3>Static methods</h3>
-            
   <div class="item">
-    <div class="name def" id="zerorobot.client.Client.__init__">
-    <p>def <span class="ident">__init__</span>(</p><p>self, base_uri=&#39;&#39;)</p>
+    <div class="name def" id="zerorobot.server.handlers.ListTemplatesHandler.ListTemplatesHandler">
+    <p>def <span class="ident">ListTemplatesHandler</span>(</p><p>)</p>
     </div>
     
 
     
   
-    <div class="desc"><p>Initialize self.  See help(type(self)) for accurate signature.</p></div>
+    <div class="desc"><p>List all the templates available to the ZeroRobot
+It is handler for GET /templates</p></div>
   <div class="source_cont">
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.client.Client.__init__', this);">Show source &equiv;</a></p>
-  <div id="source-zerorobot.client.Client.__init__" class="source">
-    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">base_uri</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">api</span> <span class="o">=</span> <span class="n">APIClient</span><span class="p">(</span><span class="n">base_uri</span><span class="p">)</span>
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.server.handlers.ListTemplatesHandler.ListTemplatesHandler', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.server.handlers.ListTemplatesHandler.ListTemplatesHandler" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">ListTemplatesHandler</span><span class="p">():</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    List all the templates available to the ZeroRobot</span>
+<span class="sd">    It is handler for GET /templates</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">templates</span> <span class="o">=</span> <span class="p">[</span><span class="n">template_view</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">tcol</span><span class="o">.</span><span class="n">list_templates</span><span class="p">()]</span>
+    <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">templates</span><span class="p">),</span> <span class="mi">200</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;Content-type&quot;</span><span class="p">:</span> <span class="s1">&#39;application/json&#39;</span><span class="p">}</span>
 </pre></div>
 
   </div>
@@ -1187,159 +1118,8 @@ table {
 
   </div>
   
-          <h3>Instance variables</h3>
-            <div class="item">
-            <p id="zerorobot.client.Client.api" class="name">var <span class="ident">api</span></p>
-            
 
-            
-  
-  <div class="source_cont">
-</div>
 
-            </div>
-      </div>
-      </div>
-
-    <h2 class="section-title" id="header-submodules">Sub-modules</h2>
-      <div class="item">
-      <p class="name"><a href="Action.m.html">zerorobot.client.Action</a></p>
-      
-  
-    <div class="desc"><p>Auto-generated class for Action</p></div>
-
-      </div>
-      <div class="item">
-      <p class="name"><a href="Blueprint.m.html">zerorobot.client.Blueprint</a></p>
-      
-  
-    <div class="desc"><p>Auto-generated class for Blueprint</p></div>
-
-      </div>
-      <div class="item">
-      <p class="name"><a href="Eco.m.html">zerorobot.client.Eco</a></p>
-      
-  
-    <div class="desc"><p>Auto-generated class for Eco</p></div>
-
-      </div>
-      <div class="item">
-      <p class="name"><a href="EnumServiceStateState.m.html">zerorobot.client.EnumServiceStateState</a></p>
-      
-  
-
-      </div>
-      <div class="item">
-      <p class="name"><a href="EnumTaskState.m.html">zerorobot.client.EnumTaskState</a></p>
-      
-  
-
-      </div>
-      <div class="item">
-      <p class="name"><a href="Error.m.html">zerorobot.client.Error</a></p>
-      
-  
-    <div class="desc"><p>Auto-generated class for Error</p></div>
-
-      </div>
-      <div class="item">
-      <p class="name"><a href="Service.m.html">zerorobot.client.Service</a></p>
-      
-  
-    <div class="desc"><p>Auto-generated class for Service</p></div>
-
-      </div>
-      <div class="item">
-      <p class="name"><a href="ServiceCreate.m.html">zerorobot.client.ServiceCreate</a></p>
-      
-  
-    <div class="desc"><p>Auto-generated class for ServiceCreate</p></div>
-
-      </div>
-      <div class="item">
-      <p class="name"><a href="ServiceState.m.html">zerorobot.client.ServiceState</a></p>
-      
-  
-    <div class="desc"><p>Auto-generated class for ServiceState</p></div>
-
-      </div>
-      <div class="item">
-      <p class="name"><a href="Task.m.html">zerorobot.client.Task</a></p>
-      
-  
-    <div class="desc"><p>Auto-generated class for Task</p></div>
-
-      </div>
-      <div class="item">
-      <p class="name"><a href="TaskCreate.m.html">zerorobot.client.TaskCreate</a></p>
-      
-  
-    <div class="desc"><p>Auto-generated class for TaskCreate</p></div>
-
-      </div>
-      <div class="item">
-      <p class="name"><a href="Template.m.html">zerorobot.client.Template</a></p>
-      
-  
-    <div class="desc"><p>Auto-generated class for Template</p></div>
-
-      </div>
-      <div class="item">
-      <p class="name"><a href="TemplateRepository.m.html">zerorobot.client.TemplateRepository</a></p>
-      
-  
-    <div class="desc"><p>Auto-generated class for TemplateRepository</p></div>
-
-      </div>
-      <div class="item">
-      <p class="name"><a href="api_response.m.html">zerorobot.client.api_response</a></p>
-      
-  
-
-      </div>
-      <div class="item">
-      <p class="name"><a href="blueprints_service.m.html">zerorobot.client.blueprints_service</a></p>
-      
-  
-
-      </div>
-      <div class="item">
-      <p class="name"><a href="client.m.html">zerorobot.client.client</a></p>
-      
-  
-
-      </div>
-      <div class="item">
-      <p class="name"><a href="client_support.m.html">zerorobot.client.client_support</a></p>
-      
-  
-    <div class="desc"><p>support methods for python clients</p></div>
-
-      </div>
-      <div class="item">
-      <p class="name"><a href="client_utils.m.html">zerorobot.client.client_utils</a></p>
-      
-  
-
-      </div>
-      <div class="item">
-      <p class="name"><a href="services_service.m.html">zerorobot.client.services_service</a></p>
-      
-  
-
-      </div>
-      <div class="item">
-      <p class="name"><a href="templates_service.m.html">zerorobot.client.templates_service</a></p>
-      
-  
-
-      </div>
-      <div class="item">
-      <p class="name"><a href="unmarshall_error.m.html">zerorobot.client.unmarshall_error</a></p>
-      
-  
-
-      </div>
   </section>
 
     </article>

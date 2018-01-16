@@ -3,7 +3,7 @@
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 
-    <title>zerorobot.api.blueprints_api API documentation</title>
+    <title>zerorobot.server.handlers.ExecuteBlueprintHandler API documentation</title>
     <meta name="description" content="" />
 
   <link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:400,300' rel='stylesheet' type='text/css'>
@@ -1043,11 +1043,10 @@ table {
     <li class="set"><h3><a href="#header-variables">Module variables</a></h3>
       
   <ul>
-    <li class="mono"><a href="#zerorobot.api.blueprints_api.Blueprint_schema">Blueprint_schema</a></li>
-    <li class="mono"><a href="#zerorobot.api.blueprints_api.Blueprint_schema_resolver">Blueprint_schema_resolver</a></li>
-    <li class="mono"><a href="#zerorobot.api.blueprints_api.Blueprint_schema_validator">Blueprint_schema_validator</a></li>
-    <li class="mono"><a href="#zerorobot.api.blueprints_api.blueprints_api">blueprints_api</a></li>
-    <li class="mono"><a href="#zerorobot.api.blueprints_api.dir_path">dir_path</a></li>
+    <li class="mono"><a href="#zerorobot.server.handlers.ExecuteBlueprintHandler.Blueprint_schema">Blueprint_schema</a></li>
+    <li class="mono"><a href="#zerorobot.server.handlers.ExecuteBlueprintHandler.Blueprint_schema_resolver">Blueprint_schema_resolver</a></li>
+    <li class="mono"><a href="#zerorobot.server.handlers.ExecuteBlueprintHandler.Blueprint_schema_validator">Blueprint_schema_validator</a></li>
+    <li class="mono"><a href="#zerorobot.server.handlers.ExecuteBlueprintHandler.dir_path">dir_path</a></li>
   </ul>
 
     </li>
@@ -1055,9 +1054,9 @@ table {
     <li class="set"><h3><a href="#header-functions">Functions</a></h3>
       
   <ul>
-    <li class="mono"><a href="#zerorobot.api.blueprints_api.ExecuteBlueprint">ExecuteBlueprint</a></li>
-    <li class="mono"><a href="#zerorobot.api.blueprints_api.create_service">create_service</a></li>
-    <li class="mono"><a href="#zerorobot.api.blueprints_api.schedule_action">schedule_action</a></li>
+    <li class="mono"><a href="#zerorobot.server.handlers.ExecuteBlueprintHandler.ExecuteBlueprintHandler">ExecuteBlueprintHandler</a></li>
+    <li class="mono"><a href="#zerorobot.server.handlers.ExecuteBlueprintHandler.create_service">create_service</a></li>
+    <li class="mono"><a href="#zerorobot.server.handlers.ExecuteBlueprintHandler.schedule_action">schedule_action</a></li>
   </ul>
 
     </li>
@@ -1074,34 +1073,32 @@ table {
 
 
   <header id="section-intro">
-  <h1 class="title"><span class="name">zerorobot.api.blueprints_api</span> module</h1>
+  <h1 class="title"><span class="name">zerorobot.server.handlers.ExecuteBlueprintHandler</span> module</h1>
   
   
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.api.blueprints_api', this);">Show source &equiv;</a></p>
-  <div id="source-zerorobot.api.blueprints_api" class="source">
-    <div class="codehilite"><pre><span></span><span class="kn">import</span> <span class="nn">json</span> <span class="kn">as</span> <span class="nn">JSON</span>
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.server.handlers.ExecuteBlueprintHandler', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.server.handlers.ExecuteBlueprintHandler" class="source">
+    <div class="codehilite"><pre><span></span><span class="c1"># THIS FILE IS SAFE TO EDIT. It will not be overwritten when rerunning go-raml.</span>
+
+<span class="kn">import</span> <span class="nn">json</span> <span class="kn">as</span> <span class="nn">JSON</span>
 <span class="kn">import</span> <span class="nn">os</span>
 
 <span class="kn">import</span> <span class="nn">jsonschema</span>
-<span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">Blueprint</span><span class="p">,</span> <span class="n">jsonify</span><span class="p">,</span> <span class="n">request</span>
 <span class="kn">from</span> <span class="nn">jsonschema</span> <span class="kn">import</span> <span class="n">Draft4Validator</span>
+
+<span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">request</span>
 <span class="kn">from</span> <span class="nn">zerorobot</span> <span class="kn">import</span> <span class="n">service_collection</span> <span class="k">as</span> <span class="n">scol</span>
 <span class="kn">from</span> <span class="nn">zerorobot</span> <span class="kn">import</span> <span class="n">template_collection</span> <span class="k">as</span> <span class="n">tcol</span>
 <span class="kn">from</span> <span class="nn">zerorobot</span> <span class="kn">import</span> <span class="n">blueprint</span>
 <span class="kn">from</span> <span class="nn">zerorobot.service_collection</span> <span class="kn">import</span> <span class="n">ServiceConflictError</span>
 
 <span class="n">dir_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">realpath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">))</span>
-
 <span class="n">Blueprint_schema</span> <span class="o">=</span> <span class="n">JSON</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="n">dir_path</span> <span class="o">+</span> <span class="s1">&#39;/schema/Blueprint_schema.json&#39;</span><span class="p">))</span>
 <span class="n">Blueprint_schema_resolver</span> <span class="o">=</span> <span class="n">jsonschema</span><span class="o">.</span><span class="n">RefResolver</span><span class="p">(</span><span class="s1">&#39;file://&#39;</span> <span class="o">+</span> <span class="n">dir_path</span> <span class="o">+</span> <span class="s1">&#39;/schema/&#39;</span><span class="p">,</span> <span class="n">Blueprint_schema</span><span class="p">)</span>
 <span class="n">Blueprint_schema_validator</span> <span class="o">=</span> <span class="n">Draft4Validator</span><span class="p">(</span><span class="n">Blueprint_schema</span><span class="p">,</span> <span class="n">resolver</span><span class="o">=</span><span class="n">Blueprint_schema_resolver</span><span class="p">)</span>
 
 
-<span class="n">blueprints_api</span> <span class="o">=</span> <span class="n">Blueprint</span><span class="p">(</span><span class="s1">&#39;blueprints_api&#39;</span><span class="p">,</span> <span class="vm">__name__</span><span class="p">)</span>
-
-
-<span class="nd">@blueprints_api.route</span><span class="p">(</span><span class="s1">&#39;/blueprints&#39;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;POST&#39;</span><span class="p">])</span>
-<span class="k">def</span> <span class="nf">ExecuteBlueprint</span><span class="p">():</span>
+<span class="k">def</span> <span class="nf">ExecuteBlueprintHandler</span><span class="p">():</span>
     <span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Execute a blueprint on the ZeroRobot</span>
 <span class="sd">    It is handler for POST /blueprints</span>
@@ -1145,6 +1142,7 @@ table {
     <span class="n">scol</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">service</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">service</span>
 
+
 <span class="k">def</span> <span class="nf">schedule_action</span><span class="p">(</span><span class="n">service</span><span class="p">,</span> <span class="n">action</span><span class="p">):</span>
     <span class="n">service</span> <span class="o">=</span> <span class="n">scol</span><span class="o">.</span><span class="n">get_by_name</span><span class="p">(</span><span class="n">service</span><span class="p">)</span>
     <span class="n">service</span><span class="o">.</span><span class="n">schedule_action</span><span class="p">(</span><span class="n">action</span><span class="p">)</span>
@@ -1157,7 +1155,7 @@ table {
   <section id="section-items">
     <h2 class="section-title" id="header-variables">Module variables</h2>
       <div class="item">
-      <p id="zerorobot.api.blueprints_api.Blueprint_schema" class="name">var <span class="ident">Blueprint_schema</span></p>
+      <p id="zerorobot.server.handlers.ExecuteBlueprintHandler.Blueprint_schema" class="name">var <span class="ident">Blueprint_schema</span></p>
       
   
   <div class="source_cont">
@@ -1165,7 +1163,7 @@ table {
 
       </div>
       <div class="item">
-      <p id="zerorobot.api.blueprints_api.Blueprint_schema_resolver" class="name">var <span class="ident">Blueprint_schema_resolver</span></p>
+      <p id="zerorobot.server.handlers.ExecuteBlueprintHandler.Blueprint_schema_resolver" class="name">var <span class="ident">Blueprint_schema_resolver</span></p>
       
   
   <div class="source_cont">
@@ -1173,7 +1171,7 @@ table {
 
       </div>
       <div class="item">
-      <p id="zerorobot.api.blueprints_api.Blueprint_schema_validator" class="name">var <span class="ident">Blueprint_schema_validator</span></p>
+      <p id="zerorobot.server.handlers.ExecuteBlueprintHandler.Blueprint_schema_validator" class="name">var <span class="ident">Blueprint_schema_validator</span></p>
       
   
   <div class="source_cont">
@@ -1181,15 +1179,7 @@ table {
 
       </div>
       <div class="item">
-      <p id="zerorobot.api.blueprints_api.blueprints_api" class="name">var <span class="ident">blueprints_api</span></p>
-      
-  
-  <div class="source_cont">
-</div>
-
-      </div>
-      <div class="item">
-      <p id="zerorobot.api.blueprints_api.dir_path" class="name">var <span class="ident">dir_path</span></p>
+      <p id="zerorobot.server.handlers.ExecuteBlueprintHandler.dir_path" class="name">var <span class="ident">dir_path</span></p>
       
   
   <div class="source_cont">
@@ -1200,8 +1190,8 @@ table {
     <h2 class="section-title" id="header-functions">Functions</h2>
       
   <div class="item">
-    <div class="name def" id="zerorobot.api.blueprints_api.ExecuteBlueprint">
-    <p>def <span class="ident">ExecuteBlueprint</span>(</p><p>)</p>
+    <div class="name def" id="zerorobot.server.handlers.ExecuteBlueprintHandler.ExecuteBlueprintHandler">
+    <p>def <span class="ident">ExecuteBlueprintHandler</span>(</p><p>)</p>
     </div>
     
 
@@ -1210,10 +1200,9 @@ table {
     <div class="desc"><p>Execute a blueprint on the ZeroRobot
 It is handler for POST /blueprints</p></div>
   <div class="source_cont">
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.api.blueprints_api.ExecuteBlueprint', this);">Show source &equiv;</a></p>
-  <div id="source-zerorobot.api.blueprints_api.ExecuteBlueprint" class="source">
-    <div class="codehilite"><pre><span></span><span class="nd">@blueprints_api.route</span><span class="p">(</span><span class="s1">&#39;/blueprints&#39;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;POST&#39;</span><span class="p">])</span>
-<span class="k">def</span> <span class="nf">ExecuteBlueprint</span><span class="p">():</span>
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.server.handlers.ExecuteBlueprintHandler.ExecuteBlueprintHandler', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.server.handlers.ExecuteBlueprintHandler.ExecuteBlueprintHandler" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">ExecuteBlueprintHandler</span><span class="p">():</span>
     <span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Execute a blueprint on the ZeroRobot</span>
 <span class="sd">    It is handler for POST /blueprints</span>
@@ -1258,7 +1247,7 @@ It is handler for POST /blueprints</p></div>
   
       
   <div class="item">
-    <div class="name def" id="zerorobot.api.blueprints_api.create_service">
+    <div class="name def" id="zerorobot.server.handlers.ExecuteBlueprintHandler.create_service">
     <p>def <span class="ident">create_service</span>(</p><p>template, name, data)</p>
     </div>
     
@@ -1266,8 +1255,8 @@ It is handler for POST /blueprints</p></div>
     
   
   <div class="source_cont">
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.api.blueprints_api.create_service', this);">Show source &equiv;</a></p>
-  <div id="source-zerorobot.api.blueprints_api.create_service" class="source">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.server.handlers.ExecuteBlueprintHandler.create_service', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.server.handlers.ExecuteBlueprintHandler.create_service" class="source">
     <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">create_service</span><span class="p">(</span><span class="n">template</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
     <span class="n">TemplateClass</span> <span class="o">=</span> <span class="n">tcol</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">template</span><span class="p">)</span>
     <span class="n">service</span> <span class="o">=</span> <span class="n">TemplateClass</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
@@ -1282,7 +1271,7 @@ It is handler for POST /blueprints</p></div>
   
       
   <div class="item">
-    <div class="name def" id="zerorobot.api.blueprints_api.schedule_action">
+    <div class="name def" id="zerorobot.server.handlers.ExecuteBlueprintHandler.schedule_action">
     <p>def <span class="ident">schedule_action</span>(</p><p>service, action)</p>
     </div>
     
@@ -1290,8 +1279,8 @@ It is handler for POST /blueprints</p></div>
     
   
   <div class="source_cont">
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.api.blueprints_api.schedule_action', this);">Show source &equiv;</a></p>
-  <div id="source-zerorobot.api.blueprints_api.schedule_action" class="source">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.server.handlers.ExecuteBlueprintHandler.schedule_action', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.server.handlers.ExecuteBlueprintHandler.schedule_action" class="source">
     <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">schedule_action</span><span class="p">(</span><span class="n">service</span><span class="p">,</span> <span class="n">action</span><span class="p">):</span>
     <span class="n">service</span> <span class="o">=</span> <span class="n">scol</span><span class="o">.</span><span class="n">get_by_name</span><span class="p">(</span><span class="n">service</span><span class="p">)</span>
     <span class="n">service</span><span class="o">.</span><span class="n">schedule_action</span><span class="p">(</span><span class="n">action</span><span class="p">)</span>

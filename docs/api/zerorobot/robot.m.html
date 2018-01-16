@@ -1101,10 +1101,11 @@ table {
 <span class="kn">from</span> <span class="nn">gevent</span> <span class="kn">import</span> <span class="n">GreenletExit</span>
 <span class="kn">from</span> <span class="nn">gevent.pool</span> <span class="kn">import</span> <span class="n">Pool</span>
 <span class="kn">from</span> <span class="nn">gevent.pywsgi</span> <span class="kn">import</span> <span class="n">WSGIServer</span>
+
 <span class="kn">from</span> <span class="nn">js9</span> <span class="kn">import</span> <span class="n">j</span>
 <span class="kn">from</span> <span class="nn">zerorobot</span> <span class="kn">import</span> <span class="n">service_collection</span> <span class="k">as</span> <span class="n">scol</span>
 <span class="kn">from</span> <span class="nn">zerorobot</span> <span class="kn">import</span> <span class="n">template_collection</span> <span class="k">as</span> <span class="n">tcol</span>
-<span class="kn">from</span> <span class="nn">zerorobot.api.app</span> <span class="kn">import</span> <span class="n">app</span>
+<span class="kn">from</span> <span class="nn">zerorobot.server.app</span> <span class="kn">import</span> <span class="n">app</span>
 <span class="kn">from</span> <span class="nn">zerorobot.task</span> <span class="kn">import</span> <span class="n">PRIORITY_SYSTEM</span>
 
 <span class="c1"># create logger</span>
@@ -1160,6 +1161,11 @@ table {
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data_dir</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Not data repository set. Robot doesn&#39;t know where to save data.&quot;</span><span class="p">)</span>
 
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;data directory: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data_dir</span><span class="p">)</span>
+
+        <span class="c1"># will raise if not config repo is found</span>
+        <span class="n">j</span><span class="o">.</span><span class="n">tools</span><span class="o">.</span><span class="n">configmanager</span><span class="o">.</span><span class="n">path_configrepo</span>
+
         <span class="bp">self</span><span class="o">.</span><span class="n">_block</span> <span class="o">=</span> <span class="n">block</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_autosave_gl</span> <span class="o">=</span> <span class="n">gevent</span><span class="o">.</span><span class="n">spawn</span><span class="p">(</span><span class="n">_auto_save_services</span><span class="p">,</span> <span class="n">data_dir</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_data_dir</span><span class="p">)</span>
@@ -1171,14 +1177,13 @@ table {
 
         <span class="c1"># configure logger</span>
         <span class="n">app</span><span class="o">.</span><span class="n">_logger</span> <span class="o">=</span> <span class="n">logger</span>
-        <span class="c1"># app.logger_name = logger.name</span>
 
         <span class="c1"># using a pool allow to kill the request when stopping the server</span>
         <span class="n">pool</span> <span class="o">=</span> <span class="n">Pool</span><span class="p">(</span><span class="bp">None</span><span class="p">)</span>
         <span class="n">hostport</span> <span class="o">=</span> <span class="n">_split_hostport</span><span class="p">(</span><span class="n">listen</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_http</span> <span class="o">=</span> <span class="n">WSGIServer</span><span class="p">(</span><span class="n">hostport</span><span class="p">,</span> <span class="n">app</span><span class="p">,</span> <span class="n">spawn</span><span class="o">=</span><span class="n">pool</span><span class="p">,</span> <span class="n">log</span><span class="o">=</span><span class="n">app</span><span class="o">.</span><span class="n">logger</span><span class="p">,</span> <span class="n">error_log</span><span class="o">=</span><span class="n">app</span><span class="o">.</span><span class="n">logger</span><span class="p">)</span>
 
-        <span class="n">app</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;robot running at </span><span class="si">%s</span><span class="s2">:</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">hostport</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;robot running at </span><span class="si">%s</span><span class="s2">:</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">hostport</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">block</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_http</span><span class="o">.</span><span class="n">serve_forever</span><span class="p">()</span>
@@ -1202,7 +1207,7 @@ table {
         <span class="k">for</span> <span class="n">h</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sig_handler</span><span class="p">:</span>
             <span class="n">h</span><span class="o">.</span><span class="n">cancel</span><span class="p">()</span>
 
-        <span class="k">print</span><span class="p">(</span><span class="s1">&#39;stopping robot&#39;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;stopping robot&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_http</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_http</span> <span class="o">=</span> <span class="bp">None</span>
 
@@ -1351,6 +1356,11 @@ It is responsible to:
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data_dir</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Not data repository set. Robot doesn&#39;t know where to save data.&quot;</span><span class="p">)</span>
 
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;data directory: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data_dir</span><span class="p">)</span>
+
+        <span class="c1"># will raise if not config repo is found</span>
+        <span class="n">j</span><span class="o">.</span><span class="n">tools</span><span class="o">.</span><span class="n">configmanager</span><span class="o">.</span><span class="n">path_configrepo</span>
+
         <span class="bp">self</span><span class="o">.</span><span class="n">_block</span> <span class="o">=</span> <span class="n">block</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_autosave_gl</span> <span class="o">=</span> <span class="n">gevent</span><span class="o">.</span><span class="n">spawn</span><span class="p">(</span><span class="n">_auto_save_services</span><span class="p">,</span> <span class="n">data_dir</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_data_dir</span><span class="p">)</span>
@@ -1362,14 +1372,13 @@ It is responsible to:
 
         <span class="c1"># configure logger</span>
         <span class="n">app</span><span class="o">.</span><span class="n">_logger</span> <span class="o">=</span> <span class="n">logger</span>
-        <span class="c1"># app.logger_name = logger.name</span>
 
         <span class="c1"># using a pool allow to kill the request when stopping the server</span>
         <span class="n">pool</span> <span class="o">=</span> <span class="n">Pool</span><span class="p">(</span><span class="bp">None</span><span class="p">)</span>
         <span class="n">hostport</span> <span class="o">=</span> <span class="n">_split_hostport</span><span class="p">(</span><span class="n">listen</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_http</span> <span class="o">=</span> <span class="n">WSGIServer</span><span class="p">(</span><span class="n">hostport</span><span class="p">,</span> <span class="n">app</span><span class="p">,</span> <span class="n">spawn</span><span class="o">=</span><span class="n">pool</span><span class="p">,</span> <span class="n">log</span><span class="o">=</span><span class="n">app</span><span class="o">.</span><span class="n">logger</span><span class="p">,</span> <span class="n">error_log</span><span class="o">=</span><span class="n">app</span><span class="o">.</span><span class="n">logger</span><span class="p">)</span>
 
-        <span class="n">app</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;robot running at </span><span class="si">%s</span><span class="s2">:</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">hostport</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;robot running at </span><span class="si">%s</span><span class="s2">:</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">hostport</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">block</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_http</span><span class="o">.</span><span class="n">serve_forever</span><span class="p">()</span>
@@ -1393,7 +1402,7 @@ It is responsible to:
         <span class="k">for</span> <span class="n">h</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sig_handler</span><span class="p">:</span>
             <span class="n">h</span><span class="o">.</span><span class="n">cancel</span><span class="p">()</span>
 
-        <span class="k">print</span><span class="p">(</span><span class="s1">&#39;stopping robot&#39;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;stopping robot&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_http</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_http</span> <span class="o">=</span> <span class="bp">None</span>
 
@@ -1539,6 +1548,9 @@ load the services from the local git repository</p></div>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data_dir</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Not data repository set. Robot doesn&#39;t know where to save data.&quot;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;data directory: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data_dir</span><span class="p">)</span>
+    <span class="c1"># will raise if not config repo is found</span>
+    <span class="n">j</span><span class="o">.</span><span class="n">tools</span><span class="o">.</span><span class="n">configmanager</span><span class="o">.</span><span class="n">path_configrepo</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_block</span> <span class="o">=</span> <span class="n">block</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_autosave_gl</span> <span class="o">=</span> <span class="n">gevent</span><span class="o">.</span><span class="n">spawn</span><span class="p">(</span><span class="n">_auto_save_services</span><span class="p">,</span> <span class="n">data_dir</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_data_dir</span><span class="p">)</span>
     <span class="c1"># load services from data repo</span>
@@ -1546,12 +1558,11 @@ load the services from the local git repository</p></div>
     <span class="bp">self</span><span class="o">.</span><span class="n">_sig_handler</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">gevent</span><span class="o">.</span><span class="n">signal</span><span class="p">(</span><span class="n">signal</span><span class="o">.</span><span class="n">SIGINT</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">stop</span><span class="p">))</span>
     <span class="c1"># configure logger</span>
     <span class="n">app</span><span class="o">.</span><span class="n">_logger</span> <span class="o">=</span> <span class="n">logger</span>
-    <span class="c1"># app.logger_name = logger.name</span>
     <span class="c1"># using a pool allow to kill the request when stopping the server</span>
     <span class="n">pool</span> <span class="o">=</span> <span class="n">Pool</span><span class="p">(</span><span class="bp">None</span><span class="p">)</span>
     <span class="n">hostport</span> <span class="o">=</span> <span class="n">_split_hostport</span><span class="p">(</span><span class="n">listen</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_http</span> <span class="o">=</span> <span class="n">WSGIServer</span><span class="p">(</span><span class="n">hostport</span><span class="p">,</span> <span class="n">app</span><span class="p">,</span> <span class="n">spawn</span><span class="o">=</span><span class="n">pool</span><span class="p">,</span> <span class="n">log</span><span class="o">=</span><span class="n">app</span><span class="o">.</span><span class="n">logger</span><span class="p">,</span> <span class="n">error_log</span><span class="o">=</span><span class="n">app</span><span class="o">.</span><span class="n">logger</span><span class="p">)</span>
-    <span class="n">app</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;robot running at </span><span class="si">%s</span><span class="s2">:</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">hostport</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;robot running at </span><span class="si">%s</span><span class="s2">:</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">hostport</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">block</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_http</span><span class="o">.</span><span class="n">serve_forever</span><span class="p">()</span>
         <span class="c1"># this is executed when self.stop is called.</span>
@@ -1593,7 +1604,7 @@ serialize all services state to disk</p></div>
     <span class="c1"># more signal are received</span>
     <span class="k">for</span> <span class="n">h</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sig_handler</span><span class="p">:</span>
         <span class="n">h</span><span class="o">.</span><span class="n">cancel</span><span class="p">()</span>
-    <span class="k">print</span><span class="p">(</span><span class="s1">&#39;stopping robot&#39;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;stopping robot&#39;</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_http</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_http</span> <span class="o">=</span> <span class="bp">None</span>
     <span class="c1"># if we don&#39;t block, we can gracefully shutdown here</span>

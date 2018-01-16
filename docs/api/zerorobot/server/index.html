@@ -3,7 +3,7 @@
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 
-    <title>zerorobot.client.client_utils API documentation</title>
+    <title>zerorobot.server API documentation</title>
     <meta name="description" content="" />
 
   <link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:400,300' rel='stylesheet' type='text/css'>
@@ -1041,15 +1041,17 @@ table {
     <h1>Index</h1>
     <ul id="index">
 
-    <li class="set"><h3><a href="#header-functions">Functions</a></h3>
-      
-  <ul>
-    <li class="mono"><a href="#zerorobot.client.client_utils.generate_rfc3339">generate_rfc3339</a></li>
-  </ul>
 
+
+    <li class="set"><h3><a href="#header-submodules">Sub-modules</a></h3>
+      <ul>
+        <li class="mono"><a href="app.m.html">zerorobot.server.app</a></li>
+        <li class="mono"><a href="blueprints_api.m.html">zerorobot.server.blueprints_api</a></li>
+        <li class="mono"><a href="handlers/index.html">zerorobot.server.handlers</a></li>
+        <li class="mono"><a href="services_api.m.html">zerorobot.server.services_api</a></li>
+        <li class="mono"><a href="templates_api.m.html">zerorobot.server.templates_api</a></li>
+      </ul>
     </li>
-
-
     </ul>
   </div>
 
@@ -1061,158 +1063,47 @@ table {
 
 
   <header id="section-intro">
-  <h1 class="title"><span class="name">zerorobot.client.client_utils</span> module</h1>
+  <h1 class="title"><span class="name">zerorobot.server</span> module</h1>
   
   
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.client.client_utils', this);">Show source &equiv;</a></p>
-  <div id="source-zerorobot.client.client_utils" class="source">
-    <div class="codehilite"><pre><span></span><span class="kn">import</span> <span class="nn">datetime</span>
-<span class="kn">import</span> <span class="nn">time</span>
-
-
-<span class="k">def</span> <span class="nf">generate_rfc3339</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">local_tz</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    generate rfc3339 time format</span>
-<span class="sd">    input :</span>
-<span class="sd">    d = date type</span>
-<span class="sd">    local_tz = use local time zone if true,</span>
-<span class="sd">    otherwise mark as utc</span>
-
-<span class="sd">    output :</span>
-<span class="sd">    rfc3339 string date format. ex : `2008-04-02T20:00:00+07:00`</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">try</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">local_tz</span><span class="p">:</span>
-            <span class="n">d</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">fromtimestamp</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">d</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">utcfromtimestamp</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
-    <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
-        <span class="k">pass</span>
-
-    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s1">&#39;Not timestamp or date object. Got </span><span class="si">%r</span><span class="s1">.&#39;</span> <span class="o">%</span> <span class="nb">type</span><span class="p">(</span><span class="n">d</span><span class="p">))</span>
-
-    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">):</span>
-        <span class="n">d</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">(</span><span class="o">*</span><span class="n">d</span><span class="o">.</span><span class="n">timetuple</span><span class="p">()[:</span><span class="mi">3</span><span class="p">])</span>
-
-    <span class="k">return</span> <span class="p">(</span><span class="s1">&#39;</span><span class="si">%04d</span><span class="s1">-</span><span class="si">%02d</span><span class="s1">-</span><span class="si">%02d</span><span class="s1">T</span><span class="si">%02d</span><span class="s1">:</span><span class="si">%02d</span><span class="s1">:</span><span class="si">%02d%s</span><span class="s1">&#39;</span> <span class="o">%</span>
-            <span class="p">(</span><span class="n">d</span><span class="o">.</span><span class="n">year</span><span class="p">,</span> <span class="n">d</span><span class="o">.</span><span class="n">month</span><span class="p">,</span> <span class="n">d</span><span class="o">.</span><span class="n">day</span><span class="p">,</span> <span class="n">d</span><span class="o">.</span><span class="n">hour</span><span class="p">,</span> <span class="n">d</span><span class="o">.</span><span class="n">minute</span><span class="p">,</span> <span class="n">d</span><span class="o">.</span><span class="n">second</span><span class="p">,</span>
-             <span class="n">_generate_timezone</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">local_tz</span><span class="p">)))</span>
-
-
-<span class="k">def</span> <span class="nf">_calculate_offset</span><span class="p">(</span><span class="n">date</span><span class="p">,</span> <span class="n">local_tz</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    input :</span>
-<span class="sd">    date : date type</span>
-<span class="sd">    local_tz : if true, use system timezone, otherwise return 0</span>
-
-<span class="sd">    return the date of UTC offset.</span>
-<span class="sd">    If date does not have any timezone info, we use local timezone,</span>
-<span class="sd">    otherwise return 0</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="n">local_tz</span><span class="p">:</span>
-        <span class="c1">#handle year before 1970 most sytem there is no timezone information before 1970.</span>
-        <span class="k">if</span> <span class="n">date</span><span class="o">.</span><span class="n">year</span> <span class="o">&lt;</span> <span class="mi">1970</span><span class="p">:</span>
-            <span class="c1"># Use 1972 because 1970 doesn&#39;t have a leap day</span>
-            <span class="n">t</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">mktime</span><span class="p">(</span><span class="n">date</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">year</span><span class="o">=</span><span class="mi">1972</span><span class="p">)</span><span class="o">.</span><span class="n">timetuple</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">t</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">mktime</span><span class="p">(</span><span class="n">date</span><span class="o">.</span><span class="n">timetuple</span><span class="p">())</span>
-
-        <span class="c1"># handle daylightsaving, if daylightsaving use altzone, otherwise use timezone</span>
-        <span class="k">if</span> <span class="n">time</span><span class="o">.</span><span class="n">localtime</span><span class="p">(</span><span class="n">t</span><span class="p">)</span><span class="o">.</span><span class="n">tm_isdst</span><span class="p">:</span>
-            <span class="k">return</span> <span class="o">-</span><span class="n">time</span><span class="o">.</span><span class="n">altzone</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="o">-</span><span class="n">time</span><span class="o">.</span><span class="n">timezone</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="k">return</span> <span class="mi">0</span>
-
-
-<span class="k">def</span> <span class="nf">_generate_timezone</span><span class="p">(</span><span class="n">date</span><span class="p">,</span> <span class="n">local_tz</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    input :</span>
-<span class="sd">    date : date type</span>
-<span class="sd">    local_tz : bool</span>
-
-<span class="sd">    offset generated from _calculate_offset</span>
-<span class="sd">    offset in seconds</span>
-<span class="sd">    offset = 0 -&gt; +00:00</span>
-<span class="sd">    offset = 1800 -&gt; +00:30</span>
-<span class="sd">    offset = -3600 -&gt; -01:00</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">offset</span> <span class="o">=</span> <span class="n">_calculate_offset</span><span class="p">(</span><span class="n">date</span><span class="p">,</span> <span class="n">local_tz</span><span class="p">)</span>
-
-    <span class="n">hour</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">offset</span><span class="p">)</span> <span class="o">//</span> <span class="mi">3600</span>
-    <span class="n">minute</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">offset</span><span class="p">)</span> <span class="o">%</span> <span class="mi">3600</span> <span class="o">//</span> <span class="mi">60</span>
-
-    <span class="k">if</span> <span class="n">offset</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="k">return</span> <span class="s1">&#39;</span><span class="si">%c%02d</span><span class="s1">:</span><span class="si">%02d</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="p">,</span> <span class="n">hour</span><span class="p">,</span> <span class="n">minute</span><span class="p">)</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="k">return</span> <span class="s1">&#39;</span><span class="si">%c%02d</span><span class="s1">:</span><span class="si">%02d</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="s2">&quot;+&quot;</span><span class="p">,</span> <span class="n">hour</span><span class="p">,</span> <span class="n">minute</span><span class="p">)</span>
-</pre></div>
-
-  </div>
 
   </header>
 
   <section id="section-items">
 
-    <h2 class="section-title" id="header-functions">Functions</h2>
+
+
+    <h2 class="section-title" id="header-submodules">Sub-modules</h2>
+      <div class="item">
+      <p class="name"><a href="app.m.html">zerorobot.server.app</a></p>
       
-  <div class="item">
-    <div class="name def" id="zerorobot.client.client_utils.generate_rfc3339">
-    <p>def <span class="ident">generate_rfc3339</span>(</p><p>d, local_tz=True)</p>
-    </div>
-    
-
-    
-  
-    <div class="desc"><p>generate rfc3339 time format
-input :
-d = date type
-local_tz = use local time zone if true,
-otherwise mark as utc</p>
-<p>output :
-rfc3339 string date format. ex : <code>2008-04-02T20:00:00+07:00</code></p></div>
-  <div class="source_cont">
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.client.client_utils.generate_rfc3339', this);">Show source &equiv;</a></p>
-  <div id="source-zerorobot.client.client_utils.generate_rfc3339" class="source">
-    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">generate_rfc3339</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">local_tz</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    generate rfc3339 time format</span>
-<span class="sd">    input :</span>
-<span class="sd">    d = date type</span>
-<span class="sd">    local_tz = use local time zone if true,</span>
-<span class="sd">    otherwise mark as utc</span>
-
-<span class="sd">    output :</span>
-<span class="sd">    rfc3339 string date format. ex : `2008-04-02T20:00:00+07:00`</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">try</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">local_tz</span><span class="p">:</span>
-            <span class="n">d</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">fromtimestamp</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">d</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">utcfromtimestamp</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
-    <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
-        <span class="k">pass</span>
-
-    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s1">&#39;Not timestamp or date object. Got </span><span class="si">%r</span><span class="s1">.&#39;</span> <span class="o">%</span> <span class="nb">type</span><span class="p">(</span><span class="n">d</span><span class="p">))</span>
-
-    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">):</span>
-        <span class="n">d</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">(</span><span class="o">*</span><span class="n">d</span><span class="o">.</span><span class="n">timetuple</span><span class="p">()[:</span><span class="mi">3</span><span class="p">])</span>
-
-    <span class="k">return</span> <span class="p">(</span><span class="s1">&#39;</span><span class="si">%04d</span><span class="s1">-</span><span class="si">%02d</span><span class="s1">-</span><span class="si">%02d</span><span class="s1">T</span><span class="si">%02d</span><span class="s1">:</span><span class="si">%02d</span><span class="s1">:</span><span class="si">%02d%s</span><span class="s1">&#39;</span> <span class="o">%</span>
-            <span class="p">(</span><span class="n">d</span><span class="o">.</span><span class="n">year</span><span class="p">,</span> <span class="n">d</span><span class="o">.</span><span class="n">month</span><span class="p">,</span> <span class="n">d</span><span class="o">.</span><span class="n">day</span><span class="p">,</span> <span class="n">d</span><span class="o">.</span><span class="n">hour</span><span class="p">,</span> <span class="n">d</span><span class="o">.</span><span class="n">minute</span><span class="p">,</span> <span class="n">d</span><span class="o">.</span><span class="n">second</span><span class="p">,</span>
-             <span class="n">_generate_timezone</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">local_tz</span><span class="p">)))</span>
-</pre></div>
-
-  </div>
-</div>
-
-  </div>
   
 
+      </div>
+      <div class="item">
+      <p class="name"><a href="blueprints_api.m.html">zerorobot.server.blueprints_api</a></p>
+      
+  
 
+      </div>
+      <div class="item">
+      <p class="name"><a href="handlers/index.html">zerorobot.server.handlers</a></p>
+      
+  
+
+      </div>
+      <div class="item">
+      <p class="name"><a href="services_api.m.html">zerorobot.server.services_api</a></p>
+      
+  
+
+      </div>
+      <div class="item">
+      <p class="name"><a href="templates_api.m.html">zerorobot.server.templates_api</a></p>
+      
+  
+
+      </div>
   </section>
 
     </article>

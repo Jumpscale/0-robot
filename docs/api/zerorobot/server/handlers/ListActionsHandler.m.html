@@ -3,7 +3,7 @@
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 
-    <title>zerorobot.client.blueprints_service API documentation</title>
+    <title>zerorobot.server.handlers.ListActionsHandler API documentation</title>
     <meta name="description" content="" />
 
   <link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:400,300' rel='stylesheet' type='text/css'>
@@ -1041,21 +1041,15 @@ table {
     <h1>Index</h1>
     <ul id="index">
 
-
-    <li class="set"><h3><a href="#header-classes">Classes</a></h3>
-      <ul>
-        <li class="mono">
-        <span class="class_name"><a href="#zerorobot.client.blueprints_service.BlueprintsService">BlueprintsService</a></span>
-        
-          
+    <li class="set"><h3><a href="#header-functions">Functions</a></h3>
+      
   <ul>
-    <li class="mono"><a href="#zerorobot.client.blueprints_service.BlueprintsService.__init__">__init__</a></li>
-    <li class="mono"><a href="#zerorobot.client.blueprints_service.BlueprintsService.ExecuteBlueprint">ExecuteBlueprint</a></li>
+    <li class="mono"><a href="#zerorobot.server.handlers.ListActionsHandler.ListActionsHandler">ListActionsHandler</a></li>
+    <li class="mono"><a href="#zerorobot.server.handlers.ListActionsHandler.get_actions_list">get_actions_list</a></li>
   </ul>
 
-        </li>
-      </ul>
     </li>
+
 
     </ul>
   </div>
@@ -1068,23 +1062,48 @@ table {
 
 
   <header id="section-intro">
-  <h1 class="title"><span class="name">zerorobot.client.blueprints_service</span> module</h1>
+  <h1 class="title"><span class="name">zerorobot.server.handlers.ListActionsHandler</span> module</h1>
   
   
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.client.blueprints_service', this);">Show source &equiv;</a></p>
-  <div id="source-zerorobot.client.blueprints_service" class="source">
-    <div class="codehilite"><pre><span></span><span class="n">rom</span> <span class="o">.</span><span class="n">api_response</span> <span class="kn">import</span> <span class="nn">APIResponse</span>
-<span class="n">rom</span> <span class="o">.</span><span class="n">unmarshall_error</span> <span class="kn">import</span> <span class="nn">UnmarshallError</span>
-<span class="n">lass</span> <span class="n">BlueprintsService</span><span class="p">:</span>
-   <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">client</span><span class="p">):</span>
-       <span class="bp">self</span><span class="o">.</span><span class="n">client</span> <span class="o">=</span> <span class="n">client</span>
-   <span class="k">def</span> <span class="nf">ExecuteBlueprint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">query_params</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">content_type</span><span class="o">=</span><span class="s2">&quot;application/json&quot;</span><span class="p">):</span>
-       <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">       Execute a blueprint on the ZeroRobot</span>
-<span class="sd">       It is method for POST /blueprints</span>
-<span class="sd">       &quot;&quot;&quot;</span>
-       <span class="n">uri</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">base_url</span> <span class="o">+</span> <span class="s2">&quot;/blueprints&quot;</span>
-       <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="n">uri</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">headers</span><span class="p">,</span> <span class="n">query_params</span><span class="p">,</span> <span class="n">content_type</span><span class="p">)</span>
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.server.handlers.ListActionsHandler', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.server.handlers.ListActionsHandler" class="source">
+    <div class="codehilite"><pre><span></span><span class="c1"># THIS FILE IS SAFE TO EDIT. It will not be overwritten when rerunning go-raml.</span>
+
+<span class="kn">import</span> <span class="nn">json</span>
+
+<span class="kn">from</span> <span class="nn">zerorobot</span> <span class="kn">import</span> <span class="n">service_collection</span> <span class="k">as</span> <span class="n">scol</span>
+
+
+<span class="k">def</span> <span class="nf">ListActionsHandler</span><span class="p">(</span><span class="n">service_guid</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    List all the possible action a service can do.</span>
+<span class="sd">    It is handler for GET /services/&lt;service_guid&gt;/actions</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">service</span> <span class="o">=</span> <span class="n">scol</span><span class="o">.</span><span class="n">get_by_guid</span><span class="p">(</span><span class="n">service_guid</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">({</span><span class="s1">&#39;code&#39;</span><span class="p">:</span> <span class="mi">404</span><span class="p">,</span> <span class="s1">&#39;message&#39;</span><span class="p">:</span> <span class="s2">&quot;service with guid &#39;</span><span class="si">%s</span><span class="s2">&#39; not found&quot;</span> <span class="o">%</span> <span class="n">service_guid</span><span class="p">}),</span> \
+            <span class="mi">404</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;Content-type&quot;</span><span class="p">:</span> <span class="s1">&#39;application/json&#39;</span><span class="p">}</span>
+
+    <span class="n">actions</span> <span class="o">=</span> <span class="n">get_actions_list</span><span class="p">(</span><span class="n">service</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">actions</span><span class="p">),</span> <span class="mi">200</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;Content-type&quot;</span><span class="p">:</span> <span class="s1">&#39;application/json&#39;</span><span class="p">}</span>
+
+
+<span class="k">def</span> <span class="nf">get_actions_list</span><span class="p">(</span><span class="n">obj</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    extract the method name that the service has that are not the</span>
+<span class="sd">    method comming from the template base</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">skip</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;load&#39;</span><span class="p">,</span> <span class="s1">&#39;save&#39;</span><span class="p">,</span> <span class="s1">&#39;schedule_action&#39;</span><span class="p">]</span>
+    <span class="n">actions</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="nb">dir</span><span class="p">(</span><span class="n">obj</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">skip</span> <span class="ow">or</span> <span class="n">name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">):</span>
+            <span class="k">continue</span>
+        <span class="k">if</span> <span class="nb">callable</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">name</span><span class="p">)):</span>
+            <span class="n">actions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">actions</span>
 </pre></div>
 
   </div>
@@ -1093,57 +1112,36 @@ table {
 
   <section id="section-items">
 
-
-    <h2 class="section-title" id="header-classes">Classes</h2>
+    <h2 class="section-title" id="header-functions">Functions</h2>
       
-      <div class="item">
-      <p id="zerorobot.client.blueprints_service.BlueprintsService" class="name">class <span class="ident">BlueprintsService</span></p>
-      
-  
-  <div class="source_cont">
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.client.blueprints_service.BlueprintsService', this);">Show source &equiv;</a></p>
-  <div id="source-zerorobot.client.blueprints_service.BlueprintsService" class="source">
-    <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">BlueprintsService</span><span class="p">:</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">client</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">client</span> <span class="o">=</span> <span class="n">client</span>
-
-
-
-    <span class="k">def</span> <span class="nf">ExecuteBlueprint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">query_params</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">content_type</span><span class="o">=</span><span class="s2">&quot;application/json&quot;</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Execute a blueprint on the ZeroRobot</span>
-<span class="sd">        It is method for POST /blueprints</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">uri</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">base_url</span> <span class="o">+</span> <span class="s2">&quot;/blueprints&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="n">uri</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">headers</span><span class="p">,</span> <span class="n">query_params</span><span class="p">,</span> <span class="n">content_type</span><span class="p">)</span>
-</pre></div>
-
-  </div>
-</div>
-
-
-      <div class="class">
-          <h3>Ancestors (in MRO)</h3>
-          <ul class="class_list">
-          <li><a href="#zerorobot.client.blueprints_service.BlueprintsService">BlueprintsService</a></li>
-          <li>builtins.object</li>
-          </ul>
-          <h3>Static methods</h3>
-            
   <div class="item">
-    <div class="name def" id="zerorobot.client.blueprints_service.BlueprintsService.__init__">
-    <p>def <span class="ident">__init__</span>(</p><p>self, client)</p>
+    <div class="name def" id="zerorobot.server.handlers.ListActionsHandler.ListActionsHandler">
+    <p>def <span class="ident">ListActionsHandler</span>(</p><p>service_guid)</p>
     </div>
     
 
     
   
-    <div class="desc"><p>Initialize self.  See help(type(self)) for accurate signature.</p></div>
+    <div class="desc"><p>List all the possible action a service can do.
+It is handler for GET /services/<service_guid>/actions</p></div>
   <div class="source_cont">
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.client.blueprints_service.BlueprintsService.__init__', this);">Show source &equiv;</a></p>
-  <div id="source-zerorobot.client.blueprints_service.BlueprintsService.__init__" class="source">
-    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">client</span><span class="p">):</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">client</span> <span class="o">=</span> <span class="n">client</span>
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.server.handlers.ListActionsHandler.ListActionsHandler', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.server.handlers.ListActionsHandler.ListActionsHandler" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">ListActionsHandler</span><span class="p">(</span><span class="n">service_guid</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    List all the possible action a service can do.</span>
+<span class="sd">    It is handler for GET /services/&lt;service_guid&gt;/actions</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">service</span> <span class="o">=</span> <span class="n">scol</span><span class="o">.</span><span class="n">get_by_guid</span><span class="p">(</span><span class="n">service_guid</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">({</span><span class="s1">&#39;code&#39;</span><span class="p">:</span> <span class="mi">404</span><span class="p">,</span> <span class="s1">&#39;message&#39;</span><span class="p">:</span> <span class="s2">&quot;service with guid &#39;</span><span class="si">%s</span><span class="s2">&#39; not found&quot;</span> <span class="o">%</span> <span class="n">service_guid</span><span class="p">}),</span> \
+            <span class="mi">404</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;Content-type&quot;</span><span class="p">:</span> <span class="s1">&#39;application/json&#39;</span><span class="p">}</span>
+
+    <span class="n">actions</span> <span class="o">=</span> <span class="n">get_actions_list</span><span class="p">(</span><span class="n">service</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">actions</span><span class="p">),</span> <span class="mi">200</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;Content-type&quot;</span><span class="p">:</span> <span class="s1">&#39;application/json&#39;</span><span class="p">}</span>
 </pre></div>
 
   </div>
@@ -1151,27 +1149,33 @@ table {
 
   </div>
   
-            
+      
   <div class="item">
-    <div class="name def" id="zerorobot.client.blueprints_service.BlueprintsService.ExecuteBlueprint">
-    <p>def <span class="ident">ExecuteBlueprint</span>(</p><p>self, data, headers=None, query_params=None, content_type=&#39;application/json&#39;)</p>
+    <div class="name def" id="zerorobot.server.handlers.ListActionsHandler.get_actions_list">
+    <p>def <span class="ident">get_actions_list</span>(</p><p>obj)</p>
     </div>
     
 
     
   
-    <div class="desc"><p>Execute a blueprint on the ZeroRobot
-It is method for POST /blueprints</p></div>
+    <div class="desc"><p>extract the method name that the service has that are not the
+method comming from the template base</p></div>
   <div class="source_cont">
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.client.blueprints_service.BlueprintsService.ExecuteBlueprint', this);">Show source &equiv;</a></p>
-  <div id="source-zerorobot.client.blueprints_service.BlueprintsService.ExecuteBlueprint" class="source">
-    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">ExecuteBlueprint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">query_params</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">content_type</span><span class="o">=</span><span class="s2">&quot;application/json&quot;</span><span class="p">):</span>
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.server.handlers.ListActionsHandler.get_actions_list', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.server.handlers.ListActionsHandler.get_actions_list" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">get_actions_list</span><span class="p">(</span><span class="n">obj</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Execute a blueprint on the ZeroRobot</span>
-<span class="sd">    It is method for POST /blueprints</span>
+<span class="sd">    extract the method name that the service has that are not the</span>
+<span class="sd">    method comming from the template base</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">uri</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">base_url</span> <span class="o">+</span> <span class="s2">&quot;/blueprints&quot;</span>
-    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="n">uri</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">headers</span><span class="p">,</span> <span class="n">query_params</span><span class="p">,</span> <span class="n">content_type</span><span class="p">)</span>
+    <span class="n">skip</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;load&#39;</span><span class="p">,</span> <span class="s1">&#39;save&#39;</span><span class="p">,</span> <span class="s1">&#39;schedule_action&#39;</span><span class="p">]</span>
+    <span class="n">actions</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="nb">dir</span><span class="p">(</span><span class="n">obj</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">skip</span> <span class="ow">or</span> <span class="n">name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">):</span>
+            <span class="k">continue</span>
+        <span class="k">if</span> <span class="nb">callable</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">name</span><span class="p">)):</span>
+            <span class="n">actions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">actions</span>
 </pre></div>
 
   </div>
@@ -1179,19 +1183,7 @@ It is method for POST /blueprints</p></div>
 
   </div>
   
-          <h3>Instance variables</h3>
-            <div class="item">
-            <p id="zerorobot.client.blueprints_service.BlueprintsService.client" class="name">var <span class="ident">client</span></p>
-            
 
-            
-  
-  <div class="source_cont">
-</div>
-
-            </div>
-      </div>
-      </div>
 
   </section>
 

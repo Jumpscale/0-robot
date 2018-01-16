@@ -3,7 +3,7 @@
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 
-    <title>zerorobot.client.EnumTaskState API documentation</title>
+    <title>zerorobot.server.handlers.DeleteServiceHandler API documentation</title>
     <meta name="description" content="" />
 
   <link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:400,300' rel='stylesheet' type='text/css'>
@@ -1041,15 +1041,14 @@ table {
     <h1>Index</h1>
     <ul id="index">
 
+    <li class="set"><h3><a href="#header-functions">Functions</a></h3>
+      
+  <ul>
+    <li class="mono"><a href="#zerorobot.server.handlers.DeleteServiceHandler.DeleteServiceHandler">DeleteServiceHandler</a></li>
+  </ul>
 
-    <li class="set"><h3><a href="#header-classes">Classes</a></h3>
-      <ul>
-        <li class="mono">
-        <span class="class_name"><a href="#zerorobot.client.EnumTaskState.EnumTaskState">EnumTaskState</a></span>
-        
-        </li>
-      </ul>
     </li>
+
 
     </ul>
   </div>
@@ -1062,19 +1061,29 @@ table {
 
 
   <header id="section-intro">
-  <h1 class="title"><span class="name">zerorobot.client.EnumTaskState</span> module</h1>
+  <h1 class="title"><span class="name">zerorobot.server.handlers.DeleteServiceHandler</span> module</h1>
   
   
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.client.EnumTaskState', this);">Show source &equiv;</a></p>
-  <div id="source-zerorobot.client.EnumTaskState" class="source">
-    <div class="codehilite"><pre><span></span><span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">Enum</span>
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.server.handlers.DeleteServiceHandler', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.server.handlers.DeleteServiceHandler" class="source">
+    <div class="codehilite"><pre><span></span><span class="c1"># THIS FILE IS SAFE TO EDIT. It will not be overwritten when rerunning go-raml.</span>
+
+<span class="kn">from</span> <span class="nn">zerorobot</span> <span class="kn">import</span> <span class="n">service_collection</span> <span class="k">as</span> <span class="n">scol</span>
 
 
-<span class="k">class</span> <span class="nc">EnumTaskState</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
-    <span class="n">new</span> <span class="o">=</span> <span class="s2">&quot;new&quot;</span>
-    <span class="n">ok</span> <span class="o">=</span> <span class="s2">&quot;ok&quot;</span>
-    <span class="n">running</span> <span class="o">=</span> <span class="s2">&quot;running&quot;</span>
-    <span class="n">error</span> <span class="o">=</span> <span class="s2">&quot;error&quot;</span>
+<span class="k">def</span> <span class="nf">DeleteServiceHandler</span><span class="p">(</span><span class="n">service_guid</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Delete a service</span>
+<span class="sd">    It is handler for DELETE /services/&lt;service_guid&gt;</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">service</span> <span class="o">=</span> <span class="n">scol</span><span class="o">.</span><span class="n">get_by_guid</span><span class="p">(</span><span class="n">service_guid</span><span class="p">)</span>
+        <span class="n">service</span><span class="o">.</span><span class="n">delete</span><span class="p">()</span>
+    <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+        <span class="k">pass</span>
+
+    <span class="k">return</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="mi">204</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;Content-type&quot;</span><span class="p">:</span> <span class="s1">&#39;application/json&#39;</span><span class="p">}</span>
 </pre></div>
 
   </div>
@@ -1083,98 +1092,42 @@ table {
 
   <section id="section-items">
 
+    <h2 class="section-title" id="header-functions">Functions</h2>
+      
+  <div class="item">
+    <div class="name def" id="zerorobot.server.handlers.DeleteServiceHandler.DeleteServiceHandler">
+    <p>def <span class="ident">DeleteServiceHandler</span>(</p><p>service_guid)</p>
+    </div>
+    
 
-    <h2 class="section-title" id="header-classes">Classes</h2>
-      
-      <div class="item">
-      <p id="zerorobot.client.EnumTaskState.EnumTaskState" class="name">class <span class="ident">EnumTaskState</span></p>
-      
+    
   
-    <div class="desc"><p>An enumeration.</p></div>
+    <div class="desc"><p>Delete a service
+It is handler for DELETE /services/<service_guid></p></div>
   <div class="source_cont">
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.client.EnumTaskState.EnumTaskState', this);">Show source &equiv;</a></p>
-  <div id="source-zerorobot.client.EnumTaskState.EnumTaskState" class="source">
-    <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">EnumTaskState</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
-    <span class="n">new</span> <span class="o">=</span> <span class="s2">&quot;new&quot;</span>
-    <span class="n">ok</span> <span class="o">=</span> <span class="s2">&quot;ok&quot;</span>
-    <span class="n">running</span> <span class="o">=</span> <span class="s2">&quot;running&quot;</span>
-    <span class="n">error</span> <span class="o">=</span> <span class="s2">&quot;error&quot;</span>
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.server.handlers.DeleteServiceHandler.DeleteServiceHandler', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.server.handlers.DeleteServiceHandler.DeleteServiceHandler" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">DeleteServiceHandler</span><span class="p">(</span><span class="n">service_guid</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Delete a service</span>
+<span class="sd">    It is handler for DELETE /services/&lt;service_guid&gt;</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">service</span> <span class="o">=</span> <span class="n">scol</span><span class="o">.</span><span class="n">get_by_guid</span><span class="p">(</span><span class="n">service_guid</span><span class="p">)</span>
+        <span class="n">service</span><span class="o">.</span><span class="n">delete</span><span class="p">()</span>
+    <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+        <span class="k">pass</span>
+
+    <span class="k">return</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="mi">204</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;Content-type&quot;</span><span class="p">:</span> <span class="s1">&#39;application/json&#39;</span><span class="p">}</span>
 </pre></div>
 
   </div>
 </div>
 
-
-      <div class="class">
-          <h3>Ancestors (in MRO)</h3>
-          <ul class="class_list">
-          <li><a href="#zerorobot.client.EnumTaskState.EnumTaskState">EnumTaskState</a></li>
-          <li>enum.Enum</li>
-          <li>builtins.object</li>
-          </ul>
-          <h3>Class variables</h3>
-            <div class="item">
-            <p id="zerorobot.client.EnumTaskState.EnumTaskState.error" class="name">var <span class="ident">error</span></p>
-            
-
-            
+  </div>
   
-  <div class="source_cont">
-</div>
 
-            </div>
-            <div class="item">
-            <p id="zerorobot.client.EnumTaskState.EnumTaskState.name" class="name">var <span class="ident">name</span></p>
-            
-
-            
-  
-  <div class="source_cont">
-</div>
-
-            </div>
-            <div class="item">
-            <p id="zerorobot.client.EnumTaskState.EnumTaskState.new" class="name">var <span class="ident">new</span></p>
-            
-
-            
-  
-  <div class="source_cont">
-</div>
-
-            </div>
-            <div class="item">
-            <p id="zerorobot.client.EnumTaskState.EnumTaskState.ok" class="name">var <span class="ident">ok</span></p>
-            
-
-            
-  
-  <div class="source_cont">
-</div>
-
-            </div>
-            <div class="item">
-            <p id="zerorobot.client.EnumTaskState.EnumTaskState.running" class="name">var <span class="ident">running</span></p>
-            
-
-            
-  
-  <div class="source_cont">
-</div>
-
-            </div>
-            <div class="item">
-            <p id="zerorobot.client.EnumTaskState.EnumTaskState.value" class="name">var <span class="ident">value</span></p>
-            
-
-            
-  
-  <div class="source_cont">
-</div>
-
-            </div>
-      </div>
-      </div>
 
   </section>
 

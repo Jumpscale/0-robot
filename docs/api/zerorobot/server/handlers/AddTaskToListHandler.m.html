@@ -3,7 +3,7 @@
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 
-    <title>zerorobot.client.api_response API documentation</title>
+    <title>zerorobot.server.handlers.AddTaskToListHandler API documentation</title>
     <meta name="description" content="" />
 
   <link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:400,300' rel='stylesheet' type='text/css'>
@@ -1040,16 +1040,25 @@ table {
   <div id="sidebar">
     <h1>Index</h1>
     <ul id="index">
+    <li class="set"><h3><a href="#header-variables">Module variables</a></h3>
+      
+  <ul>
+    <li class="mono"><a href="#zerorobot.server.handlers.AddTaskToListHandler.TaskCreate_schema">TaskCreate_schema</a></li>
+    <li class="mono"><a href="#zerorobot.server.handlers.AddTaskToListHandler.TaskCreate_schema_resolver">TaskCreate_schema_resolver</a></li>
+    <li class="mono"><a href="#zerorobot.server.handlers.AddTaskToListHandler.TaskCreate_schema_validator">TaskCreate_schema_validator</a></li>
+    <li class="mono"><a href="#zerorobot.server.handlers.AddTaskToListHandler.dir_path">dir_path</a></li>
+  </ul>
 
-
-    <li class="set"><h3><a href="#header-classes">Classes</a></h3>
-      <ul>
-        <li class="mono">
-        <span class="class_name"><a href="#zerorobot.client.api_response.APIResponse">APIResponse</a></span>
-        
-        </li>
-      </ul>
     </li>
+
+    <li class="set"><h3><a href="#header-functions">Functions</a></h3>
+      
+  <ul>
+    <li class="mono"><a href="#zerorobot.server.handlers.AddTaskToListHandler.AddTaskToListHandler">AddTaskToListHandler</a></li>
+  </ul>
+
+    </li>
+
 
     </ul>
   </div>
@@ -1062,14 +1071,59 @@ table {
 
 
   <header id="section-intro">
-  <h1 class="title"><span class="name">zerorobot.client.api_response</span> module</h1>
+  <h1 class="title"><span class="name">zerorobot.server.handlers.AddTaskToListHandler</span> module</h1>
   
   
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.client.api_response', this);">Show source &equiv;</a></p>
-  <div id="source-zerorobot.client.api_response" class="source">
-    <div class="codehilite"><pre><span></span><span class="kn">import</span> <span class="nn">collections</span>
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.server.handlers.AddTaskToListHandler', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.server.handlers.AddTaskToListHandler" class="source">
+    <div class="codehilite"><pre><span></span><span class="c1"># THIS FILE IS SAFE TO EDIT. It will not be overwritten when rerunning go-raml.</span>
 
-<span class="n">APIResponse</span> <span class="o">=</span> <span class="n">collections</span><span class="o">.</span><span class="n">namedtuple</span><span class="p">(</span><span class="s1">&#39;APIResponse&#39;</span><span class="p">,</span> <span class="s1">&#39;data response&#39;</span><span class="p">)</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="kn">import</span> <span class="nn">jsonschema</span>
+<span class="kn">from</span> <span class="nn">jsonschema</span> <span class="kn">import</span> <span class="n">Draft4Validator</span>
+
+<span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">request</span>
+<span class="kn">from</span> <span class="nn">zerorobot</span> <span class="kn">import</span> <span class="n">service_collection</span> <span class="k">as</span> <span class="n">scol</span>
+<span class="kn">from</span> <span class="nn">zerorobot.server.handlers.views</span> <span class="kn">import</span> <span class="n">task_view</span>
+<span class="kn">from</span> <span class="nn">zerorobot.template.base</span> <span class="kn">import</span> <span class="n">ActionNotFoundError</span><span class="p">,</span> <span class="n">BadActionArgumentError</span>
+
+<span class="n">dir_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">realpath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">))</span>
+<span class="n">TaskCreate_schema</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="n">dir_path</span> <span class="o">+</span> <span class="s1">&#39;/schema/TaskCreate_schema.json&#39;</span><span class="p">))</span>
+<span class="n">TaskCreate_schema_resolver</span> <span class="o">=</span> <span class="n">jsonschema</span><span class="o">.</span><span class="n">RefResolver</span><span class="p">(</span><span class="s1">&#39;file://&#39;</span> <span class="o">+</span> <span class="n">dir_path</span> <span class="o">+</span> <span class="s1">&#39;/schema/&#39;</span><span class="p">,</span> <span class="n">TaskCreate_schema</span><span class="p">)</span>
+<span class="n">TaskCreate_schema_validator</span> <span class="o">=</span> <span class="n">Draft4Validator</span><span class="p">(</span><span class="n">TaskCreate_schema</span><span class="p">,</span> <span class="n">resolver</span><span class="o">=</span><span class="n">TaskCreate_schema_resolver</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">AddTaskToListHandler</span><span class="p">(</span><span class="n">service_guid</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Add a task to the task list</span>
+<span class="sd">    It is handler for POST /services/&lt;service_guid&gt;/task_list</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">inputs</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">get_json</span><span class="p">()</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">TaskCreate_schema_validator</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">inputs</span><span class="p">)</span>
+    <span class="k">except</span> <span class="n">jsonschema</span><span class="o">.</span><span class="n">ValidationError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">({</span><span class="s1">&#39;code&#39;</span><span class="p">:</span> <span class="mi">400</span><span class="p">,</span> <span class="s1">&#39;message&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)}),</span> <span class="mi">400</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;Content-type&quot;</span><span class="p">:</span> <span class="s1">&#39;application/json&#39;</span><span class="p">}</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">service</span> <span class="o">=</span> <span class="n">scol</span><span class="o">.</span><span class="n">get_by_guid</span><span class="p">(</span><span class="n">service_guid</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">({</span><span class="s1">&#39;code&#39;</span><span class="p">:</span> <span class="mi">404</span><span class="p">,</span> <span class="s1">&#39;message&#39;</span><span class="p">:</span> <span class="s2">&quot;service with guid &#39;</span><span class="si">%s</span><span class="s2">&#39; not found&quot;</span> <span class="o">%</span> <span class="n">service_guid</span><span class="p">}),</span> \
+            <span class="mi">404</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;Content-type&quot;</span><span class="p">:</span> <span class="s1">&#39;application/json&#39;</span><span class="p">}</span>
+
+    <span class="n">args</span> <span class="o">=</span> <span class="n">inputs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;args&#39;</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">task</span> <span class="o">=</span> <span class="n">service</span><span class="o">.</span><span class="n">schedule_action</span><span class="p">(</span><span class="n">action</span><span class="o">=</span><span class="n">inputs</span><span class="p">[</span><span class="s1">&#39;action_name&#39;</span><span class="p">],</span> <span class="n">args</span><span class="o">=</span><span class="n">args</span><span class="p">)</span>
+    <span class="k">except</span> <span class="n">ActionNotFoundError</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">({</span><span class="s1">&#39;code&#39;</span><span class="p">:</span> <span class="mi">400</span><span class="p">,</span> <span class="s1">&#39;message&#39;</span><span class="p">:</span> <span class="s2">&quot;action &#39;</span><span class="si">%s</span><span class="s2">&#39; not found&quot;</span> <span class="o">%</span> <span class="n">inputs</span><span class="p">[</span><span class="s1">&#39;action_name&#39;</span><span class="p">]}),</span> \
+            <span class="mi">400</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;Content-type&quot;</span><span class="p">:</span> <span class="s1">&#39;application/json&#39;</span><span class="p">}</span>
+    <span class="k">except</span> <span class="n">BadActionArgumentError</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">({</span><span class="s1">&#39;code&#39;</span><span class="p">:</span> <span class="mi">400</span><span class="p">,</span> <span class="s1">&#39;message&#39;</span><span class="p">:</span> <span class="s2">&quot;the argument passed in the requests, doesn&#39;t match the signature of the action&quot;</span><span class="p">}),</span> \
+            <span class="mi">400</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;Content-type&quot;</span><span class="p">:</span> <span class="s1">&#39;application/json&#39;</span><span class="p">}</span>
+
+    <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">task_view</span><span class="p">(</span><span class="n">task</span><span class="p">,</span> <span class="n">service</span><span class="p">)),</span> <span class="mi">201</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;Content-type&quot;</span><span class="p">:</span> <span class="s1">&#39;application/json&#39;</span><span class="p">}</span>
 </pre></div>
 
   </div>
@@ -1077,51 +1131,92 @@ table {
   </header>
 
   <section id="section-items">
-
-
-    <h2 class="section-title" id="header-classes">Classes</h2>
-      
+    <h2 class="section-title" id="header-variables">Module variables</h2>
       <div class="item">
-      <p id="zerorobot.client.api_response.APIResponse" class="name">class <span class="ident">APIResponse</span></p>
+      <p id="zerorobot.server.handlers.AddTaskToListHandler.TaskCreate_schema" class="name">var <span class="ident">TaskCreate_schema</span></p>
       
   
-    <div class="desc"><p>APIResponse(data, response)</p></div>
   <div class="source_cont">
 </div>
 
-
-      <div class="class">
-          <h3>Ancestors (in MRO)</h3>
-          <ul class="class_list">
-          <li><a href="#zerorobot.client.api_response.APIResponse">APIResponse</a></li>
-          <li>builtins.tuple</li>
-          <li>builtins.object</li>
-          </ul>
-          <h3>Instance variables</h3>
-            <div class="item">
-            <p id="zerorobot.client.api_response.APIResponse.data" class="name">var <span class="ident">data</span></p>
-            
-
-            
-  
-    <div class="desc"><p>Alias for field number 0</p></div>
-  <div class="source_cont">
-</div>
-
-            </div>
-            <div class="item">
-            <p id="zerorobot.client.api_response.APIResponse.response" class="name">var <span class="ident">response</span></p>
-            
-
-            
-  
-    <div class="desc"><p>Alias for field number 1</p></div>
-  <div class="source_cont">
-</div>
-
-            </div>
       </div>
+      <div class="item">
+      <p id="zerorobot.server.handlers.AddTaskToListHandler.TaskCreate_schema_resolver" class="name">var <span class="ident">TaskCreate_schema_resolver</span></p>
+      
+  
+  <div class="source_cont">
+</div>
+
       </div>
+      <div class="item">
+      <p id="zerorobot.server.handlers.AddTaskToListHandler.TaskCreate_schema_validator" class="name">var <span class="ident">TaskCreate_schema_validator</span></p>
+      
+  
+  <div class="source_cont">
+</div>
+
+      </div>
+      <div class="item">
+      <p id="zerorobot.server.handlers.AddTaskToListHandler.dir_path" class="name">var <span class="ident">dir_path</span></p>
+      
+  
+  <div class="source_cont">
+</div>
+
+      </div>
+
+    <h2 class="section-title" id="header-functions">Functions</h2>
+      
+  <div class="item">
+    <div class="name def" id="zerorobot.server.handlers.AddTaskToListHandler.AddTaskToListHandler">
+    <p>def <span class="ident">AddTaskToListHandler</span>(</p><p>service_guid)</p>
+    </div>
+    
+
+    
+  
+    <div class="desc"><p>Add a task to the task list
+It is handler for POST /services/<service_guid>/task_list</p></div>
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.server.handlers.AddTaskToListHandler.AddTaskToListHandler', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.server.handlers.AddTaskToListHandler.AddTaskToListHandler" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">AddTaskToListHandler</span><span class="p">(</span><span class="n">service_guid</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Add a task to the task list</span>
+<span class="sd">    It is handler for POST /services/&lt;service_guid&gt;/task_list</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">inputs</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">get_json</span><span class="p">()</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">TaskCreate_schema_validator</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">inputs</span><span class="p">)</span>
+    <span class="k">except</span> <span class="n">jsonschema</span><span class="o">.</span><span class="n">ValidationError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">({</span><span class="s1">&#39;code&#39;</span><span class="p">:</span> <span class="mi">400</span><span class="p">,</span> <span class="s1">&#39;message&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)}),</span> <span class="mi">400</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;Content-type&quot;</span><span class="p">:</span> <span class="s1">&#39;application/json&#39;</span><span class="p">}</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">service</span> <span class="o">=</span> <span class="n">scol</span><span class="o">.</span><span class="n">get_by_guid</span><span class="p">(</span><span class="n">service_guid</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">({</span><span class="s1">&#39;code&#39;</span><span class="p">:</span> <span class="mi">404</span><span class="p">,</span> <span class="s1">&#39;message&#39;</span><span class="p">:</span> <span class="s2">&quot;service with guid &#39;</span><span class="si">%s</span><span class="s2">&#39; not found&quot;</span> <span class="o">%</span> <span class="n">service_guid</span><span class="p">}),</span> \
+            <span class="mi">404</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;Content-type&quot;</span><span class="p">:</span> <span class="s1">&#39;application/json&#39;</span><span class="p">}</span>
+
+    <span class="n">args</span> <span class="o">=</span> <span class="n">inputs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;args&#39;</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">task</span> <span class="o">=</span> <span class="n">service</span><span class="o">.</span><span class="n">schedule_action</span><span class="p">(</span><span class="n">action</span><span class="o">=</span><span class="n">inputs</span><span class="p">[</span><span class="s1">&#39;action_name&#39;</span><span class="p">],</span> <span class="n">args</span><span class="o">=</span><span class="n">args</span><span class="p">)</span>
+    <span class="k">except</span> <span class="n">ActionNotFoundError</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">({</span><span class="s1">&#39;code&#39;</span><span class="p">:</span> <span class="mi">400</span><span class="p">,</span> <span class="s1">&#39;message&#39;</span><span class="p">:</span> <span class="s2">&quot;action &#39;</span><span class="si">%s</span><span class="s2">&#39; not found&quot;</span> <span class="o">%</span> <span class="n">inputs</span><span class="p">[</span><span class="s1">&#39;action_name&#39;</span><span class="p">]}),</span> \
+            <span class="mi">400</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;Content-type&quot;</span><span class="p">:</span> <span class="s1">&#39;application/json&#39;</span><span class="p">}</span>
+    <span class="k">except</span> <span class="n">BadActionArgumentError</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">({</span><span class="s1">&#39;code&#39;</span><span class="p">:</span> <span class="mi">400</span><span class="p">,</span> <span class="s1">&#39;message&#39;</span><span class="p">:</span> <span class="s2">&quot;the argument passed in the requests, doesn&#39;t match the signature of the action&quot;</span><span class="p">}),</span> \
+            <span class="mi">400</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;Content-type&quot;</span><span class="p">:</span> <span class="s1">&#39;application/json&#39;</span><span class="p">}</span>
+
+    <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">task_view</span><span class="p">(</span><span class="n">task</span><span class="p">,</span> <span class="n">service</span><span class="p">)),</span> <span class="mi">201</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;Content-type&quot;</span><span class="p">:</span> <span class="s1">&#39;application/json&#39;</span><span class="p">}</span>
+</pre></div>
+
+  </div>
+</div>
+
+  </div>
+  
+
 
   </section>
 
