@@ -8,6 +8,9 @@
 		"name": {
 			"type": "string"
 		},
+		"parent": {
+			"type": "string"
+		},
 		"state": {
 			"type": "array",
 			"items": {

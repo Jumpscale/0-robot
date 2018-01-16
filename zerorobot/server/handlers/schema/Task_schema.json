@@ -11,6 +11,9 @@
 		"created": {
 			"type": "integer"
 		},
+		"eco": {
+			"$ref": "Eco_schema.json"
+		},
 		"guid": {
 			"type": "string"
 		},
@@ -24,6 +27,8 @@
 			"type": "string",
 			"enum": [
 				"new",
+				"ok",
+				"running",
 				"error"
 			]
 		},

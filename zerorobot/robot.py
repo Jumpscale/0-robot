@@ -15,7 +15,7 @@ from gevent.pywsgi import WSGIServer
 from js9 import j
 from zerorobot import service_collection as scol
 from zerorobot import template_collection as tcol
-from zerorobot.api.app import app
+from zerorobot.server.app import app
 from zerorobot.task import PRIORITY_SYSTEM
 
 # create logger

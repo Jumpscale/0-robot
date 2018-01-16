@@ -1,26 +1,24 @@
+# THIS FILE IS SAFE TO EDIT. It will not be overwritten when rerunning go-raml.
+
 import json as JSON
 import os
 
 import jsonschema
-from flask import Blueprint, jsonify, request
 from jsonschema import Draft4Validator
+
+from flask import request
 from zerorobot import service_collection as scol
 from zerorobot import template_collection as tcol
 from zerorobot import blueprint
 from zerorobot.service_collection import ServiceConflictError
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
-
 Blueprint_schema = JSON.load(open(dir_path + '/schema/Blueprint_schema.json'))
 Blueprint_schema_resolver = jsonschema.RefResolver('file://' + dir_path + '/schema/', Blueprint_schema)
 Blueprint_schema_validator = Draft4Validator(Blueprint_schema, resolver=Blueprint_schema_resolver)
 
 
-blueprints_api = Blueprint('blueprints_api', __name__)
-
-
-@blueprints_api.route('/blueprints', methods=['POST'])
-def ExecuteBlueprint():
+def ExecuteBlueprintHandler():
     '''
     Execute a blueprint on the ZeroRobot
     It is handler for POST /blueprints
@@ -63,6 +61,7 @@ def create_service(template, name, data):
     service = TemplateClass(name)
     scol.add(service)
     return service
+
 
 def schedule_action(service, action):
     service = scol.get_by_name(service)

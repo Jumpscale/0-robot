@@ -1,0 +1,107 @@
+{
+	"$schema": "http://json-schema.org/schema#",
+	"type": "object",
+	"properties": {
+		"_limit": {
+			"type": "integer"
+		},
+		"_traceback": {
+			"type": "string"
+		},
+		"appname": {
+			"type": "string"
+		},
+		"category": {
+			"type": "string"
+		},
+		"closetime": {
+			"type": "integer"
+		},
+		"code": {
+			"type": "string"
+		},
+		"data": {
+			"type": "object"
+		},
+		"epoch": {
+			"type": "integer"
+		},
+		"errormessage": {
+			"type": "string"
+		},
+		"errormessagePub": {
+			"type": "string"
+		},
+		"exceptionclassname": {
+			"type": "string"
+		},
+		"funcfilename": {
+			"type": "string"
+		},
+		"funclinenr": {
+			"type": "integer"
+		},
+		"funcname": {
+			"type": "string"
+		},
+		"guid": {
+			"type": "string"
+		},
+		"jid": {
+			"type": "integer"
+		},
+		"lasttime": {
+			"type": "integer"
+		},
+		"level": {
+			"type": "integer"
+		},
+		"masterjid": {
+			"type": "integer"
+		},
+		"occurrences": {
+			"type": "integer"
+		},
+		"pid": {
+			"type": "integer"
+		},
+		"state": {
+			"type": "string"
+		},
+		"tags": {
+			"type": "string"
+		},
+		"type": {
+			"type": "string"
+		},
+		"uniquekey": {
+			"type": "string"
+		}
+	},
+	"required": [
+		"_limit",
+		"_traceback",
+		"appname",
+		"category",
+		"closetime",
+		"code",
+		"epoch",
+		"errormessage",
+		"errormessagePub",
+		"exceptionclassname",
+		"funcfilename",
+		"funclinenr",
+		"funcname",
+		"guid",
+		"jid",
+		"lasttime",
+		"level",
+		"masterjid",
+		"occurrences",
+		"pid",
+		"state",
+		"tags",
+		"type",
+		"uniquekey"
+	]
+}

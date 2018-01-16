@@ -118,6 +118,10 @@ types:
         type: string
       state:
         type: ServiceState[]
+      parent:
+        type: string
+        description: guid of the parent service
+        required: false
     example:
       guid: 7040fda3-08e1-4109-829c-925a907809f9
       template: github.com/jumpscale/zerorobot/node/0.0.1
@@ -170,13 +174,19 @@ types:
         type: string
         description: unique ID of the task
       state:
-        enum: [ new, error ]
+        enum: [ new, ok, running, error ]
         description: |
           a task that is waiting to be executed is in state new.
-          a task that failed to execute and is being retried is in state error.
+          a task that being executed is in state running
+          a task that executed successfully is in state ok
+          a task that failed to execute and/or is being retried is in state error.
       created:
         type: integer
         description: timestamp at the time the task was created
+      eco:
+        type: Eco
+        description: In case the task failed with an exception, description of the exception
+        required: false
     example:
       template_name: github.com/account/repository/master/node.zero-os
       service_name: node1
@@ -200,6 +210,63 @@ types:
         type: string
         description: optional stack_trace attached with the error.
         required: false
+
+  Eco:
+    description: |
+      Error conditions, is a custom error format that allow to investigate
+      an exceptions. It is used to serialize the error happening during task execution
+    properties:
+      appname:
+        type: string
+      epoch:
+        type: integer
+      errormessagePub:
+        type: string
+      type:
+        type: string
+      state:
+        type: string
+      data:
+        type: object
+        required: false
+      jid:
+        type: integer
+      masterjid:
+        type: integer
+      errormessage:
+        type: string
+      uniquekey:
+        type: string
+      category:
+        type: string
+      exceptionclassname:
+        type: string
+      funcfilename:
+        type: string
+      closetime:
+        type: integer
+      level:
+        type: integer
+      _limit:
+        type: integer
+      lasttime:
+        type: integer
+      code:
+        type: string
+      guid:
+        type: string
+      tags:
+        type: string
+      funclinenr:
+        type: integer
+      _traceback:
+        type: string
+      funcname:
+        type: string
+      pid:
+        type: integer
+      occurrences:
+        type: integer
 
 /blueprints:
   description: |
@@ -311,8 +378,10 @@ types:
               type:        bool
               required:    false
               default: false
-        body:
-          type: Task[]
+        responses:
+          200:
+            body:
+              type: Task[]
       post:
         displayName: AddTaskToList
         description: Add a task to the task list
