@@ -8,7 +8,7 @@ from zerorobot.service_collection import ServiceConflictError
 
 
 def _sort_by_template(services):
-    return sorted(services, key=lambda x: x.template_uid)
+    return sorted(services, key=lambda x: str(x.template_uid))
 
 
 def print_service(service):
@@ -27,23 +27,24 @@ def service():
     pass
 
 
-@service.command()
-@click.option('--template', '-t', help='template UID', required=True)
-@click.option('--name', '-n', help='service name', required=True)
-@click.option('--data', '-d', help='service schema data', required=False, default=None)
-def create(template, name, data=None):
-    """
-    create a new service
-    """
-    cl = utils.get_client()
-    try:
-        service = cl.services.create(template, name, data)
-    except ServiceConflictError as err:
-        print(str(err))
-        sys.exit(1)
+# Disabled for now, see : https://github.com/Jumpscale/0-robot/issues/23
+# @service.command()
+# @click.option('--template', '-t', help='template UID', required=True)
+# @click.option('--name', '-n', help='service name', required=True)
+# @click.option('--data', '-d', help='service schema data', required=False, default=None)
+# def create(template, name, data=None):
+#     """
+#     create a new service
+#     """
+#     cl = utils.get_client()
+#     try:
+#         service = cl.services.create(template, name, data)
+#     except ServiceConflictError as err:
+#         print(str(err))
+#         sys.exit(1)
 
-    print("service created")
-    print_service(service)
+#     print("service created")
+#     print_service(service)
 
 
 @service.command()
