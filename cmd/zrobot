@@ -6,6 +6,7 @@ from zerorobot.cli.robot import robot
 from zerorobot.cli.service import service
 from zerorobot.cli.template import template
 from zerorobot.cli.task import task
+from zerorobot.cli.blueprint import blueprint
 
 
 @click.group()
@@ -17,6 +18,7 @@ entry_point.add_command(robot)
 entry_point.add_command(service)
 entry_point.add_command(template)
 entry_point.add_command(task)
+entry_point.add_command(blueprint)
 
 
 if __name__ == "__main__":

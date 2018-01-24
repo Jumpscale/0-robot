@@ -7,3 +7,4 @@
 - Components:
     - [Templates](templates/README.md)
     - [Services](services/README.md)
+    - [Blueprint](blueprint/README.md)
