@@ -61,7 +61,7 @@ class Node(TemplateBase):
     version = '0.0.1'
     template_name = "node"
 
-    def __init__(self, name, guid=None, data=None):
+    def __init__(self, name=None, guid=None, data=None):
         super().__init__(name=name, guid=guid, data=data)
 ```
 capnp schema:

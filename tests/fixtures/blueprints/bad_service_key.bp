@@ -1,2 +1,3 @@
-node_node1:
-  foo: bar
+services:
+  - node_node1:
+      foo: bar

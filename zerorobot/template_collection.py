@@ -128,11 +128,11 @@ def _load_template(url, template_dir):
     return _templates[class_.template_uid]
 
 
-def instantiate_service(template, name, data=None):
+def instantiate_service(template, name=None, data=None):
     if isinstance(template, str):
         template = get(template)
 
-    service = template(name, data=data)
+    service = template(data=data, name=name)
 
     scol.add(service)
     return service

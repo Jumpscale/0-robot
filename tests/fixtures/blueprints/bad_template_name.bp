@@ -1,2 +1,3 @@
-node$bad__node1:
-  foo: bar
+services:
+  - node$bad__node1:
+      foo: bar

@@ -38,6 +38,18 @@ class TestServiceTemplate(unittest.TestCase):
         self.assertIsNotNone(srv.task_list, "service task_list should not be None")
         self.assertIsNotNone(srv._gl_mgr, "service greenlet manager should not be None")
 
+    def test_instantiate_service_without_name(self):
+        Node = self.load_template('node')
+        srv = tcol.instantiate_service(Node)
+        self.assertIsNotNone(srv, "service should not be None")
+        self.assertEqual(srv.name, srv.guid, "service name should be the same as guid when created without name")
+        self.assertIsNotNone(srv.guid, "service guid should not be None")
+        self.assertEqual(srv.version, Node.version, "service and template version should match")
+        self.assertIsNotNone(srv.data, "service data should not be None")
+        self.assertIsNotNone(srv.state, "service state should not be None")
+        self.assertIsNotNone(srv.task_list, "service task_list should not be None")
+        self.assertIsNotNone(srv._gl_mgr, "service greenlet manager should not be None")
+
     def test_service_save_delete(self):
         Node = self.load_template('node')
         srv = tcol.instantiate_service(Node, 'testnode')

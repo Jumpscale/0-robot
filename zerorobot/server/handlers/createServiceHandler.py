@@ -38,7 +38,7 @@ def createServiceHandler():
         return json.dumps({'code': 400, 'message': err.args[0]}), 400, {"Content-type": 'application/json'}
 
     try:
-        service = tcol.instantiate_service(TemplateClass, inputs['name'], inputs.get('data', {}))
+        service = tcol.instantiate_service(TemplateClass, inputs.get('name'), inputs.get('data', {}))
     except ServiceConflictError:
         service = None
         return json.dumps({'code': 409, 'message': "a service with name '%s' already exists" % inputs['name']}), \

@@ -8,7 +8,7 @@ class ZerotierClient(TemplateBase):
     version = '0.0.1'
     template_name = "zerotier_client"
 
-    def __init__(self, name, guid=None, data=None):
+    def __init__(self, name=None, guid=None, data=None):
         super().__init__(name=name, guid=guid, data=data)
 
         # client instance already exists

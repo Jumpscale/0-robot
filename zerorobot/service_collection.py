@@ -80,7 +80,7 @@ def load(template, base_path):
         raise BadTemplateError("Trying to load service from folder %s, but name of the service is %s"
                                % (base_path, service_info['name']))
 
-    srv = template(service_info['name'], service_info['guid'], data=service_data)
+    srv = template(name=service_info['name'], guid=service_info['guid'], data=service_data)
     if service_info['parent']:
         srv.parent = get_by_guid(service_info['parent'])
 

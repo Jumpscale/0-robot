@@ -45,38 +45,44 @@ def parse(content):
 
     actions = []
     services = []
-    event_filters = []
+    # event_filters = []
     for key, block in content.items():
         if key == 'actions':
             actions.extend(_parse_actions(block))
         # TODO: not sure we still want to support that
         # elif key == 'eventFilters':
         #     event_filters.append(_parse_event_filter(block))
-        else:
-            services.append(_parse_service(key, block))
+        elif key == 'services':
+            for service_info in block:
+                for name, data in service_info.items():
+                    services.append(_parse_service(name, data))
     return (actions, services)
 
 
-def _parse_actions(block):
-    if "actions" not in block:
-        raise BadBlueprintFormatError("need to specify action key in action block", {'actions': dict(block)})
+def _parse_actions(action_blocks):
+    if not isinstance(action_blocks, list):
+        action_blocks = [action_blocks]
 
-    actions = block["actions"]
-
-    if not isinstance(actions, list):
-        actions = [actions]
-
-    actions = [item.strip() for item in actions]
     result = []
-    keys = ['template', 'service', 'recurring', 'force']
-    for action in actions:
-        item = {'action': action}
-        for k in keys:
-            if k == 'force':
-                item[k] = bool(block.get(k, False))
-            else:
-                item[k] = block.get(k, '')
-        result.append(item)
+    for block in action_blocks:
+        if "actions" not in block:
+            raise BadBlueprintFormatError("need to specify action key in action block", {'actions': dict(block)})
+
+        actions = block["actions"]
+
+        if not isinstance(actions, list):
+            actions = [actions]
+
+        actions = [item.strip() for item in actions]
+        keys = ['template', 'service', 'recurring', 'force']
+        for action in actions:
+            item = {'action': action}
+            for k in keys:
+                if k == 'force':
+                    item[k] = bool(block.get(k, False))
+                else:
+                    item[k] = block.get(k, '')
+            result.append(item)
 
     return result
 
@@ -137,7 +143,6 @@ def validate_service_name(name):
     """
     Validates that service have valid name
     """
-    message = ''
     if not re.sub("[-_.]", "", name).isalnum():
         message = "Service name should be digits or alphanumeric. you passed [%s]" % name
         raise BadBlueprintFormatError(message)
@@ -148,7 +153,6 @@ def validate_template_uid(uid):
     """
     Validates that template have valid name
     """
-    message = ''
     try:
         TemplateUID.parse(uid)
     except ValueError:

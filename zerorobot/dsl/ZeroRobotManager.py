@@ -100,7 +100,7 @@ class ServicesMgr:
             results.append(self._instantiate(service))
         return results
 
-    def create(self, template_uid, service_name, data=None):
+    def create(self, template_uid, service_name=None, data=None):
         """
         Instantiate a service from a template
 
@@ -117,8 +117,9 @@ class ServicesMgr:
         req = {
             "template": str(template_uid),
             "version": "0.0.1",
-            "name": service_name,
         }
+        if service_name:
+            req["name"] = service_name
         if data:
             req["data"] = data
 

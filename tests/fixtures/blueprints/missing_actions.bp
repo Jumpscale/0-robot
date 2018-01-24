@@ -1,5 +1,6 @@
-github.com/jumpscale/0-robot/node/0.0.1__node1:
-  foo: bar
+services:
+  - github.com/jumpscale/0-robot/node/0.0.1__node1:
+      foo: bar
 
 actions:
   template: github.com/jumpscale/0-robot/node/0.0.1

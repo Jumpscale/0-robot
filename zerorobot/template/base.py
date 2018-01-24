@@ -89,9 +89,9 @@ class TemplateBase:
     # path of the template on disk. This is set during template loading
     template_dir = None
 
-    def __init__(self, name, guid=None, data=None):
+    def __init__(self, name=None, guid=None, data=None):
         self.guid = guid or str(uuid4())
-        self.name = name
+        self.name = name or self.guid
         self.parent = None
         self._path = None  # location on the filesystem where to store the service
 

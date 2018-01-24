@@ -79,7 +79,7 @@ class ServicesMgr:
 
         return list(services.values())
 
-    def create(self, template_uid, service_name, data=None):
+    def create(self, template_uid, service_name=None, data=None):
         """
         Instantiate a service from a template
         This method first look for a ZeroRobot that manages the template_uid then create the service in the selected robots.

@@ -33,7 +33,7 @@ class Node(TemplateBase):
     version = '0.0.1'
     template_name = "node"
 
-    def __init__(self, name, guid=None, data=None):
+    def __init__(self, name=None, guid=None, data=None):
         super().__init__(name=name, guid=guid, data=data)
 
     def foo(self):
@@ -57,7 +57,7 @@ class Node(TemplateBase):
     version = '0.0.1'
     template_name = "node"
 
-    def __init__(self, name, guid=None, data=None):
+    def __init__(self, name=None, guid=None, data=None):
         super().__init__(name=name, guid=guid, data=data)
 
      def update_data(self, d):
@@ -107,7 +107,7 @@ class Node(TemplateBase):
     version = '0.0.1'
     template_name = "node"
 
-    def __init__(self, name, guid=None, data=None):
+    def __init__(self, name=None, guid=None, data=None):
         super().__init__(name=name, guid=guid, data=data)
 
     def foo(self):
@@ -154,7 +154,7 @@ class Node(TemplateBase):
     version = '0.0.1'
     template_name = "node"
 
-    def __init__(self, name, guid=None, data=None):
+    def __init__(self, name=None, guid=None, data=None):
         super().__init__(name=name, guid=guid, data=data)
 
     # retry the method when the exception is RuntimeError or KeyError
@@ -181,7 +181,7 @@ class Node(TemplateBase):
     version = '0.0.1'
     template_name = "node"
 
-    def __init__(self, name, guid=None, data=None):
+    def __init__(self, name=None, guid=None, data=None):
         super().__init__(name=name, guid=guid, data=data)
 
     # set the timeout of the method to 60 second.
@@ -211,7 +211,7 @@ class Node(TemplateBase):
     version = '0.0.1'
     template_name = "node"
 
-    def __init__(self, name, guid=None, data=None):
+    def __init__(self, name=None, guid=None, data=None):
         super().__init__(name=name, guid=guid, data=data)
         # using the reference to the method
         self.recurring_action(self.foo, 10)
@@ -237,7 +237,7 @@ class Node(TemplateBase):
     version = '0.0.1'
     template_name = "node"
 
-    def __init__(self, name, guid=None, data=None):
+    def __init__(self, name=None, guid=None, data=None):
         super().__init__(name=name, guid=guid, data=data)
         # using the reference to the method
         self.recurring_action(self.foo, 10)
