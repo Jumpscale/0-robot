@@ -277,6 +277,11 @@ types:
       occurrences:
         type: integer
 
+  ServiceFilter:
+    description: type used in the query parameters of the ListService method
+    properties:
+
+
 /blueprints:
   description: |
     A blueprint is a description of which service you want to create
@@ -322,6 +327,43 @@ types:
   get:
     displayName: listServices
     description: List all the services known by the ZeroRobot.
+    queryParameters:
+      name:
+        type: string
+        required: false
+        description: Filter on the name of the service
+        example: myservicename
+      template_uid:
+        type: string
+        required: false
+        description: Filter on the complete template UID of the service
+        example: github.com/jumpscale/0-robot/node/0.0.1
+      template_host:
+        type: string
+        required: false
+        description: Filter on the host part of the template UID of the service
+        example: github.com
+      template_account:
+        type: string
+        required: false
+        description: Filter on the account part of the template UID of the service
+        example: jumpscale
+      template_repo:
+        type: string
+        required: false
+        description: Filter on the repository part of the template UID of the service
+        example: 0-robot
+      template_name:
+        type: string
+        required: false
+        description: Filter on the name part of the template UID of the service
+        example: node
+      template_version:
+        type: string
+        required: false
+        description: Filter on the version part of the template UID of the service
+        example: 0.0.1
+
     responses:
       200:
         body:
