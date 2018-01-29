@@ -10,7 +10,7 @@ setup(
     license='Apache',
     packages=find_packages(),
     include_package_data=True,
-    package_data={'zerorobot': ['api/schema/*.json', 'api/index.html', 'api/apidocs/*', 'api/apidocs/*/*']},
+    package_data={'zerorobot': ['api/handlers/schema/*.json', 'server/index.html', 'server/apidocs/*', 'server/apidocs/*/*']},
     install_requires=[
         'JumpScale9',
         'JumpScale9Lib',

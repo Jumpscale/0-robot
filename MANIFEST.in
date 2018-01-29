@@ -1,4 +1,4 @@
-include zerorobot/api/schema/*.json
-include zerorobot/api/index.html
-include zerorobot/api/apidocs/*
-include zerorobot/api/apidocs/*/*
+include zerorobot/server/handlers/schema/*.json
+include zerorobot/server/index.html
+include zerorobot/server/serverdocs/*
+include zerorobot/server/apidocs/*/*
