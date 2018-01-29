@@ -98,7 +98,7 @@ The service state management is completely left to the developer of the service.
 
 The developer can also check the state of a another service to take decision.
 
-See the detail API documentation about the service state for more detail about the interface: https://jumpscale.github.io/0-robot/api/0-robot/template/base.m.html#0-robot.template.base.ServiceState
+See the detail API documentation about the service state for more detail about the interface: https://jumpscale.github.io/0-robot/api/zerorobot/template/base.m.html#0-robot.template.base.ServiceState
 
 Example:
 ```python
@@ -133,11 +133,11 @@ An actions is just a method on the service object.
 
 ### Customize actions behavior
 It is possible to add some special behavior to an actions using decorators
-See the API documentation for more detail: https://jumpscale.github.io/0-robot/api/0-robot/template/decorator.m.html
+See the API documentation for more detail: https://jumpscale.github.io/0-robot/api/zerorobot/template/decorator.m.html
 
-#### Rety decorator
+#### Retry decorator
 This decorator allows to define retry policy for the action. 
-In case the action raises an exception during it's execution, the action is going to be retied according to the policy defined with the decorator arguments.
+In case the action raises an exception during it's execution, the action is going to be retried according to the policy defined with the decorator arguments.
 
 Arguments of the decorator:
 - exceptions: The exception to check. may be a tuple of exceptions to check.
@@ -159,7 +159,7 @@ class Node(TemplateBase):
 
     # retry the method when the exception is RuntimeError or KeyError
     # it will wait 3, 6, 12, 16 seconds before raising the exception
-    def retry((RuntimeError, KeyError), tries=4, delay=3, backoff=2, logger=None):
+    @retry((RuntimeError, KeyError), tries=4, delay=3, backoff=2, logger=None)
     def foo(self):
         # some code
 
@@ -186,7 +186,7 @@ class Node(TemplateBase):
 
     # set the timeout of the method to 60 second.
     # and set a custom error message
-    @timeout(60, error_message='Function call timed out'):
+    @timeout(60, error_message='Function call timed out')
     def foo(self):
         # some code
 

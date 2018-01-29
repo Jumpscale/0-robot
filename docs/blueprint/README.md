@@ -1,6 +1,6 @@
 # Blueprint
 
-A blueprint is a description of which [service](#service) needs to be created and which [action](#action) needs to executed. 
+A blueprint is a description of which [service](#service-block) needs to be created and which [action](#action-block) needs to executed. 
 It's written in yaml.
 
 A blueprint can be decomposed into 2 types of blocks, service block and action block.
