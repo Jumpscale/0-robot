@@ -36,7 +36,7 @@ class TestServiceTemplate(unittest.TestCase):
         self.assertIsNotNone(srv.data, "service data should not be None")
         self.assertIsNotNone(srv.state, "service state should not be None")
         self.assertIsNotNone(srv.task_list, "service task_list should not be None")
-        self.assertIsNotNone(srv._gl_mgr, "service greenlet manager should not be None")
+        self.assertIsNotNone(srv.gl_mgr, "service greenlet manager should not be None")
 
     def test_instantiate_service_without_name(self):
         Node = self.load_template('node')
@@ -48,7 +48,7 @@ class TestServiceTemplate(unittest.TestCase):
         self.assertIsNotNone(srv.data, "service data should not be None")
         self.assertIsNotNone(srv.state, "service state should not be None")
         self.assertIsNotNone(srv.task_list, "service task_list should not be None")
-        self.assertIsNotNone(srv._gl_mgr, "service greenlet manager should not be None")
+        self.assertIsNotNone(srv.gl_mgr, "service greenlet manager should not be None")
 
     def test_service_save_delete(self):
         Node = self.load_template('node')
@@ -142,5 +142,5 @@ class TestServiceTemplate(unittest.TestCase):
     def test_recurring(self):
         tmpl = self.load_template('recurring')
         srv = tmpl('foo')
-        gl = srv._gl_mgr.get('recurring_monitor')
+        gl = srv.gl_mgr.get('recurring_monitor')
         self.assertTrue(gl.started)

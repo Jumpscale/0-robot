@@ -16,9 +16,9 @@ class TestGreenletsMgr(unittest.TestCase):
     def test_add_get(self):
         mgr = GreenletsMgr()
 
-        tt = ["string", 1, 1.0, self.foo, None]
+        tt = ["string", 1, 1.0, None]
         for tc in tt:
-            with self.assertRaises(TypeError, msg="should accept only instance of gevent.Greenlet"):
+            with self.assertRaises(TypeError, msg="should accept only instance of gevent.Greenlet or callable, not %s" % type(tc)):
                 mgr.add("key", tc)
 
         # add greenlet created with spawn
@@ -29,6 +29,14 @@ class TestGreenletsMgr(unittest.TestCase):
         # add Greenlet object
         gl = gevent.Greenlet(run=self.foo)
         mgr.add("foo", gl)
+
+        # add method
+        mgr.add("foo", self.foo)
+
+        # add function
+        def bar():
+            pass
+        mgr.add("foo", bar)
 
         with self.assertRaises(KeyError, msg='should raise KeyError if try to get non existing gl'):
             mgr.get('nonexists')

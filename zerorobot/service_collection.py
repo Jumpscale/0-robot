@@ -100,7 +100,7 @@ def upgrade(service, new_template):
     logger.info("upgrade service %s (%s) to %s", service.name, service.guid, new_template.template_uid)
     service.template_uid = new_template.template_uid
     # stop the services
-    service._gl_mgr.stop_all(wait=True)
+    service.gl_mgr.stop_all(wait=True)
     service.save()
 
     # remove service from memory

@@ -251,3 +251,43 @@ class Node(TemplateBase):
         # ...
 
 ```
+
+
+### Asynchronous code
+Since 0-robot runs on top of gevent, you can within your templates defines some asynchronous coroutine that needs to run during the lifetime of your service.
+
+To allow this, the TemplateBase class expose has a `gl_mgr` attribute. This is an instance of the GreenletManager class. This class let you start and managed gevent Greenlet from within your service.
+
+As an example, let's show how we can asynchronously consume job stream for ZeroOS.
+See https://github.com/zero-os/0-core/blob/master/docs/monitoring/logging.md to first understand what are job stream.
+
+Here is the code:
+```python
+
+# this is the action that we will schedule on the service to test
+def test_stream(self):
+    # we start the process and keep a reference to the job
+    job = self.node.client.system('top')
+
+    # this is the callback of the stream method
+    # this is where you process the data incoming from your process
+    # in this case we just print 
+    def cb(level, msg, flag):
+        print("level %d" % level)
+        print(msg)
+
+    self._process_stream(job.id, cb)
+
+# this method define and start the greenlet using the GreenletManager
+def _process_stream(self, jobid, cb):
+    def gl():
+        subscriber = self.node.client.subscribe(jobid)
+        subscriber.stream(cb)
+
+    self.gl_mgr.add("jobid", gl)
+    return jobid
+```
+
+The result of scheduling `test_stream` will start a `top` process on the ZeroOs node and the output of the process will be streamed back into the couroutine and printed to the logs of 0-robot.
+
+It's important to use the Greenlet manager when you start coroutine cause 0-robot make sure that we don't leak any coroutine when deleting or updating the services.

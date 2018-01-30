@@ -49,9 +49,20 @@ class GreenletsMgr:
     def __init__(self):
         self.gls = {}
 
-    def add(self, key, gl):
-        if not isinstance(gl, gevent.Greenlet):
-            raise TypeError("gl should be a Greenlet not %s" % type(gl))
+    def add(self, key, func, *args, **kwargs):
+        """
+        keep reference of a new greenlet
+        @param key: unique identifier of the greenlet, you need it to stop the greenlet
+        @param func: a callable or a gevent.Greenlet
+                    if a callable, create a greenlet with it
+                    if a greenlet, just make sure that it's started
+        """
+        if isinstance(func, gevent.Greenlet):
+            gl = func
+        else:
+            if not callable(func):
+                raise TypeError("gl should be a callable or a gevent.Greenlet not %s" % type(func))
+            gl = gevent.Greenlet(func, *args, **kwargs)
 
         if not gl.started:
             gl.start()
@@ -104,8 +115,8 @@ class TemplateBase:
         self.task_list = TaskList()
 
         # start the greenlets of this service
-        self._gl_mgr = GreenletsMgr()
-        self._gl_mgr.add('executor', gevent.Greenlet(self._run))
+        self.gl_mgr = GreenletsMgr()
+        self.gl_mgr.add('executor', gevent.Greenlet(self._run))
 
         self.logger = _configure_logger(self.guid)
 
@@ -217,7 +228,7 @@ class TemplateBase:
             action = action.__name__
 
         gl = gevent.Greenlet(_recurring_action, self, action, period)
-        self._gl_mgr.add("recurring_" + action, gl)
+        self.gl_mgr.add("recurring_" + action, gl)
 
     def delete(self):
         """
@@ -229,7 +240,7 @@ class TemplateBase:
         """
         self.logger.info("deleting service %s (%s)", self.name, self.guid)
         # stop all recurring action
-        self._gl_mgr.stop_all(wait=True)
+        self.gl_mgr.stop_all(wait=True)
 
         # close ressources of logging handlers
         for h in self.logger.handlers:

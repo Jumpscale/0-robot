@@ -146,7 +146,7 @@ class Robot:
         """
         for service in scol.list_services():
             # stop all the greenlets attached to the services
-            service._gl_mgr.stop_all()
+            service.gl_mgr.stop_all()
             service.save(self._data_dir)
 
 
