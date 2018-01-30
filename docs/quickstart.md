@@ -1,23 +1,4 @@
-# Installation
-```
-git clone https://github.com/Jumpscale/0-robot/
-cd 0-robot
-pip3 install -r requirements.txt
-python3 setup.py install
-
-```
-> checkout to branch package if you face any problems
-
-# Running tests
-```
- pip3 install codecov
-./utils/scripts/jumpscale_install.sh
-./tests/prepare_env.sh
-make test
-```
-
-
-# Running the robot
+# Getting started and Running the robot
 
 Detailed documentation is available here [Getting Started](getting_started.md)
 
