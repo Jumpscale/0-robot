@@ -8,8 +8,7 @@ import requests
 from js9 import j
 from zerorobot.dsl.ZeroRobotManager import ZeroRobotManager
 
-cfg_file_path = path.join(str(Path.home()), '.zrobot.yml')
-cfg_key = 'instance_robot'
+_JS_CONFIG_KEY = 'zrobot_current'
 
 
 def test_connection(instance):
@@ -23,12 +22,12 @@ def test_connection(instance):
 
 
 def get_instance():
-    if not path.exists(cfg_file_path):
+    try:
+        instance = j.core.state.stateGet(_JS_CONFIG_KEY)
+    except j.exceptions.Input:
         print("No robot configured. Use 'zrobot robot connect' to configure one")
         sys.exit(1)
 
-    cfg = j.data.serializer.yaml.load(cfg_file_path)
-    instance = cfg.get(cfg_key)
     if not instance:
         print("No robot configured. Use 'zrobot robot connect' to configure one")
         sys.exit(1)

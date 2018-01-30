@@ -10,7 +10,7 @@ from requests.exceptions import HTTPError
 
 from js9 import j
 from zerorobot.task import (TASK_STATE_ERROR, TASK_STATE_NEW, TASK_STATE_OK,
-                            TASK_STATE_RUNNING, Task)
+                            TASK_STATE_RUNNING, Task, TaskNotFoundError)
 from zerorobot.template.state import ServiceState
 
 
@@ -36,6 +36,7 @@ class ServiceProxy():
         # a proxy service doesn't have direct access to the data of it's remote homologue
         # cause data are always only accessible  by the service itself and locally
         self.data = None
+        self.task_list = TaskListProxy(self)
 
     @property
     def state(self):
@@ -45,11 +46,6 @@ class ServiceProxy():
         for state in service.state:
             s.set(state.category, state.tag, state.state.value)
         return s
-
-    @property
-    def task_list(self):
-        tasks, _ = self._zrobot_client.api.services.getTaskList(service_guid=self.guid, query_params={'all': True})
-        return _task_list_proxy_from_api(tasks, self)
 
     @property
     def actions(self):
@@ -86,40 +82,28 @@ class ServiceProxy():
 
 class TaskListProxy:
 
-    def __init__(self):
-        self._tasks = []
-        self._done = []
+    def __init__(self, service_proxy):
+        self._service = service_proxy
 
     def empty(self):
-        return len(self._tasks) == 0
+        tasks, _ = self._service._zrobot_client.api.services.getTaskList(service_guid=self._service.guid, query_params={'all': False})
+        return len(tasks) <= 0
 
     def list_tasks(self, all=False):
-        tasks = list(self._tasks)
-        if all:
-            tasks.extend(self._done)
-        elif len(self._done) > 1 and self._done[-1].state == TASK_STATE_RUNNING:
-            # also return the current running
-            # task as part of the task list
-            tasks.insert(0, self._done[-1])
-        return tasks
+        tasks, _ = self._service._zrobot_client.api.services.getTaskList(service_guid=self._service.guid, query_params={'all': all})
+        return [_task_proxy_from_api(t, self._service) for t in tasks]
 
     def get_task_by_guid(self, guid):
         """
         return a task from the list by it's guid
         """
-        # FIXME: this is really inefficient
-        def find_task(guid, l):
-            for task in l:
-                if task.guid == guid:
-                    return task
-
-        task = find_task(guid, self._done)
-        if task:
-            return task
-        task = find_task(guid, self._done)
-        if task:
-            return task
-        raise KeyError("no task with guid %s found" % guid)
+        try:
+            task, _ = self._service._zrobot_client.api.services.GetTask(service_guid=self._service.guid, task_guid=guid)
+            return _task_proxy_from_api(task, self._service)
+        except HTTPError as err:
+            if err.response.status_code == 404:
+                raise TaskNotFoundError("no task with guid %s found" % guid)
+            raise err
 
 
 class TaskProxy(Task):
@@ -144,8 +128,7 @@ class TaskProxy(Task):
     @property
     def result(self):
         if self._result is None:
-            task, _ = self.service._zrobot_client.api.services.GetTask(
-                task_guid=self.guid, service_guid=self.service.guid)
+            task, _ = self.service._zrobot_client.api.services.GetTask(task_guid=self.guid, service_guid=self.service.guid)
             if task.result:
                 self._result = j.data.serializer.json.loads(task.result)
         return self._result
@@ -159,22 +142,6 @@ class TaskProxy(Task):
     @state.setter
     def state(self, value):
         raise RuntimeError("you can't change the statet of a TaskProxy")
-
-
-def _task_list_proxy_from_api(tasks, service):
-    """
-    instantiate an TaskListProxy from API response of
-    GetTaskList call
-    """
-    task_list = TaskListProxy()
-    for task in tasks:
-        t = _task_proxy_from_api(task, service)
-
-        if task.state.value in (TASK_STATE_ERROR, TASK_STATE_OK):
-            task_list._done.append(t)
-        elif task.state.value in (TASK_STATE_NEW, TASK_STATE_RUNNING):
-            task_list._tasks.append(t)
-    return task_list
 
 
 def _task_proxy_from_api(task, service):

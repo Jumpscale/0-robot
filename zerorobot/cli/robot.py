@@ -9,14 +9,12 @@ from js9 import j
 import click
 from zerorobot.cli import utils
 
-_location = 'j.clients.zrobot'
-
 
 def _list():
     """
     list all instance of 0-robot register in the configmanager
     """
-    return j.tools.configmanager.list(_location)
+    return j.clients.zrobot.list()
 
 
 @click.group()
@@ -48,7 +46,7 @@ def connect(instance, addr):
         print("service running at %s doesn't seems to be a valid 0-robot" % addr)
         sys.exit(1)
 
-    j.data.serializer.yaml.dump(utils.cfg_file_path, {utils.cfg_key: instance})
+    j.core.state.stateSet(utils._JS_CONFIG_KEY, instance, save=True)
     print("Connection to %s saved" % instance)
 
 

@@ -4,6 +4,7 @@ import json
 
 from zerorobot import service_collection as scol
 from zerorobot.server.handlers.views import task_view
+from zerorobot.task import TaskNotFoundError
 
 
 def GetTaskHandler(task_guid, service_guid):
@@ -19,7 +20,7 @@ def GetTaskHandler(task_guid, service_guid):
 
     try:
         task = service.task_list.get_task_by_guid(task_guid)
-    except KeyError:
+    except TaskNotFoundError:
         return json.dumps({'code': 404, 'message': "task with guid '%s' not found" % task_guid}), \
             404, {"Content-type": 'application/json'}
 

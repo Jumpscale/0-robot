@@ -45,6 +45,11 @@ class TestZRobotAPI(unittest.TestCase):
         return p, addr
 
     def setUp(self):
+        self.previous_zrobot_cfgs = {}
+        for instance in j.clients.zrobot.list():
+            self.previous_zrobot_cfgs[instance] = j.clients.zrobot.get(instance)
+        j.clients.zrobot.reset()
+
         self.api = ZeroRobotAPI()
         self.ps = []
         self.instances = []
@@ -54,7 +59,8 @@ class TestZRobotAPI(unittest.TestCase):
             p, addr = self._start_robot(i, with_tmpl=True)
             self.ps.append(p)
             instance = j.data.hash.md5_string(addr)
-            self.api._config_mgr.set(instance, addr)
+            cl = j.clients.zrobot.get(instance, data={'url': addr}, create=True)
+            cl.config.save()
             self.instances.append(instance)
 
         # give time to the robot to starts TODO: find better then sleep
@@ -71,13 +77,18 @@ class TestZRobotAPI(unittest.TestCase):
             p.join()
 
         for instance in self.instances:
-            self.api._config_mgr.delete(instance)
+            j.clients.zrobot.delete(instance)
         # TODO: cleanup data_dir of each robots
 
         # make sure we don't have any service loaded
         scol.drop_all()
         # make sure we don't have any template loaded
         tcol._templates = {}
+
+        # restore zrobot config
+        for instance, cl in self.previous_zrobot_cfgs.items():
+            cl = j.clients.zrobot.get(instance, data=cl.config.data, create=True)
+            cl.config.save()
 
     def test_robots_discovery(self):
         self.assertGreaterEqual(len(self.api.robots), 2, "should have discovered at least the 2 robots that are running for the test")

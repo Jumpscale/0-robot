@@ -5,8 +5,8 @@ other services and class need to use this module method to create, access, list 
 import os
 
 from js9 import j
-from zerorobot.template_uid import TemplateUID
 from zerorobot.sqlite import SqliteIndex
+from zerorobot.template_uid import TemplateUID
 
 logger = j.logger.get('zerorobot')
 
@@ -88,7 +88,7 @@ def load(template, base_path):
 
     srv.state.load(os.path.join(base_path, 'state.yaml'))
     srv.data.load(os.path.join(base_path, 'data.yaml'))
-    srv.task_list.load(os.path.join(base_path, 'tasks.yaml'), srv)
+    srv.task_list.load(os.path.join(base_path, 'tasks.yaml'))
     srv._path = base_path
     add(srv)
     return srv

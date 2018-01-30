@@ -187,6 +187,7 @@ class TemplateBase:
         and handle responses from other service
         """
         while True:
+            task = None
             try:
                 task = self.task_list.get()
                 started = time.time()
@@ -195,8 +196,11 @@ class TemplateBase:
                 # TODO: gracefull shutdown
                 break
             finally:
-                latency = time.time() - started
-                task_latency.labels(action_name=task.action_name, template_uid=str(self.template_uid)).observe(latency)
+                if task:
+                    latency = time.time() - started
+                    task_latency.labels(action_name=task.action_name, template_uid=str(self.template_uid)).observe(latency)
+                    # notify the task list that this task is done
+                    self.task_list.done(task)
 
     def schedule_action(self, action, args=None):
         """

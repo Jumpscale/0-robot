@@ -71,10 +71,8 @@ class TestServiceProxy(unittest.TestCase):
         task = service.schedule_action('start')
         task.wait()
 
-        self.assertEqual(len(proxy.task_list.list_tasks(all=True)), 1, "task create on service should be visible from the proxy")
+        self.assertEqual(len(proxy.task_list.list_tasks(all=True)), 1, "task create on s ervice should be visible from the proxy")
         proxy_task = proxy.task_list.get_task_by_guid(task.guid)
-        self.assertEqual(proxy_task.state, task.state, "state of a task should be reflect on the proxy task")
-        task.state = 'error'
         self.assertEqual(proxy_task.state, task.state, "state of a task should be reflect on the proxy task")
 
         self.assertEqual(proxy_task.result, task.result, "result on the proxy task should be the same as on the real task")
