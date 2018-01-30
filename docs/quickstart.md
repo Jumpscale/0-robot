@@ -18,12 +18,15 @@ make test
 
 
 # Running the robot
+
 * `zrobot server start -L :6600 -T https://github.com/jumpscale/0-robot.git -D https://github.com/xmonader/zdata --debug`
 ```
 -T is used for template repos
 -D is used for 0-robot data repo
 --debug to see more logs for inspection
 ```
+Detailed documentation is available here [Getting Started](getting_started.md)
+
 
 
 # Hello world template/service
@@ -56,10 +59,7 @@ struct Schema {
 
 - `helloworld.py`
 ```
-from js9 import j
 from zerorobot.template.base import TemplateBase
-
-HELLOWORLD_TEMPLATE_UID = "github.com/jumpscale/0-robot/helloworld/0.0.1"
 
 
 class Helloworld(TemplateBase):
@@ -73,13 +73,8 @@ class Helloworld(TemplateBase):
         if not self.data['msg']:
             self.data['msg'] = "Hello World"
 
-        self._msg = self.data['msg']
-
     def echo_to_temp(self):
-        with open("/tmp/msg.robot", "a") as f:
-            f.write(self._msg)
-
-
+        j.sal.fs.writeFile("/tmp/msg.robot", self._data['msg'], append=True)
 ```
 
 Let's dissect the template code a little bit
@@ -91,10 +86,6 @@ from zerorobot.template.base import TemplateBase
 ```
 Because we want to use jumpscale facilities and TemplateBase as the Base class for all templates
 
-* Template UID (Unique ID for the template)
-```
-HELLOWORLD_TEMPLATE_UID = "github.com/jumpscale/0-robot/helloworld/0.0.1"
-```
 * 
 ``` Template class
 class Helloworld(TemplateBase):
@@ -108,7 +99,6 @@ class Helloworld(TemplateBase):
         if not self.data['msg']:
             self.data['msg'] = "Hello World"
 
-        self._msg = self.data['msg']
 ``` 
 - name is used for service name creation
 - data used to populate the `schema.capnp` data
@@ -118,13 +108,11 @@ class Helloworld(TemplateBase):
 * Actions
 ```
     def echo_to_temp(self):
-        with open("/tmp/msg.robot", "a") as f:
-            f.write(self._msg)
-
+        j.sal.fs.writeFile("/tmp/msg.robot", self._data['msg'], append=True)
 ```
-`echo_to_temp` is an action that can be scheduled. (also it can take parameters.) 
+`echo_to_temp` is an action that can be scheduled
 > Needs to be a method.
-
+> ACtions can take parameter depending on the method signature.
 
 
 ## Creating instance of the service and schedluing actions using the DSL
@@ -138,10 +126,9 @@ In [55]: api = ZeroRobotAPI.ZeroRobotAPI()
 ```
 2- Create instance of the helloworld template
 ```
-In [58]: api.services.create("github.com/jumpscale/0-robot/helloworld/0.0.1", "firstservice")
+In [58]: service = api.services.create("github.com/jumpscale/0-robot/helloworld/0.0.1", "firstservice")
 Out[58]: <zerorobot.service_proxy.ServiceProxy at 0x7f71f7c392b0>
 
-In [59]: service = _
 ```
 
 you can use services.names dict to retrieve service by itsname
@@ -163,7 +150,7 @@ Out[63]: <zerorobot.service_proxy.ServiceProxy at 0x7f71f7c28470>
 
 Now let's ask the service to execute its specific task `echo_to_temp`
 ```
-In [64]: s.schedule_action("echo_to_temp")
+In [64]: service.schedule_action("echo_to_temp")
 
 ```
 
