@@ -127,7 +127,7 @@ class Helloworld(TemplateBase):
 
 
 
-## Creating instance of the service
+## Creating instance of the service and schedluing actions using the DSL
 using zerorobot dsl to easily interact with the robot
 
 1- Create ZeroRobotAPI Manager
@@ -171,4 +171,39 @@ and if you check `/tmp/msg.robot` file you should see
 ```
 $ cat /tmp/msg.robot
 Hello World
+```
+
+
+
+## Creating instance of the service and schedluing actions using Blueprints 
+* make a blueprint in some directory  `/tmp/proj/blueprints`
+/tmp/proj/blueprints# cat hello.yaml 
+```
+services:
+    - github.com/jumpscale/0-robot/helloworld/0.0.1__service4:
+          msg: wilkommen
+
+actions:
+    - template: github.com/jumpscale/0-robot/helloworld/0.0.1
+      service: service4
+      actions: ['echo_to_temp']
+
+```
+
+* Connect to the robot
+```
+/tmp/proj/blueprints# zrobot robot connect main http://localhost:6000
+[Tue30 10:35] - ConfigManager.py    :107 :j                              - INFO     - found jsconfig dir in: /opt/code/config_test
+Connection to main saved
+
+```
+
+* Execute the blueprint
+`zrobot blueprint execute hello.yaml`
+
+```
+/tmp/proj/blueprints# zrobot blueprint execute hello.yaml 
+[Tue30 10:51] - ConfigManager.py    :107 :j                              - INFO     - found jsconfig dir in: /opt/code/config_test
+blueprint executed
+
 ```
