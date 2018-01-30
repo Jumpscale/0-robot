@@ -12,7 +12,7 @@ A service can map to something physical, like a server or an network card, or it
 - [Getting started](docs/getting_started.md)
 - [Glossary](docs/glossary.md)
 - Components:
-    - [Templates](templates/README.md)
-    - [Services](services/README.md)
+    - [Templates](docs/templates/README.md)
+    - [Services](docs/services/README.md)
 ## API documentation
 See https://jumpscale.github.io/0-robot/api/zerorobot/index.html
