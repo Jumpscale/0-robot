@@ -19,12 +19,6 @@ make test
 
 # Running the robot
 
-* `zrobot server start -L :6600 -T https://github.com/jumpscale/0-robot.git -D https://github.com/xmonader/zdata --debug`
-```
--T is used for template repos
--D is used for 0-robot data repo
---debug to see more logs for inspection
-```
 Detailed documentation is available here [Getting Started](getting_started.md)
 
 
