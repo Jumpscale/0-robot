@@ -45,16 +45,26 @@ def ExecuteBlueprintHandler():
             srv = scol.get_by_name(service['service'])
             srv.data.update_secure(service.get('data', {}))
 
-    for action in actions:
-        try:
-            schedule_action(action['service'], action['action'])
-        except KeyError:
-            return JSON.dumps({'code': 404, 'message': "service '%s' not found" % action['service']}), \
-                404, {"Content-type": 'application/json'}
+    for action_item in actions:
+        schedule_action(action_item)
 
     return "", 204, {"Content-type": 'application/json'}
 
 
-def schedule_action(service, action):
-    service = scol.get_by_name(service)
-    service.schedule_action(action)
+def schedule_action(action_item):
+    template = action_item.get("template")
+    service = action_item.get("service")
+    action = action_item.get("action")
+    candidates = []
+
+    if template and service:
+        candidates = scol.find(template_uid=template, name=service)
+    elif template and not service:
+        candidates = scol.find(template_uid=template)
+    elif not template and service:
+        candidates = scol.find(name=service)
+    else:
+        candidates = scol.list_services()
+
+    for service in candidates:
+        service.schedule_action(action)
