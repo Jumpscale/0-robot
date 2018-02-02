@@ -1,0 +1,11 @@
+services:
+  - github.com/jumpscale/0-robot/node/0.0.1__node1:
+      foo: bar
+
+actions:
+  - template: github.com/jumpscale/0-robot/node/0.0.1
+    service: node1
+    actions: 'foo'
+    args:
+      bar: 'hello'
+      bor: 'world'

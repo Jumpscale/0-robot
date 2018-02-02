@@ -29,9 +29,23 @@ def execute(blueprint):
     data = {'content': content}
 
     try:
-        client.api.blueprints.ExecuteBlueprint(data)
+        tasks, _ = client.api.blueprints.ExecuteBlueprint(data)
         print("blueprint executed")
+        print("list of taks created with this blueprint:")
+        print_tasks(tasks)
     except HTTPError as err:
         msg = err.response.json()['message']
         print(msg)
         return sys.exit(1)
+
+
+def print_tasks(tasks):
+    to_print = []
+    for task in tasks:
+        to_print.append({
+            'template': task.template_name,
+            'name': task.service_name,
+            'action': task.action_name,
+            'task uid': task.guid,
+        })
+    print(j.data.serializer.yaml.dumps(to_print))

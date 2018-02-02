@@ -7,11 +7,16 @@ import jsonschema
 from jsonschema import Draft4Validator
 
 from flask import request
+from js9 import j
 from zerorobot import service_collection as scol
 from zerorobot import template_collection as tcol
 from zerorobot import blueprint
 from zerorobot.service_collection import ServiceConflictError
-from zerorobot.template_collection import TemplateNameError, TemplateNotFoundError
+from zerorobot.template.base import BadActionArgumentError
+from zerorobot.template_collection import (TemplateNameError,
+                                           TemplateNotFoundError)
+
+from .views import task_view
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
 Blueprint_schema = JSON.load(open(dir_path + '/schema/Blueprint_schema.json'))
@@ -42,20 +47,36 @@ def ExecuteBlueprintHandler():
         except TemplateNotFoundError:
             return JSON.dumps({'code': 404, 'message': "template '%s' not found" % service['template']}), \
                 404, {"Content-type": 'application/json'}
-        except ServiceConflictError:
-            srv = scol.get_by_name(service['service'])
-            srv.data.update_secure(service.get('data', {}))
+        except ServiceConflictError as err:
+            if err.service is None:
+                raise j.exceptions.RuntimeError("should have the conflicting service in the exception")
+            # err.service is the conflicting service, that's the one we want to update
+            # with the new data from the blueprint
+            err.service.data.update_secure(service.get('data', {}))
 
+    tasks_created = []
     for action_item in actions:
-        schedule_action(action_item)
+        try:
+            tasks_created.extend(schedule_action(action_item))
+        except BadActionArgumentError as err:
+            err_msg = "bad action argument for action %s: %s" % (action_item['action'], str(err))
+            return JSON.dumps({'code': 400, 'message': err_msg}), 400, {"Content-type": 'application/json'}
 
-    return "", 204, {"Content-type": 'application/json'}
+    response = []
+    for task, service in tasks_created:
+        response.append(task_view(task, service))
+
+    return JSON.dumps(response), 200, {"Content-type": 'application/json'}
 
 
 def schedule_action(action_item):
     template = action_item.get("template")
     service = action_item.get("service")
     action = action_item.get("action")
+    args = action_item.get('args')
+    if args and not isinstance(args, dict):
+        raise TypeError("args should be a dict not %s" % type(args))
+
     candidates = []
 
     if template and service:
@@ -67,5 +88,8 @@ def schedule_action(action_item):
     else:
         candidates = scol.list_services()
 
+    tasks = []
     for service in candidates:
-        service.schedule_action(action)
+        t = service.schedule_action(action, args=args)
+        tasks.append((t, service))
+    return tasks

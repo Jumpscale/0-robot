@@ -133,8 +133,11 @@ def instantiate_service(template, name=None, data=None):
     if isinstance(template, str):
         template = get(template)
 
-    if name and scol.find(template_uid=str(template.template_uid), name=name):
-        raise ServiceConflictError("a service with name=%s already exist" % name)
+    existing = scol.find(template_uid=str(template.template_uid), name=name)
+    if name and len(existing) > 0:
+        raise ServiceConflictError(
+            message="a service with name=%s already exist" % name,
+            service=existing[0])
 
     service = template(data=data, name=name)
 

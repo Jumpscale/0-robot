@@ -16,7 +16,9 @@ _guid_index = {}
 
 def add(service):
     if service.guid in _guid_index:
-        raise ServiceConflictError("a service with guid=%s already exist" % service.guid)
+        raise ServiceConflictError(
+            message="a service with guid=%s already exist" % service.guid,
+            service=_guid_index[service.guid])
     _guid_index[service.guid] = service
     _sqlite_index.add_service(service)
 
@@ -123,7 +125,15 @@ def drop_all():
 
 
 class ServiceConflictError(Exception):
-    pass
+    """
+    Raised when trying to create a service with a duplicate name
+
+    @param service: the conflicting service that already exists
+    """
+
+    def __init__(self, message, service):
+        super().__init__(message)
+        self.service = service
 
 
 class TooManyResults(Exception):

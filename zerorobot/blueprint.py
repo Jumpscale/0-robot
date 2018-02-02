@@ -26,6 +26,9 @@ def parse(content):
         'name': 'node1',
         'recurring': 1m,
         'action': 'start'
+        'args': {
+            'foo':'bar'
+        }
     }]
     ```
     service block: create/update of a service with its data
@@ -74,14 +77,12 @@ def _parse_actions(action_blocks):
             actions = [actions]
 
         actions = [item.strip() for item in actions]
-        keys = ['template', 'service', 'recurring', 'force']
+        keys = ['template', 'service', 'recurring', 'args']
         for action in actions:
             item = {'action': action}
             for k in keys:
-                if k == 'force':
-                    item[k] = bool(block.get(k, False))
-                else:
-                    item[k] = block.get(k, '')
+                if k in block:
+                    item[k] = block[k]
             result.append(item)
 
     return result

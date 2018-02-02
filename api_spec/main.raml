@@ -292,10 +292,12 @@ types:
     body:
       type: Blueprint
     responses:
-      204:
+      200:
         description: |
           Blueprint executed successfully
           Which mean all the service have been created and all actions added to the task list
+        body:
+          type: Task[]
 
 /templates:
   description: |

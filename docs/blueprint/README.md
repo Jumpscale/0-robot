@@ -29,10 +29,12 @@ An action description is formed with:
 - template uid
 - name of a service
 - list of action name
+- arguments of the action
 
 Only the list of action is required, template uid and service name can be omitted. 
 I only template uid is specified, the actions will be schedule on all the service of this type.
 If only the name of the service is specified, the actions will be schedule only the service with this name.
+If arguments is specified, the argument dictionary will be passed to the action.
 
 examples of a valid action blocks:
 ```yaml
@@ -41,23 +43,32 @@ actions: ['install', 'start']
 ```
 
 ```yaml
-# only actions, will schedule install and start action on all services of type `github.com/jumpscale/0-robot/node/0.0.1`
+# actions and template, will schedule install and start action on all services of type `github.com/jumpscale/0-robot/node/0.0.1`
 template: github.com/jumpscale/0-robot/node/0.0.1
 actions: ['install', 'start']
 ```
 
 ```yaml
-# only actions, will schedule install and start action on all services with name 'node1'
+# actions and service name, will schedule install and start action on all services with name 'node1'
 name: node1
 actions: ['install', 'start']
 ```
 
 
 ```yaml
-# only actions, will schedule install and start action on service type `github.com/jumpscale/0-robot/node/0.0.1` and with name 'node1'
+# full block, will schedule install and start action on service type `github.com/jumpscale/0-robot/node/0.0.1` and with name 'node1'
 template: github.com/jumpscale/0-robot/node/0.0.1
 name: node1
 actions: ['install', 'start']
+```
+
+```yaml
+# full block with argument, will schedule 'migrate_vm' action and pass the argument 'destination' to the 'migrate_vm' action.
+template: github.com/jumpscale/0-robot/node/0.0.1
+name: node1
+actions: ['migrate_vm']
+args:
+    destination: node2
 ```
 
 ## Full example:
