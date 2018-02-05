@@ -25,18 +25,22 @@ def robot():
 
 
 @robot.command()
-@click.argument('instance')
-@click.argument('addr')
+@click.argument('instance', required=True)
+@click.argument('addr', required=False)
 def connect(instance, addr):
     """
     configure the zrobot CLI to work against the 0-robot named --instance
     """
-    if instance not in _list():
-        if addr is None:
-            print("instance '%s' not found. Use 'zrobot robot connect instance addr` to configure a new connection to a 0-robot" % instance)
-        else:
-            # create new configuration for this instance-addr
-            j.clients.zrobot.get(instance=instance, data={'url': addr})
+    # create new config
+    if addr is not None:
+        # create new configuration for this instance-addr
+        cl = j.clients.zrobot.get(instance=instance, data={'url': addr})
+        cl.config.data['url'] = addr
+        cl.config.save()
+
+    # just select existing robot
+    if instance not in _list() and addr is None:
+        print("instance '%s' not found. Use 'zrobot robot connect instance addr` to configure a new connection to a 0-robot" % instance)
 
     connected, addr = utils.test_connection(instance)
     if not connected:
