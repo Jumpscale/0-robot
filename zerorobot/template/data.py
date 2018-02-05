@@ -23,20 +23,20 @@ class ServiceData(dict):
             msg = j.data.capnp.getObj(schema_str)
             self.update(msg.to_dict(verbose=True))
 
-    def update_secure(self, d):
+    def update_secure(self, data):
         """
-        @param d: dict of data to be merge with current one
+        @param data: dict of data to be merge with current one
 
         this method call update_data on the service
         update_data can be overwritten by the creator of the service
         """
-        if not isinstance(d, dict):
-            raise ValueError('argument should be a dict not %s' % type(d))
+        if not isinstance(data, dict):
+            raise ValueError('argument should be a dict not %s' % type(data))
 
-        if d == {}:
+        if data == {}:
             return
         # schedule the update of the data. This is required to serialize data access
-        self._service._schedule_action('update_data', {'d': d}, None, PRIORITY_SYSTEM)
+        return self._service._schedule_action('update_data', {'data': data}, None, PRIORITY_SYSTEM)
 
     def save(self, path):
         """

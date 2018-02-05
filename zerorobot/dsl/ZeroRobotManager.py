@@ -127,7 +127,7 @@ class ServicesMgr:
             new_service, resp = self._client.api.services.createService(req)
         except HTTPError as err:
             if err.response.status_code == 409:
-                raise ServiceConflictError(err.response.json()['message'])
+                raise ServiceConflictError(err.response.json()['message'], None)
             e = err.response.json()
             raise ServiceCreateError(e['message'], err)
 

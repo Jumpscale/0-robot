@@ -60,14 +60,14 @@ class Node(TemplateBase):
     def __init__(self, name=None, guid=None, data=None):
         super().__init__(name=name, guid=guid, data=data)
 
-     def update_data(self, d):
+     def update_data(self, data):
         # foo is a field that can't be updated
         # so we remove it from the proposed data
-        if 'foo' in d:
+        if 'foo' in data:
             del ['foo']
         
         # then merge the rest of the data
-        self.data.update(d)
+        self.data.update(data)
         
         # you can also add logic according
         # to the data you update

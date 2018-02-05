@@ -139,6 +139,19 @@ class TestServiceTemplate(unittest.TestCase):
         with self.assertRaises(BadActionArgumentError, msg="should raise if passing argument that are not part of the signature of the action"):
             srv.schedule_action('foo', args={'bar': 'foo', 'wrong_arg': 'bar'})
 
+    def test_update_secure(self):
+        Node = self.load_template('node')
+        srv = tcol.instantiate_service(Node, 'testnode')
+        self.assertEqual(srv.data['ip'], '')
+
+        with self.assertRaises(ValueError, message='should raise value error when trying to update data with a non dict object'):
+            srv.data.update_secure(data='string')
+
+        task = srv.data.update_secure(data={'ip': '127.0.0.1'})
+        task.wait()
+        self.assertEqual(task.action_name, 'update_data')
+        self.assertEqual(srv.data['ip'], '127.0.0.1')
+
     def test_recurring(self):
         tmpl = self.load_template('recurring')
         srv = tmpl('foo')
