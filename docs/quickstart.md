@@ -89,8 +89,18 @@ class Helloworld(TemplateBase):
 > Needs to be a method.
 > ACtions can take parameter depending on the method signature.
 
+## Connecting zrobot
 
-## Creating instance of the service and schedluing actions using the DSL
+Make sure your robot is running with the helloworld template ([check the getting started guide](getting_started.md)) and connect to the robot
+```
+/tmp/proj# zrobot robot connect main http://localhost:6000
+[Tue30 10:35] - ConfigManager.py    :107 :j                              - INFO     - found jsconfig dir in: /opt/code/config_test
+Connection to main saved
+
+```
+
+## Creating instance of the service and scheduling actions using the DSL
+
 using zerorobot dsl to easily interact with the robot
 
 1- Create ZeroRobotAPI Manager
@@ -135,9 +145,8 @@ $ cat /tmp/msg.robot
 Hello World
 ```
 
-
-
-## Creating instance of the service and schedluing actions using Blueprints 
+## Creating instance of the service and schedluing actions using Blueprints
+ 
 * make a blueprint in some directory  `/tmp/proj/blueprints`
 /tmp/proj/blueprints# cat hello.yaml 
 ```yaml
@@ -149,14 +158,6 @@ actions:
     - template: github.com/jumpscale/0-robot/helloworld/0.0.1
       service: service4
       actions: ['echo_to_temp']
-
-```
-
-* Connect to the robot
-```
-/tmp/proj/blueprints# zrobot robot connect main http://localhost:6000
-[Tue30 10:35] - ConfigManager.py    :107 :j                              - INFO     - found jsconfig dir in: /opt/code/config_test
-Connection to main saved
 
 ```
 
