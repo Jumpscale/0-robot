@@ -161,7 +161,7 @@ def _auto_save_services(data_dir):
     while True:
         try:
             for service in scol.list_services():
-                service._schedule_action('save', {'base_path': data_dir}, None, PRIORITY_SYSTEM)
+                service._schedule_action(action='save', args={'base_path': data_dir}, priority=PRIORITY_SYSTEM)
             gevent.sleep(10)
         except GreenletExit:
             break

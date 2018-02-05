@@ -1096,13 +1096,13 @@ table {
 <span class="sd">    extract the method name that the service has that are not the</span>
 <span class="sd">    method comming from the template base</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">skip</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;load&#39;</span><span class="p">,</span> <span class="s1">&#39;save&#39;</span><span class="p">,</span> <span class="s1">&#39;schedule_action&#39;</span><span class="p">]</span>
+    <span class="n">skip</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;load&#39;</span><span class="p">,</span> <span class="s1">&#39;save&#39;</span><span class="p">,</span> <span class="s1">&#39;schedule_action&#39;</span><span class="p">,</span> <span class="s1">&#39;recurring_action&#39;</span><span class="p">]</span>
     <span class="n">actions</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="nb">dir</span><span class="p">(</span><span class="n">obj</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">skip</span> <span class="ow">or</span> <span class="n">name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">):</span>
             <span class="k">continue</span>
         <span class="k">if</span> <span class="nb">callable</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">name</span><span class="p">)):</span>
-            <span class="n">actions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+            <span class="n">actions</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="n">name</span><span class="p">})</span>
     <span class="k">return</span> <span class="n">actions</span>
 </pre></div>
 
@@ -1168,13 +1168,13 @@ method comming from the template base</p></div>
 <span class="sd">    extract the method name that the service has that are not the</span>
 <span class="sd">    method comming from the template base</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">skip</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;load&#39;</span><span class="p">,</span> <span class="s1">&#39;save&#39;</span><span class="p">,</span> <span class="s1">&#39;schedule_action&#39;</span><span class="p">]</span>
+    <span class="n">skip</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;load&#39;</span><span class="p">,</span> <span class="s1">&#39;save&#39;</span><span class="p">,</span> <span class="s1">&#39;schedule_action&#39;</span><span class="p">,</span> <span class="s1">&#39;recurring_action&#39;</span><span class="p">]</span>
     <span class="n">actions</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="nb">dir</span><span class="p">(</span><span class="n">obj</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">skip</span> <span class="ow">or</span> <span class="n">name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">):</span>
             <span class="k">continue</span>
         <span class="k">if</span> <span class="nb">callable</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">name</span><span class="p">)):</span>
-            <span class="n">actions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+            <span class="n">actions</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="n">name</span><span class="p">})</span>
     <span class="k">return</span> <span class="n">actions</span>
 </pre></div>
 

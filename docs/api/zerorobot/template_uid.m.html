@@ -1078,6 +1078,7 @@ table {
 <span class="kn">import</span> <span class="nn">re</span>
 
 <span class="n">_version_regex</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s2">&quot;(\d+).(\d+).(\d+)&quot;</span><span class="p">)</span>
+<span class="n">_name_regex</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s2">&quot;^\w+$&quot;</span><span class="p">)</span>
 
 
 <span class="k">class</span> <span class="nc">TemplateUID</span><span class="p">:</span>
@@ -1124,16 +1125,17 @@ table {
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ss</span><span class="p">)</span> <span class="o">==</span> <span class="mi">5</span><span class="p">:</span>
             <span class="n">host</span><span class="p">,</span> <span class="n">account</span><span class="p">,</span> <span class="n">repo</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">version</span> <span class="o">=</span> <span class="n">ss</span>
         <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">ss</span><span class="p">)</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">_version_regex</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">ss</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]):</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;format of the template uid (</span><span class="si">%s</span><span class="s2">) not valid&quot;</span> <span class="o">%</span> <span class="n">uid</span><span class="p">)</span>
             <span class="n">host</span><span class="p">,</span> <span class="n">account</span><span class="p">,</span> <span class="n">repo</span><span class="p">,</span> <span class="n">name</span> <span class="o">=</span> <span class="n">ss</span>
         <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">ss</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">_version_regex</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">ss</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]):</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;format of the template uid (</span><span class="si">%s</span><span class="s2">) not valid&quot;</span> <span class="o">%</span> <span class="n">uid</span><span class="p">)</span>
             <span class="n">name</span><span class="p">,</span> <span class="n">version</span> <span class="o">=</span> <span class="n">ss</span>
         <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">ss</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
             <span class="n">name</span> <span class="o">=</span> <span class="n">ss</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;format of the template uid (</span><span class="si">%s</span><span class="s2">) not valid&quot;</span> <span class="o">%</span> <span class="n">uid</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">_name_regex</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;format of the template uid (</span><span class="si">%s</span><span class="s2">) not valid&quot;</span> <span class="o">%</span> <span class="n">uid</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">version</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">_version_regex</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">version</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;format of the template uid (</span><span class="si">%s</span><span class="s2">) not valid&quot;</span> <span class="o">%</span> <span class="n">uid</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">host</span><span class="p">,</span> <span class="n">account</span><span class="p">,</span> <span class="n">repo</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">version</span><span class="p">)</span>
@@ -1159,6 +1161,9 @@ table {
             <span class="k">return</span> <span class="mi">0</span>
 
     <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">other</span> <span class="o">=</span> <span class="n">TemplateUID</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
+
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">TemplateUID</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;other is not an instance of TemplateUID&quot;</span><span class="p">)</span>
 
@@ -1240,16 +1245,17 @@ table {
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ss</span><span class="p">)</span> <span class="o">==</span> <span class="mi">5</span><span class="p">:</span>
             <span class="n">host</span><span class="p">,</span> <span class="n">account</span><span class="p">,</span> <span class="n">repo</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">version</span> <span class="o">=</span> <span class="n">ss</span>
         <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">ss</span><span class="p">)</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">_version_regex</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">ss</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]):</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;format of the template uid (</span><span class="si">%s</span><span class="s2">) not valid&quot;</span> <span class="o">%</span> <span class="n">uid</span><span class="p">)</span>
             <span class="n">host</span><span class="p">,</span> <span class="n">account</span><span class="p">,</span> <span class="n">repo</span><span class="p">,</span> <span class="n">name</span> <span class="o">=</span> <span class="n">ss</span>
         <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">ss</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">_version_regex</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">ss</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]):</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;format of the template uid (</span><span class="si">%s</span><span class="s2">) not valid&quot;</span> <span class="o">%</span> <span class="n">uid</span><span class="p">)</span>
             <span class="n">name</span><span class="p">,</span> <span class="n">version</span> <span class="o">=</span> <span class="n">ss</span>
         <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">ss</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
             <span class="n">name</span> <span class="o">=</span> <span class="n">ss</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;format of the template uid (</span><span class="si">%s</span><span class="s2">) not valid&quot;</span> <span class="o">%</span> <span class="n">uid</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">_name_regex</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;format of the template uid (</span><span class="si">%s</span><span class="s2">) not valid&quot;</span> <span class="o">%</span> <span class="n">uid</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">version</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">_version_regex</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">version</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;format of the template uid (</span><span class="si">%s</span><span class="s2">) not valid&quot;</span> <span class="o">%</span> <span class="n">uid</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">host</span><span class="p">,</span> <span class="n">account</span><span class="p">,</span> <span class="n">repo</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">version</span><span class="p">)</span>
@@ -1275,6 +1281,9 @@ table {
             <span class="k">return</span> <span class="mi">0</span>
 
     <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">other</span> <span class="o">=</span> <span class="n">TemplateUID</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
+
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">TemplateUID</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;other is not an instance of TemplateUID&quot;</span><span class="p">)</span>
 
@@ -1469,16 +1478,16 @@ just the name: name</p></div>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ss</span><span class="p">)</span> <span class="o">==</span> <span class="mi">5</span><span class="p">:</span>
         <span class="n">host</span><span class="p">,</span> <span class="n">account</span><span class="p">,</span> <span class="n">repo</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">version</span> <span class="o">=</span> <span class="n">ss</span>
     <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">ss</span><span class="p">)</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">_version_regex</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">ss</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;format of the template uid (</span><span class="si">%s</span><span class="s2">) not valid&quot;</span> <span class="o">%</span> <span class="n">uid</span><span class="p">)</span>
         <span class="n">host</span><span class="p">,</span> <span class="n">account</span><span class="p">,</span> <span class="n">repo</span><span class="p">,</span> <span class="n">name</span> <span class="o">=</span> <span class="n">ss</span>
     <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">ss</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">_version_regex</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">ss</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;format of the template uid (</span><span class="si">%s</span><span class="s2">) not valid&quot;</span> <span class="o">%</span> <span class="n">uid</span><span class="p">)</span>
         <span class="n">name</span><span class="p">,</span> <span class="n">version</span> <span class="o">=</span> <span class="n">ss</span>
     <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">ss</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
         <span class="n">name</span> <span class="o">=</span> <span class="n">ss</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
     <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;format of the template uid (</span><span class="si">%s</span><span class="s2">) not valid&quot;</span> <span class="o">%</span> <span class="n">uid</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">_name_regex</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;format of the template uid (</span><span class="si">%s</span><span class="s2">) not valid&quot;</span> <span class="o">%</span> <span class="n">uid</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">version</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">_version_regex</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">version</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;format of the template uid (</span><span class="si">%s</span><span class="s2">) not valid&quot;</span> <span class="o">%</span> <span class="n">uid</span><span class="p">)</span>
     <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">host</span><span class="p">,</span> <span class="n">account</span><span class="p">,</span> <span class="n">repo</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">version</span><span class="p">)</span>
 </pre></div>

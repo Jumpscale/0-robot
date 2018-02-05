@@ -1165,14 +1165,21 @@ so the robot see the service as if it as local to him while in reality the servi
         <span class="n">tasks</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_zrobot_client</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">services</span><span class="o">.</span><span class="n">getTaskList</span><span class="p">(</span><span class="n">service_guid</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">guid</span><span class="p">,</span> <span class="n">query_params</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;all&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">})</span>
         <span class="k">return</span> <span class="n">_task_list_proxy_from_api</span><span class="p">(</span><span class="n">tasks</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">schedule_action</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">resp_q</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">actions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        list available actions of the services</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">actions</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_zrobot_client</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">services</span><span class="o">.</span><span class="n">ListActions</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">guid</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">sorted</span><span class="p">([</span><span class="n">a</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">actions</span><span class="p">])</span>
+
+    <span class="k">def</span> <span class="nf">schedule_action</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Do a call on a remote ZeroRobot to add an action to the task list of</span>
 <span class="sd">        the corresponding service</span>
 
 <span class="sd">        @param action: action is the name of the action to add to the task list</span>
 <span class="sd">        @param args: dictionnary of the argument to pass to the action</span>
-<span class="sd">        @param resp_q: is the response queue on which the result of the action need to be put</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">req</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s2">&quot;action_name&quot;</span><span class="p">:</span> <span class="n">action</span><span class="p">,</span>
@@ -1243,15 +1250,25 @@ so the robot see the service as if it as local to him while in reality the servi
         <span class="bp">self</span><span class="o">.</span><span class="n">service</span> <span class="o">=</span> <span class="n">service</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">guid</span> <span class="o">=</span> <span class="n">guid</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_created</span> <span class="o">=</span> <span class="n">created</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_result</span> <span class="o">=</span> <span class="bp">None</span>
 
     <span class="k">def</span> <span class="nf">execute</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;a TaskProxy should never be executed&quot;</span><span class="p">)</span>
 
     <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">result</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="kn">import</span> <span class="nn">pdb</span>
+        <span class="n">pdb</span><span class="o">.</span><span class="n">set_trace</span><span class="p">()</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_result</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">task</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">service</span><span class="o">.</span><span class="n">_zrobot_client</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">services</span><span class="o">.</span><span class="n">GetTask</span><span class="p">(</span>
+                <span class="n">task_guid</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">guid</span><span class="p">,</span> <span class="n">service_guid</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">service</span><span class="o">.</span><span class="n">guid</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_result</span> <span class="o">=</span> <span class="n">task</span><span class="o">.</span><span class="n">result</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_result</span>
+
+    <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">state</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">task</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">service</span><span class="o">.</span><span class="n">_zrobot_client</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">services</span><span class="o">.</span><span class="n">GetTask</span><span class="p">(</span>
-            <span class="n">task_guid</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">guid</span><span class="p">,</span>
-            <span class="n">service_guid</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">service</span><span class="o">.</span><span class="n">guid</span><span class="p">)</span>
+            <span class="n">task_guid</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">guid</span><span class="p">,</span> <span class="n">service_guid</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">service</span><span class="o">.</span><span class="n">guid</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">task</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">value</span>
 
     <span class="nd">@state.setter</span>
@@ -1373,14 +1390,21 @@ so the robot see the service as if it as local to him while in reality the servi
         <span class="n">tasks</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_zrobot_client</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">services</span><span class="o">.</span><span class="n">getTaskList</span><span class="p">(</span><span class="n">service_guid</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">guid</span><span class="p">,</span> <span class="n">query_params</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;all&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">})</span>
         <span class="k">return</span> <span class="n">_task_list_proxy_from_api</span><span class="p">(</span><span class="n">tasks</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">schedule_action</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">resp_q</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">actions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        list available actions of the services</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">actions</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_zrobot_client</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">services</span><span class="o">.</span><span class="n">ListActions</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">guid</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">sorted</span><span class="p">([</span><span class="n">a</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">actions</span><span class="p">])</span>
+
+    <span class="k">def</span> <span class="nf">schedule_action</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Do a call on a remote ZeroRobot to add an action to the task list of</span>
 <span class="sd">        the corresponding service</span>
 
 <span class="sd">        @param action: action is the name of the action to add to the task list</span>
 <span class="sd">        @param args: dictionnary of the argument to pass to the action</span>
-<span class="sd">        @param resp_q: is the response queue on which the result of the action need to be put</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">req</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s2">&quot;action_name&quot;</span><span class="p">:</span> <span class="n">action</span><span class="p">,</span>
@@ -1472,7 +1496,7 @@ so the robot see the service as if it as local to him while in reality the servi
             
   <div class="item">
     <div class="name def" id="zerorobot.service_proxy.ServiceProxy.schedule_action">
-    <p>def <span class="ident">schedule_action</span>(</p><p>self, action, args=None, resp_q=None)</p>
+    <p>def <span class="ident">schedule_action</span>(</p><p>self, action, args=None)</p>
     </div>
     
 
@@ -1481,18 +1505,16 @@ so the robot see the service as if it as local to him while in reality the servi
     <div class="desc"><p>Do a call on a remote ZeroRobot to add an action to the task list of
 the corresponding service</p>
 <p>@param action: action is the name of the action to add to the task list
-@param args: dictionnary of the argument to pass to the action
-@param resp_q: is the response queue on which the result of the action need to be put</p></div>
+@param args: dictionnary of the argument to pass to the action</p></div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.service_proxy.ServiceProxy.schedule_action', this);">Show source &equiv;</a></p>
   <div id="source-zerorobot.service_proxy.ServiceProxy.schedule_action" class="source">
-    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">schedule_action</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">resp_q</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">schedule_action</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Do a call on a remote ZeroRobot to add an action to the task list of</span>
 <span class="sd">    the corresponding service</span>
 <span class="sd">    @param action: action is the name of the action to add to the task list</span>
 <span class="sd">    @param args: dictionnary of the argument to pass to the action</span>
-<span class="sd">    @param resp_q: is the response queue on which the result of the action need to be put</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">req</span> <span class="o">=</span> <span class="p">{</span>
         <span class="s2">&quot;action_name&quot;</span><span class="p">:</span> <span class="n">action</span><span class="p">,</span>
@@ -1513,6 +1535,17 @@ the corresponding service</p>
   </div>
   
           <h3>Instance variables</h3>
+            <div class="item">
+            <p id="zerorobot.service_proxy.ServiceProxy.actions" class="name">var <span class="ident">actions</span></p>
+            
+
+            
+  
+    <div class="desc"><p>list available actions of the services</p></div>
+  <div class="source_cont">
+</div>
+
+            </div>
             <div class="item">
             <p id="zerorobot.service_proxy.ServiceProxy.data" class="name">var <span class="ident">data</span></p>
             
@@ -1777,15 +1810,25 @@ actual state of the task on the remote ZeroRobot</p></div>
         <span class="bp">self</span><span class="o">.</span><span class="n">service</span> <span class="o">=</span> <span class="n">service</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">guid</span> <span class="o">=</span> <span class="n">guid</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_created</span> <span class="o">=</span> <span class="n">created</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_result</span> <span class="o">=</span> <span class="bp">None</span>
 
     <span class="k">def</span> <span class="nf">execute</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;a TaskProxy should never be executed&quot;</span><span class="p">)</span>
 
     <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">result</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="kn">import</span> <span class="nn">pdb</span>
+        <span class="n">pdb</span><span class="o">.</span><span class="n">set_trace</span><span class="p">()</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_result</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">task</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">service</span><span class="o">.</span><span class="n">_zrobot_client</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">services</span><span class="o">.</span><span class="n">GetTask</span><span class="p">(</span>
+                <span class="n">task_guid</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">guid</span><span class="p">,</span> <span class="n">service_guid</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">service</span><span class="o">.</span><span class="n">guid</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_result</span> <span class="o">=</span> <span class="n">task</span><span class="o">.</span><span class="n">result</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_result</span>
+
+    <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">state</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">task</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">service</span><span class="o">.</span><span class="n">_zrobot_client</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">services</span><span class="o">.</span><span class="n">GetTask</span><span class="p">(</span>
-            <span class="n">task_guid</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">guid</span><span class="p">,</span>
-            <span class="n">service_guid</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">service</span><span class="o">.</span><span class="n">guid</span><span class="p">)</span>
+            <span class="n">task_guid</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">guid</span><span class="p">,</span> <span class="n">service_guid</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">service</span><span class="o">.</span><span class="n">guid</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">task</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">value</span>
 
     <span class="nd">@state.setter</span>
@@ -1816,8 +1859,7 @@ actual state of the task on the remote ZeroRobot</p></div>
   
     <div class="desc"><p>@param service: is the service object that own the action to be executed
 @param action_name: is the method name of the action that this task need to execute
-@param args: argument to pass to the action when executing
-@param resp_q: is the response queue on which the result of the action need to be put</p></div>
+@param args: argument to pass to the action when executing</p></div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.service_proxy.TaskProxy.__init__', this);">Show source &equiv;</a></p>
   <div id="source-zerorobot.service_proxy.TaskProxy.__init__" class="source">
@@ -1827,6 +1869,7 @@ actual state of the task on the remote ZeroRobot</p></div>
     <span class="bp">self</span><span class="o">.</span><span class="n">service</span> <span class="o">=</span> <span class="n">service</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">guid</span> <span class="o">=</span> <span class="n">guid</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_created</span> <span class="o">=</span> <span class="n">created</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_result</span> <span class="o">=</span> <span class="bp">None</span>
 </pre></div>
 
   </div>
@@ -1918,6 +1961,16 @@ raises TimeoutError</p></div>
             </div>
             <div class="item">
             <p id="zerorobot.service_proxy.TaskProxy.guid" class="name">var <span class="ident">guid</span></p>
+            
+
+            
+  
+  <div class="source_cont">
+</div>
+
+            </div>
+            <div class="item">
+            <p id="zerorobot.service_proxy.TaskProxy.result" class="name">var <span class="ident">result</span></p>
             
 
             

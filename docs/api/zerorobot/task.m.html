@@ -1135,19 +1135,18 @@ table {
 
 <span class="k">class</span> <span class="nc">Task</span><span class="p">:</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">resp_q</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        @param service: is the service object that own the action to be executed</span>
 <span class="sd">        @param action_name: is the method name of the action that this task need to execute</span>
 <span class="sd">        @param args: argument to pass to the action when executing</span>
-<span class="sd">        @param resp_q: is the response queue on which the result of the action need to be put</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">guid</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">idgenerator</span><span class="o">.</span><span class="n">generateGUID</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">func</span> <span class="o">=</span> <span class="n">func</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">action_name</span> <span class="o">=</span> <span class="n">func</span><span class="o">.</span><span class="vm">__name__</span> <span class="k">if</span> <span class="n">func</span> <span class="k">else</span> <span class="bp">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_resp_q</span> <span class="o">=</span> <span class="n">resp_q</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_args</span> <span class="o">=</span> <span class="n">args</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_created</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_result</span> <span class="o">=</span> <span class="bp">None</span>
 
         <span class="c1"># used when action raises an exception</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">eco</span> <span class="o">=</span> <span class="bp">None</span>
@@ -1159,6 +1158,10 @@ table {
     <span class="k">def</span> <span class="nf">created</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_created</span><span class="p">)</span>
 
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">result</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_result</span>
+
     <span class="k">def</span> <span class="nf">execute</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="n">TASK_STATE_RUNNING</span>
@@ -1167,9 +1170,9 @@ table {
 
         <span class="k">try</span><span class="p">:</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_args</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
-                <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">func</span><span class="p">(</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">_args</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">func</span><span class="p">(</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">_args</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">func</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">func</span><span class="p">()</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="n">TASK_STATE_OK</span>
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="n">TASK_STATE_ERROR</span>
@@ -1177,10 +1180,6 @@ table {
             <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">exc_traceback</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">exc_info</span><span class="p">()</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">eco</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">errorhandler</span><span class="o">.</span><span class="n">parsePythonExceptionObject</span><span class="p">(</span><span class="n">err</span><span class="p">,</span> <span class="n">tb</span><span class="o">=</span><span class="n">exc_traceback</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">eco</span><span class="o">.</span><span class="n">printTraceback</span><span class="p">()</span>
-
-        <span class="k">finally</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">result</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_resp_q</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_resp_q</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">result</span>
 
     <span class="nd">@property</span>
@@ -1217,6 +1216,12 @@ table {
 
     <span class="k">def</span> <span class="fm">__lt__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_created</span> <span class="o">&lt;</span> <span class="n">other</span><span class="o">.</span><span class="n">_created</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">action_name</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">repr</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
 
 <span class="c1"># has the highest priority, usually used by the robot when it needs a service to execute something</span>
@@ -1307,7 +1312,7 @@ table {
                 <span class="s2">&quot;guid&quot;</span><span class="p">:</span> <span class="n">task</span><span class="o">.</span><span class="n">guid</span><span class="p">,</span>
                 <span class="c1"># &quot;service&quot;: = task.service.name,</span>
                 <span class="s2">&quot;action_name&quot;</span><span class="p">:</span> <span class="n">task</span><span class="o">.</span><span class="n">action_name</span><span class="p">,</span>
-                <span class="c1"># &quot;_resp_q&quot;: = resp_q TODO: figure out what to do with the resp_q</span>
+                <span class="s2">&quot;result&quot;</span><span class="p">:</span> <span class="n">task</span><span class="o">.</span><span class="n">_result</span><span class="p">,</span>
                 <span class="s2">&quot;args&quot;</span><span class="p">:</span> <span class="n">task</span><span class="o">.</span><span class="n">_args</span><span class="p">,</span>
                 <span class="s2">&quot;state&quot;</span><span class="p">:</span> <span class="n">task</span><span class="o">.</span><span class="n">state</span><span class="p">,</span>
                 <span class="s2">&quot;eco&quot;</span><span class="p">:</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">task</span><span class="o">.</span><span class="n">eco</span><span class="o">.</span><span class="n">toJson</span><span class="p">())</span> <span class="k">if</span> <span class="n">task</span><span class="o">.</span><span class="n">eco</span> <span class="k">else</span> <span class="bp">None</span><span class="p">,</span>
@@ -1327,12 +1332,13 @@ table {
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">def</span> <span class="nf">instantiate_task</span><span class="p">(</span><span class="n">task</span><span class="p">):</span>
             <span class="n">func</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">service</span><span class="p">,</span> <span class="n">task</span><span class="p">[</span><span class="s1">&#39;action_name&#39;</span><span class="p">])</span>
-            <span class="n">t</span> <span class="o">=</span> <span class="n">Task</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">task</span><span class="p">[</span><span class="s1">&#39;args&#39;</span><span class="p">],</span> <span class="n">resp_q</span><span class="o">=</span><span class="bp">None</span><span class="p">)</span>
+            <span class="n">t</span> <span class="o">=</span> <span class="n">Task</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">task</span><span class="p">[</span><span class="s1">&#39;args&#39;</span><span class="p">])</span>
             <span class="k">if</span> <span class="n">task</span><span class="p">[</span><span class="s1">&#39;state&#39;</span><span class="p">]</span> <span class="ow">in</span> <span class="p">[</span><span class="n">TASK_STATE_RUNNING</span><span class="p">,</span> <span class="n">TASK_STATE_NEW</span><span class="p">]:</span>
                 <span class="n">t</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="n">TASK_STATE_NEW</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">t</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="n">task</span><span class="p">[</span><span class="s1">&#39;state&#39;</span><span class="p">]</span>
             <span class="n">t</span><span class="o">.</span><span class="n">guid</span> <span class="o">=</span> <span class="n">task</span><span class="p">[</span><span class="s1">&#39;guid&#39;</span><span class="p">]</span>
+            <span class="n">t</span><span class="o">.</span><span class="n">_result</span> <span class="o">=</span> <span class="n">task</span><span class="p">[</span><span class="s1">&#39;result&#39;</span><span class="p">]</span>
             <span class="k">if</span> <span class="n">task</span><span class="p">[</span><span class="s1">&#39;eco&#39;</span><span class="p">]:</span>
                 <span class="n">t</span><span class="o">.</span><span class="n">eco</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">errorhandler</span><span class="o">.</span><span class="n">getErrorConditionObject</span><span class="p">(</span><span class="n">ddict</span><span class="o">=</span><span class="n">task</span><span class="p">[</span><span class="s1">&#39;eco&#39;</span><span class="p">])</span>
             <span class="k">return</span> <span class="n">t</span>
@@ -1434,19 +1440,18 @@ table {
   <div id="source-zerorobot.task.Task" class="source">
     <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">Task</span><span class="p">:</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">resp_q</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        @param service: is the service object that own the action to be executed</span>
 <span class="sd">        @param action_name: is the method name of the action that this task need to execute</span>
 <span class="sd">        @param args: argument to pass to the action when executing</span>
-<span class="sd">        @param resp_q: is the response queue on which the result of the action need to be put</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">guid</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">idgenerator</span><span class="o">.</span><span class="n">generateGUID</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">func</span> <span class="o">=</span> <span class="n">func</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">action_name</span> <span class="o">=</span> <span class="n">func</span><span class="o">.</span><span class="vm">__name__</span> <span class="k">if</span> <span class="n">func</span> <span class="k">else</span> <span class="bp">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_resp_q</span> <span class="o">=</span> <span class="n">resp_q</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_args</span> <span class="o">=</span> <span class="n">args</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_created</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_result</span> <span class="o">=</span> <span class="bp">None</span>
 
         <span class="c1"># used when action raises an exception</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">eco</span> <span class="o">=</span> <span class="bp">None</span>
@@ -1458,6 +1463,10 @@ table {
     <span class="k">def</span> <span class="nf">created</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_created</span><span class="p">)</span>
 
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">result</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_result</span>
+
     <span class="k">def</span> <span class="nf">execute</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="n">TASK_STATE_RUNNING</span>
@@ -1466,9 +1475,9 @@ table {
 
         <span class="k">try</span><span class="p">:</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_args</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
-                <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">func</span><span class="p">(</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">_args</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">func</span><span class="p">(</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">_args</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">func</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">func</span><span class="p">()</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="n">TASK_STATE_OK</span>
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="n">TASK_STATE_ERROR</span>
@@ -1476,10 +1485,6 @@ table {
             <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">exc_traceback</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">exc_info</span><span class="p">()</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">eco</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">errorhandler</span><span class="o">.</span><span class="n">parsePythonExceptionObject</span><span class="p">(</span><span class="n">err</span><span class="p">,</span> <span class="n">tb</span><span class="o">=</span><span class="n">exc_traceback</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">eco</span><span class="o">.</span><span class="n">printTraceback</span><span class="p">()</span>
-
-        <span class="k">finally</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">result</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_resp_q</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_resp_q</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">result</span>
 
     <span class="nd">@property</span>
@@ -1516,6 +1521,12 @@ table {
 
     <span class="k">def</span> <span class="fm">__lt__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_created</span> <span class="o">&lt;</span> <span class="n">other</span><span class="o">.</span><span class="n">_created</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">action_name</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">repr</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 </pre></div>
 
   </div>
@@ -1532,7 +1543,7 @@ table {
             
   <div class="item">
     <div class="name def" id="zerorobot.task.Task.__init__">
-    <p>def <span class="ident">__init__</span>(</p><p>self, func, args, resp_q=None)</p>
+    <p>def <span class="ident">__init__</span>(</p><p>self, func, args)</p>
     </div>
     
 
@@ -1540,24 +1551,22 @@ table {
   
     <div class="desc"><p>@param service: is the service object that own the action to be executed
 @param action_name: is the method name of the action that this task need to execute
-@param args: argument to pass to the action when executing
-@param resp_q: is the response queue on which the result of the action need to be put</p></div>
+@param args: argument to pass to the action when executing</p></div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.task.Task.__init__', this);">Show source &equiv;</a></p>
   <div id="source-zerorobot.task.Task.__init__" class="source">
-    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">resp_q</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    @param service: is the service object that own the action to be executed</span>
 <span class="sd">    @param action_name: is the method name of the action that this task need to execute</span>
 <span class="sd">    @param args: argument to pass to the action when executing</span>
-<span class="sd">    @param resp_q: is the response queue on which the result of the action need to be put</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">guid</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">idgenerator</span><span class="o">.</span><span class="n">generateGUID</span><span class="p">()</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">func</span> <span class="o">=</span> <span class="n">func</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">action_name</span> <span class="o">=</span> <span class="n">func</span><span class="o">.</span><span class="vm">__name__</span> <span class="k">if</span> <span class="n">func</span> <span class="k">else</span> <span class="bp">None</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">_resp_q</span> <span class="o">=</span> <span class="n">resp_q</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_args</span> <span class="o">=</span> <span class="n">args</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_created</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_result</span> <span class="o">=</span> <span class="bp">None</span>
     <span class="c1"># used when action raises an exception</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">eco</span> <span class="o">=</span> <span class="bp">None</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_state</span> <span class="o">=</span> <span class="n">TASK_STATE_NEW</span>
@@ -1587,9 +1596,9 @@ table {
     <span class="n">result</span> <span class="o">=</span> <span class="bp">None</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_args</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
-            <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">func</span><span class="p">(</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">_args</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">func</span><span class="p">(</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">_args</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">func</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">func</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="n">TASK_STATE_OK</span>
     <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="n">TASK_STATE_ERROR</span>
@@ -1597,9 +1606,6 @@ table {
         <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">exc_traceback</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">exc_info</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">eco</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">errorhandler</span><span class="o">.</span><span class="n">parsePythonExceptionObject</span><span class="p">(</span><span class="n">err</span><span class="p">,</span> <span class="n">tb</span><span class="o">=</span><span class="n">exc_traceback</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">eco</span><span class="o">.</span><span class="n">printTraceback</span><span class="p">()</span>
-    <span class="k">finally</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">result</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_resp_q</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_resp_q</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">result</span>
 </pre></div>
 
@@ -1691,6 +1697,16 @@ raises TimeoutError</p></div>
             </div>
             <div class="item">
             <p id="zerorobot.task.Task.guid" class="name">var <span class="ident">guid</span></p>
+            
+
+            
+  
+  <div class="source_cont">
+</div>
+
+            </div>
+            <div class="item">
+            <p id="zerorobot.task.Task.result" class="name">var <span class="ident">result</span></p>
             
 
             
@@ -1800,7 +1816,7 @@ raises TimeoutError</p></div>
                 <span class="s2">&quot;guid&quot;</span><span class="p">:</span> <span class="n">task</span><span class="o">.</span><span class="n">guid</span><span class="p">,</span>
                 <span class="c1"># &quot;service&quot;: = task.service.name,</span>
                 <span class="s2">&quot;action_name&quot;</span><span class="p">:</span> <span class="n">task</span><span class="o">.</span><span class="n">action_name</span><span class="p">,</span>
-                <span class="c1"># &quot;_resp_q&quot;: = resp_q TODO: figure out what to do with the resp_q</span>
+                <span class="s2">&quot;result&quot;</span><span class="p">:</span> <span class="n">task</span><span class="o">.</span><span class="n">_result</span><span class="p">,</span>
                 <span class="s2">&quot;args&quot;</span><span class="p">:</span> <span class="n">task</span><span class="o">.</span><span class="n">_args</span><span class="p">,</span>
                 <span class="s2">&quot;state&quot;</span><span class="p">:</span> <span class="n">task</span><span class="o">.</span><span class="n">state</span><span class="p">,</span>
                 <span class="s2">&quot;eco&quot;</span><span class="p">:</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">task</span><span class="o">.</span><span class="n">eco</span><span class="o">.</span><span class="n">toJson</span><span class="p">())</span> <span class="k">if</span> <span class="n">task</span><span class="o">.</span><span class="n">eco</span> <span class="k">else</span> <span class="bp">None</span><span class="p">,</span>
@@ -1820,12 +1836,13 @@ raises TimeoutError</p></div>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">def</span> <span class="nf">instantiate_task</span><span class="p">(</span><span class="n">task</span><span class="p">):</span>
             <span class="n">func</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">service</span><span class="p">,</span> <span class="n">task</span><span class="p">[</span><span class="s1">&#39;action_name&#39;</span><span class="p">])</span>
-            <span class="n">t</span> <span class="o">=</span> <span class="n">Task</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">task</span><span class="p">[</span><span class="s1">&#39;args&#39;</span><span class="p">],</span> <span class="n">resp_q</span><span class="o">=</span><span class="bp">None</span><span class="p">)</span>
+            <span class="n">t</span> <span class="o">=</span> <span class="n">Task</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">task</span><span class="p">[</span><span class="s1">&#39;args&#39;</span><span class="p">])</span>
             <span class="k">if</span> <span class="n">task</span><span class="p">[</span><span class="s1">&#39;state&#39;</span><span class="p">]</span> <span class="ow">in</span> <span class="p">[</span><span class="n">TASK_STATE_RUNNING</span><span class="p">,</span> <span class="n">TASK_STATE_NEW</span><span class="p">]:</span>
                 <span class="n">t</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="n">TASK_STATE_NEW</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">t</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="n">task</span><span class="p">[</span><span class="s1">&#39;state&#39;</span><span class="p">]</span>
             <span class="n">t</span><span class="o">.</span><span class="n">guid</span> <span class="o">=</span> <span class="n">task</span><span class="p">[</span><span class="s1">&#39;guid&#39;</span><span class="p">]</span>
+            <span class="n">t</span><span class="o">.</span><span class="n">_result</span> <span class="o">=</span> <span class="n">task</span><span class="p">[</span><span class="s1">&#39;result&#39;</span><span class="p">]</span>
             <span class="k">if</span> <span class="n">task</span><span class="p">[</span><span class="s1">&#39;eco&#39;</span><span class="p">]:</span>
                 <span class="n">t</span><span class="o">.</span><span class="n">eco</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">errorhandler</span><span class="o">.</span><span class="n">getErrorConditionObject</span><span class="p">(</span><span class="n">ddict</span><span class="o">=</span><span class="n">task</span><span class="p">[</span><span class="s1">&#39;eco&#39;</span><span class="p">])</span>
             <span class="k">return</span> <span class="n">t</span>
@@ -2032,12 +2049,13 @@ returns all the task that are currently in the task list</p></div>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="nf">instantiate_task</span><span class="p">(</span><span class="n">task</span><span class="p">):</span>
         <span class="n">func</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">service</span><span class="p">,</span> <span class="n">task</span><span class="p">[</span><span class="s1">&#39;action_name&#39;</span><span class="p">])</span>
-        <span class="n">t</span> <span class="o">=</span> <span class="n">Task</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">task</span><span class="p">[</span><span class="s1">&#39;args&#39;</span><span class="p">],</span> <span class="n">resp_q</span><span class="o">=</span><span class="bp">None</span><span class="p">)</span>
+        <span class="n">t</span> <span class="o">=</span> <span class="n">Task</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">task</span><span class="p">[</span><span class="s1">&#39;args&#39;</span><span class="p">])</span>
         <span class="k">if</span> <span class="n">task</span><span class="p">[</span><span class="s1">&#39;state&#39;</span><span class="p">]</span> <span class="ow">in</span> <span class="p">[</span><span class="n">TASK_STATE_RUNNING</span><span class="p">,</span> <span class="n">TASK_STATE_NEW</span><span class="p">]:</span>
             <span class="n">t</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="n">TASK_STATE_NEW</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">t</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="n">task</span><span class="p">[</span><span class="s1">&#39;state&#39;</span><span class="p">]</span>
         <span class="n">t</span><span class="o">.</span><span class="n">guid</span> <span class="o">=</span> <span class="n">task</span><span class="p">[</span><span class="s1">&#39;guid&#39;</span><span class="p">]</span>
+        <span class="n">t</span><span class="o">.</span><span class="n">_result</span> <span class="o">=</span> <span class="n">task</span><span class="p">[</span><span class="s1">&#39;result&#39;</span><span class="p">]</span>
         <span class="k">if</span> <span class="n">task</span><span class="p">[</span><span class="s1">&#39;eco&#39;</span><span class="p">]:</span>
             <span class="n">t</span><span class="o">.</span><span class="n">eco</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">errorhandler</span><span class="o">.</span><span class="n">getErrorConditionObject</span><span class="p">(</span><span class="n">ddict</span><span class="o">=</span><span class="n">task</span><span class="p">[</span><span class="s1">&#39;eco&#39;</span><span class="p">])</span>
         <span class="k">return</span> <span class="n">t</span>
@@ -2110,7 +2128,7 @@ returns all the task that are currently in the task list</p></div>
             <span class="s2">&quot;guid&quot;</span><span class="p">:</span> <span class="n">task</span><span class="o">.</span><span class="n">guid</span><span class="p">,</span>
             <span class="c1"># &quot;service&quot;: = task.service.name,</span>
             <span class="s2">&quot;action_name&quot;</span><span class="p">:</span> <span class="n">task</span><span class="o">.</span><span class="n">action_name</span><span class="p">,</span>
-            <span class="c1"># &quot;_resp_q&quot;: = resp_q TODO: figure out what to do with the resp_q</span>
+            <span class="s2">&quot;result&quot;</span><span class="p">:</span> <span class="n">task</span><span class="o">.</span><span class="n">_result</span><span class="p">,</span>
             <span class="s2">&quot;args&quot;</span><span class="p">:</span> <span class="n">task</span><span class="o">.</span><span class="n">_args</span><span class="p">,</span>
             <span class="s2">&quot;state&quot;</span><span class="p">:</span> <span class="n">task</span><span class="o">.</span><span class="n">state</span><span class="p">,</span>
             <span class="s2">&quot;eco&quot;</span><span class="p">:</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">task</span><span class="o">.</span><span class="n">eco</span><span class="o">.</span><span class="n">toJson</span><span class="p">())</span> <span class="k">if</span> <span class="n">task</span><span class="o">.</span><span class="n">eco</span> <span class="k">else</span> <span class="bp">None</span><span class="p">,</span>

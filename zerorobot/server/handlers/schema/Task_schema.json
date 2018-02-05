@@ -17,6 +17,9 @@
 		"guid": {
 			"type": "string"
 		},
+		"result": {
+			"type": "string"
+		},
 		"service_guid": {
 			"type": "string"
 		},

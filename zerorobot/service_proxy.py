@@ -59,14 +59,13 @@ class ServiceProxy():
         actions, _ = self._zrobot_client.api.services.ListActions(self.guid)
         return sorted([a.name for a in actions])
 
-    def schedule_action(self, action, args=None, resp_q=None):
+    def schedule_action(self, action, args=None):
         """
         Do a call on a remote ZeroRobot to add an action to the task list of
         the corresponding service
 
         @param action: action is the name of the action to add to the task list
         @param args: dictionnary of the argument to pass to the action
-        @param resp_q: is the response queue on which the result of the action need to be put
         """
         req = {
             "action_name": action,
@@ -137,15 +136,24 @@ class TaskProxy(Task):
         self.service = service
         self.guid = guid
         self._created = created
+        self._result = None
 
     def execute(self):
         raise RuntimeError("a TaskProxy should never be executed")
 
     @property
+    def result(self):
+        if self._result is None:
+            task, _ = self.service._zrobot_client.api.services.GetTask(
+                task_guid=self.guid, service_guid=self.service.guid)
+            if task.result:
+                self._result = j.data.serializer.json.loads(task.result)
+        return self._result
+
+    @property
     def state(self):
         task, _ = self.service._zrobot_client.api.services.GetTask(
-            task_guid=self.guid,
-            service_guid=self.service.guid)
+            task_guid=self.guid, service_guid=self.service.guid)
         return task.state.value
 
     @state.setter

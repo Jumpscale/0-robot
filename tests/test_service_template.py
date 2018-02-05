@@ -126,6 +126,9 @@ class TestServiceTemplate(unittest.TestCase):
 
         task = srv.schedule_action('foo', args={'bar': 'foo'})
         self.assertDictEqual(task._args, {'bar': 'foo'})
+        task.wait()
+
+        self.assertEqual(task.result, 'result', "result of the task should be available in the task object")
 
         with self.assertRaises(ActionNotFoundError):
             srv.schedule_action('nonexist')

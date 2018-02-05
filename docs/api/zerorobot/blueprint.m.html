@@ -1112,6 +1112,9 @@ table {
 <span class="sd">        &#39;name&#39;: &#39;node1&#39;,</span>
 <span class="sd">        &#39;recurring&#39;: 1m,</span>
 <span class="sd">        &#39;action&#39;: &#39;start&#39;</span>
+<span class="sd">        &#39;args&#39;: {</span>
+<span class="sd">            &#39;foo&#39;:&#39;bar&#39;</span>
+<span class="sd">        }</span>
 <span class="sd">    }]</span>
 <span class="sd">    ```</span>
 <span class="sd">    service block: create/update of a service with its data</span>
@@ -1131,38 +1134,42 @@ table {
 
     <span class="n">actions</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">services</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="n">event_filters</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="c1"># event_filters = []</span>
     <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">block</span> <span class="ow">in</span> <span class="n">content</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
         <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;actions&#39;</span><span class="p">:</span>
             <span class="n">actions</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">_parse_actions</span><span class="p">(</span><span class="n">block</span><span class="p">))</span>
         <span class="c1"># TODO: not sure we still want to support that</span>
         <span class="c1"># elif key == &#39;eventFilters&#39;:</span>
         <span class="c1">#     event_filters.append(_parse_event_filter(block))</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">services</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_parse_service</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">block</span><span class="p">))</span>
+        <span class="k">elif</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;services&#39;</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">service_info</span> <span class="ow">in</span> <span class="n">block</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">data</span> <span class="ow">in</span> <span class="n">service_info</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                    <span class="n">services</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_parse_service</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">data</span><span class="p">))</span>
     <span class="k">return</span> <span class="p">(</span><span class="n">actions</span><span class="p">,</span> <span class="n">services</span><span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">_parse_actions</span><span class="p">(</span><span class="n">block</span><span class="p">):</span>
-    <span class="k">if</span> <span class="s2">&quot;actions&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">block</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="n">BadBlueprintFormatError</span><span class="p">(</span><span class="s2">&quot;need to specify action key in action block&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;actions&#39;</span><span class="p">:</span> <span class="nb">dict</span><span class="p">(</span><span class="n">block</span><span class="p">)})</span>
+<span class="k">def</span> <span class="nf">_parse_actions</span><span class="p">(</span><span class="n">action_blocks</span><span class="p">):</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">action_blocks</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+        <span class="n">action_blocks</span> <span class="o">=</span> <span class="p">[</span><span class="n">action_blocks</span><span class="p">]</span>
 
-    <span class="n">actions</span> <span class="o">=</span> <span class="n">block</span><span class="p">[</span><span class="s2">&quot;actions&quot;</span><span class="p">]</span>
-
-    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">actions</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
-        <span class="n">actions</span> <span class="o">=</span> <span class="p">[</span><span class="n">actions</span><span class="p">]</span>
-
-    <span class="n">actions</span> <span class="o">=</span> <span class="p">[</span><span class="n">item</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">actions</span><span class="p">]</span>
     <span class="n">result</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="n">keys</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;template&#39;</span><span class="p">,</span> <span class="s1">&#39;service&#39;</span><span class="p">,</span> <span class="s1">&#39;recurring&#39;</span><span class="p">,</span> <span class="s1">&#39;force&#39;</span><span class="p">]</span>
-    <span class="k">for</span> <span class="n">action</span> <span class="ow">in</span> <span class="n">actions</span><span class="p">:</span>
-        <span class="n">item</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;action&#39;</span><span class="p">:</span> <span class="n">action</span><span class="p">}</span>
-        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">keys</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">k</span> <span class="o">==</span> <span class="s1">&#39;force&#39;</span><span class="p">:</span>
-                <span class="n">item</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">block</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="bp">False</span><span class="p">))</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">item</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">block</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
-        <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">block</span> <span class="ow">in</span> <span class="n">action_blocks</span><span class="p">:</span>
+        <span class="k">if</span> <span class="s2">&quot;actions&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">block</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">BadBlueprintFormatError</span><span class="p">(</span><span class="s2">&quot;need to specify action key in action block&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;actions&#39;</span><span class="p">:</span> <span class="nb">dict</span><span class="p">(</span><span class="n">block</span><span class="p">)})</span>
+
+        <span class="n">actions</span> <span class="o">=</span> <span class="n">block</span><span class="p">[</span><span class="s2">&quot;actions&quot;</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">actions</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="n">actions</span> <span class="o">=</span> <span class="p">[</span><span class="n">actions</span><span class="p">]</span>
+
+        <span class="n">actions</span> <span class="o">=</span> <span class="p">[</span><span class="n">item</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">actions</span><span class="p">]</span>
+        <span class="n">keys</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;template&#39;</span><span class="p">,</span> <span class="s1">&#39;service&#39;</span><span class="p">,</span> <span class="s1">&#39;recurring&#39;</span><span class="p">,</span> <span class="s1">&#39;args&#39;</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">action</span> <span class="ow">in</span> <span class="n">actions</span><span class="p">:</span>
+            <span class="n">item</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;action&#39;</span><span class="p">:</span> <span class="n">action</span><span class="p">}</span>
+            <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">keys</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">block</span><span class="p">:</span>
+                    <span class="n">item</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">block</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
+            <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">result</span>
 
@@ -1223,7 +1230,6 @@ table {
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Validates that service have valid name</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">message</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s2">&quot;[-_.]&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">isalnum</span><span class="p">():</span>
         <span class="n">message</span> <span class="o">=</span> <span class="s2">&quot;Service name should be digits or alphanumeric. you passed [</span><span class="si">%s</span><span class="s2">]&quot;</span> <span class="o">%</span> <span class="n">name</span>
         <span class="k">raise</span> <span class="n">BadBlueprintFormatError</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
@@ -1234,7 +1240,6 @@ table {
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Validates that template have valid name</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">message</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="n">TemplateUID</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">uid</span><span class="p">)</span>
     <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
@@ -1274,6 +1279,9 @@ e.g:</p>
     'name': 'node1',
     'recurring': 1m,
     'action': 'start'
+    'args': {
+        'foo':'bar'
+    }
 }]</code>
 service block: create/update of a service with its data
 e.g.:</p>
@@ -1299,6 +1307,9 @@ return a tuple containing these blocks: (actions, services)</p></div>
 <span class="sd">        &#39;name&#39;: &#39;node1&#39;,</span>
 <span class="sd">        &#39;recurring&#39;: 1m,</span>
 <span class="sd">        &#39;action&#39;: &#39;start&#39;</span>
+<span class="sd">        &#39;args&#39;: {</span>
+<span class="sd">            &#39;foo&#39;:&#39;bar&#39;</span>
+<span class="sd">        }</span>
 <span class="sd">    }]</span>
 <span class="sd">    ```</span>
 <span class="sd">    service block: create/update of a service with its data</span>
@@ -1318,15 +1329,17 @@ return a tuple containing these blocks: (actions, services)</p></div>
 
     <span class="n">actions</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">services</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="n">event_filters</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="c1"># event_filters = []</span>
     <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">block</span> <span class="ow">in</span> <span class="n">content</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
         <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;actions&#39;</span><span class="p">:</span>
             <span class="n">actions</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">_parse_actions</span><span class="p">(</span><span class="n">block</span><span class="p">))</span>
         <span class="c1"># TODO: not sure we still want to support that</span>
         <span class="c1"># elif key == &#39;eventFilters&#39;:</span>
         <span class="c1">#     event_filters.append(_parse_event_filter(block))</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">services</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_parse_service</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">block</span><span class="p">))</span>
+        <span class="k">elif</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;services&#39;</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">service_info</span> <span class="ow">in</span> <span class="n">block</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">data</span> <span class="ow">in</span> <span class="n">service_info</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                    <span class="n">services</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_parse_service</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">data</span><span class="p">))</span>
     <span class="k">return</span> <span class="p">(</span><span class="n">actions</span><span class="p">,</span> <span class="n">services</span><span class="p">)</span>
 </pre></div>
 
@@ -1352,7 +1365,6 @@ return a tuple containing these blocks: (actions, services)</p></div>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Validates that service have valid name</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">message</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s2">&quot;[-_.]&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">isalnum</span><span class="p">():</span>
         <span class="n">message</span> <span class="o">=</span> <span class="s2">&quot;Service name should be digits or alphanumeric. you passed [</span><span class="si">%s</span><span class="s2">]&quot;</span> <span class="o">%</span> <span class="n">name</span>
         <span class="k">raise</span> <span class="n">BadBlueprintFormatError</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
@@ -1381,7 +1393,6 @@ return a tuple containing these blocks: (actions, services)</p></div>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Validates that template have valid name</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">message</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="n">TemplateUID</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">uid</span><span class="p">)</span>
     <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>

@@ -13,9 +13,11 @@ class Node(TemplateBase):
     @profile()
     def start(self):
         print('started')
+        return 'result'
 
     def stop(self):
         print('stop')
 
     def foo(self, bar, bor=None):
         print('foo')
+        return 'result'

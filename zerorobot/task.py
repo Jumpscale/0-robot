@@ -26,19 +26,18 @@ logger = j.logger.get('zerorobot')
 
 class Task:
 
-    def __init__(self, func, args, resp_q=None):
+    def __init__(self, func, args):
         """
         @param service: is the service object that own the action to be executed
         @param action_name: is the method name of the action that this task need to execute
         @param args: argument to pass to the action when executing
-        @param resp_q: is the response queue on which the result of the action need to be put
         """
         self.guid = j.data.idgenerator.generateGUID()
         self.func = func
         self.action_name = func.__name__ if func else None
-        self._resp_q = resp_q
         self._args = args
         self._created = time.time()
+        self._result = None
 
         # used when action raises an exception
         self.eco = None
@@ -50,6 +49,10 @@ class Task:
     def created(self):
         return int(self._created)
 
+    @property
+    def result(self):
+        return self._result
+
     def execute(self):
 
         self.state = TASK_STATE_RUNNING
@@ -58,9 +61,9 @@ class Task:
 
         try:
             if self._args is not None:
-                result = self.func(**self._args)
+                self._result = self.func(**self._args)
             else:
-                result = self.func()
+                self._result = self.func()
             self.state = TASK_STATE_OK
         except Exception as err:
             self.state = TASK_STATE_ERROR
@@ -68,10 +71,6 @@ class Task:
             _, _, exc_traceback = sys.exc_info()
             self.eco = j.core.errorhandler.parsePythonExceptionObject(err, tb=exc_traceback)
             self.eco.printTraceback()
-
-        finally:
-            if result and self._resp_q:
-                self._resp_q.put(result)
         return result
 
     @property
@@ -204,7 +203,7 @@ class TaskList:
                 "guid": task.guid,
                 # "service": = task.service.name,
                 "action_name": task.action_name,
-                # "_resp_q": = resp_q TODO: figure out what to do with the resp_q
+                "result": task._result,
                 "args": task._args,
                 "state": task.state,
                 "eco": json.loads(task.eco.toJson()) if task.eco else None,
@@ -224,12 +223,13 @@ class TaskList:
         """
         def instantiate_task(task):
             func = getattr(service, task['action_name'])
-            t = Task(func, task['args'], resp_q=None)
+            t = Task(func, task['args'])
             if task['state'] in [TASK_STATE_RUNNING, TASK_STATE_NEW]:
                 t.state = TASK_STATE_NEW
             else:
                 t.state = task['state']
             t.guid = task['guid']
+            t._result = task['result']
             if task['eco']:
                 t.eco = j.core.errorhandler.getErrorConditionObject(ddict=task['eco'])
             return t

@@ -397,13 +397,986 @@ and what action you want to add to a task list.</p>
                 
                   <div class="tab-pane" id="blueprints_post_response">
                     
-                      <h2>HTTP status code <a href="http://httpstatus.es/204" target="_blank">204</a></h2>
+                      <h2>HTTP status code <a href="http://httpstatus.es/200" target="_blank">200</a></h2>
 <p>Blueprint executed successfully
 Which mean all the service have been created and all actions added to the task list</p>
 
 
                       
 
+                      
+                        <h3>Body</h3>
+                        
+                          <p><strong>Media type</strong>: application/json</p>
+
+                          
+                            
+                              
+                                <p><strong>Type</strong>: array of Task</p>
+                              
+                            
+                          
+
+                          
+
+                          
+                            
+
+                            
+                              <p><strong>Items</strong>: Task</p>
+
+                              
+                                <div class="items">
+                                  
+                                    <ul>
+                                      
+                                        <li>
+  <strong>action_name</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                                      
+                                        <li>
+  <strong>args</strong>:
+
+    
+      <em>(object)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+    <ul>
+      
+    </ul>
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                                      
+                                        <li>
+  <strong>template_name</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                                      
+                                        <li>
+  <strong>service_name</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                                      
+                                        <li>
+  <strong>service_guid</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                                      
+                                        <li>
+  <strong>guid</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+<p>unique ID of the task</p>
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                                      
+                                        <li>
+  <strong>state</strong>:
+
+    
+      <em>required (one of new, ok, running, error)
+      </em>
+    
+  
+
+<p>a task that is waiting to be executed is in state new.
+a task that being executed is in state running
+a task that executed successfully is in state ok
+a task that failed to execute and/or is being retried is in state error.</p>
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                                      
+                                        <li>
+  <strong>created</strong>:
+
+    
+      <em>required (integer)
+      </em>
+    
+  
+
+<p>timestamp at the time the task was created</p>
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                                      
+                                        <li>
+  <strong>eco</strong>:
+
+    
+      <em>(object)
+      </em>
+    
+  
+
+<p>In case the task failed with an exception, description of the exception</p>
+
+
+  
+
+  
+
+  
+    <ul>
+      
+        <li>
+  <strong>appname</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>epoch</strong>:
+
+    
+      <em>required (integer)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>errormessagePub</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>type</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>state</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>data</strong>:
+
+    
+      <em>(object)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+    <ul>
+      
+    </ul>
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>jid</strong>:
+
+    
+      <em>required (integer)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>masterjid</strong>:
+
+    
+      <em>required (integer)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>errormessage</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>uniquekey</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>category</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>exceptionclassname</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>funcfilename</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>closetime</strong>:
+
+    
+      <em>required (integer)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>level</strong>:
+
+    
+      <em>required (integer)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>_limit</strong>:
+
+    
+      <em>required (integer)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>lasttime</strong>:
+
+    
+      <em>required (integer)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>code</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>guid</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>tags</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>funclinenr</strong>:
+
+    
+      <em>required (integer)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>_traceback</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>funcname</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>pid</strong>:
+
+    
+      <em>required (integer)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>occurrences</strong>:
+
+    
+      <em>required (integer)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+    </ul>
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                                      
+                                        <li>
+  <strong>result</strong>:
+
+    
+      <em>(string)
+      </em>
+    
+  
+
+<p>serialized version of the result of the task</p>
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                                      
+                                    </ul>
+                                  
+
+                                  
+                                  
+                                  
+                                </div>
+                              
+                            
+                          
+
+                          
+
+                          
+                          
+                          
+                        
                       
                     
                   </div>
@@ -5151,6 +6124,33 @@ a task that failed to execute and/or is being retried is in state error.</p>
 </li>
 
                                       
+                                        <li>
+  <strong>result</strong>:
+
+    
+      <em>(string)
+      </em>
+    
+  
+
+<p>serialized version of the result of the task</p>
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                                      
                                     </ul>
                                   
 
@@ -6329,6 +7329,33 @@ a task that failed to execute and/or is being retried is in state error.</p>
 </li>
 
                               
+                                <li>
+  <strong>result</strong>:
+
+    
+      <em>(string)
+      </em>
+    
+  
+
+<p>serialized version of the result of the task</p>
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                              
                             </ul>
                           
 
@@ -7445,6 +8472,33 @@ a task that failed to execute and/or is being retried is in state error.</p>
 
       
     </ul>
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                              
+                                <li>
+  <strong>result</strong>:
+
+    
+      <em>(string)
+      </em>
+    
+  
+
+<p>serialized version of the result of the task</p>
+
+
+  
+
+  
+
   
 
   

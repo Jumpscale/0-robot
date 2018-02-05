@@ -196,6 +196,10 @@ types:
         type: Eco
         description: In case the task failed with an exception, description of the exception
         required: false
+      result:
+        type: string
+        description: serialized version of the result of the task
+        required: false
     example:
       template_name: github.com/account/repository/master/node.zero-os
       service_name: node1
@@ -292,10 +296,12 @@ types:
     body:
       type: Blueprint
     responses:
-      204:
+      200:
         description: |
           Blueprint executed successfully
           Which mean all the service have been created and all actions added to the task list
+        body:
+          type: Task[]
 
 /templates:
   description: |

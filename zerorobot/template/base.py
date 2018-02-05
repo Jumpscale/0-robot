@@ -170,7 +170,7 @@ class TemplateBase:
                 # TODO: gracefull shutdown
                 break
 
-    def schedule_action(self, action, args=None, resp_q=None):
+    def schedule_action(self, action, args=None):
         """
         Add an action to the task list of this service.
         This method should never be called directly by the user.
@@ -179,11 +179,10 @@ class TemplateBase:
 
         @param action: action is the name of the action to add to the task list
         @param args: dictionnary of the argument to pass to the action
-        @param resp_q: is the response queue on which the result of the action need to be put
         """
-        return self._schedule_action(action, args, resp_q)
+        return self._schedule_action(action, args)
 
-    def _schedule_action(self, action, args=None, resp_q=None, priority=PRIORITY_NORMAL):
+    def _schedule_action(self, action, args=None, priority=PRIORITY_NORMAL):
         if not hasattr(self, action):
             raise ActionNotFoundError("sel %s doesn't have action %s" % (self.name, action))
 
@@ -206,7 +205,7 @@ class TemplateBase:
             if len(diff) > 0:
                 raise BadActionArgumentError('arguments "%s" are not present in the signature of the action' % ','.join(args_keys))
 
-        task = Task(method, args, resp_q)
+        task = Task(method, args)
         self.task_list.put(task, priority=priority)
         return task
 

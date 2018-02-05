@@ -65,6 +65,7 @@ class TestServiceProxy(unittest.TestCase):
         proxy, service = self._create_proxy()
 
         task = service.schedule_action('start')
+        task.wait()
 
         self.assertEqual(len(proxy.task_list.list_tasks(all=True)), 1, "task create on service should be visible from the proxy")
         proxy_task = proxy.task_list.get_task_by_guid(task.guid)
@@ -72,8 +73,16 @@ class TestServiceProxy(unittest.TestCase):
         task.state = 'error'
         self.assertEqual(proxy_task.state, task.state, "state of a task should be reflect on the proxy task")
 
+        self.assertEqual(proxy_task.result, task.result, "result on the proxy task should be the same as on the real task")
+
         proxy.schedule_action('stop')
         self.assertEqual(len(service.task_list.list_tasks(all=True)), 2, "task create on proxy should be visible on real service")
+
+        # test task result for None result
+        task = service.schedule_action('stop')
+        task.wait()
+        proxy_task = proxy.task_list.get_task_by_guid(task.guid)
+        self.assertEqual(proxy_task.result, task.result, "result on the proxy task should be the same as on the real task")
 
     def test_delete(self):
         proxy, service = self._create_proxy()

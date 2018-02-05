@@ -23,6 +23,7 @@ class Task(object):
         :type created: int
         :type eco: Eco
         :type guid: string_types
+        :type result: string_types
         :type service_guid: string_types
         :type service_name: string_types
         :type state: EnumTaskState
@@ -51,6 +52,8 @@ class Task(object):
         self.eco = client_support.set_property('eco', data, data_types, False, [], False, False, class_name)
         data_types = [string_types]
         self.guid = client_support.set_property('guid', data, data_types, False, [], False, True, class_name)
+        data_types = [string_types]
+        self.result = client_support.set_property('result', data, data_types, False, [], False, False, class_name)
         data_types = [string_types]
         self.service_guid = client_support.set_property(
             'service_guid', data, data_types, False, [], False, True, class_name)

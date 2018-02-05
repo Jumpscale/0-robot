@@ -1160,9 +1160,20 @@ It is the class every template should inherits from.</p>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">gls</span> <span class="o">=</span> <span class="p">{}</span>
 
-    <span class="k">def</span> <span class="nf">add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">gl</span><span class="p">):</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">gl</span><span class="p">,</span> <span class="n">gevent</span><span class="o">.</span><span class="n">Greenlet</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;gl should be a Greenlet not </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="nb">type</span><span class="p">(</span><span class="n">gl</span><span class="p">))</span>
+    <span class="k">def</span> <span class="nf">add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        keep reference of a new greenlet</span>
+<span class="sd">        @param key: unique identifier of the greenlet, you need it to stop the greenlet</span>
+<span class="sd">        @param func: a callable or a gevent.Greenlet</span>
+<span class="sd">                    if a callable, create a greenlet with it</span>
+<span class="sd">                    if a greenlet, just make sure that it&#39;s started</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">gevent</span><span class="o">.</span><span class="n">Greenlet</span><span class="p">):</span>
+            <span class="n">gl</span> <span class="o">=</span> <span class="n">func</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">callable</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;gl should be a callable or a gevent.Greenlet not </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="nb">type</span><span class="p">(</span><span class="n">func</span><span class="p">))</span>
+            <span class="n">gl</span> <span class="o">=</span> <span class="n">gevent</span><span class="o">.</span><span class="n">Greenlet</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="n">gl</span><span class="o">.</span><span class="n">started</span><span class="p">:</span>
             <span class="n">gl</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
@@ -1200,9 +1211,9 @@ It is the class every template should inherits from.</p>
     <span class="c1"># path of the template on disk. This is set during template loading</span>
     <span class="n">template_dir</span> <span class="o">=</span> <span class="bp">None</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">guid</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">guid</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">guid</span> <span class="o">=</span> <span class="n">guid</span> <span class="ow">or</span> <span class="nb">str</span><span class="p">(</span><span class="n">uuid4</span><span class="p">())</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">guid</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">parent</span> <span class="o">=</span> <span class="bp">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_path</span> <span class="o">=</span> <span class="bp">None</span>  <span class="c1"># location on the filesystem where to store the service</span>
 
@@ -1215,8 +1226,8 @@ It is the class every template should inherits from.</p>
         <span class="bp">self</span><span class="o">.</span><span class="n">task_list</span> <span class="o">=</span> <span class="n">TaskList</span><span class="p">()</span>
 
         <span class="c1"># start the greenlets of this service</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_gl_mgr</span> <span class="o">=</span> <span class="n">GreenletsMgr</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_gl_mgr</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s1">&#39;executor&#39;</span><span class="p">,</span> <span class="n">gevent</span><span class="o">.</span><span class="n">Greenlet</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_run</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gl_mgr</span> <span class="o">=</span> <span class="n">GreenletsMgr</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gl_mgr</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s1">&#39;executor&#39;</span><span class="p">,</span> <span class="n">gevent</span><span class="o">.</span><span class="n">Greenlet</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_run</span><span class="p">))</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span> <span class="o">=</span> <span class="n">_configure_logger</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">guid</span><span class="p">)</span>
 
@@ -1270,7 +1281,7 @@ It is the class every template should inherits from.</p>
                 <span class="c1"># TODO: gracefull shutdown</span>
                 <span class="k">break</span>
 
-    <span class="k">def</span> <span class="nf">schedule_action</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">resp_q</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">schedule_action</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Add an action to the task list of this service.</span>
 <span class="sd">        This method should never be called directly by the user.</span>
@@ -1279,11 +1290,10 @@ It is the class every template should inherits from.</p>
 
 <span class="sd">        @param action: action is the name of the action to add to the task list</span>
 <span class="sd">        @param args: dictionnary of the argument to pass to the action</span>
-<span class="sd">        @param resp_q: is the response queue on which the result of the action need to be put</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_schedule_action</span><span class="p">(</span><span class="n">action</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">resp_q</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_schedule_action</span><span class="p">(</span><span class="n">action</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_schedule_action</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">resp_q</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">priority</span><span class="o">=</span><span class="n">PRIORITY_NORMAL</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_schedule_action</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">priority</span><span class="o">=</span><span class="n">PRIORITY_NORMAL</span><span class="p">):</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action</span><span class="p">):</span>
             <span class="k">raise</span> <span class="n">ActionNotFoundError</span><span class="p">(</span><span class="s2">&quot;sel </span><span class="si">%s</span><span class="s2"> doesn&#39;t have action </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">action</span><span class="p">))</span>
 
@@ -1306,7 +1316,7 @@ It is the class every template should inherits from.</p>
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">diff</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="n">BadActionArgumentError</span><span class="p">(</span><span class="s1">&#39;arguments &quot;</span><span class="si">%s</span><span class="s1">&quot; are not present in the signature of the action&#39;</span> <span class="o">%</span> <span class="s1">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">args_keys</span><span class="p">))</span>
 
-        <span class="n">task</span> <span class="o">=</span> <span class="n">Task</span><span class="p">(</span><span class="n">method</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">resp_q</span><span class="p">)</span>
+        <span class="n">task</span> <span class="o">=</span> <span class="n">Task</span><span class="p">(</span><span class="n">method</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">task_list</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="n">task</span><span class="p">,</span> <span class="n">priority</span><span class="o">=</span><span class="n">priority</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">task</span>
 
@@ -1328,12 +1338,19 @@ It is the class every template should inherits from.</p>
             <span class="n">action</span> <span class="o">=</span> <span class="n">action</span><span class="o">.</span><span class="vm">__name__</span>
 
         <span class="n">gl</span> <span class="o">=</span> <span class="n">gevent</span><span class="o">.</span><span class="n">Greenlet</span><span class="p">(</span><span class="n">_recurring_action</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span> <span class="n">action</span><span class="p">,</span> <span class="n">period</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_gl_mgr</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;recurring_&quot;</span> <span class="o">+</span> <span class="n">action</span><span class="p">,</span> <span class="n">gl</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gl_mgr</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;recurring_&quot;</span> <span class="o">+</span> <span class="n">action</span><span class="p">,</span> <span class="n">gl</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">delete</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Delete the service.</span>
+
+<span class="sd">        If you overwrite this method in your template,</span>
+<span class="sd">        make sure to always call this method at the end of your method</span>
+<span class="sd">        e.g: super().delete()</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;deleting service </span><span class="si">%s</span><span class="s2"> (</span><span class="si">%s</span><span class="s2">)&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">guid</span><span class="p">)</span>
         <span class="c1"># stop all recurring action</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_gl_mgr</span><span class="o">.</span><span class="n">stop_all</span><span class="p">(</span><span class="n">wait</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gl_mgr</span><span class="o">.</span><span class="n">stop_all</span><span class="p">(</span><span class="n">wait</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
 
         <span class="c1"># close ressources of logging handlers</span>
         <span class="k">for</span> <span class="n">h</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">handlers</span><span class="p">:</span>
@@ -1548,9 +1565,20 @@ manage a group of greenlets</p>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">gls</span> <span class="o">=</span> <span class="p">{}</span>
 
-    <span class="k">def</span> <span class="nf">add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">gl</span><span class="p">):</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">gl</span><span class="p">,</span> <span class="n">gevent</span><span class="o">.</span><span class="n">Greenlet</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;gl should be a Greenlet not </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="nb">type</span><span class="p">(</span><span class="n">gl</span><span class="p">))</span>
+    <span class="k">def</span> <span class="nf">add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        keep reference of a new greenlet</span>
+<span class="sd">        @param key: unique identifier of the greenlet, you need it to stop the greenlet</span>
+<span class="sd">        @param func: a callable or a gevent.Greenlet</span>
+<span class="sd">                    if a callable, create a greenlet with it</span>
+<span class="sd">                    if a greenlet, just make sure that it&#39;s started</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">gevent</span><span class="o">.</span><span class="n">Greenlet</span><span class="p">):</span>
+            <span class="n">gl</span> <span class="o">=</span> <span class="n">func</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">callable</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;gl should be a callable or a gevent.Greenlet not </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="nb">type</span><span class="p">(</span><span class="n">func</span><span class="p">))</span>
+            <span class="n">gl</span> <span class="o">=</span> <span class="n">gevent</span><span class="o">.</span><span class="n">Greenlet</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="n">gl</span><span class="o">.</span><span class="n">started</span><span class="p">:</span>
             <span class="n">gl</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
@@ -1610,18 +1638,34 @@ manage a group of greenlets</p>
             
   <div class="item">
     <div class="name def" id="zerorobot.template.base.GreenletsMgr.add">
-    <p>def <span class="ident">add</span>(</p><p>self, key, gl)</p>
+    <p>def <span class="ident">add</span>(</p><p>self, key, func, *args, **kwargs)</p>
     </div>
     
 
     
   
+    <div class="desc"><p>keep reference of a new greenlet
+@param key: unique identifier of the greenlet, you need it to stop the greenlet
+@param func: a callable or a gevent.Greenlet
+            if a callable, create a greenlet with it
+            if a greenlet, just make sure that it's started</p></div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.template.base.GreenletsMgr.add', this);">Show source &equiv;</a></p>
   <div id="source-zerorobot.template.base.GreenletsMgr.add" class="source">
-    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">gl</span><span class="p">):</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">gl</span><span class="p">,</span> <span class="n">gevent</span><span class="o">.</span><span class="n">Greenlet</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;gl should be a Greenlet not </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="nb">type</span><span class="p">(</span><span class="n">gl</span><span class="p">))</span>
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    keep reference of a new greenlet</span>
+<span class="sd">    @param key: unique identifier of the greenlet, you need it to stop the greenlet</span>
+<span class="sd">    @param func: a callable or a gevent.Greenlet</span>
+<span class="sd">                if a callable, create a greenlet with it</span>
+<span class="sd">                if a greenlet, just make sure that it&#39;s started</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">gevent</span><span class="o">.</span><span class="n">Greenlet</span><span class="p">):</span>
+        <span class="n">gl</span> <span class="o">=</span> <span class="n">func</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">callable</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;gl should be a callable or a gevent.Greenlet not </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="nb">type</span><span class="p">(</span><span class="n">func</span><span class="p">))</span>
+        <span class="n">gl</span> <span class="o">=</span> <span class="n">gevent</span><span class="o">.</span><span class="n">Greenlet</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">gl</span><span class="o">.</span><span class="n">started</span><span class="p">:</span>
         <span class="n">gl</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">gls</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">gl</span>
@@ -1739,9 +1783,9 @@ manage a group of greenlets</p>
     <span class="c1"># path of the template on disk. This is set during template loading</span>
     <span class="n">template_dir</span> <span class="o">=</span> <span class="bp">None</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">guid</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">guid</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">guid</span> <span class="o">=</span> <span class="n">guid</span> <span class="ow">or</span> <span class="nb">str</span><span class="p">(</span><span class="n">uuid4</span><span class="p">())</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">guid</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">parent</span> <span class="o">=</span> <span class="bp">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_path</span> <span class="o">=</span> <span class="bp">None</span>  <span class="c1"># location on the filesystem where to store the service</span>
 
@@ -1754,8 +1798,8 @@ manage a group of greenlets</p>
         <span class="bp">self</span><span class="o">.</span><span class="n">task_list</span> <span class="o">=</span> <span class="n">TaskList</span><span class="p">()</span>
 
         <span class="c1"># start the greenlets of this service</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_gl_mgr</span> <span class="o">=</span> <span class="n">GreenletsMgr</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_gl_mgr</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s1">&#39;executor&#39;</span><span class="p">,</span> <span class="n">gevent</span><span class="o">.</span><span class="n">Greenlet</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_run</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gl_mgr</span> <span class="o">=</span> <span class="n">GreenletsMgr</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gl_mgr</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s1">&#39;executor&#39;</span><span class="p">,</span> <span class="n">gevent</span><span class="o">.</span><span class="n">Greenlet</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_run</span><span class="p">))</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span> <span class="o">=</span> <span class="n">_configure_logger</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">guid</span><span class="p">)</span>
 
@@ -1809,7 +1853,7 @@ manage a group of greenlets</p>
                 <span class="c1"># TODO: gracefull shutdown</span>
                 <span class="k">break</span>
 
-    <span class="k">def</span> <span class="nf">schedule_action</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">resp_q</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">schedule_action</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Add an action to the task list of this service.</span>
 <span class="sd">        This method should never be called directly by the user.</span>
@@ -1818,11 +1862,10 @@ manage a group of greenlets</p>
 
 <span class="sd">        @param action: action is the name of the action to add to the task list</span>
 <span class="sd">        @param args: dictionnary of the argument to pass to the action</span>
-<span class="sd">        @param resp_q: is the response queue on which the result of the action need to be put</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_schedule_action</span><span class="p">(</span><span class="n">action</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">resp_q</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_schedule_action</span><span class="p">(</span><span class="n">action</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_schedule_action</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">resp_q</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">priority</span><span class="o">=</span><span class="n">PRIORITY_NORMAL</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_schedule_action</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">priority</span><span class="o">=</span><span class="n">PRIORITY_NORMAL</span><span class="p">):</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action</span><span class="p">):</span>
             <span class="k">raise</span> <span class="n">ActionNotFoundError</span><span class="p">(</span><span class="s2">&quot;sel </span><span class="si">%s</span><span class="s2"> doesn&#39;t have action </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">action</span><span class="p">))</span>
 
@@ -1845,7 +1888,7 @@ manage a group of greenlets</p>
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">diff</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="n">BadActionArgumentError</span><span class="p">(</span><span class="s1">&#39;arguments &quot;</span><span class="si">%s</span><span class="s1">&quot; are not present in the signature of the action&#39;</span> <span class="o">%</span> <span class="s1">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">args_keys</span><span class="p">))</span>
 
-        <span class="n">task</span> <span class="o">=</span> <span class="n">Task</span><span class="p">(</span><span class="n">method</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">resp_q</span><span class="p">)</span>
+        <span class="n">task</span> <span class="o">=</span> <span class="n">Task</span><span class="p">(</span><span class="n">method</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">task_list</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="n">task</span><span class="p">,</span> <span class="n">priority</span><span class="o">=</span><span class="n">priority</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">task</span>
 
@@ -1867,12 +1910,19 @@ manage a group of greenlets</p>
             <span class="n">action</span> <span class="o">=</span> <span class="n">action</span><span class="o">.</span><span class="vm">__name__</span>
 
         <span class="n">gl</span> <span class="o">=</span> <span class="n">gevent</span><span class="o">.</span><span class="n">Greenlet</span><span class="p">(</span><span class="n">_recurring_action</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span> <span class="n">action</span><span class="p">,</span> <span class="n">period</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_gl_mgr</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;recurring_&quot;</span> <span class="o">+</span> <span class="n">action</span><span class="p">,</span> <span class="n">gl</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gl_mgr</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;recurring_&quot;</span> <span class="o">+</span> <span class="n">action</span><span class="p">,</span> <span class="n">gl</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">delete</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Delete the service.</span>
+
+<span class="sd">        If you overwrite this method in your template,</span>
+<span class="sd">        make sure to always call this method at the end of your method</span>
+<span class="sd">        e.g: super().delete()</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;deleting service </span><span class="si">%s</span><span class="s2"> (</span><span class="si">%s</span><span class="s2">)&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">guid</span><span class="p">)</span>
         <span class="c1"># stop all recurring action</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_gl_mgr</span><span class="o">.</span><span class="n">stop_all</span><span class="p">(</span><span class="n">wait</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gl_mgr</span><span class="o">.</span><span class="n">stop_all</span><span class="p">(</span><span class="n">wait</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
 
         <span class="c1"># close ressources of logging handlers</span>
         <span class="k">for</span> <span class="n">h</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">handlers</span><span class="p">:</span>
@@ -1943,7 +1993,7 @@ manage a group of greenlets</p>
             
   <div class="item">
     <div class="name def" id="zerorobot.template.base.TemplateBase.__init__">
-    <p>def <span class="ident">__init__</span>(</p><p>self, name, guid=None, data=None)</p>
+    <p>def <span class="ident">__init__</span>(</p><p>self, name=None, guid=None, data=None)</p>
     </div>
     
 
@@ -1953,9 +2003,9 @@ manage a group of greenlets</p>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.template.base.TemplateBase.__init__', this);">Show source &equiv;</a></p>
   <div id="source-zerorobot.template.base.TemplateBase.__init__" class="source">
-    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">guid</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">guid</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">guid</span> <span class="o">=</span> <span class="n">guid</span> <span class="ow">or</span> <span class="nb">str</span><span class="p">(</span><span class="n">uuid4</span><span class="p">())</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">guid</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">parent</span> <span class="o">=</span> <span class="bp">None</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_path</span> <span class="o">=</span> <span class="bp">None</span>  <span class="c1"># location on the filesystem where to store the service</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">api</span> <span class="o">=</span> <span class="n">ZeroRobotAPI</span><span class="p">()</span>
@@ -1965,8 +2015,8 @@ manage a group of greenlets</p>
     <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="n">ServiceState</span><span class="p">()</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">task_list</span> <span class="o">=</span> <span class="n">TaskList</span><span class="p">()</span>
     <span class="c1"># start the greenlets of this service</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">_gl_mgr</span> <span class="o">=</span> <span class="n">GreenletsMgr</span><span class="p">()</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">_gl_mgr</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s1">&#39;executor&#39;</span><span class="p">,</span> <span class="n">gevent</span><span class="o">.</span><span class="n">Greenlet</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_run</span><span class="p">))</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">gl_mgr</span> <span class="o">=</span> <span class="n">GreenletsMgr</span><span class="p">()</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">gl_mgr</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s1">&#39;executor&#39;</span><span class="p">,</span> <span class="n">gevent</span><span class="o">.</span><span class="n">Greenlet</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_run</span><span class="p">))</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">logger</span> <span class="o">=</span> <span class="n">_configure_logger</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">guid</span><span class="p">)</span>
 </pre></div>
 
@@ -1984,13 +2034,23 @@ manage a group of greenlets</p>
 
     
   
+    <div class="desc"><p>Delete the service.</p>
+<p>If you overwrite this method in your template,
+make sure to always call this method at the end of your method
+e.g: super().delete()</p></div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.template.base.TemplateBase.delete', this);">Show source &equiv;</a></p>
   <div id="source-zerorobot.template.base.TemplateBase.delete" class="source">
     <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">delete</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Delete the service.</span>
+<span class="sd">    If you overwrite this method in your template,</span>
+<span class="sd">    make sure to always call this method at the end of your method</span>
+<span class="sd">    e.g: super().delete()</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;deleting service </span><span class="si">%s</span><span class="s2"> (</span><span class="si">%s</span><span class="s2">)&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">guid</span><span class="p">)</span>
     <span class="c1"># stop all recurring action</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">_gl_mgr</span><span class="o">.</span><span class="n">stop_all</span><span class="p">(</span><span class="n">wait</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">gl_mgr</span><span class="o">.</span><span class="n">stop_all</span><span class="p">(</span><span class="n">wait</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
     <span class="c1"># close ressources of logging handlers</span>
     <span class="k">for</span> <span class="n">h</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">handlers</span><span class="p">:</span>
         <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">h</span><span class="p">,</span> <span class="s1">&#39;close&#39;</span><span class="p">):</span>
@@ -2039,7 +2099,7 @@ we can only ensure that the action is never going to be schedule faster then eve
     <span class="k">if</span> <span class="n">inspect</span><span class="o">.</span><span class="n">ismethod</span><span class="p">(</span><span class="n">action</span><span class="p">)</span> <span class="ow">or</span> <span class="n">inspect</span><span class="o">.</span><span class="n">isfunction</span><span class="p">(</span><span class="n">action</span><span class="p">):</span>
         <span class="n">action</span> <span class="o">=</span> <span class="n">action</span><span class="o">.</span><span class="vm">__name__</span>
     <span class="n">gl</span> <span class="o">=</span> <span class="n">gevent</span><span class="o">.</span><span class="n">Greenlet</span><span class="p">(</span><span class="n">_recurring_action</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span> <span class="n">action</span><span class="p">,</span> <span class="n">period</span><span class="p">)</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">_gl_mgr</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;recurring_&quot;</span> <span class="o">+</span> <span class="n">action</span><span class="p">,</span> <span class="n">gl</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">gl_mgr</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;recurring_&quot;</span> <span class="o">+</span> <span class="n">action</span><span class="p">,</span> <span class="n">gl</span><span class="p">)</span>
 </pre></div>
 
   </div>
@@ -2104,7 +2164,7 @@ return the path where the service is saved</p></div>
             
   <div class="item">
     <div class="name def" id="zerorobot.template.base.TemplateBase.schedule_action">
-    <p>def <span class="ident">schedule_action</span>(</p><p>self, action, args=None, resp_q=None)</p>
+    <p>def <span class="ident">schedule_action</span>(</p><p>self, action, args=None)</p>
     </div>
     
 
@@ -2115,12 +2175,11 @@ This method should never be called directly by the user.
 It will always be called by another service.
 Or from a local service or from a remote service trough RPC</p>
 <p>@param action: action is the name of the action to add to the task list
-@param args: dictionnary of the argument to pass to the action
-@param resp_q: is the response queue on which the result of the action need to be put</p></div>
+@param args: dictionnary of the argument to pass to the action</p></div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.template.base.TemplateBase.schedule_action', this);">Show source &equiv;</a></p>
   <div id="source-zerorobot.template.base.TemplateBase.schedule_action" class="source">
-    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">schedule_action</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">resp_q</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">schedule_action</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Add an action to the task list of this service.</span>
 <span class="sd">    This method should never be called directly by the user.</span>
@@ -2128,9 +2187,8 @@ Or from a local service or from a remote service trough RPC</p>
 <span class="sd">    Or from a local service or from a remote service trough RPC</span>
 <span class="sd">    @param action: action is the name of the action to add to the task list</span>
 <span class="sd">    @param args: dictionnary of the argument to pass to the action</span>
-<span class="sd">    @param resp_q: is the response queue on which the result of the action need to be put</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_schedule_action</span><span class="p">(</span><span class="n">action</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">resp_q</span><span class="p">)</span>
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_schedule_action</span><span class="p">(</span><span class="n">action</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span>
 </pre></div>
 
   </div>
@@ -2184,6 +2242,16 @@ by a blueprint.</p>
             </div>
             <div class="item">
             <p id="zerorobot.template.base.TemplateBase.data" class="name">var <span class="ident">data</span></p>
+            
+
+            
+  
+  <div class="source_cont">
+</div>
+
+            </div>
+            <div class="item">
+            <p id="zerorobot.template.base.TemplateBase.gl_mgr" class="name">var <span class="ident">gl_mgr</span></p>
             
 
             

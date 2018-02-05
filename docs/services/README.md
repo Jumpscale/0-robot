@@ -129,7 +129,17 @@ class Node(TemplateBase):
 ## Service actions
 
 The services actions is the core of a service logic.
-An actions is just a method on the service object.
+An actions is just a method on the service object.  
+
+You can schedule action on a service using the `schedule_action` of a service. The result of the schedule_action is a `task` object.
+
+You can inspect different properties of a task:
+- **action_name**: name of the action executed by the task
+- **created**: creation time of the task
+- **eco**: error condition if the task ended with an exception
+- **guid**: ID of the task
+- **state**: state of the task. can be 'new','ok','error'
+- **result**: if the task return a value, the result contains this value
 
 ### Customize actions behavior
 It is possible to add some special behavior to an actions using decorators

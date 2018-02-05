@@ -36,7 +36,7 @@ class ServiceData(dict):
         if data == {}:
             return
         # schedule the update of the data. This is required to serialize data access
-        return self._service._schedule_action('update_data', {'data': data}, None, PRIORITY_SYSTEM)
+        return self._service._schedule_action(action='update_data', args={'data': data}, priority=PRIORITY_SYSTEM)
 
     def save(self, path):
         """

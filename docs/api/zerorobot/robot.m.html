@@ -1051,13 +1051,6 @@ table {
 
     </li>
 
-    <li class="set"><h3><a href="#header-functions">Functions</a></h3>
-      
-  <ul>
-    <li class="mono"><a href="#zerorobot.robot.memory_usage_resource">memory_usage_resource</a></li>
-  </ul>
-
-    </li>
 
     <li class="set"><h3><a href="#header-classes">Classes</a></h3>
       <ul>
@@ -1180,7 +1173,6 @@ table {
         <span class="bp">self</span><span class="o">.</span><span class="n">_load_services</span><span class="p">()</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_sig_handler</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">gevent</span><span class="o">.</span><span class="n">signal</span><span class="p">(</span><span class="n">signal</span><span class="o">.</span><span class="n">SIGINT</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">stop</span><span class="p">))</span>
-        <span class="n">gevent</span><span class="o">.</span><span class="n">signal</span><span class="p">(</span><span class="n">signal</span><span class="o">.</span><span class="n">SIGUSR1</span><span class="p">,</span> <span class="n">memory_usage_resource</span><span class="p">)</span>
 
         <span class="c1"># configure logger</span>
         <span class="n">app</span><span class="o">.</span><span class="n">_logger</span> <span class="o">=</span> <span class="n">logger</span>
@@ -1188,7 +1180,7 @@ table {
         <span class="c1"># using a pool allow to kill the request when stopping the server</span>
         <span class="n">pool</span> <span class="o">=</span> <span class="n">Pool</span><span class="p">(</span><span class="bp">None</span><span class="p">)</span>
         <span class="n">hostport</span> <span class="o">=</span> <span class="n">_split_hostport</span><span class="p">(</span><span class="n">listen</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_http</span> <span class="o">=</span> <span class="n">WSGIServer</span><span class="p">(</span><span class="n">hostport</span><span class="p">,</span> <span class="n">app</span><span class="p">,</span> <span class="n">spawn</span><span class="o">=</span><span class="n">pool</span><span class="p">,</span> <span class="n">log</span><span class="o">=</span><span class="n">app</span><span class="o">.</span><span class="n">logger</span><span class="p">,</span> <span class="n">error_log</span><span class="o">=</span><span class="n">app</span><span class="o">.</span><span class="n">logger</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_http</span> <span class="o">=</span> <span class="n">WSGIServer</span><span class="p">(</span><span class="n">hostport</span><span class="p">,</span> <span class="n">app</span><span class="p">,</span> <span class="n">spawn</span><span class="o">=</span><span class="n">pool</span><span class="p">,</span> <span class="n">log</span><span class="o">=</span><span class="n">logger</span><span class="p">,</span> <span class="n">error_log</span><span class="o">=</span><span class="n">logger</span><span class="p">)</span>
 
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;robot running at </span><span class="si">%s</span><span class="s2">:</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">hostport</span><span class="p">)</span>
 
@@ -1243,7 +1235,7 @@ table {
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">service</span> <span class="ow">in</span> <span class="n">scol</span><span class="o">.</span><span class="n">list_services</span><span class="p">():</span>
             <span class="c1"># stop all the greenlets attached to the services</span>
-            <span class="n">service</span><span class="o">.</span><span class="n">_gl_mgr</span><span class="o">.</span><span class="n">stop_all</span><span class="p">()</span>
+            <span class="n">service</span><span class="o">.</span><span class="n">gl_mgr</span><span class="o">.</span><span class="n">stop_all</span><span class="p">()</span>
             <span class="n">service</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_data_dir</span><span class="p">)</span>
 
 
@@ -1258,8 +1250,7 @@ table {
     <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">service</span> <span class="ow">in</span> <span class="n">scol</span><span class="o">.</span><span class="n">list_services</span><span class="p">():</span>
-                <span class="c1"># logger.debug(&quot;schedule autosave %s (%s)&quot;, service.name, service.guid)</span>
-                <span class="n">service</span><span class="o">.</span><span class="n">_schedule_action</span><span class="p">(</span><span class="s1">&#39;save&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;base_path&#39;</span><span class="p">:</span> <span class="n">data_dir</span><span class="p">},</span> <span class="bp">None</span><span class="p">,</span> <span class="n">PRIORITY_SYSTEM</span><span class="p">)</span>
+                <span class="n">service</span><span class="o">.</span><span class="n">_schedule_action</span><span class="p">(</span><span class="n">action</span><span class="o">=</span><span class="s1">&#39;save&#39;</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;base_path&#39;</span><span class="p">:</span> <span class="n">data_dir</span><span class="p">},</span> <span class="n">priority</span><span class="o">=</span><span class="n">PRIORITY_SYSTEM</span><span class="p">)</span>
             <span class="n">gevent</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
         <span class="k">except</span> <span class="n">GreenletExit</span><span class="p">:</span>
             <span class="k">break</span>
@@ -1275,15 +1266,6 @@ table {
     <span class="n">host</span> <span class="o">=</span> <span class="n">hostport</span><span class="p">[:</span><span class="n">i</span><span class="p">]</span>
     <span class="n">port</span> <span class="o">=</span> <span class="n">hostport</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">:]</span>
     <span class="k">return</span> <span class="n">host</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">port</span><span class="p">)</span>
-
-
-<span class="kn">import</span> <span class="nn">resource</span>
-
-
-<span class="k">def</span> <span class="nf">memory_usage_resource</span><span class="p">():</span>
-    <span class="n">rusage_denom</span> <span class="o">=</span> <span class="mf">1024.</span>
-    <span class="n">mem</span> <span class="o">=</span> <span class="n">resource</span><span class="o">.</span><span class="n">getrusage</span><span class="p">(</span><span class="n">resource</span><span class="o">.</span><span class="n">RUSAGE_SELF</span><span class="p">)</span><span class="o">.</span><span class="n">ru_maxrss</span> <span class="o">/</span> <span class="n">rusage_denom</span>
-    <span class="k">print</span><span class="p">(</span><span class="s2">&quot;Memory usage: </span><span class="si">%.2f</span><span class="s2"> MB&quot;</span> <span class="o">%</span> <span class="n">mem</span><span class="p">)</span>
 </pre></div>
 
   </div>
@@ -1309,30 +1291,6 @@ table {
 
       </div>
 
-    <h2 class="section-title" id="header-functions">Functions</h2>
-      
-  <div class="item">
-    <div class="name def" id="zerorobot.robot.memory_usage_resource">
-    <p>def <span class="ident">memory_usage_resource</span>(</p><p>)</p>
-    </div>
-    
-
-    
-  
-  <div class="source_cont">
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.robot.memory_usage_resource', this);">Show source &equiv;</a></p>
-  <div id="source-zerorobot.robot.memory_usage_resource" class="source">
-    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">memory_usage_resource</span><span class="p">():</span>
-    <span class="n">rusage_denom</span> <span class="o">=</span> <span class="mf">1024.</span>
-    <span class="n">mem</span> <span class="o">=</span> <span class="n">resource</span><span class="o">.</span><span class="n">getrusage</span><span class="p">(</span><span class="n">resource</span><span class="o">.</span><span class="n">RUSAGE_SELF</span><span class="p">)</span><span class="o">.</span><span class="n">ru_maxrss</span> <span class="o">/</span> <span class="n">rusage_denom</span>
-    <span class="k">print</span><span class="p">(</span><span class="s2">&quot;Memory usage: </span><span class="si">%.2f</span><span class="s2"> MB&quot;</span> <span class="o">%</span> <span class="n">mem</span><span class="p">)</span>
-</pre></div>
-
-  </div>
-</div>
-
-  </div>
-  
 
     <h2 class="section-title" id="header-classes">Classes</h2>
       
@@ -1410,7 +1368,6 @@ It is responsible to:
         <span class="bp">self</span><span class="o">.</span><span class="n">_load_services</span><span class="p">()</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_sig_handler</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">gevent</span><span class="o">.</span><span class="n">signal</span><span class="p">(</span><span class="n">signal</span><span class="o">.</span><span class="n">SIGINT</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">stop</span><span class="p">))</span>
-        <span class="n">gevent</span><span class="o">.</span><span class="n">signal</span><span class="p">(</span><span class="n">signal</span><span class="o">.</span><span class="n">SIGUSR1</span><span class="p">,</span> <span class="n">memory_usage_resource</span><span class="p">)</span>
 
         <span class="c1"># configure logger</span>
         <span class="n">app</span><span class="o">.</span><span class="n">_logger</span> <span class="o">=</span> <span class="n">logger</span>
@@ -1418,7 +1375,7 @@ It is responsible to:
         <span class="c1"># using a pool allow to kill the request when stopping the server</span>
         <span class="n">pool</span> <span class="o">=</span> <span class="n">Pool</span><span class="p">(</span><span class="bp">None</span><span class="p">)</span>
         <span class="n">hostport</span> <span class="o">=</span> <span class="n">_split_hostport</span><span class="p">(</span><span class="n">listen</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_http</span> <span class="o">=</span> <span class="n">WSGIServer</span><span class="p">(</span><span class="n">hostport</span><span class="p">,</span> <span class="n">app</span><span class="p">,</span> <span class="n">spawn</span><span class="o">=</span><span class="n">pool</span><span class="p">,</span> <span class="n">log</span><span class="o">=</span><span class="n">app</span><span class="o">.</span><span class="n">logger</span><span class="p">,</span> <span class="n">error_log</span><span class="o">=</span><span class="n">app</span><span class="o">.</span><span class="n">logger</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_http</span> <span class="o">=</span> <span class="n">WSGIServer</span><span class="p">(</span><span class="n">hostport</span><span class="p">,</span> <span class="n">app</span><span class="p">,</span> <span class="n">spawn</span><span class="o">=</span><span class="n">pool</span><span class="p">,</span> <span class="n">log</span><span class="o">=</span><span class="n">logger</span><span class="p">,</span> <span class="n">error_log</span><span class="o">=</span><span class="n">logger</span><span class="p">)</span>
 
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;robot running at </span><span class="si">%s</span><span class="s2">:</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">hostport</span><span class="p">)</span>
 
@@ -1473,7 +1430,7 @@ It is responsible to:
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">service</span> <span class="ow">in</span> <span class="n">scol</span><span class="o">.</span><span class="n">list_services</span><span class="p">():</span>
             <span class="c1"># stop all the greenlets attached to the services</span>
-            <span class="n">service</span><span class="o">.</span><span class="n">_gl_mgr</span><span class="o">.</span><span class="n">stop_all</span><span class="p">()</span>
+            <span class="n">service</span><span class="o">.</span><span class="n">gl_mgr</span><span class="o">.</span><span class="n">stop_all</span><span class="p">()</span>
             <span class="n">service</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_data_dir</span><span class="p">)</span>
 </pre></div>
 
@@ -1598,13 +1555,12 @@ load the services from the local git repository</p></div>
     <span class="c1"># load services from data repo</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_load_services</span><span class="p">()</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_sig_handler</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">gevent</span><span class="o">.</span><span class="n">signal</span><span class="p">(</span><span class="n">signal</span><span class="o">.</span><span class="n">SIGINT</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">stop</span><span class="p">))</span>
-    <span class="n">gevent</span><span class="o">.</span><span class="n">signal</span><span class="p">(</span><span class="n">signal</span><span class="o">.</span><span class="n">SIGUSR1</span><span class="p">,</span> <span class="n">memory_usage_resource</span><span class="p">)</span>
     <span class="c1"># configure logger</span>
     <span class="n">app</span><span class="o">.</span><span class="n">_logger</span> <span class="o">=</span> <span class="n">logger</span>
     <span class="c1"># using a pool allow to kill the request when stopping the server</span>
     <span class="n">pool</span> <span class="o">=</span> <span class="n">Pool</span><span class="p">(</span><span class="bp">None</span><span class="p">)</span>
     <span class="n">hostport</span> <span class="o">=</span> <span class="n">_split_hostport</span><span class="p">(</span><span class="n">listen</span><span class="p">)</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">_http</span> <span class="o">=</span> <span class="n">WSGIServer</span><span class="p">(</span><span class="n">hostport</span><span class="p">,</span> <span class="n">app</span><span class="p">,</span> <span class="n">spawn</span><span class="o">=</span><span class="n">pool</span><span class="p">,</span> <span class="n">log</span><span class="o">=</span><span class="n">app</span><span class="o">.</span><span class="n">logger</span><span class="p">,</span> <span class="n">error_log</span><span class="o">=</span><span class="n">app</span><span class="o">.</span><span class="n">logger</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_http</span> <span class="o">=</span> <span class="n">WSGIServer</span><span class="p">(</span><span class="n">hostport</span><span class="p">,</span> <span class="n">app</span><span class="p">,</span> <span class="n">spawn</span><span class="o">=</span><span class="n">pool</span><span class="p">,</span> <span class="n">log</span><span class="o">=</span><span class="n">logger</span><span class="p">,</span> <span class="n">error_log</span><span class="o">=</span><span class="n">logger</span><span class="p">)</span>
     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;robot running at </span><span class="si">%s</span><span class="s2">:</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">hostport</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">block</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_http</span><span class="o">.</span><span class="n">serve_forever</span><span class="p">()</span>

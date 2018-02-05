@@ -196,6 +196,10 @@ types:
         type: Eco
         description: In case the task failed with an exception, description of the exception
         required: false
+      result:
+        type: string
+        description: serialized version of the result of the task
+        required: false
     example:
       template_name: github.com/account/repository/master/node.zero-os
       service_name: node1

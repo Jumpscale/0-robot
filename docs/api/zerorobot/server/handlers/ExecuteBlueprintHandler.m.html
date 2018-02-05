@@ -1086,10 +1086,16 @@ table {
 <span class="kn">from</span> <span class="nn">jsonschema</span> <span class="kn">import</span> <span class="n">Draft4Validator</span>
 
 <span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">request</span>
+<span class="kn">from</span> <span class="nn">js9</span> <span class="kn">import</span> <span class="n">j</span>
 <span class="kn">from</span> <span class="nn">zerorobot</span> <span class="kn">import</span> <span class="n">service_collection</span> <span class="k">as</span> <span class="n">scol</span>
 <span class="kn">from</span> <span class="nn">zerorobot</span> <span class="kn">import</span> <span class="n">template_collection</span> <span class="k">as</span> <span class="n">tcol</span>
 <span class="kn">from</span> <span class="nn">zerorobot</span> <span class="kn">import</span> <span class="n">blueprint</span>
 <span class="kn">from</span> <span class="nn">zerorobot.service_collection</span> <span class="kn">import</span> <span class="n">ServiceConflictError</span>
+<span class="kn">from</span> <span class="nn">zerorobot.template.base</span> <span class="kn">import</span> <span class="n">BadActionArgumentError</span>
+<span class="kn">from</span> <span class="nn">zerorobot.template_collection</span> <span class="kn">import</span> <span class="p">(</span><span class="n">TemplateNameError</span><span class="p">,</span>
+                                           <span class="n">TemplateNotFoundError</span><span class="p">)</span>
+
+<span class="kn">from</span> <span class="nn">.views</span> <span class="kn">import</span> <span class="n">task_view</span>
 
 <span class="n">dir_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">realpath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">))</span>
 <span class="n">Blueprint_schema</span> <span class="o">=</span> <span class="n">JSON</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="n">dir_path</span> <span class="o">+</span> <span class="s1">&#39;/schema/Blueprint_schema.json&#39;</span><span class="p">))</span>
@@ -1117,26 +1123,55 @@ table {
         <span class="n">srv</span> <span class="o">=</span> <span class="bp">None</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">srv</span> <span class="o">=</span> <span class="n">tcol</span><span class="o">.</span><span class="n">instantiate_service</span><span class="p">(</span><span class="n">service</span><span class="p">[</span><span class="s1">&#39;template&#39;</span><span class="p">],</span> <span class="n">service</span><span class="p">[</span><span class="s1">&#39;service&#39;</span><span class="p">],</span> <span class="n">service</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">])</span>
-        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+        <span class="k">except</span> <span class="n">TemplateNotFoundError</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">JSON</span><span class="o">.</span><span class="n">dumps</span><span class="p">({</span><span class="s1">&#39;code&#39;</span><span class="p">:</span> <span class="mi">404</span><span class="p">,</span> <span class="s1">&#39;message&#39;</span><span class="p">:</span> <span class="s2">&quot;template &#39;</span><span class="si">%s</span><span class="s2">&#39; not found&quot;</span> <span class="o">%</span> <span class="n">service</span><span class="p">[</span><span class="s1">&#39;template&#39;</span><span class="p">]}),</span> \
                 <span class="mi">404</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;Content-type&quot;</span><span class="p">:</span> <span class="s1">&#39;application/json&#39;</span><span class="p">}</span>
-        <span class="k">except</span> <span class="n">ServiceConflictError</span><span class="p">:</span>
-            <span class="n">srv</span> <span class="o">=</span> <span class="n">scol</span><span class="o">.</span><span class="n">get_by_name</span><span class="p">(</span><span class="n">service</span><span class="p">[</span><span class="s1">&#39;service&#39;</span><span class="p">])</span>
-            <span class="n">srv</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">update_secure</span><span class="p">(</span><span class="n">service</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;data&#39;</span><span class="p">,</span> <span class="p">{}))</span>
+        <span class="k">except</span> <span class="n">ServiceConflictError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">err</span><span class="o">.</span><span class="n">service</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">j</span><span class="o">.</span><span class="n">exceptions</span><span class="o">.</span><span class="n">RuntimeError</span><span class="p">(</span><span class="s2">&quot;should have the conflicting service in the exception&quot;</span><span class="p">)</span>
+            <span class="c1"># err.service is the conflicting service, that&#39;s the one we want to update</span>
+            <span class="c1"># with the new data from the blueprint</span>
+            <span class="n">err</span><span class="o">.</span><span class="n">service</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">update_secure</span><span class="p">(</span><span class="n">service</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;data&#39;</span><span class="p">,</span> <span class="p">{}))</span>
 
-    <span class="k">for</span> <span class="n">action</span> <span class="ow">in</span> <span class="n">actions</span><span class="p">:</span>
+    <span class="n">tasks_created</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">action_item</span> <span class="ow">in</span> <span class="n">actions</span><span class="p">:</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="n">schedule_action</span><span class="p">(</span><span class="n">action</span><span class="p">[</span><span class="s1">&#39;service&#39;</span><span class="p">],</span> <span class="n">action</span><span class="p">[</span><span class="s1">&#39;action&#39;</span><span class="p">])</span>
-        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">JSON</span><span class="o">.</span><span class="n">dumps</span><span class="p">({</span><span class="s1">&#39;code&#39;</span><span class="p">:</span> <span class="mi">404</span><span class="p">,</span> <span class="s1">&#39;message&#39;</span><span class="p">:</span> <span class="s2">&quot;service &#39;</span><span class="si">%s</span><span class="s2">&#39; not found&quot;</span> <span class="o">%</span> <span class="n">action</span><span class="p">[</span><span class="s1">&#39;service&#39;</span><span class="p">]}),</span> \
-                <span class="mi">404</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;Content-type&quot;</span><span class="p">:</span> <span class="s1">&#39;application/json&#39;</span><span class="p">}</span>
+            <span class="n">tasks_created</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">schedule_action</span><span class="p">(</span><span class="n">action_item</span><span class="p">))</span>
+        <span class="k">except</span> <span class="n">BadActionArgumentError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+            <span class="n">err_msg</span> <span class="o">=</span> <span class="s2">&quot;bad action argument for action </span><span class="si">%s</span><span class="s2">: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">action_item</span><span class="p">[</span><span class="s1">&#39;action&#39;</span><span class="p">],</span> <span class="nb">str</span><span class="p">(</span><span class="n">err</span><span class="p">))</span>
+            <span class="k">return</span> <span class="n">JSON</span><span class="o">.</span><span class="n">dumps</span><span class="p">({</span><span class="s1">&#39;code&#39;</span><span class="p">:</span> <span class="mi">400</span><span class="p">,</span> <span class="s1">&#39;message&#39;</span><span class="p">:</span> <span class="n">err_msg</span><span class="p">}),</span> <span class="mi">400</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;Content-type&quot;</span><span class="p">:</span> <span class="s1">&#39;application/json&#39;</span><span class="p">}</span>
 
-    <span class="k">return</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="mi">204</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;Content-type&quot;</span><span class="p">:</span> <span class="s1">&#39;application/json&#39;</span><span class="p">}</span>
+    <span class="n">response</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">task</span><span class="p">,</span> <span class="n">service</span> <span class="ow">in</span> <span class="n">tasks_created</span><span class="p">:</span>
+        <span class="n">response</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">task_view</span><span class="p">(</span><span class="n">task</span><span class="p">,</span> <span class="n">service</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">JSON</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">response</span><span class="p">),</span> <span class="mi">200</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;Content-type&quot;</span><span class="p">:</span> <span class="s1">&#39;application/json&#39;</span><span class="p">}</span>
 
 
-<span class="k">def</span> <span class="nf">schedule_action</span><span class="p">(</span><span class="n">service</span><span class="p">,</span> <span class="n">action</span><span class="p">):</span>
-    <span class="n">service</span> <span class="o">=</span> <span class="n">scol</span><span class="o">.</span><span class="n">get_by_name</span><span class="p">(</span><span class="n">service</span><span class="p">)</span>
-    <span class="n">service</span><span class="o">.</span><span class="n">schedule_action</span><span class="p">(</span><span class="n">action</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">schedule_action</span><span class="p">(</span><span class="n">action_item</span><span class="p">):</span>
+    <span class="n">template</span> <span class="o">=</span> <span class="n">action_item</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;template&quot;</span><span class="p">)</span>
+    <span class="n">service</span> <span class="o">=</span> <span class="n">action_item</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;service&quot;</span><span class="p">)</span>
+    <span class="n">action</span> <span class="o">=</span> <span class="n">action_item</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;action&quot;</span><span class="p">)</span>
+    <span class="n">args</span> <span class="o">=</span> <span class="n">action_item</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;args&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">args</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;args should be a dict not </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="nb">type</span><span class="p">(</span><span class="n">args</span><span class="p">))</span>
+
+    <span class="n">candidates</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">if</span> <span class="n">template</span> <span class="ow">and</span> <span class="n">service</span><span class="p">:</span>
+        <span class="n">candidates</span> <span class="o">=</span> <span class="n">scol</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">template_uid</span><span class="o">=</span><span class="n">template</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">service</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">template</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">service</span><span class="p">:</span>
+        <span class="n">candidates</span> <span class="o">=</span> <span class="n">scol</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">template_uid</span><span class="o">=</span><span class="n">template</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="ow">not</span> <span class="n">template</span> <span class="ow">and</span> <span class="n">service</span><span class="p">:</span>
+        <span class="n">candidates</span> <span class="o">=</span> <span class="n">scol</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">service</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">candidates</span> <span class="o">=</span> <span class="n">scol</span><span class="o">.</span><span class="n">list_services</span><span class="p">()</span>
+
+    <span class="n">tasks</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">service</span> <span class="ow">in</span> <span class="n">candidates</span><span class="p">:</span>
+        <span class="n">t</span> <span class="o">=</span> <span class="n">service</span><span class="o">.</span><span class="n">schedule_action</span><span class="p">(</span><span class="n">action</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="n">args</span><span class="p">)</span>
+        <span class="n">tasks</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">t</span><span class="p">,</span> <span class="n">service</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">tasks</span>
 </pre></div>
 
   </div>
@@ -1213,21 +1248,29 @@ It is handler for POST /blueprints</p></div>
         <span class="n">srv</span> <span class="o">=</span> <span class="bp">None</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">srv</span> <span class="o">=</span> <span class="n">tcol</span><span class="o">.</span><span class="n">instantiate_service</span><span class="p">(</span><span class="n">service</span><span class="p">[</span><span class="s1">&#39;template&#39;</span><span class="p">],</span> <span class="n">service</span><span class="p">[</span><span class="s1">&#39;service&#39;</span><span class="p">],</span> <span class="n">service</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">])</span>
-        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+        <span class="k">except</span> <span class="n">TemplateNotFoundError</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">JSON</span><span class="o">.</span><span class="n">dumps</span><span class="p">({</span><span class="s1">&#39;code&#39;</span><span class="p">:</span> <span class="mi">404</span><span class="p">,</span> <span class="s1">&#39;message&#39;</span><span class="p">:</span> <span class="s2">&quot;template &#39;</span><span class="si">%s</span><span class="s2">&#39; not found&quot;</span> <span class="o">%</span> <span class="n">service</span><span class="p">[</span><span class="s1">&#39;template&#39;</span><span class="p">]}),</span> \
                 <span class="mi">404</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;Content-type&quot;</span><span class="p">:</span> <span class="s1">&#39;application/json&#39;</span><span class="p">}</span>
-        <span class="k">except</span> <span class="n">ServiceConflictError</span><span class="p">:</span>
-            <span class="n">srv</span> <span class="o">=</span> <span class="n">scol</span><span class="o">.</span><span class="n">get_by_name</span><span class="p">(</span><span class="n">service</span><span class="p">[</span><span class="s1">&#39;service&#39;</span><span class="p">])</span>
-            <span class="n">srv</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">update_secure</span><span class="p">(</span><span class="n">service</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;data&#39;</span><span class="p">,</span> <span class="p">{}))</span>
+        <span class="k">except</span> <span class="n">ServiceConflictError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">err</span><span class="o">.</span><span class="n">service</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">j</span><span class="o">.</span><span class="n">exceptions</span><span class="o">.</span><span class="n">RuntimeError</span><span class="p">(</span><span class="s2">&quot;should have the conflicting service in the exception&quot;</span><span class="p">)</span>
+            <span class="c1"># err.service is the conflicting service, that&#39;s the one we want to update</span>
+            <span class="c1"># with the new data from the blueprint</span>
+            <span class="n">err</span><span class="o">.</span><span class="n">service</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">update_secure</span><span class="p">(</span><span class="n">service</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;data&#39;</span><span class="p">,</span> <span class="p">{}))</span>
 
-    <span class="k">for</span> <span class="n">action</span> <span class="ow">in</span> <span class="n">actions</span><span class="p">:</span>
+    <span class="n">tasks_created</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">action_item</span> <span class="ow">in</span> <span class="n">actions</span><span class="p">:</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="n">schedule_action</span><span class="p">(</span><span class="n">action</span><span class="p">[</span><span class="s1">&#39;service&#39;</span><span class="p">],</span> <span class="n">action</span><span class="p">[</span><span class="s1">&#39;action&#39;</span><span class="p">])</span>
-        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">JSON</span><span class="o">.</span><span class="n">dumps</span><span class="p">({</span><span class="s1">&#39;code&#39;</span><span class="p">:</span> <span class="mi">404</span><span class="p">,</span> <span class="s1">&#39;message&#39;</span><span class="p">:</span> <span class="s2">&quot;service &#39;</span><span class="si">%s</span><span class="s2">&#39; not found&quot;</span> <span class="o">%</span> <span class="n">action</span><span class="p">[</span><span class="s1">&#39;service&#39;</span><span class="p">]}),</span> \
-                <span class="mi">404</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;Content-type&quot;</span><span class="p">:</span> <span class="s1">&#39;application/json&#39;</span><span class="p">}</span>
+            <span class="n">tasks_created</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">schedule_action</span><span class="p">(</span><span class="n">action_item</span><span class="p">))</span>
+        <span class="k">except</span> <span class="n">BadActionArgumentError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+            <span class="n">err_msg</span> <span class="o">=</span> <span class="s2">&quot;bad action argument for action </span><span class="si">%s</span><span class="s2">: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">action_item</span><span class="p">[</span><span class="s1">&#39;action&#39;</span><span class="p">],</span> <span class="nb">str</span><span class="p">(</span><span class="n">err</span><span class="p">))</span>
+            <span class="k">return</span> <span class="n">JSON</span><span class="o">.</span><span class="n">dumps</span><span class="p">({</span><span class="s1">&#39;code&#39;</span><span class="p">:</span> <span class="mi">400</span><span class="p">,</span> <span class="s1">&#39;message&#39;</span><span class="p">:</span> <span class="n">err_msg</span><span class="p">}),</span> <span class="mi">400</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;Content-type&quot;</span><span class="p">:</span> <span class="s1">&#39;application/json&#39;</span><span class="p">}</span>
 
-    <span class="k">return</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="mi">204</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;Content-type&quot;</span><span class="p">:</span> <span class="s1">&#39;application/json&#39;</span><span class="p">}</span>
+    <span class="n">response</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">task</span><span class="p">,</span> <span class="n">service</span> <span class="ow">in</span> <span class="n">tasks_created</span><span class="p">:</span>
+        <span class="n">response</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">task_view</span><span class="p">(</span><span class="n">task</span><span class="p">,</span> <span class="n">service</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">JSON</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">response</span><span class="p">),</span> <span class="mi">200</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;Content-type&quot;</span><span class="p">:</span> <span class="s1">&#39;application/json&#39;</span><span class="p">}</span>
 </pre></div>
 
   </div>
@@ -1238,7 +1281,7 @@ It is handler for POST /blueprints</p></div>
       
   <div class="item">
     <div class="name def" id="zerorobot.server.handlers.ExecuteBlueprintHandler.schedule_action">
-    <p>def <span class="ident">schedule_action</span>(</p><p>service, action)</p>
+    <p>def <span class="ident">schedule_action</span>(</p><p>action_item)</p>
     </div>
     
 
@@ -1247,9 +1290,30 @@ It is handler for POST /blueprints</p></div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.server.handlers.ExecuteBlueprintHandler.schedule_action', this);">Show source &equiv;</a></p>
   <div id="source-zerorobot.server.handlers.ExecuteBlueprintHandler.schedule_action" class="source">
-    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">schedule_action</span><span class="p">(</span><span class="n">service</span><span class="p">,</span> <span class="n">action</span><span class="p">):</span>
-    <span class="n">service</span> <span class="o">=</span> <span class="n">scol</span><span class="o">.</span><span class="n">get_by_name</span><span class="p">(</span><span class="n">service</span><span class="p">)</span>
-    <span class="n">service</span><span class="o">.</span><span class="n">schedule_action</span><span class="p">(</span><span class="n">action</span><span class="p">)</span>
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">schedule_action</span><span class="p">(</span><span class="n">action_item</span><span class="p">):</span>
+    <span class="n">template</span> <span class="o">=</span> <span class="n">action_item</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;template&quot;</span><span class="p">)</span>
+    <span class="n">service</span> <span class="o">=</span> <span class="n">action_item</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;service&quot;</span><span class="p">)</span>
+    <span class="n">action</span> <span class="o">=</span> <span class="n">action_item</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;action&quot;</span><span class="p">)</span>
+    <span class="n">args</span> <span class="o">=</span> <span class="n">action_item</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;args&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">args</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;args should be a dict not </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="nb">type</span><span class="p">(</span><span class="n">args</span><span class="p">))</span>
+
+    <span class="n">candidates</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">if</span> <span class="n">template</span> <span class="ow">and</span> <span class="n">service</span><span class="p">:</span>
+        <span class="n">candidates</span> <span class="o">=</span> <span class="n">scol</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">template_uid</span><span class="o">=</span><span class="n">template</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">service</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">template</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">service</span><span class="p">:</span>
+        <span class="n">candidates</span> <span class="o">=</span> <span class="n">scol</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">template_uid</span><span class="o">=</span><span class="n">template</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="ow">not</span> <span class="n">template</span> <span class="ow">and</span> <span class="n">service</span><span class="p">:</span>
+        <span class="n">candidates</span> <span class="o">=</span> <span class="n">scol</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">service</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">candidates</span> <span class="o">=</span> <span class="n">scol</span><span class="o">.</span><span class="n">list_services</span><span class="p">()</span>
+
+    <span class="n">tasks</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">service</span> <span class="ow">in</span> <span class="n">candidates</span><span class="p">:</span>
+        <span class="n">t</span> <span class="o">=</span> <span class="n">service</span><span class="o">.</span><span class="n">schedule_action</span><span class="p">(</span><span class="n">action</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="n">args</span><span class="p">)</span>
+        <span class="n">tasks</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">t</span><span class="p">,</span> <span class="n">service</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">tasks</span>
 </pre></div>
 
   </div>
