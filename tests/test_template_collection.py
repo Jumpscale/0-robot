@@ -19,7 +19,7 @@ class TestTemplateCollection(unittest.TestCase):
 
         # non existing template
         with self.assertRaises(Exception, msg='loading non existing template should fail'):
-            tcol._load_template("/not/existing/path")
+            tcol._load_template("/not/existing/path", file_path)
 
     def test_get_template(self):
         dir_path = os.path.join(os.path.dirname(__file__), 'fixtures/templates/node')
@@ -30,7 +30,7 @@ class TestTemplateCollection(unittest.TestCase):
         self.assertTrue(template is not None)
         self.assertEqual(template.template_dir, dir_path)
 
-        with self.assertRaises(TemplateNotFoundError, msg="should raise KeyError"):
+        with self.assertRaises(TemplateNotFoundError, msg="should raise TemplateNotFoundError"):
             tcol.get('github.com/jumpscale/0-robot/noexists/0.0.1')
 
     def test_list_template(self):

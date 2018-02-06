@@ -36,13 +36,13 @@ def get_by_name(name):
     if len(services) > 1:
         raise TooManyResults("more then one results for service name=%s, be more precise" % name)
     if len(services) < 1:
-        raise KeyError("service with name=%s not found" % name)
+        raise ServiceNotFoundError("service with name=%s not found" % name)
     return services[0]
 
 
 def get_by_guid(guid):
     if guid not in _guid_index:
-        raise KeyError("service with guid=%s not found" % guid)
+        raise ServiceNotFoundError("service with guid=%s not found" % guid)
     return _guid_index[guid]
 
 
@@ -137,6 +137,10 @@ class ServiceConflictError(Exception):
 
 
 class TooManyResults(Exception):
+    """
+    Raised when trying to get a specific service and the
+    search retunr more then 1 results
+    """
     pass
 
 
@@ -145,3 +149,9 @@ class BadTemplateError(Exception):
     Error raised when trying to load a service with a wrong template class
     """
     pass
+
+
+class ServiceNotFoundError(KeyError):
+    """
+    Raised when trying to get a service that doesn't exists
+    """

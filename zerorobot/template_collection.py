@@ -149,7 +149,7 @@ class TemplateNameError(Exception):
     pass
 
 
-class TemplateNotFoundError(Exception):
+class TemplateNotFoundError(KeyError):
     """
     This exception is raised when trying to create a service
     from a template that doesn't exists

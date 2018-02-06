@@ -66,7 +66,7 @@ class TestServiceTemplate(unittest.TestCase):
 
             srv.delete()
             self.assertFalse(os.path.exists(srv_dir), "directory of the saved service not should exists anymore")
-            with self.assertRaises(KeyError, message='service should not be found in memory anymore'):
+            with self.assertRaises(scol.ServiceNotFoundError, message='service should not be found in memory anymore'):
                 scol.get_by_guid(srv.guid)
 
     def test_service_load(self):

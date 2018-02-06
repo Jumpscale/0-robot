@@ -72,6 +72,29 @@ class ServicesMgr:
 
         return list(services.values())
 
+    def exists(self, parent=None, **kwargs):
+        """
+        Test if a service exists and filter results from kwargs.
+        You can filter on:
+        "name", "template_uid", "template_host", "template_account", "template_repo", "template_name", "template_version"
+        """
+        results = self.find(parent=parent, **kwargs)
+        return len(results) > 0
+
+    def get(self, parent=None, **kwargs):
+        """
+        return a service service based on the filters in kwargs.
+        You can filter on:
+        "name", "template_uid", "template_host", "template_account", "template_repo", "template_name", "template_version"
+        """
+        results = self.find(parent=parent, **kwargs)
+        i = len(results)
+        if i > 1:
+            raise scol.TooManyResults("%d services found" % i)
+        elif i <= 0:
+            raise scol.ServiceNotFoundError()
+        return results[0]
+
     def create(self, template_uid, service_name=None, data=None):
         """
         Instantiate a service from a template

@@ -33,10 +33,10 @@ class TestServiceCollection(unittest.TestCase):
 
         self.assertEqual(service, scol.get_by_guid('1234567890'))
         self.assertEqual(service, scol.get_by_name('s1'))
-        try:
+        self.assertEqual(service, scol.find(name='s1')[0])
+
+        with self.assertRaises(scol.ServiceNotFoundError):
             scol.get_by_name("nan")
-        except KeyError as err:
-            self.assertEqual(err.args[0], "service with name=nan not found")
 
     def test_service_overwrite(self):
         s1 = FakeService('1111', 's1')
@@ -44,12 +44,9 @@ class TestServiceCollection(unittest.TestCase):
         s3 = FakeService('2222', 's1')
         scol.add(s1)
 
-        try:
+        with self.assertRaises(scol.ServiceConflictError, msg='should raise exception is try to overwrite service'):
             scol.add(s2)
             scol.add(s3)
-            self.fail('should raise exception is try to overwrite service')
-        except scol.ServiceConflictError as err:
-            pass
 
     def test_list_services(self):
         services = scol.list_services()
