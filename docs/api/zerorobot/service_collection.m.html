@@ -1081,6 +1081,10 @@ table {
 
         </li>
         <li class="mono">
+        <span class="class_name"><a href="#zerorobot.service_collection.ServiceNotFoundError">ServiceNotFoundError</a></span>
+        
+        </li>
+        <li class="mono">
         <span class="class_name"><a href="#zerorobot.service_collection.TooManyResults">TooManyResults</a></span>
         
         </li>
@@ -1142,13 +1146,13 @@ other services and class need to use this module method to create, access, list 
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">services</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">TooManyResults</span><span class="p">(</span><span class="s2">&quot;more then one results for service name=</span><span class="si">%s</span><span class="s2">, be more precise&quot;</span> <span class="o">%</span> <span class="n">name</span><span class="p">)</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">services</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s2">&quot;service with name=</span><span class="si">%s</span><span class="s2"> not found&quot;</span> <span class="o">%</span> <span class="n">name</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">ServiceNotFoundError</span><span class="p">(</span><span class="s2">&quot;service with name=</span><span class="si">%s</span><span class="s2"> not found&quot;</span> <span class="o">%</span> <span class="n">name</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">services</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
 
 <span class="k">def</span> <span class="nf">get_by_guid</span><span class="p">(</span><span class="n">guid</span><span class="p">):</span>
     <span class="k">if</span> <span class="n">guid</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">_guid_index</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s2">&quot;service with guid=</span><span class="si">%s</span><span class="s2"> not found&quot;</span> <span class="o">%</span> <span class="n">guid</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">ServiceNotFoundError</span><span class="p">(</span><span class="s2">&quot;service with guid=</span><span class="si">%s</span><span class="s2"> not found&quot;</span> <span class="o">%</span> <span class="n">guid</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">_guid_index</span><span class="p">[</span><span class="n">guid</span><span class="p">]</span>
 
 
@@ -1243,6 +1247,10 @@ other services and class need to use this module method to create, access, list 
 
 
 <span class="k">class</span> <span class="nc">TooManyResults</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Raised when trying to get a specific service and the</span>
+<span class="sd">    search retunr more then 1 results</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">pass</span>
 
 
@@ -1251,6 +1259,12 @@ other services and class need to use this module method to create, access, list 
 <span class="sd">    Error raised when trying to load a service with a wrong template class</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">pass</span>
+
+
+<span class="k">class</span> <span class="nc">ServiceNotFoundError</span><span class="p">(</span><span class="ne">KeyError</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Raised when trying to get a service that doesn&#39;t exists</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 </pre></div>
 
   </div>
@@ -1386,7 +1400,7 @@ other services and class need to use this module method to create, access, list 
   <div id="source-zerorobot.service_collection.get_by_guid" class="source">
     <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">get_by_guid</span><span class="p">(</span><span class="n">guid</span><span class="p">):</span>
     <span class="k">if</span> <span class="n">guid</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">_guid_index</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s2">&quot;service with guid=</span><span class="si">%s</span><span class="s2"> not found&quot;</span> <span class="o">%</span> <span class="n">guid</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">ServiceNotFoundError</span><span class="p">(</span><span class="s2">&quot;service with guid=</span><span class="si">%s</span><span class="s2"> not found&quot;</span> <span class="o">%</span> <span class="n">guid</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">_guid_index</span><span class="p">[</span><span class="n">guid</span><span class="p">]</span>
 </pre></div>
 
@@ -1412,7 +1426,7 @@ other services and class need to use this module method to create, access, list 
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">services</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">TooManyResults</span><span class="p">(</span><span class="s2">&quot;more then one results for service name=</span><span class="si">%s</span><span class="s2">, be more precise&quot;</span> <span class="o">%</span> <span class="n">name</span><span class="p">)</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">services</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s2">&quot;service with name=</span><span class="si">%s</span><span class="s2"> not found&quot;</span> <span class="o">%</span> <span class="n">name</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">ServiceNotFoundError</span><span class="p">(</span><span class="s2">&quot;service with name=</span><span class="si">%s</span><span class="s2"> not found&quot;</span> <span class="o">%</span> <span class="n">name</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">services</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 </pre></div>
 
@@ -1664,14 +1678,61 @@ other services and class need to use this module method to create, access, list 
       </div>
       
       <div class="item">
+      <p id="zerorobot.service_collection.ServiceNotFoundError" class="name">class <span class="ident">ServiceNotFoundError</span></p>
+      
+  
+    <div class="desc"><p>Raised when trying to get a service that doesn't exists</p></div>
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.service_collection.ServiceNotFoundError', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.service_collection.ServiceNotFoundError" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">ServiceNotFoundError</span><span class="p">(</span><span class="ne">KeyError</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Raised when trying to get a service that doesn&#39;t exists</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+</pre></div>
+
+  </div>
+</div>
+
+
+      <div class="class">
+          <h3>Ancestors (in MRO)</h3>
+          <ul class="class_list">
+          <li><a href="#zerorobot.service_collection.ServiceNotFoundError">ServiceNotFoundError</a></li>
+          <li>builtins.KeyError</li>
+          <li>builtins.LookupError</li>
+          <li>builtins.Exception</li>
+          <li>builtins.BaseException</li>
+          <li>builtins.object</li>
+          </ul>
+          <h3>Class variables</h3>
+            <div class="item">
+            <p id="zerorobot.service_collection.ServiceNotFoundError.args" class="name">var <span class="ident">args</span></p>
+            
+
+            
+  
+  <div class="source_cont">
+</div>
+
+            </div>
+      </div>
+      </div>
+      
+      <div class="item">
       <p id="zerorobot.service_collection.TooManyResults" class="name">class <span class="ident">TooManyResults</span></p>
       
   
-    <div class="desc"><p>Common base class for all non-exit exceptions.</p></div>
+    <div class="desc"><p>Raised when trying to get a specific service and the
+search retunr more then 1 results</p></div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.service_collection.TooManyResults', this);">Show source &equiv;</a></p>
   <div id="source-zerorobot.service_collection.TooManyResults" class="source">
     <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">TooManyResults</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Raised when trying to get a specific service and the</span>
+<span class="sd">    search retunr more then 1 results</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">pass</span>
 </pre></div>
 

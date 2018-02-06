@@ -1241,7 +1241,7 @@ other services and class need to use this module method to load/access the templ
     <span class="k">pass</span>
 
 
-<span class="k">class</span> <span class="nc">TemplateNotFoundError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+<span class="k">class</span> <span class="nc">TemplateNotFoundError</span><span class="p">(</span><span class="ne">KeyError</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    This exception is raised when trying to create a service</span>
 <span class="sd">    from a template that doesn&#39;t exists</span>
@@ -1441,7 +1441,7 @@ from a template that doesn't exists</p></div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.template_collection.TemplateNotFoundError', this);">Show source &equiv;</a></p>
   <div id="source-zerorobot.template_collection.TemplateNotFoundError" class="source">
-    <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">TemplateNotFoundError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">TemplateNotFoundError</span><span class="p">(</span><span class="ne">KeyError</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    This exception is raised when trying to create a service</span>
 <span class="sd">    from a template that doesn&#39;t exists</span>
@@ -1457,6 +1457,8 @@ from a template that doesn't exists</p></div>
           <h3>Ancestors (in MRO)</h3>
           <ul class="class_list">
           <li><a href="#zerorobot.template_collection.TemplateNotFoundError">TemplateNotFoundError</a></li>
+          <li>builtins.KeyError</li>
+          <li>builtins.LookupError</li>
           <li>builtins.Exception</li>
           <li>builtins.BaseException</li>
           <li>builtins.object</li>

@@ -1097,13 +1097,6 @@ table {
 
 
 <span class="k">def</span> <span class="nf">task_view</span><span class="p">(</span><span class="n">task</span><span class="p">,</span> <span class="n">service</span><span class="p">):</span>
-    <span class="n">result</span> <span class="o">=</span> <span class="bp">None</span>
-    <span class="k">if</span> <span class="n">task</span><span class="o">.</span><span class="n">result</span><span class="p">:</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">task</span><span class="o">.</span><span class="n">result</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-            <span class="n">result</span> <span class="o">=</span> <span class="n">task</span><span class="o">.</span><span class="n">result</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">result</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">task</span><span class="o">.</span><span class="n">result</span><span class="p">)</span>
-
     <span class="k">return</span> <span class="p">{</span>
         <span class="s1">&#39;template_name&#39;</span><span class="p">:</span> <span class="n">service</span><span class="o">.</span><span class="n">template_name</span><span class="p">,</span>
         <span class="s1">&#39;service_name&#39;</span><span class="p">:</span> <span class="n">service</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
@@ -1113,7 +1106,7 @@ table {
         <span class="s1">&#39;guid&#39;</span><span class="p">:</span> <span class="n">task</span><span class="o">.</span><span class="n">guid</span><span class="p">,</span>
         <span class="s1">&#39;created&#39;</span><span class="p">:</span> <span class="n">task</span><span class="o">.</span><span class="n">created</span><span class="p">,</span>
         <span class="s1">&#39;eco&#39;</span><span class="p">:</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">task</span><span class="o">.</span><span class="n">eco</span><span class="o">.</span><span class="n">toJson</span><span class="p">())</span> <span class="k">if</span> <span class="n">task</span><span class="o">.</span><span class="n">eco</span> <span class="k">else</span> <span class="bp">None</span><span class="p">,</span>
-        <span class="s1">&#39;result&#39;</span><span class="p">:</span> <span class="n">result</span>
+        <span class="s1">&#39;result&#39;</span><span class="p">:</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">task</span><span class="o">.</span><span class="n">result</span><span class="p">)</span> <span class="k">if</span> <span class="n">task</span><span class="o">.</span><span class="n">result</span> <span class="k">else</span> <span class="bp">None</span>
     <span class="p">}</span>
 
 
@@ -1206,13 +1199,6 @@ table {
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.server.handlers.views.task_view', this);">Show source &equiv;</a></p>
   <div id="source-zerorobot.server.handlers.views.task_view" class="source">
     <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">task_view</span><span class="p">(</span><span class="n">task</span><span class="p">,</span> <span class="n">service</span><span class="p">):</span>
-    <span class="n">result</span> <span class="o">=</span> <span class="bp">None</span>
-    <span class="k">if</span> <span class="n">task</span><span class="o">.</span><span class="n">result</span><span class="p">:</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">task</span><span class="o">.</span><span class="n">result</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-            <span class="n">result</span> <span class="o">=</span> <span class="n">task</span><span class="o">.</span><span class="n">result</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">result</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">task</span><span class="o">.</span><span class="n">result</span><span class="p">)</span>
-
     <span class="k">return</span> <span class="p">{</span>
         <span class="s1">&#39;template_name&#39;</span><span class="p">:</span> <span class="n">service</span><span class="o">.</span><span class="n">template_name</span><span class="p">,</span>
         <span class="s1">&#39;service_name&#39;</span><span class="p">:</span> <span class="n">service</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
@@ -1222,7 +1208,7 @@ table {
         <span class="s1">&#39;guid&#39;</span><span class="p">:</span> <span class="n">task</span><span class="o">.</span><span class="n">guid</span><span class="p">,</span>
         <span class="s1">&#39;created&#39;</span><span class="p">:</span> <span class="n">task</span><span class="o">.</span><span class="n">created</span><span class="p">,</span>
         <span class="s1">&#39;eco&#39;</span><span class="p">:</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">task</span><span class="o">.</span><span class="n">eco</span><span class="o">.</span><span class="n">toJson</span><span class="p">())</span> <span class="k">if</span> <span class="n">task</span><span class="o">.</span><span class="n">eco</span> <span class="k">else</span> <span class="bp">None</span><span class="p">,</span>
-        <span class="s1">&#39;result&#39;</span><span class="p">:</span> <span class="n">result</span>
+        <span class="s1">&#39;result&#39;</span><span class="p">:</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">task</span><span class="o">.</span><span class="n">result</span><span class="p">)</span> <span class="k">if</span> <span class="n">task</span><span class="o">.</span><span class="n">result</span> <span class="k">else</span> <span class="bp">None</span>
     <span class="p">}</span>
 </pre></div>
 
