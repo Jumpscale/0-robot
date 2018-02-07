@@ -113,6 +113,7 @@ def _load_template(url, template_dir):
     spec = importlib.util.spec_from_file_location(template_name, class_path)
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
+    sys.modules[module.__name__] = module
 
     if class_name not in module.__dict__:
         raise TemplateNameError("template %s should contain a class called %s" % (template_name, class_name))

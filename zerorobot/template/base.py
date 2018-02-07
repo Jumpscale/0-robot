@@ -101,6 +101,7 @@ class TemplateBase:
     template_dir = None
 
     def __init__(self, name=None, guid=None, data=None):
+        self.template_dir = os.path.dirname(inspect.getsourcefile(self.__class__))
         self.guid = guid or str(uuid4())
         self.name = name or self.guid
         self.parent = None
