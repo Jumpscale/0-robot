@@ -6,9 +6,10 @@ python:
   - "3.5"
 
 install:
+  - pip3 install codecov pytest pytest-cov
   - pip3 install -r requirements.txt
-  - pip3 install codecov
   - ./utils/scripts/jumpscale_install.sh
+  - pip3 install -e .
 
 script:
   - ./tests/prepare_env.sh

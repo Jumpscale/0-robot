@@ -21,7 +21,8 @@ bin_pkg:
 	python3 setup.py bdist_wheel
 
 test:
-	nose2 --with-coverage --coverage zerorobot
+	pytest --cov=./ tests
 
 test-ui:
-	nose2 --with-coverage --coverage-report html --coverage zerorobot
+	pytest --cov=./ --cov-report=html tests
+
