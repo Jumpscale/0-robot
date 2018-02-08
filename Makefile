@@ -26,3 +26,5 @@ test:
 test-ui:
 	pytest --cov=./ --cov-report=html tests
 
+
+.PHONY: all generate generate-server generate-apidoc package source_pkg bin_pkg test test-ui
