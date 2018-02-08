@@ -35,8 +35,8 @@ def build_docker(tag, jsbranch, zrbranch, push):
         prefab = j.tools.prefab.get(executor=ex)
         print("done!\nUpdating ubuntu apt definitions ... ", end='')
         prefab.system.package.mdupdate()
-        print("done!\nInstalling python3-dev, git & curl ... ", end='')
-        prefab.system.package.install("python3-dev,git,curl")
+        print("done!\nInstalling python3-dev, git, curl & language-pack-en ... ", end='')
+        prefab.system.package.install("python3-dev,git,curl,language-pack-en")
         print("done!\nInstalling jumpscale ... ", end='')
         _install_js(prefab, jsbranch)
         print("done!\nInstalling 0-robot ... ", end='')
@@ -63,7 +63,10 @@ def _main():
     parser.add_argument("--zrbranch", type=str, default="master",
                         help="0-robot git branch, tag or revision to build")
     parser.add_argument("--push", help="Push to docker hub")
+    parser.add_argument("--debug", help="Print debug information")
     args = parser.parse_args()
+    if not args.debug:
+        j.logger.set_mode(j.logger.PRODUCTION)
     build_docker(args.tag, args.jsbranch, args.zrbranch, args.push)
 
 
