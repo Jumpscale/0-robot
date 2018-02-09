@@ -62,6 +62,17 @@ class Robot:
     def add_template_repo(self, url, branch='master', directory='templates'):
         tcol.add_repo(url=url, branch=branch, directory=directory)
 
+    def set_config_repo(self, url):
+        """
+        Set the url of the configuration repository used by JumpScale to store client configuration
+        It can be the same URL as the data repository.
+        """
+        location = tcol._git_path(url)
+        if not os.path.exists(location):
+            location = j.clients.git.pullGitRepo(url)
+            j.sal.fs.createEmptyFile(os.path.join(location, '.jsconfig'))
+        j.tools.configmanager._path = location
+
     def start(self, listen=":6600", log_level=logging.DEBUG, block=True):
         """
         start the rest web server
