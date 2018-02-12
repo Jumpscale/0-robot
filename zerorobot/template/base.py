@@ -13,9 +13,11 @@ from logging.handlers import RotatingFileHandler
 from uuid import uuid4
 
 import gevent
+
 from js9 import j
 from zerorobot import service_collection as scol
 from zerorobot.dsl.ZeroRobotAPI import ZeroRobotAPI
+from zerorobot.prometheus.robot import task_latency
 from zerorobot.task import PRIORITY_NORMAL, PRIORITY_SYSTEM, Task, TaskList
 from zerorobot.template.data import ServiceData
 from zerorobot.template.state import ServiceState
@@ -123,7 +125,7 @@ class TemplateBase:
         if data:
             self.data.update(data)
         self.state = ServiceState()
-        self.task_list = TaskList()
+        self.task_list = TaskList(self)
 
         # start the greenlets of this service
         self.gl_mgr = GreenletsMgr()
@@ -186,10 +188,14 @@ class TemplateBase:
         while True:
             try:
                 task = self.task_list.get()
+                started = time.time()
                 task.execute()
             except gevent.GreenletExit:
                 # TODO: gracefull shutdown
                 break
+            finally:
+                latency = time.time() - started
+                task_latency.labels(action_name=task.action_name, template_uid=str(self.template_uid)).observe(latency)
 
     def schedule_action(self, action, args=None):
         """

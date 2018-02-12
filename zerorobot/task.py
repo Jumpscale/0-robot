@@ -14,6 +14,9 @@ from gevent.lock import Semaphore
 from gevent.queue import PriorityQueue
 from js9 import j
 
+from zerorobot.prometheus.robot import nr_task_waiting
+
+
 # Task state constant
 TASK_STATE_NEW = "new"
 TASK_STATE_RUNNING = "running"
@@ -128,8 +131,9 @@ class TaskList:
     Task list if a FIFO queue of tasks
     """
 
-    def __init__(self):
+    def __init__(self, service):
         self._queue = PriorityQueue()
+        self._service = service
         # done keeps the tasks that have been extracted from the queue
         # so we can inspect them later
         # TODO: done tasks should be kept on disk, not in memory
@@ -144,6 +148,8 @@ class TaskList:
         # only keep non system task into the done task list
         if priority != PRIORITY_SYSTEM:
             self._done.append(task)
+
+        nr_task_waiting.labels(service_guid=self._service.guid).dec()
         return task
 
     def put(self, task, priority=PRIORITY_NORMAL):
@@ -152,6 +158,7 @@ class TaskList:
         """
         if not isinstance(task, Task):
             raise ValueError("task should be an instance of the Task class not %s" % type(task))
+        nr_task_waiting.labels(service_guid=self._service.guid).inc()
         self._queue.put((priority, task))
 
     def empty(self):

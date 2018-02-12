@@ -31,7 +31,7 @@ class TestServiceProxy(unittest.TestCase):
             shutil.rmtree(config.DATA_DIR)
         # make sure we don't have any service loaded
         scol.drop_all()
-        self.robot.start(listen='127.0.0.1:6600', block=False)
+        self.robot.start(listen='127.0.0.1:6600', block=False, testing=True)
 
     def tearDown(self):
         self.robot.stop()

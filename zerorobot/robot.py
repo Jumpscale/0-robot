@@ -12,9 +12,11 @@ import gevent
 from gevent import GreenletExit
 from gevent.pool import Pool
 from gevent.pywsgi import WSGIServer
+
 from js9 import j
 from zerorobot import service_collection as scol
 from zerorobot import template_collection as tcol
+from zerorobot.prometheus.flask import monitor
 from zerorobot.server.app import app
 from zerorobot.task import PRIORITY_SYSTEM
 from zerorobot import config
@@ -74,7 +76,7 @@ class Robot:
             j.sal.fs.createEmptyFile(os.path.join(location, '.jsconfig'))
         j.tools.configmanager._path = location
 
-    def start(self, listen=":6600", log_level=logging.DEBUG, block=True):
+    def start(self, listen=":6600", log_level=logging.DEBUG, block=True, **kwargs):
         """
         start the rest web server
         load the services from the local git repository
@@ -86,6 +88,10 @@ class Robot:
 
         # will raise if not config repo is found
         j.tools.configmanager.path_configrepo
+
+        # configure prometheus monitoring
+        if not kwargs.get('testing', False):
+            monitor(app)
 
         self._block = block
 

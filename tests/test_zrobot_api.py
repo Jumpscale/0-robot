@@ -36,7 +36,7 @@ class TestZRobotAPI(unittest.TestCase):
 
             listen = "localhost:660%d" % int(id)
             addr = "http://%s" % listen
-            robot.start(listen=listen)
+            robot.start(listen=listen, testing=True)
             # return robot
 
         addr = "http://localhost:660%d" % int(id)

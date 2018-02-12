@@ -23,6 +23,10 @@ setup(
         'jsonschema>=2.5.1',
         'six>=1.10.0',
         'python-jose>=1.3.2',
+        'gevent >= 1.2.2',
+        'psutil>=5.4.3',
+        'prometheus_client>=0.1.1',
+        'netifaces>=0.10.6'
     ],
     scripts=['cmd/zrobot']
 )
