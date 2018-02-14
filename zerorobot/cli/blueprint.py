@@ -19,7 +19,7 @@ def blueprint():
 @click.argument("blueprint")
 def execute(blueprint):
     if not j.sal.fs.exists(blueprint):
-        print("blueprint %s doesn't not found")
+        print("blueprint not found at %s" % blueprint)
         sys.exit(1)
 
     instance, _ = utils.get_instance()

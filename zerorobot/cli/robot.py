@@ -41,6 +41,7 @@ def connect(instance, addr):
     # just select existing robot
     if instance not in _list() and addr is None:
         print("instance '%s' not found. Use 'zrobot robot connect instance addr` to configure a new connection to a 0-robot" % instance)
+        sys.exit(1)
 
     connected, addr = utils.test_connection(instance)
     if not connected:

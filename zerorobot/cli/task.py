@@ -47,7 +47,11 @@ def schedule(guid, action):
         sys.exit(1)
 
     cl = utils.get_client()
-    service = cl.services.guids[guid]
+    try:
+        service = cl.services.guids[guid]
+    except KeyError:
+        print("no service found with guid=%s" % guid)
+        sys.exit(1)
     task = service.schedule_action(action, args=None, resp_q=None)
     print('task created - %s' % task.guid)
 
@@ -64,7 +68,11 @@ def list(guid, all):
         sys.exit(1)
 
     cl = utils.get_client()
-    service = cl.services.guids[guid]
+    try:
+        service = cl.services.guids[guid]
+    except KeyError:
+        print("no service found with guid=%s" % guid)
+        sys.exit(1)
 
     tasks = service.task_list.list_tasks(all=all)
     for task in sort_by_created(tasks):
@@ -92,11 +100,16 @@ def get(guid, task, tb):
         sys.exit(1)
 
     cl = utils.get_client()
-    service = cl.services.guids[guid]
+    try:
+        service = cl.services.guids[guid]
+    except KeyError:
+        print("no service found with guid=%s" % guid)
+        sys.exit(1)
+
     try:
         task = service.task_list.get_task_by_guid(task)
     except KeyError:
-        print("no task with guid %d" % task)
+        print("no task with guid %s" % task)
         sys.exit(1)
 
     print_task(task, tb)
