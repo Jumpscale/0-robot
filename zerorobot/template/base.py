@@ -128,6 +128,7 @@ class TemplateBase:
         # start the greenlets of this service
         self.gl_mgr = GreenletsMgr()
         self.gl_mgr.add('executor', gevent.Greenlet(self._run))
+        self.recurring_action('save', 10)
 
         self.logger = _configure_logger(self.guid)
 
@@ -298,8 +299,10 @@ def _recurring_action(service, action, period):
     """
     elapsed = -1
     while True:
+        tasks_name = [t.action_name for t in service.task_list.list_tasks()]
         try:
-            if elapsed == -1 or elapsed >= period:
+            # schedule if period time has elasped and the same action is not already in the task list
+            if elapsed == -1 or elapsed >= period and action not in tasks_name:
                 task = service._schedule_action(action, priority=PRIORITY_SYSTEM)
                 task.wait()
                 last = time.time()

@@ -40,7 +40,6 @@ class Robot:
         self._http = None  # server handler
         self.addr = None
         self._sig_handler = []
-        self._autosave_gl = None
 
     @property
     def address(self):
@@ -104,14 +103,10 @@ class Robot:
 
         # load services from data repo
         self._load_services()
-        self._autosave_gl = gevent.spawn(_auto_save_services, data_dir=config.DATA_DIR)
 
         if block:
             self._http.serve_forever()
-
             # this is executed when self.stop is called.
-            # stop autosave greenlet
-            self._autosave_gl.kill()
             # here no more requests are comming in, we can safely save all services
             self._save_services()
         else:
@@ -135,9 +130,6 @@ class Robot:
         # if we don't block, we can gracefully shutdown here
         # cause we're not in a sig handler
         if self._block is False:
-
-             # stop autosave greenlet
-            self._autosave_gl.kill()
             # here no more requests are comming in, we can safely save all services
             self._save_services()
 
@@ -164,23 +156,6 @@ class Robot:
             # stop all the greenlets attached to the services
             service.gl_mgr.stop_all()
             service.save()
-
-
-def _auto_save_services(data_dir):
-    """
-    this method runs in a greenlet during the lifetime of the robot
-    it ask the services to saves themself every minutes
-
-    The save method is added as a task with high priority on the services, so we don't create race conditions
-    with other tasks
-    """
-    while True:
-        try:
-            for service in scol.list_services():
-                service._schedule_action(action='save', priority=PRIORITY_SYSTEM)
-            gevent.sleep(10)
-        except GreenletExit:
-            break
 
 
 def _split_hostport(hostport):
