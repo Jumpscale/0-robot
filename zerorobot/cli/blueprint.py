@@ -35,7 +35,7 @@ def execute(blueprint):
         print_tasks(tasks)
     except HTTPError as err:
         msg = err.response.json()['message']
-        print(msg)
+        print("error during execution of the blueprint: %s" % msg)
         return sys.exit(1)
 
 
