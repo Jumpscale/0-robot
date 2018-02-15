@@ -21,3 +21,9 @@ class Node(TemplateBase):
     def foo(self, bar, bor=None):
         print('foo')
         return 'result'
+
+    @property
+    def bar(self):
+        # raise here so we can test that it doesn't
+        # fail when trying to list actions
+        raise RuntimeError()

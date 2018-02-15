@@ -106,7 +106,7 @@ class FlaskrTestCase(unittest.TestCase):
         resp = self.app.get('/services/%s/actions' % service.guid)
         _validate_content_type(resp)
         data = _load_data(resp)
-        expected = sorted(["start", "stop", "foo", "delete", "update_data"])
+        expected = sorted(["start", "stop", "foo", "delete", "update_data", 'bar'])
         actual = sorted([a['name'] for a in data])
         assert expected == actual
 

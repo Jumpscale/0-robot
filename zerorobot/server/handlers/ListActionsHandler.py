@@ -32,6 +32,11 @@ def get_actions_list(obj):
     for name in dir(obj):
         if name in skip or name.startswith('_'):
             continue
-        if callable(getattr(obj, name)):
+        # test if the attribute is a property, we use this so we don't actually
+        # call the property, but just detect it
+        if isinstance(getattr(type(obj), name, None), property):
             actions.append({'name': name})
+        elif callable(getattr(obj, name)):
+            actions.append({'name': name})
+
     return actions

@@ -21,10 +21,10 @@ bin_pkg:
 	python3 setup.py bdist_wheel
 
 test:
-	pytest --cov=./ tests
+	pytest --cov=./ tests -v
 
 test-ui:
-	pytest --cov=./ --cov-report=html tests
+	pytest --cov=./ --cov-report=html tests -v
 
 
 .PHONY: all generate generate-server generate-apidoc package source_pkg bin_pkg test test-ui
