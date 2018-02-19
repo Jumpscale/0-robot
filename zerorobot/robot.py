@@ -151,8 +151,19 @@ class Robot:
             tmplClass = tcol.get(service_info['template'])
             srv = scol.load(tmplClass, srv_dir)
 
+        loading_failed = []
         for service in scol.list_services():
-            service.validate()
+            try:
+                service.validate()
+            except Exception as err:
+                logger.error("fail to load %s: %s" % (service.guid, str(err)))
+                # the service is not going to process its task list until it can
+                # execute validate() without problem
+                service.gl_mgr.stop('executor')
+                loading_failed.append(service)
+
+        if len(loading_failed) > 0:
+            gevent.spawn(_try_load_service, loading_failed)
 
     def _save_services(self):
         """
@@ -162,6 +173,28 @@ class Robot:
             # stop all the greenlets attached to the services
             service.gl_mgr.stop_all()
             service.save()
+
+
+def _try_load_service(services):
+    """
+    this method tries to execute `validate` method on the services that failed to load
+    when the robot started.
+    Once all failed services are back to normal, this function will exit
+    """
+    size = len(services)
+    while size > 0:
+        for service in services[:]:
+            try:
+                logger.debug("try to load %s again" % service.guid)
+                service.validate()
+                logger.debug("loading succeeded for %s" % service.guid)
+                # validate passed, service is healthy again
+                service.gl_mgr.add('executor', gevent.Greenlet(service._run))
+                services.remove(service)
+            except:
+                logger.debug("loading failed again for %s" % service.guid)
+        gevent.sleep(10)  # fixme: why 10 ? why not?
+        size = len(services)
 
 
 def _split_hostport(hostport):

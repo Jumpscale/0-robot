@@ -79,6 +79,7 @@ class GreenletsMgr:
         try:
             gl = self.get(key)
             gl.kill()
+            del self.gls[key]
         except KeyError:
             pass
 

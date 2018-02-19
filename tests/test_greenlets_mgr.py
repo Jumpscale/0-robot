@@ -43,9 +43,11 @@ class TestGreenletsMgr(unittest.TestCase):
 
     def test_stop(self):
         mgr = GreenletsMgr()
-        mgr.add("foo", gevent.spawn(self.foo))
+        gl = gevent.spawn(self.foo)
+        mgr.add("foo", gl)
         mgr.stop('foo')
-        gl = mgr.get('foo')
+        with self.assertRaises(KeyError):
+            gl = mgr.get('foo')
         self.assertFalse(gl.started)
         self.assertTrue(gl.ready())
 
