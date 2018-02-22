@@ -72,6 +72,8 @@ class TaskStorageRedis:
             "args": task._args,
             "state": task.state,
             "eco": j.data.serializer.json.loads(task.eco.toJson()) if task.eco else None,
+            "created": task.created,
+            "duration": task.duration,
         })
 
     def _deserialize_task(self, blob):

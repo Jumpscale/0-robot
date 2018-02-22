@@ -114,12 +114,13 @@ class TaskProxy(Task):
     actual state of the task on the remote ZeroRobot
     """
 
-    def __init__(self, guid, service, action_name, args, created):
+    def __init__(self, guid, service, action_name, args, created, duration):
         super().__init__(func=None, args=args)
         self.action_name = action_name
         self.service = service
         self.guid = guid
         self._created = created
+        self._duration = duration
         self._result = None
 
     def execute(self):
@@ -145,7 +146,7 @@ class TaskProxy(Task):
 
 
 def _task_proxy_from_api(task, service):
-    t = TaskProxy(task.guid, service, task.action_name, task.args, task.created)
+    t = TaskProxy(task.guid, service, task.action_name, task.args, task.created, task.duration)
     if task.eco:
         d_eco = task.eco.as_dict()
         d_eco['_traceback'] = task.eco._traceback

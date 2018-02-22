@@ -125,15 +125,12 @@ class TaskList:
         def serialize_task(task):
             return {
                 "guid": task.guid,
-                # "service": = task.service.name,
                 "action_name": task.action_name,
-                # "_resp_q": = resp_q TODO: figure out what to do with the resp_q
                 "args": task._args,
                 "state": task.state,
                 "eco": json.loads(task.eco.toJson()) if task.eco else None,
+                "created": task.created,
             }
-        # FIXME: stream into file instead, this can consume a lot
-        # of memory in case lots of tasks
         output = []
         for task in self.list_tasks(all=False):
             output.append(serialize_task(task))
@@ -152,8 +149,6 @@ class TaskList:
         for task in data:
             if task['state'] in [TASK_STATE_NEW, TASK_STATE_RUNNING]:
                 self.put(_instantiate_task(task, self.service))
-            # elif task['state'] in [TASK_STATE_OK, TASK_STATE_ERROR]:
-            #     self._done.add(_instantiate_task(task, self.service))
             else:
                 # None supported state, just skip it
                 continue

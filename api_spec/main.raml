@@ -192,6 +192,10 @@ types:
       created:
         type: integer
         description: timestamp at the time the task was created
+      duration:
+        type: number
+        description: duration of the execution of the task
+        required: false
       eco:
         type: Eco
         description: In case the task failed with an exception, description of the exception

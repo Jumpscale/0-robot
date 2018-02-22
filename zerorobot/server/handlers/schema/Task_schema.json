@@ -11,6 +11,9 @@
 		"created": {
 			"type": "integer"
 		},
+		"duration": {
+			"type": "number"
+		},
 		"eco": {
 			"$ref": "Eco_schema.json"
 		},

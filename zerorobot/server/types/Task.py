@@ -21,6 +21,7 @@ class Task(object):
         :type action_name: string_types
         :type args: dict
         :type created: int
+        :type duration: float
         :type eco: Eco
         :type guid: string_types
         :type result: string_types
@@ -48,6 +49,8 @@ class Task(object):
         self.args = client_support.set_property('args', data, data_types, False, [], False, False, class_name)
         data_types = [int]
         self.created = client_support.set_property('created', data, data_types, False, [], False, True, class_name)
+        data_types = [float]
+        self.duration = client_support.set_property('duration', data, data_types, False, [], False, False, class_name)
         data_types = [Eco]
         self.eco = client_support.set_property('eco', data, data_types, False, [], False, False, class_name)
         data_types = [string_types]

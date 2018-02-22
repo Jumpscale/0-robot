@@ -16,6 +16,7 @@ def _instantiate_task(task, service):
     t.guid = task['guid']
     if task['eco']:
         t.eco = j.core.errorhandler.getErrorConditionObject(ddict=task['eco'])
-    if task.get('result'):
-        t._result = task['result']
+    t._result = task.get('result')
+    t._created = task.get('created')
+    t._duration = task.get('duration')
     return t

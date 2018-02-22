@@ -31,9 +31,10 @@ class Task:
         self.func = func
         self.action_name = func.__name__ if func else None
         self._args = args
-        self._created = time.time()
         self._priority = None
         self._result = None
+        self._created = time.time()
+        self._duration = None
 
         # used when action raises an exception
         self.eco = None
@@ -44,6 +45,10 @@ class Task:
     @property
     def created(self):
         return int(self._created)
+
+    @property
+    def duration(self):
+        return self._duration
 
     @property
     def result(self):
