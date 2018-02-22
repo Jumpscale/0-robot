@@ -4,7 +4,7 @@ all:
 generate: generate-server generate-apidoc
 
 generate-server:
-	go-raml server -l python --kind flask --dir zerorobot/server --ramlfile api_spec/main.raml
+	go-raml server -l python --kind flask --dir zerorobot/server --ramlfile api_spec/main.raml --no-main
 	raml2html -p api_spec/main.raml > api_spec/api.html
 
 generate-apidoc:
