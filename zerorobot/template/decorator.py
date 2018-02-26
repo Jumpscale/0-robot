@@ -3,6 +3,7 @@ import os
 import signal
 import time
 from functools import wraps
+import gevent
 
 from js9 import j
 
@@ -36,7 +37,7 @@ def retry(exceptions, tries=4, delay=3, backoff=2, logger=None):
                         logger.warning(msg)
                     else:
                         print(msg)
-                    time.sleep(mdelay)
+                    gevent.sleep(mdelay)
                     mtries -= 1
                     mdelay *= backoff
             return f(*args, **kwargs)
@@ -54,19 +55,17 @@ def timeout(seconds, error_message='Function call timed out'):
         seconds: timeout time in seconds
         error_message: message to pass to the TimeoutError exception raised
     """
-    def deco_timout(f):
-        def _handle_timeout(signum, frame):
-            raise TimeoutError(error_message)
+    if seconds <= 0:
+        seconds = None
 
+    def deco_timout(f):
         @wraps(f)
         def f_timeout(*args, **kwargs):
-            signal.signal(signal.SIGALRM, _handle_timeout)
-            signal.alarm(seconds)
+            gl = gevent.spawn(f, *args, **kwargs)
             try:
-                result = f(*args, **kwargs)
-            finally:
-                signal.alarm(0)
-            return result
+                return gl.get(block=True, timeout=seconds)
+            except gevent.Timeout:
+                raise TimeoutError()
 
         return f_timeout
 

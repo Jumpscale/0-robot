@@ -1,14 +1,15 @@
 import logging
 import os
-import time
-import unittest
 import shutil
 import tempfile
+import unittest
+
+import gevent
 
 from js9 import j
+from zerorobot import config
 from zerorobot.template.decorator import profile, retry, timeout
 from zerorobot.template_collection import _load_template
-from zerorobot import config
 
 
 class RetryableError(Exception):
@@ -116,7 +117,7 @@ class TestTimeoutDecorator(unittest.TestCase):
 
         @timeout(0)
         def notimeout():
-            time.sleep(1)
+            gevent.sleep(1)
             self.counter += 1
             return 'success'
 
@@ -129,7 +130,7 @@ class TestTimeoutDecorator(unittest.TestCase):
 
         @timeout(1)
         def notimeout():
-            time.sleep(2)
+            gevent.sleep(2)
             self.counter += 1
             return 'success'
 
@@ -143,7 +144,7 @@ class TestTimeoutDecorator(unittest.TestCase):
 
         @timeout(2)
         def with_exception():
-            time.sleep(1)
+            gevent.sleep(1)
             raise RuntimeError()
             self.counter += 1
             return 'success'
