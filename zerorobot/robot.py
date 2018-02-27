@@ -86,7 +86,8 @@ class Robot:
         logger.info("data directory: %s" % config.DATA_DIR)
 
         # will raise if not config repo is found
-        j.tools.configmanager.path_configrepo
+        if not j.tools.configmanager.path:
+            raise RuntimeError("config manager is not configured, can't continue")
 
         # configure prometheus monitoring
         if not kwargs.get('testing', False):

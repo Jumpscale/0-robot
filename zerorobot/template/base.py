@@ -344,7 +344,7 @@ def _configure_logger(guid):
     rfh.setLevel(logging.DEBUG)
     rfh.setFormatter(logging.Formatter(_LOGGER_FORMAT))
     l.addHandler(rfh)
-    for h in logger.parent.handlers:
+    for h in j.logger.handlers._all:
         l.addHandler(h)
     l.setLevel(logging.DEBUG)
     return l
