@@ -31,7 +31,7 @@ class TestRobot(unittest.TestCase):
         self.assertIsNone(robot.address)
         with tempfile.TemporaryDirectory() as data_dir:
             config.DATA_DIR = data_dir
-            robot.start(listen="localhost:6600", block=False)
+            robot.start(listen="localhost:6600", block=False, testing=True)
             self.assertEqual(robot.address, ('127.0.0.1', 6600))
             robot.stop()
         self.assertIsNone(robot.address)

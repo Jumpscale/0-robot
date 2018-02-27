@@ -16,12 +16,12 @@ import gevent
 
 from js9 import j
 from zerorobot import service_collection as scol
+from zerorobot import config
 from zerorobot.dsl.ZeroRobotAPI import ZeroRobotAPI
-from zerorobot.prometheus.robot import task_latency
+from zerorobot.prometheus.robot import nr_task_waiting, task_latency
 from zerorobot.task import PRIORITY_NORMAL, PRIORITY_SYSTEM, Task, TaskList
 from zerorobot.template.data import ServiceData
 from zerorobot.template.state import ServiceState
-from zerorobot import config
 
 logger = j.logger.get('zerorobot')
 
@@ -282,6 +282,8 @@ class TemplateBase:
         # remove data from disk
         if self._path and os.path.exists(self._path):
             shutil.rmtree(self._path)
+
+        nr_task_waiting.labels(service_guid=self.guid).set(0)
         # remove from memory
         scol.delete(self)
 
