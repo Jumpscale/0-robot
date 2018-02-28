@@ -25,8 +25,12 @@ def start(listen, data_repo, template_repo, config_repo, debug):
     start the 0-robot daemon.
     this will start the REST API on address and port specified by --listen and block
     """
+    level = "INFO"
     if debug:
-        j.logger.set_level("DEBUG")
+        level = "DEBUG"
+
+    j.logger.handlers_level_set(level)
+    j.logger.loggers_level_set(level)
 
     robot = Robot()
 

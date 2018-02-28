@@ -20,10 +20,9 @@ from zerorobot.prometheus.flask import monitor
 from zerorobot.server.app import app
 from zerorobot.task import PRIORITY_SYSTEM
 from zerorobot import config
+
 # create logger
 logger = j.logger.get('zerorobot')
-
-# constant
 
 
 class Robot:
