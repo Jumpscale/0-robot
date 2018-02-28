@@ -224,18 +224,21 @@ class TemplateBase:
             raise ActionNotFoundError("%s is not a function" % action)
 
         # make sure the argument we pass are correct
-        s = inspect.signature(method)
+        kwargs_enable = False
+        s = inspect.signature(method, follow_wrapped=True)
         for param in s.parameters.values():
+            if param.kind == param.VAR_KEYWORD:
+                kwargs_enable = True
             if args is None:
                 args = {}
-            if param.default == inspect._empty and param.name not in args:
+            if param.default == s.empty and param.name not in args and param.kind != param.VAR_KEYWORD:
                 raise BadActionArgumentError("parameter %s is mandatory but not passed to in args" % param.name)
 
         if args is not None:
             signature_keys = set(s.parameters.keys())
             args_keys = set(args.keys())
             diff = args_keys.difference(signature_keys)
-            if len(diff) > 0:
+            if diff and not kwargs_enable:
                 raise BadActionArgumentError('arguments "%s" are not present in the signature of the action' % ','.join(diff))
 
         task = Task(method, args)

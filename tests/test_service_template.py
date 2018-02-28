@@ -155,6 +155,10 @@ class TestServiceTemplate(unittest.TestCase):
             srv.schedule_action('foo', args={'bar': 'foo', 'wrong_arg': 'bar'})
         assert err.exception.args[0] == 'arguments "wrong_arg" are not present in the signature of the action'
 
+        t = srv.schedule_action('fookwargs', args={'bar': 'foo', 'other': 'xxx'})
+        t.wait()
+        assert t.result == {'other': 'xxx'}, "action should be able to use **kwargs"
+
     def test_update_secure(self):
         Node = self.load_template('node')
         srv = tcol.instantiate_service(Node, 'testnode')

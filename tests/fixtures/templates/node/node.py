@@ -22,6 +22,9 @@ class Node(TemplateBase):
         print('foo')
         return 'result'
 
+    def fookwargs(self, bar, **kwargs):
+        return kwargs
+
     @property
     def bar(self):
         # raise here so we can test that it doesn't
