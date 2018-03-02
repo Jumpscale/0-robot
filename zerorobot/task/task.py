@@ -8,6 +8,8 @@ import json
 import os
 import sys
 import time
+import traceback
+import pprint
 
 import gevent
 from gevent.lock import Semaphore
@@ -20,12 +22,11 @@ from . import (TASK_STATE_ERROR, TASK_STATE_NEW, TASK_STATE_OK,
 
 class Task:
 
-    def __init__(self, func, args, resp_q=None):
+    def __init__(self, func, args):
         """
-        @param service: is the service object that own the action to be executed
-        @param action_name: is the method name of the action that this task need to execute
+        @param func: action that needs to be called
+        @param action_name: arguments for the action
         @param args: argument to pass to the action when executing
-        @param resp_q: is the response queue on which the result of the action need to be put
         """
         self.guid = j.data.idgenerator.generateGUID()
         self.func = func
@@ -72,6 +73,9 @@ class Task:
             _, _, exc_traceback = sys.exc_info()
             self.eco = j.core.errorhandler.parsePythonExceptionObject(err, tb=exc_traceback)
             self.eco.printTraceback()
+            # log critical error (might be picked up by telegram error logger)
+            action_error_logger = j.logger.get("action_error_logger", force=True)
+            action_error_logger.critical("Stacktrace:\n%s\n\nArguments:\n%s" % (''.join(traceback.format_tb(exc_traceback)), pprint.pformat(self._args, width=20)))
         return result
 
     @property

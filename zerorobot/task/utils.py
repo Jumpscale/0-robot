@@ -8,7 +8,7 @@ from .task import Task
 
 def _instantiate_task(task, service):
     func = getattr(service, task['action_name'])
-    t = Task(func, task['args'], resp_q=None)
+    t = Task(func, task['args'])
     if task['state'] in [TASK_STATE_RUNNING, TASK_STATE_NEW]:
         t.state = TASK_STATE_NEW
     else:

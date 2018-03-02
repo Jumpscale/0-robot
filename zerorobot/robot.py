@@ -18,7 +18,6 @@ from zerorobot import service_collection as scol
 from zerorobot import template_collection as tcol
 from zerorobot.prometheus.flask import monitor
 from zerorobot.server.app import app
-from zerorobot.task import PRIORITY_SYSTEM
 from zerorobot import config
 
 # create logger
