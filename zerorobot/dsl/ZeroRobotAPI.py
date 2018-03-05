@@ -10,6 +10,9 @@ from zerorobot import template_collection as tcol
 from zerorobot.dsl.ZeroRobotManager import ZeroRobotManager
 from zerorobot.template_uid import TemplateUID
 from zerorobot.template_collection import TemplateNotFoundError
+import requests
+
+logger = j.logger.get('zerorobot')
 
 
 class ServicesMgr:
@@ -28,7 +31,11 @@ class ServicesMgr:
         """
         services = {}
         for robot in self._base.robots.values():
-            services.update(robot.services.names)
+            try:
+                services.update(robot.services.names)
+            except requests.exceptions.ConnectionError as err:
+                logger.error("fails to get services listing from robot: %s" % str(err))
+                continue
         # TODO: handle naming conflict between robots
         by_name = {s.name: s for s in scol.list_services()}
         services.update(by_name)
@@ -45,7 +52,11 @@ class ServicesMgr:
         """
         services = {}
         for robot in self._base.robots.values():
-            services.update(robot.services.guids)
+            try:
+                services.update(robot.services.guids)
+            except requests.exceptions.ConnectionError as err:
+                logger.error("fails to get services listing from robot: %s" % str(err))
+                continue
         # TODO: handle guid conflict between robots
         services.update(scol._guid_index)
         return services
@@ -60,10 +71,14 @@ class ServicesMgr:
         """
         services = {}
         for robot in self._base.robots.values():
-            for service in robot.services.find(**kwargs):
-                if parent and (service.parent is None or service.parent.guid != parent.guid):
-                    continue
-                services[service.guid] = service
+            try:
+                for service in robot.services.find(**kwargs):
+                    if parent and (service.parent is None or service.parent.guid != parent.guid):
+                        continue
+                    services[service.guid] = service
+            except requests.exceptions.ConnectionError as err:
+                logger.error("fails to get services listing from robot: %s" % str(err))
+                continue
 
         for service in scol.find(**kwargs):
             if parent and (service.parent is None or service.parent.guid != parent.guid):
