@@ -1,5 +1,5 @@
 from zerorobot.template.base import TemplateBase
-from zerorobot.template.decorator import profile
+from zerorobot.template.decorator import profile, timeout
 
 
 class Node(TemplateBase):
@@ -30,3 +30,7 @@ class Node(TemplateBase):
         # raise here so we can test that it doesn't
         # fail when trying to list actions
         raise RuntimeError()
+
+    @timeout(10)
+    def error(self):
+        raise RuntimeError('this is an error')

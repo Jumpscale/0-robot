@@ -59,7 +59,7 @@ class Task:
         self.state = TASK_STATE_RUNNING
         # TODO: handle logging,...
         result = None
-
+        started = time.time()
         try:
             if self._args is not None:
                 self._result = self.func(**self._args)
@@ -72,6 +72,9 @@ class Task:
             _, _, exc_traceback = sys.exc_info()
             self.eco = j.core.errorhandler.parsePythonExceptionObject(err, tb=exc_traceback)
             self.eco.printTraceback()
+        finally:
+            self._duration = time.time() - started
+
         return result
 
     @property
