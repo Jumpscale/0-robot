@@ -35,7 +35,7 @@ def task_view(task, service):
         'guid': task.guid,
         'created': task.created,
         'duration': task.duration,
-        'eco': json.loads(task.eco.toJson()) if task.eco else None,
+        'eco': json.loads(task.eco.json) if task.eco else None,
         'result': json.dumps(task.result) if task.result else None
     }
 

@@ -191,15 +191,13 @@ class TemplateBase:
             task = None
             try:
                 task = self.task_list.get()
-                started = time.time()
                 task.execute()
             except gevent.GreenletExit:
                 # TODO: gracefull shutdown
                 break
             finally:
                 if task:
-                    task._duration = time.time() - started
-                    task_latency.labels(action_name=task.action_name, template_uid=str(self.template_uid)).observe(task._duration)
+                    task_latency.labels(action_name=task.action_name, template_uid=str(self.template_uid)).observe(task.duration)
                     # notify the task list that this task is done
                     self.task_list.done(task)
 

@@ -71,7 +71,7 @@ class TaskStorageRedis:
             "action_name": task.action_name,
             "args": task._args,
             "state": task.state,
-            "eco": j.data.serializer.json.loads(task.eco.toJson()) if task.eco else None,
+            "eco": j.data.serializer.json.loads(task.eco.json) if task.eco else None,
             "created": task.created,
             "duration": task.duration,
         })
