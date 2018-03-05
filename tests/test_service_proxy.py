@@ -11,6 +11,7 @@ from zerorobot import template_collection as tcol
 from zerorobot import config
 from zerorobot.dsl.ZeroRobotManager import ZeroRobotManager
 from zerorobot.robot import Robot
+from zerorobot.task.task import TASK_STATE_ERROR, TASK_STATE_OK
 from zerorobot.service_proxy import ServiceProxy
 
 # need to patch sockets to make requests async
@@ -85,8 +86,17 @@ class TestServiceProxy(unittest.TestCase):
         # test task result for None result
         task = service.schedule_action('stop')
         task.wait()
+        self.assertEqual(task.state, TASK_STATE_OK)
         proxy_task = proxy.task_list.get_task_by_guid(task.guid)
         self.assertEqual(proxy_task.result, task.result, "result on the proxy task should be the same as on the real task")
+
+        # test eco attribute on proxy tasks
+        task = service.schedule_action('error')
+        task.wait()
+
+        proxy_task = proxy.task_list.get_task_by_guid(task.guid)
+        self.assertIsNotNone(proxy_task.eco)
+        self.assertEqual(proxy_task.state, TASK_STATE_ERROR)
 
     def test_delete(self):
         proxy, service = self._create_proxy()
