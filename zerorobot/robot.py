@@ -144,10 +144,8 @@ class Robot:
         if not os.path.exists(config.DATA_DIR):
             os.makedirs(config.DATA_DIR)
 
-        for srv_dir in j.sal.fs.listDirsInDir(config.DATA_DIR, recursive=True):
-            info_path = os.path.join(srv_dir, 'service.yaml')
-            if not os.path.exists(info_path):
-                continue
+        for info_path in j.sal.fs.find(config.DATA_DIR, "service.yaml"):
+            srv_dir = os.path.dirname(info_path)
             service_info = j.data.serializer.yaml.load(info_path)
             tmplClass = tcol.get(service_info['template'])
             srv = scol.load(tmplClass, srv_dir)
