@@ -187,3 +187,18 @@ class TestZRobotAPI(unittest.TestCase):
             self.assertFalse(self.api.services.get(template_uid='github.com/jumpscale/0-robot/node/1.1.0'))
         with self.assertRaises(scol.ServiceNotFoundError):
             self.assertFalse(self.api.services.get(template_name='other'))
+
+    def test_service_find_offline_robots(self):
+        node1 = self.api.services.create("github.com/jumpscale/0-robot/node/0.0.1", 'node1')
+        node2 = self.api.services.create("github.com/jumpscale/0-robot/node/0.0.1", 'node2')
+        vm1 = self.api.services.create("github.com/jumpscale/0-robot/vm/0.0.1", 'vm1')
+
+        # stop the remote robots
+        for p in self.ps:
+            p.terminate()
+            p.join()
+
+        # this call should not fails even is the remote robot are not online
+        assert len(self.api.services.find()) == 0
+        assert len(self.api.services.names) == 0
+        assert len(self.api.services.guids) == 0
