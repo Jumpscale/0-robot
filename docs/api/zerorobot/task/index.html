@@ -3,7 +3,7 @@
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 
-    <title>zerorobot.server.error_handlers API documentation</title>
+    <title>zerorobot.task API documentation</title>
     <meta name="description" content="" />
 
   <link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:400,300' rel='stylesheet' type='text/css'>
@@ -1040,9 +1040,30 @@ table {
   <div id="sidebar">
     <h1>Index</h1>
     <ul id="index">
+    <li class="set"><h3><a href="#header-variables">Module variables</a></h3>
+      
+  <ul>
+    <li class="mono"><a href="#zerorobot.task.PRIORITY_NORMAL">PRIORITY_NORMAL</a></li>
+    <li class="mono"><a href="#zerorobot.task.PRIORITY_RECURRING">PRIORITY_RECURRING</a></li>
+    <li class="mono"><a href="#zerorobot.task.PRIORITY_SYSTEM">PRIORITY_SYSTEM</a></li>
+    <li class="mono"><a href="#zerorobot.task.TASK_STATE_ERROR">TASK_STATE_ERROR</a></li>
+    <li class="mono"><a href="#zerorobot.task.TASK_STATE_NEW">TASK_STATE_NEW</a></li>
+    <li class="mono"><a href="#zerorobot.task.TASK_STATE_OK">TASK_STATE_OK</a></li>
+    <li class="mono"><a href="#zerorobot.task.TASK_STATE_RUNNING">TASK_STATE_RUNNING</a></li>
+  </ul>
+
+    </li>
 
 
 
+    <li class="set"><h3><a href="#header-submodules">Sub-modules</a></h3>
+      <ul>
+        <li class="mono"><a href="storage/index.html">zerorobot.task.storage</a></li>
+        <li class="mono"><a href="task.m.html">zerorobot.task.task</a></li>
+        <li class="mono"><a href="task_list.m.html">zerorobot.task.task_list</a></li>
+        <li class="mono"><a href="utils.m.html">zerorobot.task.utils</a></li>
+      </ul>
+    </li>
     </ul>
   </div>
 
@@ -1054,12 +1075,29 @@ table {
 
 
   <header id="section-intro">
-  <h1 class="title"><span class="name">zerorobot.server.error_handlers</span> module</h1>
+  <h1 class="title"><span class="name">zerorobot.task</span> module</h1>
   
   
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.server.error_handlers', this);">Show source &equiv;</a></p>
-  <div id="source-zerorobot.server.error_handlers" class="source">
-    <div class="codehilite"><pre><span></span><span class="kn">from</span> <span class="nn">.app</span> <span class="kn">import</span> <span class="n">app</span>
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.task', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.task" class="source">
+    <div class="codehilite"><pre><span></span><span class="c1"># Task state constant</span>
+<span class="n">TASK_STATE_NEW</span> <span class="o">=</span> <span class="s2">&quot;new&quot;</span>
+<span class="n">TASK_STATE_RUNNING</span> <span class="o">=</span> <span class="s2">&quot;running&quot;</span>
+<span class="n">TASK_STATE_OK</span> <span class="o">=</span> <span class="s2">&quot;ok&quot;</span>
+<span class="n">TASK_STATE_ERROR</span> <span class="o">=</span> <span class="s2">&quot;error&quot;</span>
+
+
+<span class="c1"># has the highest priority, usually used by the robot when it needs a service to execute something</span>
+<span class="n">PRIORITY_SYSTEM</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="c1"># priority used for recurring action, need to be higher then normal actions</span>
+<span class="n">PRIORITY_RECURRING</span> <span class="o">=</span> <span class="mi">5</span>
+<span class="c1"># default value used when an action is schedule from normal user API</span>
+<span class="n">PRIORITY_NORMAL</span> <span class="o">=</span> <span class="mi">10</span>
+
+<span class="c1"># public class of the package</span>
+<span class="kn">from</span> <span class="nn">.task</span> <span class="kn">import</span> <span class="n">Task</span>
+<span class="kn">from</span> <span class="nn">.task_list</span> <span class="kn">import</span> <span class="n">TaskList</span>
+<span class="kn">from</span> <span class="nn">.storage.base</span> <span class="kn">import</span> <span class="n">TaskNotFoundError</span>
 </pre></div>
 
   </div>
@@ -1067,9 +1105,93 @@ table {
   </header>
 
   <section id="section-items">
+    <h2 class="section-title" id="header-variables">Module variables</h2>
+      <div class="item">
+      <p id="zerorobot.task.PRIORITY_NORMAL" class="name">var <span class="ident">PRIORITY_NORMAL</span></p>
+      
+  
+  <div class="source_cont">
+</div>
+
+      </div>
+      <div class="item">
+      <p id="zerorobot.task.PRIORITY_RECURRING" class="name">var <span class="ident">PRIORITY_RECURRING</span></p>
+      
+  
+  <div class="source_cont">
+</div>
+
+      </div>
+      <div class="item">
+      <p id="zerorobot.task.PRIORITY_SYSTEM" class="name">var <span class="ident">PRIORITY_SYSTEM</span></p>
+      
+  
+  <div class="source_cont">
+</div>
+
+      </div>
+      <div class="item">
+      <p id="zerorobot.task.TASK_STATE_ERROR" class="name">var <span class="ident">TASK_STATE_ERROR</span></p>
+      
+  
+  <div class="source_cont">
+</div>
+
+      </div>
+      <div class="item">
+      <p id="zerorobot.task.TASK_STATE_NEW" class="name">var <span class="ident">TASK_STATE_NEW</span></p>
+      
+  
+  <div class="source_cont">
+</div>
+
+      </div>
+      <div class="item">
+      <p id="zerorobot.task.TASK_STATE_OK" class="name">var <span class="ident">TASK_STATE_OK</span></p>
+      
+  
+  <div class="source_cont">
+</div>
+
+      </div>
+      <div class="item">
+      <p id="zerorobot.task.TASK_STATE_RUNNING" class="name">var <span class="ident">TASK_STATE_RUNNING</span></p>
+      
+  
+  <div class="source_cont">
+</div>
+
+      </div>
 
 
 
+    <h2 class="section-title" id="header-submodules">Sub-modules</h2>
+      <div class="item">
+      <p class="name"><a href="storage/index.html">zerorobot.task.storage</a></p>
+      
+  
+
+      </div>
+      <div class="item">
+      <p class="name"><a href="task.m.html">zerorobot.task.task</a></p>
+      
+  
+    <div class="desc"><p>task module holds the logic regarding TaskList and Task classes.</p>
+<p>These two classes are used by the services to managed the requested actions</p></div>
+
+      </div>
+      <div class="item">
+      <p class="name"><a href="task_list.m.html">zerorobot.task.task_list</a></p>
+      
+  
+
+      </div>
+      <div class="item">
+      <p class="name"><a href="utils.m.html">zerorobot.task.utils</a></p>
+      
+  
+
+      </div>
   </section>
 
     </article>

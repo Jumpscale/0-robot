@@ -3,7 +3,7 @@
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 
-    <title>zerorobot.cli.utils API documentation</title>
+    <title>zerorobot.prometheus.flask API documentation</title>
     <meta name="description" content="" />
 
   <link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:400,300' rel='stylesheet' type='text/css'>
@@ -1040,14 +1040,19 @@ table {
   <div id="sidebar">
     <h1>Index</h1>
     <ul id="index">
+    <li class="set"><h3><a href="#header-variables">Module variables</a></h3>
+      
+  <ul>
+    <li class="mono"><a href="#zerorobot.prometheus.flask.CONTENT_TYPE_LATEST">CONTENT_TYPE_LATEST</a></li>
+  </ul>
+
+    </li>
 
     <li class="set"><h3><a href="#header-functions">Functions</a></h3>
       
   <ul>
-    <li class="mono"><a href="#zerorobot.cli.utils.get_client">get_client</a></li>
-    <li class="mono"><a href="#zerorobot.cli.utils.get_instance">get_instance</a></li>
-    <li class="mono"><a href="#zerorobot.cli.utils.print_service">print_service</a></li>
-    <li class="mono"><a href="#zerorobot.cli.utils.test_connection">test_connection</a></li>
+    <li class="mono"><a href="#zerorobot.prometheus.flask.metrics">metrics</a></li>
+    <li class="mono"><a href="#zerorobot.prometheus.flask.monitor">monitor</a></li>
   </ul>
 
     </li>
@@ -1064,49 +1069,72 @@ table {
 
 
   <header id="section-intro">
-  <h1 class="title"><span class="name">zerorobot.cli.utils</span> module</h1>
+  <h1 class="title"><span class="name">zerorobot.prometheus.flask</span> module</h1>
   
   
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.cli.utils', this);">Show source &equiv;</a></p>
-  <div id="source-zerorobot.cli.utils" class="source">
-    <div class="codehilite"><pre><span></span><span class="n">mport</span> <span class="n">sys</span>
-<span class="n">rom</span> <span class="n">os</span> <span class="kn">import</span> <span class="nn">path</span>
-<span class="n">rom</span> <span class="n">pathlib</span> <span class="kn">import</span> <span class="nn">Path</span>
-<span class="n">mport</span> <span class="n">requests</span>
-<span class="n">rom</span> <span class="n">js9</span> <span class="kn">import</span> <span class="nn">j</span>
-<span class="n">rom</span> <span class="n">zerorobot</span><span class="o">.</span><span class="n">dsl</span><span class="o">.</span><span class="n">ZeroRobotManager</span> <span class="kn">import</span> <span class="nn">ZeroRobotManager</span>
-<span class="n">JS_CONFIG_KEY</span> <span class="o">=</span> <span class="s1">&#39;zrobot_current&#39;</span>
-<span class="n">ef</span> <span class="n">test_connection</span><span class="p">(</span><span class="n">instance</span><span class="p">):</span>
-   <span class="n">cl</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">clients</span><span class="o">.</span><span class="n">zrobot</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">instance</span><span class="p">)</span>
-   <span class="n">addr</span> <span class="o">=</span> <span class="n">cl</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;url&#39;</span><span class="p">]</span>
-   <span class="k">try</span><span class="p">:</span>
-       <span class="n">resp</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="n">addr</span><span class="p">)</span>
-       <span class="k">return</span> <span class="n">resp</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">200</span><span class="p">,</span> <span class="n">addr</span>
-   <span class="k">except</span> <span class="n">requests</span><span class="o">.</span><span class="n">exceptions</span><span class="o">.</span><span class="n">ConnectionError</span><span class="p">:</span>
-       <span class="k">return</span> <span class="bp">False</span><span class="p">,</span> <span class="n">addr</span>
-<span class="n">ef</span> <span class="n">get_instance</span><span class="p">():</span>
-   <span class="k">try</span><span class="p">:</span>
-       <span class="n">instance</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">stateGet</span><span class="p">(</span><span class="n">_JS_CONFIG_KEY</span><span class="p">)</span>
-   <span class="k">except</span> <span class="n">j</span><span class="o">.</span><span class="n">exceptions</span><span class="o">.</span><span class="n">Input</span><span class="p">:</span>
-       <span class="k">print</span><span class="p">(</span><span class="s2">&quot;No robot configured. Use &#39;zrobot robot connect&#39; to configure one&quot;</span><span class="p">)</span>
-       <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
-   <span class="k">if</span> <span class="ow">not</span> <span class="n">instance</span><span class="p">:</span>
-       <span class="k">print</span><span class="p">(</span><span class="s2">&quot;No robot configured. Use &#39;zrobot robot connect&#39; to configure one&quot;</span><span class="p">)</span>
-       <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
-   <span class="n">connected</span><span class="p">,</span> <span class="n">addr</span> <span class="o">=</span> <span class="n">test_connection</span><span class="p">(</span><span class="n">instance</span><span class="p">)</span>
-   <span class="k">if</span> <span class="ow">not</span> <span class="n">connected</span><span class="p">:</span>
-       <span class="k">print</span><span class="p">(</span><span class="s2">&quot;A robot is configured at &#39;</span><span class="si">%s</span><span class="s2">&#39;, but it doesn&#39;t seems to be a valid 0-robot. Are you sure the 0-robot is up and running ?&quot;</span> <span class="o">%</span> <span class="n">addr</span><span class="p">)</span>
-       <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
-   <span class="k">return</span> <span class="n">instance</span><span class="p">,</span> <span class="n">addr</span>
-<span class="n">ef</span> <span class="n">get_client</span><span class="p">():</span>
-   <span class="n">instance</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">get_instance</span><span class="p">()</span>
-   <span class="k">return</span> <span class="n">ZeroRobotManager</span><span class="p">(</span><span class="n">instance</span><span class="p">)</span>
-<span class="n">ef</span> <span class="n">print_service</span><span class="p">(</span><span class="n">service</span><span class="p">):</span>
-   <span class="k">print</span><span class="p">(</span><span class="s2">&quot;{template} - {guid} - {name}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-       <span class="n">guid</span><span class="o">=</span><span class="n">service</span><span class="o">.</span><span class="n">guid</span><span class="p">,</span>
-       <span class="n">name</span><span class="o">=</span><span class="n">service</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
-       <span class="n">template</span><span class="o">=</span><span class="n">service</span><span class="o">.</span><span class="n">template_uid</span>
-   <span class="p">))</span>
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.prometheus.flask', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.prometheus.flask" class="source">
+    <div class="codehilite"><pre><span></span><span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">from</span> <span class="nn">urllib.parse</span> <span class="kn">import</span> <span class="n">urlparse</span><span class="p">,</span> <span class="n">parse_qs</span>
+
+<span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">request</span>
+<span class="kn">from</span> <span class="nn">flask.helpers</span> <span class="kn">import</span> <span class="n">make_response</span>
+<span class="kn">from</span> <span class="nn">prometheus_client</span> <span class="kn">import</span> <span class="n">core</span><span class="p">,</span> <span class="n">generate_latest</span><span class="p">,</span> <span class="n">CONTENT_TYPE_LATEST</span><span class="p">,</span> <span class="n">Gauge</span><span class="p">,</span> <span class="n">Histogram</span><span class="p">,</span> <span class="n">Counter</span>
+<span class="kn">import</span> <span class="nn">flask</span>
+
+<span class="kn">from</span> <span class="nn">zerorobot.prometheus.host</span> <span class="kn">import</span> <span class="n">monitor_host_metrics</span>
+<span class="kn">from</span> <span class="nn">zerorobot.prometheus.robot</span> <span class="kn">import</span> <span class="n">monitor_robot_metrics</span>
+
+
+<span class="k">def</span> <span class="nf">monitor</span><span class="p">(</span><span class="n">app</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">before_request</span><span class="p">():</span>
+        <span class="n">flask</span><span class="o">.</span><span class="n">g</span><span class="o">.</span><span class="n">start_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="n">http_concurrent_request_count</span><span class="o">.</span><span class="n">inc</span><span class="p">()</span>
+        <span class="n">content_length</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">content_length</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">content_length</span><span class="p">):</span>
+            <span class="n">http_request_size_bytes</span><span class="o">.</span><span class="n">labels</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">method</span><span class="p">,</span> <span class="n">request</span><span class="o">.</span><span class="n">path</span><span class="p">)</span><span class="o">.</span><span class="n">observe</span><span class="p">(</span><span class="n">content_length</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">after_request</span><span class="p">(</span><span class="n">response</span><span class="p">):</span>
+        <span class="n">request_latency</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">flask</span><span class="o">.</span><span class="n">g</span><span class="o">.</span><span class="n">start_time</span>
+        <span class="n">http_request_latency_ms</span><span class="o">.</span><span class="n">labels</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">method</span><span class="p">,</span> <span class="n">request</span><span class="o">.</span><span class="n">path</span><span class="p">)</span><span class="o">.</span><span class="n">observe</span><span class="p">(</span><span class="n">request_latency</span><span class="p">)</span>
+
+        <span class="n">http_concurrent_request_count</span><span class="o">.</span><span class="n">dec</span><span class="p">()</span>
+
+        <span class="n">http_request_count</span><span class="o">.</span><span class="n">labels</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">method</span><span class="p">,</span> <span class="n">request</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="n">response</span><span class="o">.</span><span class="n">status_code</span><span class="p">)</span><span class="o">.</span><span class="n">inc</span><span class="p">()</span>
+        <span class="n">length</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">calculate_content_length</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">length</span><span class="p">:</span>
+            <span class="n">http_response_size_bytes</span><span class="o">.</span><span class="n">labels</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">method</span><span class="p">,</span> <span class="n">request</span><span class="o">.</span><span class="n">path</span><span class="p">)</span><span class="o">.</span><span class="n">observe</span><span class="p">(</span><span class="n">length</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">response</span>
+
+    <span class="n">monitor_host_metrics</span><span class="p">()</span>
+    <span class="n">monitor_robot_metrics</span><span class="p">()</span>
+
+    <span class="n">http_request_latency_ms</span> <span class="o">=</span> <span class="n">Histogram</span><span class="p">(</span><span class="s1">&#39;http_request_latency_ms&#39;</span><span class="p">,</span> <span class="s1">&#39;HTTP Request Latency&#39;</span><span class="p">,</span>
+                                        <span class="p">[</span><span class="s1">&#39;method&#39;</span><span class="p">,</span> <span class="s1">&#39;endpoint&#39;</span><span class="p">])</span>
+
+    <span class="n">http_request_size_bytes</span> <span class="o">=</span> <span class="n">Histogram</span><span class="p">(</span><span class="s1">&#39;http_request_size_bytes&#39;</span><span class="p">,</span> <span class="s1">&#39;HTTP request size in bytes&#39;</span><span class="p">,</span>
+                                        <span class="p">[</span><span class="s1">&#39;method&#39;</span><span class="p">,</span> <span class="s1">&#39;endpoint&#39;</span><span class="p">])</span>
+
+    <span class="n">http_response_size_bytes</span> <span class="o">=</span> <span class="n">Histogram</span><span class="p">(</span><span class="s1">&#39;http_response_size_bytes&#39;</span><span class="p">,</span> <span class="s1">&#39;HTTP response size in bytes&#39;</span><span class="p">,</span>
+                                         <span class="p">[</span><span class="s1">&#39;method&#39;</span><span class="p">,</span> <span class="s1">&#39;endpoint&#39;</span><span class="p">])</span>
+
+    <span class="n">http_request_count</span> <span class="o">=</span> <span class="n">Counter</span><span class="p">(</span><span class="s1">&#39;http_request_count&#39;</span><span class="p">,</span> <span class="s1">&#39;HTTP Request Count&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;method&#39;</span><span class="p">,</span> <span class="s1">&#39;endpoint&#39;</span><span class="p">,</span> <span class="s1">&#39;http_status&#39;</span><span class="p">])</span>
+    <span class="n">http_concurrent_request_count</span> <span class="o">=</span> <span class="n">Gauge</span><span class="p">(</span><span class="s1">&#39;http_concurrent_request_count&#39;</span><span class="p">,</span> <span class="s1">&#39;Flask Concurrent Request Count&#39;</span><span class="p">)</span>
+    <span class="n">app</span><span class="o">.</span><span class="n">before_request</span><span class="p">(</span><span class="n">before_request</span><span class="p">)</span>
+    <span class="n">app</span><span class="o">.</span><span class="n">after_request</span><span class="p">(</span><span class="n">after_request</span><span class="p">)</span>
+
+    <span class="n">app</span><span class="o">.</span><span class="n">add_url_rule</span><span class="p">(</span><span class="s1">&#39;/metrics&#39;</span><span class="p">,</span> <span class="s1">&#39;prometheus_metrics&#39;</span><span class="p">,</span> <span class="n">view_func</span><span class="o">=</span><span class="n">metrics</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">metrics</span><span class="p">():</span>
+    <span class="n">registry</span> <span class="o">=</span> <span class="n">core</span><span class="o">.</span><span class="n">REGISTRY</span>
+    <span class="n">params</span> <span class="o">=</span> <span class="n">parse_qs</span><span class="p">(</span><span class="n">urlparse</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">path</span><span class="p">)</span><span class="o">.</span><span class="n">query</span><span class="p">)</span>
+    <span class="k">if</span> <span class="s1">&#39;name[]&#39;</span> <span class="ow">in</span> <span class="n">params</span><span class="p">:</span>
+        <span class="n">registry</span> <span class="o">=</span> <span class="n">registry</span><span class="o">.</span><span class="n">restricted_registry</span><span class="p">(</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;name[]&#39;</span><span class="p">])</span>
+    <span class="n">output</span> <span class="o">=</span> <span class="n">generate_latest</span><span class="p">(</span><span class="n">registry</span><span class="p">)</span>
+    <span class="n">response</span> <span class="o">=</span> <span class="n">make_response</span><span class="p">(</span><span class="n">output</span><span class="p">)</span>
+    <span class="n">response</span><span class="o">.</span><span class="n">headers</span><span class="p">[</span><span class="s1">&#39;Content-Type&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">CONTENT_TYPE_LATEST</span>
+    <span class="k">return</span> <span class="n">response</span>
 </pre></div>
 
   </div>
@@ -1114,23 +1142,38 @@ table {
   </header>
 
   <section id="section-items">
+    <h2 class="section-title" id="header-variables">Module variables</h2>
+      <div class="item">
+      <p id="zerorobot.prometheus.flask.CONTENT_TYPE_LATEST" class="name">var <span class="ident">CONTENT_TYPE_LATEST</span></p>
+      
+  
+  <div class="source_cont">
+</div>
+
+      </div>
 
     <h2 class="section-title" id="header-functions">Functions</h2>
       
   <div class="item">
-    <div class="name def" id="zerorobot.cli.utils.get_client">
-    <p>def <span class="ident">get_client</span>(</p><p>)</p>
+    <div class="name def" id="zerorobot.prometheus.flask.metrics">
+    <p>def <span class="ident">metrics</span>(</p><p>)</p>
     </div>
     
 
     
   
   <div class="source_cont">
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.cli.utils.get_client', this);">Show source &equiv;</a></p>
-  <div id="source-zerorobot.cli.utils.get_client" class="source">
-    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">get_client</span><span class="p">():</span>
-    <span class="n">instance</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">get_instance</span><span class="p">()</span>
-    <span class="k">return</span> <span class="n">ZeroRobotManager</span><span class="p">(</span><span class="n">instance</span><span class="p">)</span>
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.prometheus.flask.metrics', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.prometheus.flask.metrics" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">metrics</span><span class="p">():</span>
+    <span class="n">registry</span> <span class="o">=</span> <span class="n">core</span><span class="o">.</span><span class="n">REGISTRY</span>
+    <span class="n">params</span> <span class="o">=</span> <span class="n">parse_qs</span><span class="p">(</span><span class="n">urlparse</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">path</span><span class="p">)</span><span class="o">.</span><span class="n">query</span><span class="p">)</span>
+    <span class="k">if</span> <span class="s1">&#39;name[]&#39;</span> <span class="ow">in</span> <span class="n">params</span><span class="p">:</span>
+        <span class="n">registry</span> <span class="o">=</span> <span class="n">registry</span><span class="o">.</span><span class="n">restricted_registry</span><span class="p">(</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;name[]&#39;</span><span class="p">])</span>
+    <span class="n">output</span> <span class="o">=</span> <span class="n">generate_latest</span><span class="p">(</span><span class="n">registry</span><span class="p">)</span>
+    <span class="n">response</span> <span class="o">=</span> <span class="n">make_response</span><span class="p">(</span><span class="n">output</span><span class="p">)</span>
+    <span class="n">response</span><span class="o">.</span><span class="n">headers</span><span class="p">[</span><span class="s1">&#39;Content-Type&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">CONTENT_TYPE_LATEST</span>
+    <span class="k">return</span> <span class="n">response</span>
 </pre></div>
 
   </div>
@@ -1140,85 +1183,54 @@ table {
   
       
   <div class="item">
-    <div class="name def" id="zerorobot.cli.utils.get_instance">
-    <p>def <span class="ident">get_instance</span>(</p><p>)</p>
+    <div class="name def" id="zerorobot.prometheus.flask.monitor">
+    <p>def <span class="ident">monitor</span>(</p><p>app)</p>
     </div>
     
 
     
   
   <div class="source_cont">
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.cli.utils.get_instance', this);">Show source &equiv;</a></p>
-  <div id="source-zerorobot.cli.utils.get_instance" class="source">
-    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">get_instance</span><span class="p">():</span>
-    <span class="k">try</span><span class="p">:</span>
-        <span class="n">instance</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">stateGet</span><span class="p">(</span><span class="n">_JS_CONFIG_KEY</span><span class="p">)</span>
-    <span class="k">except</span> <span class="n">j</span><span class="o">.</span><span class="n">exceptions</span><span class="o">.</span><span class="n">Input</span><span class="p">:</span>
-        <span class="k">print</span><span class="p">(</span><span class="s2">&quot;No robot configured. Use &#39;zrobot robot connect&#39; to configure one&quot;</span><span class="p">)</span>
-        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.prometheus.flask.monitor', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.prometheus.flask.monitor" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">monitor</span><span class="p">(</span><span class="n">app</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">before_request</span><span class="p">():</span>
+        <span class="n">flask</span><span class="o">.</span><span class="n">g</span><span class="o">.</span><span class="n">start_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="n">http_concurrent_request_count</span><span class="o">.</span><span class="n">inc</span><span class="p">()</span>
+        <span class="n">content_length</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">content_length</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">content_length</span><span class="p">):</span>
+            <span class="n">http_request_size_bytes</span><span class="o">.</span><span class="n">labels</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">method</span><span class="p">,</span> <span class="n">request</span><span class="o">.</span><span class="n">path</span><span class="p">)</span><span class="o">.</span><span class="n">observe</span><span class="p">(</span><span class="n">content_length</span><span class="p">)</span>
 
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">instance</span><span class="p">:</span>
-        <span class="k">print</span><span class="p">(</span><span class="s2">&quot;No robot configured. Use &#39;zrobot robot connect&#39; to configure one&quot;</span><span class="p">)</span>
-        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">after_request</span><span class="p">(</span><span class="n">response</span><span class="p">):</span>
+        <span class="n">request_latency</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">flask</span><span class="o">.</span><span class="n">g</span><span class="o">.</span><span class="n">start_time</span>
+        <span class="n">http_request_latency_ms</span><span class="o">.</span><span class="n">labels</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">method</span><span class="p">,</span> <span class="n">request</span><span class="o">.</span><span class="n">path</span><span class="p">)</span><span class="o">.</span><span class="n">observe</span><span class="p">(</span><span class="n">request_latency</span><span class="p">)</span>
 
-    <span class="n">connected</span><span class="p">,</span> <span class="n">addr</span> <span class="o">=</span> <span class="n">test_connection</span><span class="p">(</span><span class="n">instance</span><span class="p">)</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">connected</span><span class="p">:</span>
-        <span class="k">print</span><span class="p">(</span><span class="s2">&quot;A robot is configured at &#39;</span><span class="si">%s</span><span class="s2">&#39;, but it doesn&#39;t seems to be a valid 0-robot. Are you sure the 0-robot is up and running ?&quot;</span> <span class="o">%</span> <span class="n">addr</span><span class="p">)</span>
-        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">http_concurrent_request_count</span><span class="o">.</span><span class="n">dec</span><span class="p">()</span>
 
-    <span class="k">return</span> <span class="n">instance</span><span class="p">,</span> <span class="n">addr</span>
-</pre></div>
+        <span class="n">http_request_count</span><span class="o">.</span><span class="n">labels</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">method</span><span class="p">,</span> <span class="n">request</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="n">response</span><span class="o">.</span><span class="n">status_code</span><span class="p">)</span><span class="o">.</span><span class="n">inc</span><span class="p">()</span>
+        <span class="n">length</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">calculate_content_length</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">length</span><span class="p">:</span>
+            <span class="n">http_response_size_bytes</span><span class="o">.</span><span class="n">labels</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">method</span><span class="p">,</span> <span class="n">request</span><span class="o">.</span><span class="n">path</span><span class="p">)</span><span class="o">.</span><span class="n">observe</span><span class="p">(</span><span class="n">length</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">response</span>
 
-  </div>
-</div>
+    <span class="n">monitor_host_metrics</span><span class="p">()</span>
+    <span class="n">monitor_robot_metrics</span><span class="p">()</span>
 
-  </div>
-  
-      
-  <div class="item">
-    <div class="name def" id="zerorobot.cli.utils.print_service">
-    <p>def <span class="ident">print_service</span>(</p><p>service)</p>
-    </div>
-    
+    <span class="n">http_request_latency_ms</span> <span class="o">=</span> <span class="n">Histogram</span><span class="p">(</span><span class="s1">&#39;http_request_latency_ms&#39;</span><span class="p">,</span> <span class="s1">&#39;HTTP Request Latency&#39;</span><span class="p">,</span>
+                                        <span class="p">[</span><span class="s1">&#39;method&#39;</span><span class="p">,</span> <span class="s1">&#39;endpoint&#39;</span><span class="p">])</span>
 
-    
-  
-  <div class="source_cont">
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.cli.utils.print_service', this);">Show source &equiv;</a></p>
-  <div id="source-zerorobot.cli.utils.print_service" class="source">
-    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">print_service</span><span class="p">(</span><span class="n">service</span><span class="p">):</span>
-    <span class="k">print</span><span class="p">(</span><span class="s2">&quot;{template} - {guid} - {name}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-        <span class="n">guid</span><span class="o">=</span><span class="n">service</span><span class="o">.</span><span class="n">guid</span><span class="p">,</span>
-        <span class="n">name</span><span class="o">=</span><span class="n">service</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
-        <span class="n">template</span><span class="o">=</span><span class="n">service</span><span class="o">.</span><span class="n">template_uid</span>
-    <span class="p">))</span>
-</pre></div>
+    <span class="n">http_request_size_bytes</span> <span class="o">=</span> <span class="n">Histogram</span><span class="p">(</span><span class="s1">&#39;http_request_size_bytes&#39;</span><span class="p">,</span> <span class="s1">&#39;HTTP request size in bytes&#39;</span><span class="p">,</span>
+                                        <span class="p">[</span><span class="s1">&#39;method&#39;</span><span class="p">,</span> <span class="s1">&#39;endpoint&#39;</span><span class="p">])</span>
 
-  </div>
-</div>
+    <span class="n">http_response_size_bytes</span> <span class="o">=</span> <span class="n">Histogram</span><span class="p">(</span><span class="s1">&#39;http_response_size_bytes&#39;</span><span class="p">,</span> <span class="s1">&#39;HTTP response size in bytes&#39;</span><span class="p">,</span>
+                                         <span class="p">[</span><span class="s1">&#39;method&#39;</span><span class="p">,</span> <span class="s1">&#39;endpoint&#39;</span><span class="p">])</span>
 
-  </div>
-  
-      
-  <div class="item">
-    <div class="name def" id="zerorobot.cli.utils.test_connection">
-    <p>def <span class="ident">test_connection</span>(</p><p>instance)</p>
-    </div>
-    
+    <span class="n">http_request_count</span> <span class="o">=</span> <span class="n">Counter</span><span class="p">(</span><span class="s1">&#39;http_request_count&#39;</span><span class="p">,</span> <span class="s1">&#39;HTTP Request Count&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;method&#39;</span><span class="p">,</span> <span class="s1">&#39;endpoint&#39;</span><span class="p">,</span> <span class="s1">&#39;http_status&#39;</span><span class="p">])</span>
+    <span class="n">http_concurrent_request_count</span> <span class="o">=</span> <span class="n">Gauge</span><span class="p">(</span><span class="s1">&#39;http_concurrent_request_count&#39;</span><span class="p">,</span> <span class="s1">&#39;Flask Concurrent Request Count&#39;</span><span class="p">)</span>
+    <span class="n">app</span><span class="o">.</span><span class="n">before_request</span><span class="p">(</span><span class="n">before_request</span><span class="p">)</span>
+    <span class="n">app</span><span class="o">.</span><span class="n">after_request</span><span class="p">(</span><span class="n">after_request</span><span class="p">)</span>
 
-    
-  
-  <div class="source_cont">
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.cli.utils.test_connection', this);">Show source &equiv;</a></p>
-  <div id="source-zerorobot.cli.utils.test_connection" class="source">
-    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">test_connection</span><span class="p">(</span><span class="n">instance</span><span class="p">):</span>
-    <span class="n">cl</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">clients</span><span class="o">.</span><span class="n">zrobot</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">instance</span><span class="p">)</span>
-    <span class="n">addr</span> <span class="o">=</span> <span class="n">cl</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;url&#39;</span><span class="p">]</span>
-    <span class="k">try</span><span class="p">:</span>
-        <span class="n">resp</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="n">addr</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">resp</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">200</span><span class="p">,</span> <span class="n">addr</span>
-    <span class="k">except</span> <span class="n">requests</span><span class="o">.</span><span class="n">exceptions</span><span class="o">.</span><span class="n">ConnectionError</span><span class="p">:</span>
-        <span class="k">return</span> <span class="bp">False</span><span class="p">,</span> <span class="n">addr</span>
+    <span class="n">app</span><span class="o">.</span><span class="n">add_url_rule</span><span class="p">(</span><span class="s1">&#39;/metrics&#39;</span><span class="p">,</span> <span class="s1">&#39;prometheus_metrics&#39;</span><span class="p">,</span> <span class="n">view_func</span><span class="o">=</span><span class="n">metrics</span><span class="p">)</span>
 </pre></div>
 
   </div>

@@ -3,7 +3,7 @@
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 
-    <title>zerorobot.cli.utils API documentation</title>
+    <title>zerorobot.task.storage.base API documentation</title>
     <meta name="description" content="" />
 
   <link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:400,300' rel='stylesheet' type='text/css'>
@@ -1041,17 +1041,29 @@ table {
     <h1>Index</h1>
     <ul id="index">
 
-    <li class="set"><h3><a href="#header-functions">Functions</a></h3>
-      
+
+    <li class="set"><h3><a href="#header-classes">Classes</a></h3>
+      <ul>
+        <li class="mono">
+        <span class="class_name"><a href="#zerorobot.task.storage.base.TaskNotFoundError">TaskNotFoundError</a></span>
+        
+        </li>
+        <li class="mono">
+        <span class="class_name"><a href="#zerorobot.task.storage.base.TaskStorageBase">TaskStorageBase</a></span>
+        
+          
   <ul>
-    <li class="mono"><a href="#zerorobot.cli.utils.get_client">get_client</a></li>
-    <li class="mono"><a href="#zerorobot.cli.utils.get_instance">get_instance</a></li>
-    <li class="mono"><a href="#zerorobot.cli.utils.print_service">print_service</a></li>
-    <li class="mono"><a href="#zerorobot.cli.utils.test_connection">test_connection</a></li>
+    <li class="mono"><a href="#zerorobot.task.storage.base.TaskStorageBase.__init__">__init__</a></li>
+    <li class="mono"><a href="#zerorobot.task.storage.base.TaskStorageBase.add">add</a></li>
+    <li class="mono"><a href="#zerorobot.task.storage.base.TaskStorageBase.close">close</a></li>
+    <li class="mono"><a href="#zerorobot.task.storage.base.TaskStorageBase.count">count</a></li>
+    <li class="mono"><a href="#zerorobot.task.storage.base.TaskStorageBase.get">get</a></li>
+    <li class="mono"><a href="#zerorobot.task.storage.base.TaskStorageBase.list">list</a></li>
   </ul>
 
+        </li>
+      </ul>
     </li>
-
 
     </ul>
   </div>
@@ -1064,49 +1076,61 @@ table {
 
 
   <header id="section-intro">
-  <h1 class="title"><span class="name">zerorobot.cli.utils</span> module</h1>
+  <h1 class="title"><span class="name">zerorobot.task.storage.base</span> module</h1>
   
   
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.cli.utils', this);">Show source &equiv;</a></p>
-  <div id="source-zerorobot.cli.utils" class="source">
-    <div class="codehilite"><pre><span></span><span class="n">mport</span> <span class="n">sys</span>
-<span class="n">rom</span> <span class="n">os</span> <span class="kn">import</span> <span class="nn">path</span>
-<span class="n">rom</span> <span class="n">pathlib</span> <span class="kn">import</span> <span class="nn">Path</span>
-<span class="n">mport</span> <span class="n">requests</span>
-<span class="n">rom</span> <span class="n">js9</span> <span class="kn">import</span> <span class="nn">j</span>
-<span class="n">rom</span> <span class="n">zerorobot</span><span class="o">.</span><span class="n">dsl</span><span class="o">.</span><span class="n">ZeroRobotManager</span> <span class="kn">import</span> <span class="nn">ZeroRobotManager</span>
-<span class="n">JS_CONFIG_KEY</span> <span class="o">=</span> <span class="s1">&#39;zrobot_current&#39;</span>
-<span class="n">ef</span> <span class="n">test_connection</span><span class="p">(</span><span class="n">instance</span><span class="p">):</span>
-   <span class="n">cl</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">clients</span><span class="o">.</span><span class="n">zrobot</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">instance</span><span class="p">)</span>
-   <span class="n">addr</span> <span class="o">=</span> <span class="n">cl</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;url&#39;</span><span class="p">]</span>
-   <span class="k">try</span><span class="p">:</span>
-       <span class="n">resp</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="n">addr</span><span class="p">)</span>
-       <span class="k">return</span> <span class="n">resp</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">200</span><span class="p">,</span> <span class="n">addr</span>
-   <span class="k">except</span> <span class="n">requests</span><span class="o">.</span><span class="n">exceptions</span><span class="o">.</span><span class="n">ConnectionError</span><span class="p">:</span>
-       <span class="k">return</span> <span class="bp">False</span><span class="p">,</span> <span class="n">addr</span>
-<span class="n">ef</span> <span class="n">get_instance</span><span class="p">():</span>
-   <span class="k">try</span><span class="p">:</span>
-       <span class="n">instance</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">stateGet</span><span class="p">(</span><span class="n">_JS_CONFIG_KEY</span><span class="p">)</span>
-   <span class="k">except</span> <span class="n">j</span><span class="o">.</span><span class="n">exceptions</span><span class="o">.</span><span class="n">Input</span><span class="p">:</span>
-       <span class="k">print</span><span class="p">(</span><span class="s2">&quot;No robot configured. Use &#39;zrobot robot connect&#39; to configure one&quot;</span><span class="p">)</span>
-       <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
-   <span class="k">if</span> <span class="ow">not</span> <span class="n">instance</span><span class="p">:</span>
-       <span class="k">print</span><span class="p">(</span><span class="s2">&quot;No robot configured. Use &#39;zrobot robot connect&#39; to configure one&quot;</span><span class="p">)</span>
-       <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
-   <span class="n">connected</span><span class="p">,</span> <span class="n">addr</span> <span class="o">=</span> <span class="n">test_connection</span><span class="p">(</span><span class="n">instance</span><span class="p">)</span>
-   <span class="k">if</span> <span class="ow">not</span> <span class="n">connected</span><span class="p">:</span>
-       <span class="k">print</span><span class="p">(</span><span class="s2">&quot;A robot is configured at &#39;</span><span class="si">%s</span><span class="s2">&#39;, but it doesn&#39;t seems to be a valid 0-robot. Are you sure the 0-robot is up and running ?&quot;</span> <span class="o">%</span> <span class="n">addr</span><span class="p">)</span>
-       <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
-   <span class="k">return</span> <span class="n">instance</span><span class="p">,</span> <span class="n">addr</span>
-<span class="n">ef</span> <span class="n">get_client</span><span class="p">():</span>
-   <span class="n">instance</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">get_instance</span><span class="p">()</span>
-   <span class="k">return</span> <span class="n">ZeroRobotManager</span><span class="p">(</span><span class="n">instance</span><span class="p">)</span>
-<span class="n">ef</span> <span class="n">print_service</span><span class="p">(</span><span class="n">service</span><span class="p">):</span>
-   <span class="k">print</span><span class="p">(</span><span class="s2">&quot;{template} - {guid} - {name}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-       <span class="n">guid</span><span class="o">=</span><span class="n">service</span><span class="o">.</span><span class="n">guid</span><span class="p">,</span>
-       <span class="n">name</span><span class="o">=</span><span class="n">service</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
-       <span class="n">template</span><span class="o">=</span><span class="n">service</span><span class="o">.</span><span class="n">template_uid</span>
-   <span class="p">))</span>
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.task.storage.base', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.task.storage.base" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">TaskStorageBase</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This is the base class that need to be implemented</span>
+<span class="sd">    in order to store task on different medium</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task_list</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        create connection to the storage</span>
+
+<span class="sd">        @param task_list: a pointer to the task_list that is using this storage</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">task_list</span> <span class="o">=</span> <span class="n">task_list</span>
+
+    <span class="k">def</span> <span class="nf">add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        save a task to the storage</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">guid</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        find a task by guid,</span>
+<span class="sd">        if not found should raise TaskNotFoundError</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">list</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">from_timestap</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">to_timestap</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        list all task. Optionally filter on time of creation</span>
+<span class="sd">        from_timestamp: filter all task created before from_timetamp</span>
+<span class="sd">        to_timestamp: filter all task created after to_timestamp</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">count</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        return the number of task stored</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        gracefully close storage</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
+
+
+<span class="k">class</span> <span class="nc">TaskNotFoundError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="k">pass</span>
 </pre></div>
 
   </div>
@@ -1115,22 +1139,135 @@ table {
 
   <section id="section-items">
 
-    <h2 class="section-title" id="header-functions">Functions</h2>
+
+    <h2 class="section-title" id="header-classes">Classes</h2>
       
+      <div class="item">
+      <p id="zerorobot.task.storage.base.TaskNotFoundError" class="name">class <span class="ident">TaskNotFoundError</span></p>
+      
+  
+    <div class="desc"><p>Common base class for all non-exit exceptions.</p></div>
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.task.storage.base.TaskNotFoundError', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.task.storage.base.TaskNotFoundError" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">TaskNotFoundError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="k">pass</span>
+</pre></div>
+
+  </div>
+</div>
+
+
+      <div class="class">
+          <h3>Ancestors (in MRO)</h3>
+          <ul class="class_list">
+          <li><a href="#zerorobot.task.storage.base.TaskNotFoundError">TaskNotFoundError</a></li>
+          <li>builtins.Exception</li>
+          <li>builtins.BaseException</li>
+          <li>builtins.object</li>
+          </ul>
+          <h3>Class variables</h3>
+            <div class="item">
+            <p id="zerorobot.task.storage.base.TaskNotFoundError.args" class="name">var <span class="ident">args</span></p>
+            
+
+            
+  
+  <div class="source_cont">
+</div>
+
+            </div>
+      </div>
+      </div>
+      
+      <div class="item">
+      <p id="zerorobot.task.storage.base.TaskStorageBase" class="name">class <span class="ident">TaskStorageBase</span></p>
+      
+  
+    <div class="desc"><p>This is the base class that need to be implemented
+in order to store task on different medium</p></div>
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.task.storage.base.TaskStorageBase', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.task.storage.base.TaskStorageBase" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">TaskStorageBase</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This is the base class that need to be implemented</span>
+<span class="sd">    in order to store task on different medium</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task_list</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        create connection to the storage</span>
+
+<span class="sd">        @param task_list: a pointer to the task_list that is using this storage</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">task_list</span> <span class="o">=</span> <span class="n">task_list</span>
+
+    <span class="k">def</span> <span class="nf">add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        save a task to the storage</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">guid</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        find a task by guid,</span>
+<span class="sd">        if not found should raise TaskNotFoundError</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">list</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">from_timestap</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">to_timestap</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        list all task. Optionally filter on time of creation</span>
+<span class="sd">        from_timestamp: filter all task created before from_timetamp</span>
+<span class="sd">        to_timestamp: filter all task created after to_timestamp</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">count</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        return the number of task stored</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        gracefully close storage</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
+</pre></div>
+
+  </div>
+</div>
+
+
+      <div class="class">
+          <h3>Ancestors (in MRO)</h3>
+          <ul class="class_list">
+          <li><a href="#zerorobot.task.storage.base.TaskStorageBase">TaskStorageBase</a></li>
+          <li>builtins.object</li>
+          </ul>
+          <h3>Static methods</h3>
+            
   <div class="item">
-    <div class="name def" id="zerorobot.cli.utils.get_client">
-    <p>def <span class="ident">get_client</span>(</p><p>)</p>
+    <div class="name def" id="zerorobot.task.storage.base.TaskStorageBase.__init__">
+    <p>def <span class="ident">__init__</span>(</p><p>self, task_list)</p>
     </div>
     
 
     
   
+    <div class="desc"><p>create connection to the storage</p>
+<p>@param task_list: a pointer to the task_list that is using this storage</p></div>
   <div class="source_cont">
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.cli.utils.get_client', this);">Show source &equiv;</a></p>
-  <div id="source-zerorobot.cli.utils.get_client" class="source">
-    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">get_client</span><span class="p">():</span>
-    <span class="n">instance</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">get_instance</span><span class="p">()</span>
-    <span class="k">return</span> <span class="n">ZeroRobotManager</span><span class="p">(</span><span class="n">instance</span><span class="p">)</span>
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.task.storage.base.TaskStorageBase.__init__', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.task.storage.base.TaskStorageBase.__init__" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task_list</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    create connection to the storage</span>
+<span class="sd">    @param task_list: a pointer to the task_list that is using this storage</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">task_list</span> <span class="o">=</span> <span class="n">task_list</span>
 </pre></div>
 
   </div>
@@ -1138,35 +1275,24 @@ table {
 
   </div>
   
-      
+            
   <div class="item">
-    <div class="name def" id="zerorobot.cli.utils.get_instance">
-    <p>def <span class="ident">get_instance</span>(</p><p>)</p>
+    <div class="name def" id="zerorobot.task.storage.base.TaskStorageBase.add">
+    <p>def <span class="ident">add</span>(</p><p>self, task)</p>
     </div>
     
 
     
   
+    <div class="desc"><p>save a task to the storage</p></div>
   <div class="source_cont">
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.cli.utils.get_instance', this);">Show source &equiv;</a></p>
-  <div id="source-zerorobot.cli.utils.get_instance" class="source">
-    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">get_instance</span><span class="p">():</span>
-    <span class="k">try</span><span class="p">:</span>
-        <span class="n">instance</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">stateGet</span><span class="p">(</span><span class="n">_JS_CONFIG_KEY</span><span class="p">)</span>
-    <span class="k">except</span> <span class="n">j</span><span class="o">.</span><span class="n">exceptions</span><span class="o">.</span><span class="n">Input</span><span class="p">:</span>
-        <span class="k">print</span><span class="p">(</span><span class="s2">&quot;No robot configured. Use &#39;zrobot robot connect&#39; to configure one&quot;</span><span class="p">)</span>
-        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
-
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">instance</span><span class="p">:</span>
-        <span class="k">print</span><span class="p">(</span><span class="s2">&quot;No robot configured. Use &#39;zrobot robot connect&#39; to configure one&quot;</span><span class="p">)</span>
-        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
-
-    <span class="n">connected</span><span class="p">,</span> <span class="n">addr</span> <span class="o">=</span> <span class="n">test_connection</span><span class="p">(</span><span class="n">instance</span><span class="p">)</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">connected</span><span class="p">:</span>
-        <span class="k">print</span><span class="p">(</span><span class="s2">&quot;A robot is configured at &#39;</span><span class="si">%s</span><span class="s2">&#39;, but it doesn&#39;t seems to be a valid 0-robot. Are you sure the 0-robot is up and running ?&quot;</span> <span class="o">%</span> <span class="n">addr</span><span class="p">)</span>
-        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
-
-    <span class="k">return</span> <span class="n">instance</span><span class="p">,</span> <span class="n">addr</span>
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.task.storage.base.TaskStorageBase.add', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.task.storage.base.TaskStorageBase.add" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    save a task to the storage</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
 </pre></div>
 
   </div>
@@ -1174,24 +1300,24 @@ table {
 
   </div>
   
-      
+            
   <div class="item">
-    <div class="name def" id="zerorobot.cli.utils.print_service">
-    <p>def <span class="ident">print_service</span>(</p><p>service)</p>
+    <div class="name def" id="zerorobot.task.storage.base.TaskStorageBase.close">
+    <p>def <span class="ident">close</span>(</p><p>self)</p>
     </div>
     
 
     
   
+    <div class="desc"><p>gracefully close storage</p></div>
   <div class="source_cont">
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.cli.utils.print_service', this);">Show source &equiv;</a></p>
-  <div id="source-zerorobot.cli.utils.print_service" class="source">
-    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">print_service</span><span class="p">(</span><span class="n">service</span><span class="p">):</span>
-    <span class="k">print</span><span class="p">(</span><span class="s2">&quot;{template} - {guid} - {name}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-        <span class="n">guid</span><span class="o">=</span><span class="n">service</span><span class="o">.</span><span class="n">guid</span><span class="p">,</span>
-        <span class="n">name</span><span class="o">=</span><span class="n">service</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
-        <span class="n">template</span><span class="o">=</span><span class="n">service</span><span class="o">.</span><span class="n">template_uid</span>
-    <span class="p">))</span>
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.task.storage.base.TaskStorageBase.close', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.task.storage.base.TaskStorageBase.close" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    gracefully close storage</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
 </pre></div>
 
   </div>
@@ -1199,26 +1325,24 @@ table {
 
   </div>
   
-      
+            
   <div class="item">
-    <div class="name def" id="zerorobot.cli.utils.test_connection">
-    <p>def <span class="ident">test_connection</span>(</p><p>instance)</p>
+    <div class="name def" id="zerorobot.task.storage.base.TaskStorageBase.count">
+    <p>def <span class="ident">count</span>(</p><p>self)</p>
     </div>
     
 
     
   
+    <div class="desc"><p>return the number of task stored</p></div>
   <div class="source_cont">
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.cli.utils.test_connection', this);">Show source &equiv;</a></p>
-  <div id="source-zerorobot.cli.utils.test_connection" class="source">
-    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">test_connection</span><span class="p">(</span><span class="n">instance</span><span class="p">):</span>
-    <span class="n">cl</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">clients</span><span class="o">.</span><span class="n">zrobot</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">instance</span><span class="p">)</span>
-    <span class="n">addr</span> <span class="o">=</span> <span class="n">cl</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;url&#39;</span><span class="p">]</span>
-    <span class="k">try</span><span class="p">:</span>
-        <span class="n">resp</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="n">addr</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">resp</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">200</span><span class="p">,</span> <span class="n">addr</span>
-    <span class="k">except</span> <span class="n">requests</span><span class="o">.</span><span class="n">exceptions</span><span class="o">.</span><span class="n">ConnectionError</span><span class="p">:</span>
-        <span class="k">return</span> <span class="bp">False</span><span class="p">,</span> <span class="n">addr</span>
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.task.storage.base.TaskStorageBase.count', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.task.storage.base.TaskStorageBase.count" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">count</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    return the number of task stored</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
 </pre></div>
 
   </div>
@@ -1226,7 +1350,75 @@ table {
 
   </div>
   
+            
+  <div class="item">
+    <div class="name def" id="zerorobot.task.storage.base.TaskStorageBase.get">
+    <p>def <span class="ident">get</span>(</p><p>self, guid)</p>
+    </div>
+    
 
+    
+  
+    <div class="desc"><p>find a task by guid,
+if not found should raise TaskNotFoundError</p></div>
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.task.storage.base.TaskStorageBase.get', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.task.storage.base.TaskStorageBase.get" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">guid</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    find a task by guid,</span>
+<span class="sd">    if not found should raise TaskNotFoundError</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
+</pre></div>
+
+  </div>
+</div>
+
+  </div>
+  
+            
+  <div class="item">
+    <div class="name def" id="zerorobot.task.storage.base.TaskStorageBase.list">
+    <p>def <span class="ident">list</span>(</p><p>self, from_timestap=None, to_timestap=None)</p>
+    </div>
+    
+
+    
+  
+    <div class="desc"><p>list all task. Optionally filter on time of creation
+from_timestamp: filter all task created before from_timetamp
+to_timestamp: filter all task created after to_timestamp</p></div>
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.task.storage.base.TaskStorageBase.list', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.task.storage.base.TaskStorageBase.list" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">list</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">from_timestap</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">to_timestap</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    list all task. Optionally filter on time of creation</span>
+<span class="sd">    from_timestamp: filter all task created before from_timetamp</span>
+<span class="sd">    to_timestamp: filter all task created after to_timestamp</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
+</pre></div>
+
+  </div>
+</div>
+
+  </div>
+  
+          <h3>Instance variables</h3>
+            <div class="item">
+            <p id="zerorobot.task.storage.base.TaskStorageBase.task_list" class="name">var <span class="ident">task_list</span></p>
+            
+
+            
+  
+  <div class="source_cont">
+</div>
+
+            </div>
+      </div>
+      </div>
 
   </section>
 

@@ -1106,6 +1106,8 @@ table {
 <span class="sd">       this method call update_data on the service</span>
 <span class="sd">       update_data can be overwritten by the creator of the service</span>
 <span class="sd">       &quot;&quot;&quot;</span>
+       <span class="k">if</span> <span class="n">data</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+           <span class="n">data</span> <span class="o">=</span> <span class="p">{}</span>
        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;argument should be a dict not </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="nb">type</span><span class="p">(</span><span class="n">data</span><span class="p">))</span>
        <span class="k">if</span> <span class="n">data</span> <span class="o">==</span> <span class="p">{}:</span>
@@ -1177,6 +1179,9 @@ access to capnp object easy for the service</p></div>
 <span class="sd">        this method call update_data on the service</span>
 <span class="sd">        update_data can be overwritten by the creator of the service</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">data</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="p">{}</span>
+
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;argument should be a dict not </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="nb">type</span><span class="p">(</span><span class="n">data</span><span class="p">))</span>
 
@@ -1319,6 +1324,8 @@ update_data can be overwritten by the creator of the service</p></div>
 <span class="sd">    this method call update_data on the service</span>
 <span class="sd">    update_data can be overwritten by the creator of the service</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">data</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;argument should be a dict not </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="nb">type</span><span class="p">(</span><span class="n">data</span><span class="p">))</span>
     <span class="k">if</span> <span class="n">data</span> <span class="o">==</span> <span class="p">{}:</span>
