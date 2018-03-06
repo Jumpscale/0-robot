@@ -69,7 +69,8 @@ def _instanciate_services(service_descr):
             raise j.exceptions.RuntimeError("should have the conflicting service in the exception")
         # err.service is the conflicting service, that's the one we want to update
         # with the new data from the blueprint
-        err.service.data.update_secure(service_descr.get('data', {}))
+        data = service_descr.get('data', {}) or {}
+        err.service.data.update_secure(data)
 
 
 def _schedule_action(action_item):

@@ -27,8 +27,7 @@ def _install_zrobot(prefab, branch):
 def build_docker(tag, jsbranch, zrbranch, push):
     "Build and push docker image for 0-robot"
     print("Starting docker container ... ", end='')
-    docker_client = docker.from_env()
-    docker_client.images.pull(repository="ubuntu", tag="16.04")
+    j.sal.docker.client.images.pull(repository="ubuntu", tag="16.04")
     container = j.sal.docker.client.containers.create("ubuntu:16.04", command="sleep 3600")
     container.start()
     print("done!\nEstablishing prefab connection ... ", end='')

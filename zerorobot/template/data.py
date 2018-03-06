@@ -30,6 +30,9 @@ class ServiceData(dict):
         this method call update_data on the service
         update_data can be overwritten by the creator of the service
         """
+        if data is None:
+            data = {}
+
         if not isinstance(data, dict):
             raise ValueError('argument should be a dict not %s' % type(data))
 

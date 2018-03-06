@@ -172,6 +172,9 @@ class TestServiceTemplate(unittest.TestCase):
         self.assertEqual(task.action_name, 'update_data')
         self.assertEqual(srv.data['ip'], '127.0.0.1')
 
+        # should be a noop and not fail if data is None
+        srv.data.update_secure(None)
+
     def test_recurring(self):
         tmpl = self.load_template('recurring')
         srv = tmpl('foo')
