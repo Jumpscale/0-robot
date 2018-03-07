@@ -74,7 +74,8 @@ class Robot:
             j.sal.fs.createEmptyFile(os.path.join(location, '.jsconfig'))
         j.tools.configmanager._path = location
 
-    def start(self, listen=":6600", log_level=logging.DEBUG, block=True, **kwargs):
+    def start(self, listen=":6600", log_level=logging.DEBUG, block=True, auto_push=False, 
+        auto_push_interval=1440, **kwargs):
         """
         start the rest web server
         load the services from the local git repository
@@ -99,6 +100,10 @@ class Robot:
 
         # configure logger
         app._logger = logger
+
+        # auto-push data repo
+        if auto_push:
+            gevent.spawn(self._auto_push_data_repo(auto_push_interval))
 
         # using a pool allow to kill the request when stopping the server
         pool = Pool(None)
@@ -175,6 +180,23 @@ class Robot:
             service.gl_mgr.stop_all()
             service.save()
 
+    def _auto_push_data_repo(self, interval=1440):
+        """
+        run a coroutine that pushes the data repository at provided interval
+        provided interval is in minutes
+        meant to be run as gevent greenlet/coroutine
+        """
+        gevent.sleep(seconds=interval*60)
+        self._save_services()
+        self._push_data_repo()
+
+    def _push_data_repo(self):
+        """
+        commit and push (full) data repository
+        """
+        git = j.clients.git.get(basepath=config.DATA_DIR)
+        git.commit(message='zrobot sync', addremove=True)
+        git.push()
 
 def _try_load_service(services):
     """
