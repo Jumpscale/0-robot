@@ -43,4 +43,4 @@ def start(listen, data_repo, template_repo, config_repo, debug, auto_push, auto_
     if config_repo:
         robot.set_config_repo(config_repo)
 
-    robot.start(listen=listen)
+    robot.start(listen=listen, auto_push=auto_push, auto_push_interval=auto_push_interval)

@@ -197,7 +197,7 @@ class Robot:
         """
         commit and push (full) data repository
         """
-        git = j.clients.git.get(basepath=config.DATA_DIR)
+        git = j.clients.git.get(basedir=config.DATA_DIR)
         git.commit(message='zrobot sync', addremove=True)
         git.push()
 
