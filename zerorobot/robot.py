@@ -103,6 +103,7 @@ class Robot:
 
         # auto-push data repo
         if auto_push:
+            logger.info("auto push enabled")
             gevent.spawn(self._auto_push_data_repo(auto_push_interval))
 
         # using a pool allow to kill the request when stopping the server
@@ -186,7 +187,9 @@ class Robot:
         provided interval is in minutes
         meant to be run as gevent greenlet/coroutine
         """
+        logger.debug("waiting interval")
         gevent.sleep(seconds=interval*60)
+        logger.debug("saving services and pushing data repo")
         self._save_services()
         self._push_data_repo()
 
