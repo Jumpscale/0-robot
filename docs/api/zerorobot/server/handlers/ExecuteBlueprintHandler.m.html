@@ -1147,7 +1147,8 @@ table {
             <span class="k">raise</span> <span class="n">j</span><span class="o">.</span><span class="n">exceptions</span><span class="o">.</span><span class="n">RuntimeError</span><span class="p">(</span><span class="s2">&quot;should have the conflicting service in the exception&quot;</span><span class="p">)</span>
         <span class="c1"># err.service is the conflicting service, that&#39;s the one we want to update</span>
         <span class="c1"># with the new data from the blueprint</span>
-        <span class="n">err</span><span class="o">.</span><span class="n">service</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">update_secure</span><span class="p">(</span><span class="n">service_descr</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;data&#39;</span><span class="p">,</span> <span class="p">{}))</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">service_descr</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;data&#39;</span><span class="p">,</span> <span class="p">{})</span> <span class="ow">or</span> <span class="p">{}</span>
+        <span class="n">err</span><span class="o">.</span><span class="n">service</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">update_secure</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
 
 
 <span class="k">def</span> <span class="nf">_schedule_action</span><span class="p">(</span><span class="n">action_item</span><span class="p">):</span>

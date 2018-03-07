@@ -1122,35 +1122,23 @@ table {
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">names</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Return a dictionnary that contains all the service present on all</span>
-<span class="sd">        the accessible ZeroRobots</span>
+<span class="sd">        Return a dictionnary that contains all the service present on the local 0-robot</span>
 
 <span class="sd">        key is the name of the service</span>
-<span class="sd">        value is a Service or ServiceProxy object</span>
+<span class="sd">        value is a Service</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">services</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="k">for</span> <span class="n">robot</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_base</span><span class="o">.</span><span class="n">robots</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
-            <span class="n">services</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">robot</span><span class="o">.</span><span class="n">services</span><span class="o">.</span><span class="n">names</span><span class="p">)</span>
-        <span class="c1"># TODO: handle naming conflict between robots</span>
-        <span class="n">by_name</span> <span class="o">=</span> <span class="p">{</span><span class="n">s</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="n">s</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">scol</span><span class="o">.</span><span class="n">list_services</span><span class="p">()}</span>
-        <span class="n">services</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">by_name</span><span class="p">)</span>
+        <span class="n">services</span> <span class="o">=</span> <span class="p">{</span><span class="n">s</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="n">s</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">scol</span><span class="o">.</span><span class="n">list_services</span><span class="p">()}</span>
         <span class="k">return</span> <span class="n">services</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">guids</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Return a dictionnary that contains all the service present on all</span>
-<span class="sd">        the accessible ZeroRobot</span>
+<span class="sd">        Return a dictionnary that contains all the service present on the local 0-robot</span>
 
 <span class="sd">        key is the guid of the service</span>
-<span class="sd">        value is a Service or ServiceProxy object</span>
+<span class="sd">        value is a Service</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">services</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="k">for</span> <span class="n">robot</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_base</span><span class="o">.</span><span class="n">robots</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
-            <span class="n">services</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">robot</span><span class="o">.</span><span class="n">services</span><span class="o">.</span><span class="n">guids</span><span class="p">)</span>
-        <span class="c1"># TODO: handle guid conflict between robots</span>
-        <span class="n">services</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">scol</span><span class="o">.</span><span class="n">_guid_index</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">services</span>
+        <span class="k">return</span> <span class="n">scol</span><span class="o">.</span><span class="n">_guid_index</span>
 
     <span class="k">def</span> <span class="nf">find</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -1161,12 +1149,6 @@ table {
 <span class="sd">        example: to list all services with name foo: find(name=&#39;foo&#39;)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">services</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="k">for</span> <span class="n">robot</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_base</span><span class="o">.</span><span class="n">robots</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
-            <span class="k">for</span> <span class="n">service</span> <span class="ow">in</span> <span class="n">robot</span><span class="o">.</span><span class="n">services</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-                <span class="k">if</span> <span class="n">parent</span> <span class="ow">and</span> <span class="p">(</span><span class="n">service</span><span class="o">.</span><span class="n">parent</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">or</span> <span class="n">service</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">guid</span> <span class="o">!=</span> <span class="n">parent</span><span class="o">.</span><span class="n">guid</span><span class="p">):</span>
-                    <span class="k">continue</span>
-                <span class="n">services</span><span class="p">[</span><span class="n">service</span><span class="o">.</span><span class="n">guid</span><span class="p">]</span> <span class="o">=</span> <span class="n">service</span>
-
         <span class="k">for</span> <span class="n">service</span> <span class="ow">in</span> <span class="n">scol</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">parent</span> <span class="ow">and</span> <span class="p">(</span><span class="n">service</span><span class="o">.</span><span class="n">parent</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">or</span> <span class="n">service</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">guid</span> <span class="o">!=</span> <span class="n">parent</span><span class="o">.</span><span class="n">guid</span><span class="p">):</span>
                 <span class="k">continue</span>
@@ -1199,58 +1181,31 @@ table {
 
     <span class="k">def</span> <span class="nf">create</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">template_uid</span><span class="p">,</span> <span class="n">service_name</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Instantiate a service from a template</span>
-<span class="sd">        This method first look for a ZeroRobot that manages the template_uid then create the service in the selected robots.</span>
+<span class="sd">        Instantiate a service from a template on the local 0-robot</span>
 
 <span class="sd">        If this methos is used from a service action, it first check if we can create the service in the local robot.</span>
-<span class="sd">        If not, it looks for a remote robot to create the service onto.</span>
+<span class="sd">        If not, it raises TemplateNotFound error</span>
 
 <span class="sd">        @param template_uid: UID of the template to use a base class for the service</span>
 <span class="sd">        @param service_name: name of the service, needs to be unique within the robot instance</span>
 <span class="sd">        @param data: a dictionnary with the data of the service to create</span>
-<span class="sd">        @return: A Service or ServiceProxy object. depending if the service has been created locally or remotely</span>
+<span class="sd">        @return: A Service object</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="c1"># we can create a service locally, the local robot has the template</span>
-            <span class="n">template</span> <span class="o">=</span> <span class="n">tcol</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">template_uid</span><span class="p">)</span>
-            <span class="k">return</span> <span class="n">tcol</span><span class="o">.</span><span class="n">instantiate_service</span><span class="p">(</span><span class="n">template</span><span class="p">,</span> <span class="n">service_name</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
-        <span class="k">except</span> <span class="n">TemplateNotFoundError</span><span class="p">:</span>
-            <span class="c1"># we need to look for a robot that handle this template</span>
-            <span class="k">pass</span>
-
-        <span class="k">try</span><span class="p">:</span>
-            <span class="c1"># try to find a robot that manage the template with uid template_uid</span>
-            <span class="n">robot</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_base</span><span class="o">.</span><span class="n">get_robot</span><span class="p">(</span><span class="n">template_uid</span><span class="p">)</span>
-        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">TemplateNotFoundError</span><span class="p">(</span><span class="s2">&quot;no robot managing the template </span><span class="si">%s</span><span class="s2"> found&quot;</span> <span class="o">%</span> <span class="n">template_uid</span><span class="p">)</span>
-
-        <span class="k">return</span> <span class="n">robot</span><span class="o">.</span><span class="n">services</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">template_uid</span><span class="p">,</span> <span class="n">service_name</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+        <span class="c1"># we can create a service locally, the local robot has the template</span>
+        <span class="n">template</span> <span class="o">=</span> <span class="n">tcol</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">template_uid</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">tcol</span><span class="o">.</span><span class="n">instantiate_service</span><span class="p">(</span><span class="n">template</span><span class="p">,</span> <span class="n">service_name</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">upgrade</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">service_guid</span><span class="p">,</span> <span class="n">template_uid</span><span class="p">):</span>
-        <span class="n">new_template</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        upgrade the template version of a service</span>
+<span class="sd">        can raise ServiceNotFoundError and TemplateNotFound error</span>
 
-        <span class="k">try</span><span class="p">:</span>
-            <span class="c1"># check if the new template is handle by the local robot</span>
-            <span class="n">new_template</span> <span class="o">=</span> <span class="n">tcol</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">template_uid</span><span class="p">)</span>
-        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
-            <span class="c1"># we need to look for a robot that handle this template</span>
-            <span class="k">pass</span>
-
-        <span class="k">try</span><span class="p">:</span>
-            <span class="n">service</span> <span class="o">=</span> <span class="n">scol</span><span class="o">.</span><span class="n">get_by_guid</span><span class="p">(</span><span class="n">service_guid</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">new_template</span><span class="p">:</span>
-                <span class="c1"># both service and template are available locally, we can upgrade</span>
-                <span class="k">return</span> <span class="n">scol</span><span class="o">.</span><span class="n">upgrade</span><span class="p">(</span><span class="n">service</span><span class="p">,</span> <span class="n">new_template</span><span class="p">)</span>
-        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
-            <span class="c1"># service is not local, need to do an API call</span>
-            <span class="k">pass</span>
-
-        <span class="k">try</span><span class="p">:</span>
-            <span class="c1"># try to find a robot that manage the template with uid template_uid</span>
-            <span class="n">robot</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_base</span><span class="o">.</span><span class="n">get_robot</span><span class="p">(</span><span class="n">template_uid</span><span class="p">)</span>
-            <span class="k">return</span> <span class="n">robot</span><span class="o">.</span><span class="n">services</span><span class="o">.</span><span class="n">upgrade</span><span class="p">(</span><span class="n">service_guid</span><span class="p">,</span> <span class="n">template_uid</span><span class="p">)</span>
-        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">TemplateNotFoundError</span><span class="p">(</span><span class="s2">&quot;no robot managing the template </span><span class="si">%s</span><span class="s2"> found&quot;</span> <span class="o">%</span> <span class="n">template_uid</span><span class="p">)</span>
+<span class="sd">        @param service: service guid</span>
+<span class="sd">        @param new_template_uid: template uid to be used as new template</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">new_template</span> <span class="o">=</span> <span class="n">tcol</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">template_uid</span><span class="p">)</span>
+        <span class="n">service</span> <span class="o">=</span> <span class="n">scol</span><span class="o">.</span><span class="n">get_by_guid</span><span class="p">(</span><span class="n">service_guid</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">scol</span><span class="o">.</span><span class="n">upgrade</span><span class="p">(</span><span class="n">service</span><span class="p">,</span> <span class="n">new_template</span><span class="p">)</span>
 
 
 <span class="k">class</span> <span class="nc">ZeroRobotAPI</span><span class="p">:</span>
@@ -1265,8 +1220,8 @@ table {
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        list all the ZeroRobot accessible</span>
 <span class="sd">        return a dictionary with</span>
-<span class="sd">        key = url of the API of the robot</span>
-<span class="sd">        value: ZeroRobotClient object</span>
+<span class="sd">        key = instance name of the 0-robot</span>
+<span class="sd">        value: ZeroRobotManager object</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">robots</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">for</span> <span class="n">instance</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_config_mgr</span><span class="o">.</span><span class="n">list</span><span class="p">():</span>
@@ -1553,35 +1508,23 @@ table {
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">names</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Return a dictionnary that contains all the service present on all</span>
-<span class="sd">        the accessible ZeroRobots</span>
+<span class="sd">        Return a dictionnary that contains all the service present on the local 0-robot</span>
 
 <span class="sd">        key is the name of the service</span>
-<span class="sd">        value is a Service or ServiceProxy object</span>
+<span class="sd">        value is a Service</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">services</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="k">for</span> <span class="n">robot</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_base</span><span class="o">.</span><span class="n">robots</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
-            <span class="n">services</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">robot</span><span class="o">.</span><span class="n">services</span><span class="o">.</span><span class="n">names</span><span class="p">)</span>
-        <span class="c1"># TODO: handle naming conflict between robots</span>
-        <span class="n">by_name</span> <span class="o">=</span> <span class="p">{</span><span class="n">s</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="n">s</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">scol</span><span class="o">.</span><span class="n">list_services</span><span class="p">()}</span>
-        <span class="n">services</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">by_name</span><span class="p">)</span>
+        <span class="n">services</span> <span class="o">=</span> <span class="p">{</span><span class="n">s</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="n">s</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">scol</span><span class="o">.</span><span class="n">list_services</span><span class="p">()}</span>
         <span class="k">return</span> <span class="n">services</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">guids</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Return a dictionnary that contains all the service present on all</span>
-<span class="sd">        the accessible ZeroRobot</span>
+<span class="sd">        Return a dictionnary that contains all the service present on the local 0-robot</span>
 
 <span class="sd">        key is the guid of the service</span>
-<span class="sd">        value is a Service or ServiceProxy object</span>
+<span class="sd">        value is a Service</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">services</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="k">for</span> <span class="n">robot</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_base</span><span class="o">.</span><span class="n">robots</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
-            <span class="n">services</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">robot</span><span class="o">.</span><span class="n">services</span><span class="o">.</span><span class="n">guids</span><span class="p">)</span>
-        <span class="c1"># TODO: handle guid conflict between robots</span>
-        <span class="n">services</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">scol</span><span class="o">.</span><span class="n">_guid_index</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">services</span>
+        <span class="k">return</span> <span class="n">scol</span><span class="o">.</span><span class="n">_guid_index</span>
 
     <span class="k">def</span> <span class="nf">find</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -1592,12 +1535,6 @@ table {
 <span class="sd">        example: to list all services with name foo: find(name=&#39;foo&#39;)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">services</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="k">for</span> <span class="n">robot</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_base</span><span class="o">.</span><span class="n">robots</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
-            <span class="k">for</span> <span class="n">service</span> <span class="ow">in</span> <span class="n">robot</span><span class="o">.</span><span class="n">services</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-                <span class="k">if</span> <span class="n">parent</span> <span class="ow">and</span> <span class="p">(</span><span class="n">service</span><span class="o">.</span><span class="n">parent</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">or</span> <span class="n">service</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">guid</span> <span class="o">!=</span> <span class="n">parent</span><span class="o">.</span><span class="n">guid</span><span class="p">):</span>
-                    <span class="k">continue</span>
-                <span class="n">services</span><span class="p">[</span><span class="n">service</span><span class="o">.</span><span class="n">guid</span><span class="p">]</span> <span class="o">=</span> <span class="n">service</span>
-
         <span class="k">for</span> <span class="n">service</span> <span class="ow">in</span> <span class="n">scol</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">parent</span> <span class="ow">and</span> <span class="p">(</span><span class="n">service</span><span class="o">.</span><span class="n">parent</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">or</span> <span class="n">service</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">guid</span> <span class="o">!=</span> <span class="n">parent</span><span class="o">.</span><span class="n">guid</span><span class="p">):</span>
                 <span class="k">continue</span>
@@ -1630,58 +1567,31 @@ table {
 
     <span class="k">def</span> <span class="nf">create</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">template_uid</span><span class="p">,</span> <span class="n">service_name</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Instantiate a service from a template</span>
-<span class="sd">        This method first look for a ZeroRobot that manages the template_uid then create the service in the selected robots.</span>
+<span class="sd">        Instantiate a service from a template on the local 0-robot</span>
 
 <span class="sd">        If this methos is used from a service action, it first check if we can create the service in the local robot.</span>
-<span class="sd">        If not, it looks for a remote robot to create the service onto.</span>
+<span class="sd">        If not, it raises TemplateNotFound error</span>
 
 <span class="sd">        @param template_uid: UID of the template to use a base class for the service</span>
 <span class="sd">        @param service_name: name of the service, needs to be unique within the robot instance</span>
 <span class="sd">        @param data: a dictionnary with the data of the service to create</span>
-<span class="sd">        @return: A Service or ServiceProxy object. depending if the service has been created locally or remotely</span>
+<span class="sd">        @return: A Service object</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="c1"># we can create a service locally, the local robot has the template</span>
-            <span class="n">template</span> <span class="o">=</span> <span class="n">tcol</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">template_uid</span><span class="p">)</span>
-            <span class="k">return</span> <span class="n">tcol</span><span class="o">.</span><span class="n">instantiate_service</span><span class="p">(</span><span class="n">template</span><span class="p">,</span> <span class="n">service_name</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
-        <span class="k">except</span> <span class="n">TemplateNotFoundError</span><span class="p">:</span>
-            <span class="c1"># we need to look for a robot that handle this template</span>
-            <span class="k">pass</span>
-
-        <span class="k">try</span><span class="p">:</span>
-            <span class="c1"># try to find a robot that manage the template with uid template_uid</span>
-            <span class="n">robot</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_base</span><span class="o">.</span><span class="n">get_robot</span><span class="p">(</span><span class="n">template_uid</span><span class="p">)</span>
-        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">TemplateNotFoundError</span><span class="p">(</span><span class="s2">&quot;no robot managing the template </span><span class="si">%s</span><span class="s2"> found&quot;</span> <span class="o">%</span> <span class="n">template_uid</span><span class="p">)</span>
-
-        <span class="k">return</span> <span class="n">robot</span><span class="o">.</span><span class="n">services</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">template_uid</span><span class="p">,</span> <span class="n">service_name</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+        <span class="c1"># we can create a service locally, the local robot has the template</span>
+        <span class="n">template</span> <span class="o">=</span> <span class="n">tcol</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">template_uid</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">tcol</span><span class="o">.</span><span class="n">instantiate_service</span><span class="p">(</span><span class="n">template</span><span class="p">,</span> <span class="n">service_name</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">upgrade</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">service_guid</span><span class="p">,</span> <span class="n">template_uid</span><span class="p">):</span>
-        <span class="n">new_template</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        upgrade the template version of a service</span>
+<span class="sd">        can raise ServiceNotFoundError and TemplateNotFound error</span>
 
-        <span class="k">try</span><span class="p">:</span>
-            <span class="c1"># check if the new template is handle by the local robot</span>
-            <span class="n">new_template</span> <span class="o">=</span> <span class="n">tcol</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">template_uid</span><span class="p">)</span>
-        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
-            <span class="c1"># we need to look for a robot that handle this template</span>
-            <span class="k">pass</span>
-
-        <span class="k">try</span><span class="p">:</span>
-            <span class="n">service</span> <span class="o">=</span> <span class="n">scol</span><span class="o">.</span><span class="n">get_by_guid</span><span class="p">(</span><span class="n">service_guid</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">new_template</span><span class="p">:</span>
-                <span class="c1"># both service and template are available locally, we can upgrade</span>
-                <span class="k">return</span> <span class="n">scol</span><span class="o">.</span><span class="n">upgrade</span><span class="p">(</span><span class="n">service</span><span class="p">,</span> <span class="n">new_template</span><span class="p">)</span>
-        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
-            <span class="c1"># service is not local, need to do an API call</span>
-            <span class="k">pass</span>
-
-        <span class="k">try</span><span class="p">:</span>
-            <span class="c1"># try to find a robot that manage the template with uid template_uid</span>
-            <span class="n">robot</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_base</span><span class="o">.</span><span class="n">get_robot</span><span class="p">(</span><span class="n">template_uid</span><span class="p">)</span>
-            <span class="k">return</span> <span class="n">robot</span><span class="o">.</span><span class="n">services</span><span class="o">.</span><span class="n">upgrade</span><span class="p">(</span><span class="n">service_guid</span><span class="p">,</span> <span class="n">template_uid</span><span class="p">)</span>
-        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">TemplateNotFoundError</span><span class="p">(</span><span class="s2">&quot;no robot managing the template </span><span class="si">%s</span><span class="s2"> found&quot;</span> <span class="o">%</span> <span class="n">template_uid</span><span class="p">)</span>
+<span class="sd">        @param service: service guid</span>
+<span class="sd">        @param new_template_uid: template uid to be used as new template</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">new_template</span> <span class="o">=</span> <span class="n">tcol</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">template_uid</span><span class="p">)</span>
+        <span class="n">service</span> <span class="o">=</span> <span class="n">scol</span><span class="o">.</span><span class="n">get_by_guid</span><span class="p">(</span><span class="n">service_guid</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">scol</span><span class="o">.</span><span class="n">upgrade</span><span class="p">(</span><span class="n">service</span><span class="p">,</span> <span class="n">new_template</span><span class="p">)</span>
 </pre></div>
 
   </div>
@@ -1726,41 +1636,29 @@ table {
 
     
   
-    <div class="desc"><p>Instantiate a service from a template
-This method first look for a ZeroRobot that manages the template_uid then create the service in the selected robots.</p>
+    <div class="desc"><p>Instantiate a service from a template on the local 0-robot</p>
 <p>If this methos is used from a service action, it first check if we can create the service in the local robot.
-If not, it looks for a remote robot to create the service onto.</p>
+If not, it raises TemplateNotFound error</p>
 <p>@param template_uid: UID of the template to use a base class for the service
 @param service_name: name of the service, needs to be unique within the robot instance
 @param data: a dictionnary with the data of the service to create
-@return: A Service or ServiceProxy object. depending if the service has been created locally or remotely</p></div>
+@return: A Service object</p></div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.dsl.ZeroRobotAPI.ServicesMgr.create', this);">Show source &equiv;</a></p>
   <div id="source-zerorobot.dsl.ZeroRobotAPI.ServicesMgr.create" class="source">
     <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">create</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">template_uid</span><span class="p">,</span> <span class="n">service_name</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Instantiate a service from a template</span>
-<span class="sd">    This method first look for a ZeroRobot that manages the template_uid then create the service in the selected robots.</span>
+<span class="sd">    Instantiate a service from a template on the local 0-robot</span>
 <span class="sd">    If this methos is used from a service action, it first check if we can create the service in the local robot.</span>
-<span class="sd">    If not, it looks for a remote robot to create the service onto.</span>
+<span class="sd">    If not, it raises TemplateNotFound error</span>
 <span class="sd">    @param template_uid: UID of the template to use a base class for the service</span>
 <span class="sd">    @param service_name: name of the service, needs to be unique within the robot instance</span>
 <span class="sd">    @param data: a dictionnary with the data of the service to create</span>
-<span class="sd">    @return: A Service or ServiceProxy object. depending if the service has been created locally or remotely</span>
+<span class="sd">    @return: A Service object</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">try</span><span class="p">:</span>
-        <span class="c1"># we can create a service locally, the local robot has the template</span>
-        <span class="n">template</span> <span class="o">=</span> <span class="n">tcol</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">template_uid</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">tcol</span><span class="o">.</span><span class="n">instantiate_service</span><span class="p">(</span><span class="n">template</span><span class="p">,</span> <span class="n">service_name</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
-    <span class="k">except</span> <span class="n">TemplateNotFoundError</span><span class="p">:</span>
-        <span class="c1"># we need to look for a robot that handle this template</span>
-        <span class="k">pass</span>
-    <span class="k">try</span><span class="p">:</span>
-        <span class="c1"># try to find a robot that manage the template with uid template_uid</span>
-        <span class="n">robot</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_base</span><span class="o">.</span><span class="n">get_robot</span><span class="p">(</span><span class="n">template_uid</span><span class="p">)</span>
-    <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="n">TemplateNotFoundError</span><span class="p">(</span><span class="s2">&quot;no robot managing the template </span><span class="si">%s</span><span class="s2"> found&quot;</span> <span class="o">%</span> <span class="n">template_uid</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">robot</span><span class="o">.</span><span class="n">services</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">template_uid</span><span class="p">,</span> <span class="n">service_name</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+    <span class="c1"># we can create a service locally, the local robot has the template</span>
+    <span class="n">template</span> <span class="o">=</span> <span class="n">tcol</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">template_uid</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">tcol</span><span class="o">.</span><span class="n">instantiate_service</span><span class="p">(</span><span class="n">template</span><span class="p">,</span> <span class="n">service_name</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
 </pre></div>
 
   </div>
@@ -1822,11 +1720,6 @@ You can filter on:
 <span class="sd">    example: to list all services with name foo: find(name=&#39;foo&#39;)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">services</span> <span class="o">=</span> <span class="p">{}</span>
-    <span class="k">for</span> <span class="n">robot</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_base</span><span class="o">.</span><span class="n">robots</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
-        <span class="k">for</span> <span class="n">service</span> <span class="ow">in</span> <span class="n">robot</span><span class="o">.</span><span class="n">services</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-            <span class="k">if</span> <span class="n">parent</span> <span class="ow">and</span> <span class="p">(</span><span class="n">service</span><span class="o">.</span><span class="n">parent</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">or</span> <span class="n">service</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">guid</span> <span class="o">!=</span> <span class="n">parent</span><span class="o">.</span><span class="n">guid</span><span class="p">):</span>
-                <span class="k">continue</span>
-            <span class="n">services</span><span class="p">[</span><span class="n">service</span><span class="o">.</span><span class="n">guid</span><span class="p">]</span> <span class="o">=</span> <span class="n">service</span>
     <span class="k">for</span> <span class="n">service</span> <span class="ow">in</span> <span class="n">scol</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">parent</span> <span class="ow">and</span> <span class="p">(</span><span class="n">service</span><span class="o">.</span><span class="n">parent</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">or</span> <span class="n">service</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">guid</span> <span class="o">!=</span> <span class="n">parent</span><span class="o">.</span><span class="n">guid</span><span class="p">):</span>
             <span class="k">continue</span>
@@ -1883,31 +1776,23 @@ You can filter on:
 
     
   
+    <div class="desc"><p>upgrade the template version of a service
+can raise ServiceNotFoundError and TemplateNotFound error</p>
+<p>@param service: service guid
+@param new_template_uid: template uid to be used as new template</p></div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.dsl.ZeroRobotAPI.ServicesMgr.upgrade', this);">Show source &equiv;</a></p>
   <div id="source-zerorobot.dsl.ZeroRobotAPI.ServicesMgr.upgrade" class="source">
     <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">upgrade</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">service_guid</span><span class="p">,</span> <span class="n">template_uid</span><span class="p">):</span>
-    <span class="n">new_template</span> <span class="o">=</span> <span class="bp">None</span>
-    <span class="k">try</span><span class="p">:</span>
-        <span class="c1"># check if the new template is handle by the local robot</span>
-        <span class="n">new_template</span> <span class="o">=</span> <span class="n">tcol</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">template_uid</span><span class="p">)</span>
-    <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
-        <span class="c1"># we need to look for a robot that handle this template</span>
-        <span class="k">pass</span>
-    <span class="k">try</span><span class="p">:</span>
-        <span class="n">service</span> <span class="o">=</span> <span class="n">scol</span><span class="o">.</span><span class="n">get_by_guid</span><span class="p">(</span><span class="n">service_guid</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">new_template</span><span class="p">:</span>
-            <span class="c1"># both service and template are available locally, we can upgrade</span>
-            <span class="k">return</span> <span class="n">scol</span><span class="o">.</span><span class="n">upgrade</span><span class="p">(</span><span class="n">service</span><span class="p">,</span> <span class="n">new_template</span><span class="p">)</span>
-    <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
-        <span class="c1"># service is not local, need to do an API call</span>
-        <span class="k">pass</span>
-    <span class="k">try</span><span class="p">:</span>
-        <span class="c1"># try to find a robot that manage the template with uid template_uid</span>
-        <span class="n">robot</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_base</span><span class="o">.</span><span class="n">get_robot</span><span class="p">(</span><span class="n">template_uid</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">robot</span><span class="o">.</span><span class="n">services</span><span class="o">.</span><span class="n">upgrade</span><span class="p">(</span><span class="n">service_guid</span><span class="p">,</span> <span class="n">template_uid</span><span class="p">)</span>
-    <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="n">TemplateNotFoundError</span><span class="p">(</span><span class="s2">&quot;no robot managing the template </span><span class="si">%s</span><span class="s2"> found&quot;</span> <span class="o">%</span> <span class="n">template_uid</span><span class="p">)</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    upgrade the template version of a service</span>
+<span class="sd">    can raise ServiceNotFoundError and TemplateNotFound error</span>
+<span class="sd">    @param service: service guid</span>
+<span class="sd">    @param new_template_uid: template uid to be used as new template</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">new_template</span> <span class="o">=</span> <span class="n">tcol</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">template_uid</span><span class="p">)</span>
+    <span class="n">service</span> <span class="o">=</span> <span class="n">scol</span><span class="o">.</span><span class="n">get_by_guid</span><span class="p">(</span><span class="n">service_guid</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">scol</span><span class="o">.</span><span class="n">upgrade</span><span class="p">(</span><span class="n">service</span><span class="p">,</span> <span class="n">new_template</span><span class="p">)</span>
 </pre></div>
 
   </div>
@@ -1922,10 +1807,9 @@ You can filter on:
 
             
   
-    <div class="desc"><p>Return a dictionnary that contains all the service present on all
-the accessible ZeroRobot</p>
+    <div class="desc"><p>Return a dictionnary that contains all the service present on the local 0-robot</p>
 <p>key is the guid of the service
-value is a Service or ServiceProxy object</p></div>
+value is a Service</p></div>
   <div class="source_cont">
 </div>
 
@@ -1936,10 +1820,9 @@ value is a Service or ServiceProxy object</p></div>
 
             
   
-    <div class="desc"><p>Return a dictionnary that contains all the service present on all
-the accessible ZeroRobots</p>
+    <div class="desc"><p>Return a dictionnary that contains all the service present on the local 0-robot</p>
 <p>key is the name of the service
-value is a Service or ServiceProxy object</p></div>
+value is a Service</p></div>
   <div class="source_cont">
 </div>
 
@@ -1966,8 +1849,8 @@ value is a Service or ServiceProxy object</p></div>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        list all the ZeroRobot accessible</span>
 <span class="sd">        return a dictionary with</span>
-<span class="sd">        key = url of the API of the robot</span>
-<span class="sd">        value: ZeroRobotClient object</span>
+<span class="sd">        key = instance name of the 0-robot</span>
+<span class="sd">        value: ZeroRobotManager object</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">robots</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">for</span> <span class="n">instance</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_config_mgr</span><span class="o">.</span><span class="n">list</span><span class="p">():</span>
@@ -2094,8 +1977,8 @@ If not known robots managed the template_uid, then KeyError is raised</p></div>
   
     <div class="desc"><p>list all the ZeroRobot accessible
 return a dictionary with
-key = url of the API of the robot
-value: ZeroRobotClient object</p></div>
+key = instance name of the 0-robot
+value: ZeroRobotManager object</p></div>
   <div class="source_cont">
 </div>
 

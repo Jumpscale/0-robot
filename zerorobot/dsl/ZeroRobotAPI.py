@@ -20,35 +20,23 @@ class ServicesMgr:
     @property
     def names(self):
         """
-        Return a dictionnary that contains all the service present on all
-        the accessible ZeroRobots
+        Return a dictionnary that contains all the service present on the local 0-robot
 
         key is the name of the service
-        value is a Service or ServiceProxy object
+        value is a Service
         """
-        services = {}
-        for robot in self._base.robots.values():
-            services.update(robot.services.names)
-        # TODO: handle naming conflict between robots
-        by_name = {s.name: s for s in scol.list_services()}
-        services.update(by_name)
+        services = {s.name: s for s in scol.list_services()}
         return services
 
     @property
     def guids(self):
         """
-        Return a dictionnary that contains all the service present on all
-        the accessible ZeroRobot
+        Return a dictionnary that contains all the service present on the local 0-robot
 
         key is the guid of the service
-        value is a Service or ServiceProxy object
+        value is a Service
         """
-        services = {}
-        for robot in self._base.robots.values():
-            services.update(robot.services.guids)
-        # TODO: handle guid conflict between robots
-        services.update(scol._guid_index)
-        return services
+        return scol._guid_index
 
     def find(self, parent=None, **kwargs):
         """
@@ -59,12 +47,6 @@ class ServicesMgr:
         example: to list all services with name foo: find(name='foo')
         """
         services = {}
-        for robot in self._base.robots.values():
-            for service in robot.services.find(**kwargs):
-                if parent and (service.parent is None or service.parent.guid != parent.guid):
-                    continue
-                services[service.guid] = service
-
         for service in scol.find(**kwargs):
             if parent and (service.parent is None or service.parent.guid != parent.guid):
                 continue
@@ -97,58 +79,31 @@ class ServicesMgr:
 
     def create(self, template_uid, service_name=None, data=None):
         """
-        Instantiate a service from a template
-        This method first look for a ZeroRobot that manages the template_uid then create the service in the selected robots.
+        Instantiate a service from a template on the local 0-robot
 
         If this methos is used from a service action, it first check if we can create the service in the local robot.
-        If not, it looks for a remote robot to create the service onto.
+        If not, it raises TemplateNotFound error
 
         @param template_uid: UID of the template to use a base class for the service
         @param service_name: name of the service, needs to be unique within the robot instance
         @param data: a dictionnary with the data of the service to create
-        @return: A Service or ServiceProxy object. depending if the service has been created locally or remotely
+        @return: A Service object
         """
-        try:
-            # we can create a service locally, the local robot has the template
-            template = tcol.get(template_uid)
-            return tcol.instantiate_service(template, service_name, data)
-        except TemplateNotFoundError:
-            # we need to look for a robot that handle this template
-            pass
-
-        try:
-            # try to find a robot that manage the template with uid template_uid
-            robot = self._base.get_robot(template_uid)
-        except KeyError:
-            raise TemplateNotFoundError("no robot managing the template %s found" % template_uid)
-
-        return robot.services.create(template_uid, service_name, data)
+        # we can create a service locally, the local robot has the template
+        template = tcol.get(template_uid)
+        return tcol.instantiate_service(template, service_name, data)
 
     def upgrade(self, service_guid, template_uid):
-        new_template = None
+        """
+        upgrade the template version of a service
+        can raise ServiceNotFoundError and TemplateNotFound error
 
-        try:
-            # check if the new template is handle by the local robot
-            new_template = tcol.get(template_uid)
-        except KeyError:
-            # we need to look for a robot that handle this template
-            pass
-
-        try:
-            service = scol.get_by_guid(service_guid)
-            if new_template:
-                # both service and template are available locally, we can upgrade
-                return scol.upgrade(service, new_template)
-        except KeyError:
-            # service is not local, need to do an API call
-            pass
-
-        try:
-            # try to find a robot that manage the template with uid template_uid
-            robot = self._base.get_robot(template_uid)
-            return robot.services.upgrade(service_guid, template_uid)
-        except KeyError:
-            raise TemplateNotFoundError("no robot managing the template %s found" % template_uid)
+        @param service: service guid
+        @param new_template_uid: template uid to be used as new template
+        """
+        new_template = tcol.get(template_uid)
+        service = scol.get_by_guid(service_guid)
+        return scol.upgrade(service, new_template)
 
 
 class ZeroRobotAPI:
@@ -163,8 +118,8 @@ class ZeroRobotAPI:
         """
         list all the ZeroRobot accessible
         return a dictionary with
-        key = url of the API of the robot
-        value: ZeroRobotClient object
+        key = instance name of the 0-robot
+        value: ZeroRobotManager object
         """
         robots = {}
         for instance in self._config_mgr.list():

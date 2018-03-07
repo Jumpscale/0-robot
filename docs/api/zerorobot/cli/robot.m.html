@@ -1070,14 +1070,12 @@ table {
 <span class="kn">import</span> <span class="nn">click</span>
 <span class="kn">from</span> <span class="nn">zerorobot.cli</span> <span class="kn">import</span> <span class="n">utils</span>
 
-<span class="n">_location</span> <span class="o">=</span> <span class="s1">&#39;j.clients.zrobot&#39;</span>
-
 
 <span class="k">def</span> <span class="nf">_list</span><span class="p">():</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    list all instance of 0-robot register in the configmanager</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">j</span><span class="o">.</span><span class="n">tools</span><span class="o">.</span><span class="n">configmanager</span><span class="o">.</span><span class="n">list</span><span class="p">(</span><span class="n">_location</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">j</span><span class="o">.</span><span class="n">clients</span><span class="o">.</span><span class="n">zrobot</span><span class="o">.</span><span class="n">list</span><span class="p">()</span>
 
 
 <span class="nd">@click.group</span><span class="p">()</span>
@@ -1109,7 +1107,7 @@ table {
         <span class="k">print</span><span class="p">(</span><span class="s2">&quot;service running at </span><span class="si">%s</span><span class="s2"> doesn&#39;t seems to be a valid 0-robot&quot;</span> <span class="o">%</span> <span class="n">addr</span><span class="p">)</span>
         <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
 
-    <span class="n">j</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">serializer</span><span class="o">.</span><span class="n">yaml</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">utils</span><span class="o">.</span><span class="n">cfg_file_path</span><span class="p">,</span> <span class="p">{</span><span class="n">utils</span><span class="o">.</span><span class="n">cfg_key</span><span class="p">:</span> <span class="n">instance</span><span class="p">})</span>
+    <span class="n">j</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">stateSet</span><span class="p">(</span><span class="n">utils</span><span class="o">.</span><span class="n">_JS_CONFIG_KEY</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="n">save</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
     <span class="k">print</span><span class="p">(</span><span class="s2">&quot;Connection to </span><span class="si">%s</span><span class="s2"> saved&quot;</span> <span class="o">%</span> <span class="n">instance</span><span class="p">)</span>
 
 

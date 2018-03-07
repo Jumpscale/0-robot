@@ -11,6 +11,7 @@ from js9 import j
 from zerorobot.service_collection import ServiceConflictError
 from zerorobot.service_proxy import ServiceProxy
 from zerorobot.template_uid import TemplateUID
+from zerorobot.service_collection import ServiceNotFoundError, TooManyResults
 
 
 class TemplateNotFoundError(Exception):
@@ -99,6 +100,29 @@ class ServicesMgr:
         for service in services:
             results.append(self._instantiate(service))
         return results
+
+    def exists(self, parent=None, **kwargs):
+        """
+        Test if a service exists and filter results from kwargs.
+        You can filter on:
+        "name", "template_uid", "template_host", "template_account", "template_repo", "template_name", "template_version"
+        """
+        results = self.find(parent=parent, **kwargs)
+        return len(results) > 0
+
+    def get(self, parent=None, **kwargs):
+        """
+        return a service service based on the filters in kwargs.
+        You can filter on:
+        "name", "template_uid", "template_host", "template_account", "template_repo", "template_name", "template_version"
+        """
+        results = self.find(parent=parent, **kwargs)
+        i = len(results)
+        if i > 1:
+            raise TooManyResults("%d services found" % i)
+        elif i <= 0:
+            raise ServiceNotFoundError()
+        return results[0]
 
     def create(self, template_uid, service_name=None, data=None):
         """

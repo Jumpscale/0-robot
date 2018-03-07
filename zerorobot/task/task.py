@@ -60,7 +60,7 @@ class Task:
         self.state = TASK_STATE_RUNNING
         # TODO: handle logging,...
         result = None
-
+        started = time.time()
         try:
             if self._args is not None:
                 self._result = self.func(**self._args)
@@ -76,6 +76,8 @@ class Task:
             # log critical error (might be picked up by telegram error logger)
             action_error_logger = j.logger.get("action_error_logger", force=True)
             action_error_logger.critical("Stacktrace:\n%s\n\nArguments:\n%s" % (''.join(traceback.format_tb(exc_traceback)), pprint.pformat(self._args, width=20)))
+        finally:
+            self._duration = time.time() - started
         return result
 
     @property

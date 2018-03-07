@@ -1079,8 +1079,11 @@ table {
 <span class="sd">   start the 0-robot daemon.</span>
 <span class="sd">   this will start the REST API on address and port specified by --listen and block</span>
 <span class="sd">   &quot;&quot;&quot;</span>
+   <span class="n">level</span> <span class="o">=</span> <span class="s2">&quot;INFO&quot;</span>
    <span class="k">if</span> <span class="n">debug</span><span class="p">:</span>
-       <span class="n">j</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">set_level</span><span class="p">(</span><span class="s2">&quot;DEBUG&quot;</span><span class="p">)</span>
+       <span class="n">level</span> <span class="o">=</span> <span class="s2">&quot;DEBUG&quot;</span>
+   <span class="n">j</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">handlers_level_set</span><span class="p">(</span><span class="n">level</span><span class="p">)</span>
+   <span class="n">j</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">loggers_level_set</span><span class="p">(</span><span class="n">level</span><span class="p">)</span>
    <span class="n">robot</span> <span class="o">=</span> <span class="n">Robot</span><span class="p">()</span>
    <span class="k">for</span> <span class="n">url</span> <span class="ow">in</span> <span class="n">template_repo</span><span class="p">:</span>
        <span class="n">robot</span><span class="o">.</span><span class="n">add_template_repo</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>

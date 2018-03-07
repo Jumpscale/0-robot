@@ -1071,7 +1071,9 @@ table {
   <ul>
     <li class="mono"><a href="#zerorobot.dsl.ZeroRobotManager.ServicesMgr.__init__">__init__</a></li>
     <li class="mono"><a href="#zerorobot.dsl.ZeroRobotManager.ServicesMgr.create">create</a></li>
+    <li class="mono"><a href="#zerorobot.dsl.ZeroRobotManager.ServicesMgr.exists">exists</a></li>
     <li class="mono"><a href="#zerorobot.dsl.ZeroRobotManager.ServicesMgr.find">find</a></li>
+    <li class="mono"><a href="#zerorobot.dsl.ZeroRobotManager.ServicesMgr.get">get</a></li>
     <li class="mono"><a href="#zerorobot.dsl.ZeroRobotManager.ServicesMgr.upgrade">upgrade</a></li>
   </ul>
 
@@ -1133,6 +1135,7 @@ We keep this logic in this repository itself and not jumpscale so we don't sprea
 <span class="kn">from</span> <span class="nn">zerorobot.service_collection</span> <span class="kn">import</span> <span class="n">ServiceConflictError</span>
 <span class="kn">from</span> <span class="nn">zerorobot.service_proxy</span> <span class="kn">import</span> <span class="n">ServiceProxy</span>
 <span class="kn">from</span> <span class="nn">zerorobot.template_uid</span> <span class="kn">import</span> <span class="n">TemplateUID</span>
+<span class="kn">from</span> <span class="nn">zerorobot.service_collection</span> <span class="kn">import</span> <span class="n">ServiceNotFoundError</span><span class="p">,</span> <span class="n">TooManyResults</span>
 
 
 <span class="k">class</span> <span class="nc">TemplateNotFoundError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
@@ -1221,6 +1224,29 @@ We keep this logic in this repository itself and not jumpscale so we don't sprea
         <span class="k">for</span> <span class="n">service</span> <span class="ow">in</span> <span class="n">services</span><span class="p">:</span>
             <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_instantiate</span><span class="p">(</span><span class="n">service</span><span class="p">))</span>
         <span class="k">return</span> <span class="n">results</span>
+
+    <span class="k">def</span> <span class="nf">exists</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Test if a service exists and filter results from kwargs.</span>
+<span class="sd">        You can filter on:</span>
+<span class="sd">        &quot;name&quot;, &quot;template_uid&quot;, &quot;template_host&quot;, &quot;template_account&quot;, &quot;template_repo&quot;, &quot;template_name&quot;, &quot;template_version&quot;</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">results</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">parent</span><span class="o">=</span><span class="n">parent</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">results</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span>
+
+    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        return a service service based on the filters in kwargs.</span>
+<span class="sd">        You can filter on:</span>
+<span class="sd">        &quot;name&quot;, &quot;template_uid&quot;, &quot;template_host&quot;, &quot;template_account&quot;, &quot;template_repo&quot;, &quot;template_name&quot;, &quot;template_version&quot;</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">results</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">parent</span><span class="o">=</span><span class="n">parent</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">i</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">results</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">i</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">TooManyResults</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%d</span><span class="s2"> services found&quot;</span> <span class="o">%</span> <span class="n">i</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">i</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">ServiceNotFoundError</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">results</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
     <span class="k">def</span> <span class="nf">create</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">template_uid</span><span class="p">,</span> <span class="n">service_name</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -1547,6 +1573,29 @@ We keep this logic in this repository itself and not jumpscale so we don't sprea
             <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_instantiate</span><span class="p">(</span><span class="n">service</span><span class="p">))</span>
         <span class="k">return</span> <span class="n">results</span>
 
+    <span class="k">def</span> <span class="nf">exists</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Test if a service exists and filter results from kwargs.</span>
+<span class="sd">        You can filter on:</span>
+<span class="sd">        &quot;name&quot;, &quot;template_uid&quot;, &quot;template_host&quot;, &quot;template_account&quot;, &quot;template_repo&quot;, &quot;template_name&quot;, &quot;template_version&quot;</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">results</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">parent</span><span class="o">=</span><span class="n">parent</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">results</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span>
+
+    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        return a service service based on the filters in kwargs.</span>
+<span class="sd">        You can filter on:</span>
+<span class="sd">        &quot;name&quot;, &quot;template_uid&quot;, &quot;template_host&quot;, &quot;template_account&quot;, &quot;template_repo&quot;, &quot;template_name&quot;, &quot;template_version&quot;</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">results</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">parent</span><span class="o">=</span><span class="n">parent</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">i</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">results</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">i</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">TooManyResults</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%d</span><span class="s2"> services found&quot;</span> <span class="o">%</span> <span class="n">i</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">i</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">ServiceNotFoundError</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">results</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
     <span class="k">def</span> <span class="nf">create</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">template_uid</span><span class="p">,</span> <span class="n">service_name</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Instantiate a service from a template</span>
@@ -1692,6 +1741,36 @@ We keep this logic in this repository itself and not jumpscale so we don't sprea
   
             
   <div class="item">
+    <div class="name def" id="zerorobot.dsl.ZeroRobotManager.ServicesMgr.exists">
+    <p>def <span class="ident">exists</span>(</p><p>self, parent=None, **kwargs)</p>
+    </div>
+    
+
+    
+  
+    <div class="desc"><p>Test if a service exists and filter results from kwargs.
+You can filter on:
+"name", "template_uid", "template_host", "template_account", "template_repo", "template_name", "template_version"</p></div>
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.dsl.ZeroRobotManager.ServicesMgr.exists', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.dsl.ZeroRobotManager.ServicesMgr.exists" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">exists</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Test if a service exists and filter results from kwargs.</span>
+<span class="sd">    You can filter on:</span>
+<span class="sd">    &quot;name&quot;, &quot;template_uid&quot;, &quot;template_host&quot;, &quot;template_account&quot;, &quot;template_repo&quot;, &quot;template_name&quot;, &quot;template_version&quot;</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">results</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">parent</span><span class="o">=</span><span class="n">parent</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">results</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span>
+</pre></div>
+
+  </div>
+</div>
+
+  </div>
+  
+            
+  <div class="item">
     <div class="name def" id="zerorobot.dsl.ZeroRobotManager.ServicesMgr.find">
     <p>def <span class="ident">find</span>(</p><p>self, **kwargs)</p>
     </div>
@@ -1712,6 +1791,41 @@ We keep this logic in this repository itself and not jumpscale so we don't sprea
     <span class="k">for</span> <span class="n">service</span> <span class="ow">in</span> <span class="n">services</span><span class="p">:</span>
         <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_instantiate</span><span class="p">(</span><span class="n">service</span><span class="p">))</span>
     <span class="k">return</span> <span class="n">results</span>
+</pre></div>
+
+  </div>
+</div>
+
+  </div>
+  
+            
+  <div class="item">
+    <div class="name def" id="zerorobot.dsl.ZeroRobotManager.ServicesMgr.get">
+    <p>def <span class="ident">get</span>(</p><p>self, parent=None, **kwargs)</p>
+    </div>
+    
+
+    
+  
+    <div class="desc"><p>return a service service based on the filters in kwargs.
+You can filter on:
+"name", "template_uid", "template_host", "template_account", "template_repo", "template_name", "template_version"</p></div>
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.dsl.ZeroRobotManager.ServicesMgr.get', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.dsl.ZeroRobotManager.ServicesMgr.get" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    return a service service based on the filters in kwargs.</span>
+<span class="sd">    You can filter on:</span>
+<span class="sd">    &quot;name&quot;, &quot;template_uid&quot;, &quot;template_host&quot;, &quot;template_account&quot;, &quot;template_repo&quot;, &quot;template_name&quot;, &quot;template_version&quot;</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">results</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">parent</span><span class="o">=</span><span class="n">parent</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="n">i</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">results</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">i</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">TooManyResults</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%d</span><span class="s2"> services found&quot;</span> <span class="o">%</span> <span class="n">i</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">i</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">ServiceNotFoundError</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">results</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 </pre></div>
 
   </div>

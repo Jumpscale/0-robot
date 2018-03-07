@@ -58,7 +58,7 @@ class TestZRobotAPI(unittest.TestCase):
         for i in range(2):
             p, addr = self._start_robot(i, with_tmpl=True)
             self.ps.append(p)
-            instance = j.data.hash.md5_string(addr)
+            instance = "robot%d" % int(i)
             cl = j.clients.zrobot.get(instance, data={'url': addr}, create=True)
             cl.config.save()
             self.instances.append(instance)
@@ -96,15 +96,10 @@ class TestZRobotAPI(unittest.TestCase):
             self.assertIn(addr, self.api.robots.keys())
 
     def test_service_create(self):
-        with self.assertRaises(TemplateNotFoundError, msg='trying to create a service from non exiting template should raise '):
-            self.api.services.create("github.com/jumpscale/0-robot/notexists/0.0.1", 'node1')
-
         # make sure we don't have any template loaded in the current process
         tcol._templates = {}
-        node1 = self.api.services.create("github.com/jumpscale/0-robot/node/0.0.1", 'node1')
-        # since we don't have any template in current process, we force to use a another robot, so it's a remote service
-        # that is created
-        self.assertEqual(type(node1), ServiceProxy)
+        with self.assertRaises(TemplateNotFoundError, msg='trying to create a service from non handled template should raise '):
+            self.api.services.create("github.com/jumpscale/0-robot/node/0.0.1", 'node1')
 
         # load template in current process
         with tempfile.TemporaryDirectory(prefix="robotlocal") as tmpdir:
@@ -114,76 +109,123 @@ class TestZRobotAPI(unittest.TestCase):
             node2 = self.api.services.create("github.com/jumpscale/0-robot/node/0.0.1", 'node2')
             self.assertTrue(isinstance(node2, TemplateBase))
 
-            # the api should get all services from both local and remote robots
-            self.assertEqual(len(self.api.services.names), 2)
-            self.assertEqual(len(self.api.services.guids), 2)
+            # the api should get all services from the local robot only
+            self.assertEqual(len(self.api.services.names), 1)
+            self.assertEqual(len(self.api.services.guids), 1)
+            # make sure remote robot doesn't have service created on them
+            for robot in self.api.robots.values():
+                self.assertEqual(len(robot.services.names), 0)
+
+        robot = self.api.robots['robot1']
+        node = robot.services.create("github.com/jumpscale/0-robot/node/0.0.1", 'node3')
+        self.assertEqual(type(node), ServiceProxy, "service create on remote robot should return ServiceProxy")
+        self.assertEqual(len(robot.services.guids), 1)
+        # ensure we can access the remote service from the robot object
+        robot.services.names[node.name]
+        robot.services.guids[node.guid]
 
     def test_service_search(self):
-        node1 = self.api.services.create("github.com/jumpscale/0-robot/node/0.0.1", 'node1')
-        node2 = self.api.services.create("github.com/jumpscale/0-robot/node/0.0.1", 'node2')
-        vm1 = self.api.services.create("github.com/jumpscale/0-robot/vm/0.0.1", 'vm1')
+        # load template in current process
+        with self.subTest(name='local'):
+            with tempfile.TemporaryDirectory(prefix="robotlocal") as tmpdir:
+                config.DATA_DIR = tmpdir
+                tcol.add_repo('http://github.com/jumpscale/0-robot', directory='tests/fixtures/templates')
+                robot = self.api
+                self._test_search(self.api)
 
-        results = self.api.services.find(template_uid="github.com/jumpscale/0-robot/node/0.0.1")
+        with self.subTest(name='remote'):
+            self._test_search(self.api.robots['robot1'])
+
+    def test_service_exists(self):
+        # load template in current process
+        with self.subTest(name='local'):
+            with tempfile.TemporaryDirectory(prefix="robotlocal") as tmpdir:
+                config.DATA_DIR = tmpdir
+                tcol.add_repo('http://github.com/jumpscale/0-robot', directory='tests/fixtures/templates')
+
+                self._test_exists(self.api)
+
+        with self.subTest(name='remote'):
+            self._test_exists(self.api.robots['robot1'])
+
+    def test_service_get(self):
+        with self.subTest(name='local'):
+            # load template in current process
+            with tempfile.TemporaryDirectory(prefix="robotlocal") as tmpdir:
+                config.DATA_DIR = tmpdir
+                tcol.add_repo('http://github.com/jumpscale/0-robot', directory='tests/fixtures/templates')
+
+                self._test_get(self.api)
+
+        with self.subTest(name='remote'):
+            self._test_get(self.api.robots['robot1'])
+
+    def _test_get(self, robot):
+        node1 = robot.services.create("github.com/jumpscale/0-robot/node/0.0.1", 'node1')
+        node2 = robot.services.create("github.com/jumpscale/0-robot/node/0.0.1", 'node2')
+        vm1 = robot.services.create("github.com/jumpscale/0-robot/vm/0.0.1", 'vm1')
+
+        self.assertEqual(node1.guid, robot.services.get(name='node1').guid)
+        self.assertEqual(node2.guid, robot.services.get(name='node2').guid)
+        self.assertEqual(vm1.guid, robot.services.get(name='vm1').guid)
+
+        self.assertEqual(vm1.guid, robot.services.get(template_uid='github.com/jumpscale/0-robot/vm/0.0.1').guid)
+
+        with self.assertRaises(scol.TooManyResults):
+            robot.services.get(template_host='github.com')
+        with self.assertRaises(scol.TooManyResults):
+            robot.services.get(template_account='jumpscale')
+        with self.assertRaises(scol.TooManyResults):
+            robot.services.get(template_repo='0-robot')
+        with self.assertRaises(scol.TooManyResults):
+            robot.services.get(template_name='node')
+        with self.assertRaises(scol.TooManyResults):
+            robot.services.get(template_version='0.0.1')
+
+        with self.assertRaises(scol.ServiceNotFoundError):
+            self.assertFalse(robot.services.get(name='nan'))
+        with self.assertRaises(scol.ServiceNotFoundError):
+            self.assertFalse(robot.services.get(template_uid='github.com/jumpscale/0-robot/node/1.1.0'))
+        with self.assertRaises(scol.ServiceNotFoundError):
+            self.assertFalse(robot.services.get(template_name='other'))
+
+    def _test_exists(self, robot):
+        node1 = robot.services.create("github.com/jumpscale/0-robot/node/0.0.1", 'node1')
+        node2 = robot.services.create("github.com/jumpscale/0-robot/node/0.0.1", 'node2')
+        vm1 = robot.services.create("github.com/jumpscale/0-robot/vm/0.0.1", 'vm1')
+
+        self.assertTrue(robot.services.exists(name='node1'))
+        self.assertTrue(robot.services.exists(name='node2'))
+        self.assertTrue(robot.services.exists(name='vm1'))
+
+        self.assertTrue(robot.services.exists(template_uid='github.com/jumpscale/0-robot/node/0.0.1'))
+        self.assertTrue(robot.services.exists(template_host='github.com'))
+        self.assertTrue(robot.services.exists(template_account='jumpscale'))
+        self.assertTrue(robot.services.exists(template_repo='0-robot'))
+        self.assertTrue(robot.services.exists(template_name='node'))
+        self.assertTrue(robot.services.exists(template_version='0.0.1'))
+
+        self.assertFalse(robot.services.exists(name='nan'))
+        self.assertFalse(robot.services.exists(template_uid='github.com/jumpscale/0-robot/node/1.1.0'))
+        self.assertFalse(robot.services.exists(template_name='other'))
+
+    def _test_search(self, robot):
+        node1 = robot.services.create("github.com/jumpscale/0-robot/node/0.0.1", 'node1')
+        node2 = robot.services.create("github.com/jumpscale/0-robot/node/0.0.1", 'node2')
+        vm1 = robot.services.create("github.com/jumpscale/0-robot/vm/0.0.1", 'vm1')
+
+        results = robot.services.find(template_uid="github.com/jumpscale/0-robot/node/0.0.1")
         self.assertEqual(len(results), 2)
         guids = [node1.guid, node2.guid]
         for s in results:
             self.assertIn(s.guid, guids)
 
-        results = self.api.services.find(name='node1')
+        results = robot.services.find(name='node1')
         self.assertEqual(len(results), 1)
         self.assertEqual(results[0].guid, node1.guid)
 
-        results = self.api.services.find(template_version='0.0.1', template_name='node')
+        results = robot.services.find(template_version='0.0.1', template_name='node')
         self.assertEqual(len(results), 2)
         guids = [node1.guid, node2.guid]
         for s in results:
             self.assertIn(s.guid, guids)
-
-    def test_service_exists(self):
-        node1 = self.api.services.create("github.com/jumpscale/0-robot/node/0.0.1", 'node1')
-        node2 = self.api.services.create("github.com/jumpscale/0-robot/node/0.0.1", 'node2')
-        vm1 = self.api.services.create("github.com/jumpscale/0-robot/vm/0.0.1", 'vm1')
-
-        self.assertTrue(self.api.services.exists(name='node1'))
-        self.assertTrue(self.api.services.exists(name='node2'))
-        self.assertTrue(self.api.services.exists(name='vm1'))
-
-        self.assertTrue(self.api.services.exists(template_uid='github.com/jumpscale/0-robot/node/0.0.1'))
-        self.assertTrue(self.api.services.exists(template_host='github.com'))
-        self.assertTrue(self.api.services.exists(template_account='jumpscale'))
-        self.assertTrue(self.api.services.exists(template_repo='0-robot'))
-        self.assertTrue(self.api.services.exists(template_name='node'))
-        self.assertTrue(self.api.services.exists(template_version='0.0.1'))
-
-        self.assertFalse(self.api.services.exists(name='nan'))
-        self.assertFalse(self.api.services.exists(template_uid='github.com/jumpscale/0-robot/node/1.1.0'))
-        self.assertFalse(self.api.services.exists(template_name='other'))
-
-    def test_service_get(self):
-        node1 = self.api.services.create("github.com/jumpscale/0-robot/node/0.0.1", 'node1')
-        node2 = self.api.services.create("github.com/jumpscale/0-robot/node/0.0.1", 'node2')
-        vm1 = self.api.services.create("github.com/jumpscale/0-robot/vm/0.0.1", 'vm1')
-
-        self.assertEqual(node1.guid, self.api.services.get(name='node1').guid)
-        self.assertEqual(node2.guid, self.api.services.get(name='node2').guid)
-        self.assertEqual(vm1.guid, self.api.services.get(name='vm1').guid)
-
-        self.assertEqual(vm1.guid, self.api.services.get(template_uid='github.com/jumpscale/0-robot/vm/0.0.1').guid)
-
-        with self.assertRaises(scol.TooManyResults):
-            self.api.services.get(template_host='github.com')
-        with self.assertRaises(scol.TooManyResults):
-            self.api.services.get(template_account='jumpscale')
-        with self.assertRaises(scol.TooManyResults):
-            self.api.services.get(template_repo='0-robot')
-        with self.assertRaises(scol.TooManyResults):
-            self.api.services.get(template_name='node')
-        with self.assertRaises(scol.TooManyResults):
-            self.api.services.get(template_version='0.0.1')
-
-        with self.assertRaises(scol.ServiceNotFoundError):
-            self.assertFalse(self.api.services.get(name='nan'))
-        with self.assertRaises(scol.ServiceNotFoundError):
-            self.assertFalse(self.api.services.get(template_uid='github.com/jumpscale/0-robot/node/1.1.0'))
-        with self.assertRaises(scol.ServiceNotFoundError):
-            self.assertFalse(self.api.services.get(template_name='other'))
