@@ -38,7 +38,7 @@ class Task:
         self._duration = None
 
         # used when action raises an exception
-        self.eco = None
+        self._eco = None
 
         self._state = TASK_STATE_NEW
         self._state_lock = Semaphore()
@@ -54,6 +54,10 @@ class Task:
     @property
     def result(self):
         return self._result
+
+    @property
+    def eco(self):
+        return self._eco
 
     def execute(self):
 
@@ -76,6 +80,8 @@ class Task:
             # log critical error (might be picked up by telegram error logger)
             action_error_logger = j.logger.get("action_error_logger", force=True)
             action_error_logger.critical("Stacktrace:\n%s\n\nArguments:\n%s" % (''.join(traceback.format_tb(exc_traceback)), pprint.pformat(self._args, width=20)))
+            self._eco = j.core.errorhandler.parsePythonExceptionObject(err, tb=exc_traceback)
+            self._eco.printTraceback()
         finally:
             self._duration = time.time() - started
         return result

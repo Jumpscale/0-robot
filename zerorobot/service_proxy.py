@@ -114,14 +114,12 @@ class TaskProxy(Task):
     actual state of the task on the remote ZeroRobot
     """
 
-    def __init__(self, guid, service, action_name, args, created, duration):
+    def __init__(self, guid, service, action_name, args, created):
         super().__init__(func=None, args=args)
         self.action_name = action_name
         self.service = service
         self.guid = guid
         self._created = created
-        self._duration = duration
-        self._result = None
 
     def execute(self):
         raise RuntimeError("a TaskProxy should never be executed")
@@ -135,20 +133,38 @@ class TaskProxy(Task):
         return self._result
 
     @property
+    def duration(self):
+        if self._duration is None:
+            task, _ = self.service._zrobot_client.api.services.GetTask(task_guid=self.guid, service_guid=self.service.guid)
+            self._duration = task.duration
+        return self._duration
+
+    @property
     def state(self):
-        task, _ = self.service._zrobot_client.api.services.GetTask(
-            task_guid=self.guid, service_guid=self.service.guid)
+        task, _ = self.service._zrobot_client.api.services.GetTask(task_guid=self.guid, service_guid=self.service.guid)
         return task.state.value
 
     @state.setter
     def state(self, value):
         raise RuntimeError("you can't change the statet of a TaskProxy")
 
+    @property
+    def eco(self):
+        if self._eco is None:
+            task, _ = self.service._zrobot_client.api.services.GetTask(task_guid=self.guid, service_guid=self.service.guid)
+            if task.eco:
+                d_eco = task.eco.as_dict()
+                d_eco['_traceback'] = task.eco._traceback
+                self._eco = j.core.errorhandler.getErrorConditionObject(ddict=d_eco)
+        return self._eco
+
 
 def _task_proxy_from_api(task, service):
-    t = TaskProxy(task.guid, service, task.action_name, task.args, task.created, task.duration)
+    t = TaskProxy(task.guid, service, task.action_name, task.args, task.created)
+    if task.duration:
+        t._duration = task.duration
     if task.eco:
         d_eco = task.eco.as_dict()
         d_eco['_traceback'] = task.eco._traceback
-        t.eco = j.core.errorhandler.getErrorConditionObject(ddict=d_eco)
+        t._eco = j.core.errorhandler.getErrorConditionObject(ddict=d_eco)
     return t
