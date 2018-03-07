@@ -37,7 +37,7 @@ class Task:
         self._duration = None
 
         # used when action raises an exception
-        self.eco = None
+        self._eco = None
 
         self._state = TASK_STATE_NEW
         self._state_lock = Semaphore()
@@ -53,6 +53,10 @@ class Task:
     @property
     def result(self):
         return self._result
+
+    @property
+    def eco(self):
+        return self._eco
 
     def execute(self):
 
@@ -70,8 +74,8 @@ class Task:
             self.state = TASK_STATE_ERROR
             # capture stacktrace and exception
             _, _, exc_traceback = sys.exc_info()
-            self.eco = j.core.errorhandler.parsePythonExceptionObject(err, tb=exc_traceback)
-            self.eco.printTraceback()
+            self._eco = j.core.errorhandler.parsePythonExceptionObject(err, tb=exc_traceback)
+            self._eco.printTraceback()
         finally:
             self._duration = time.time() - started
 
