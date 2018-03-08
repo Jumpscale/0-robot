@@ -21,7 +21,7 @@ def server():
 @click.option('--config-repo', '-C', required=False, help='URL of the configuration repository (https://github.com/Jumpscale/core9/blob/development/docs/config/configmanager.md)')
 @click.option('--debug', help='enable debug logging', is_flag=True, default=False)
 @click.option('--auto-push', help='enable automatically commit and pushing of data repository', is_flag=True, default=False)
-@click.option('--auto-push-interval', help='interval in minutes of automatic pushing of data repository', required=False, default=1440)
+@click.option('--auto-push-interval', help='interval in minutes of automatic pushing of data repository', required=False, default=60)
 def start(listen, data_repo, template_repo, config_repo, debug, auto_push, auto_push_interval):
     """
     start the 0-robot daemon.

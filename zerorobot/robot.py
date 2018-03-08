@@ -75,7 +75,7 @@ class Robot:
         j.tools.configmanager._path = location
 
     def start(self, listen=":6600", log_level=logging.DEBUG, block=True, auto_push=False, 
-        auto_push_interval=1440, **kwargs):
+        auto_push_interval=60, **kwargs):
         """
         start the rest web server
         load the services from the local git repository
@@ -181,17 +181,18 @@ class Robot:
             service.gl_mgr.stop_all()
             service.save()
 
-    def _auto_push_data_repo(self, interval=1440):
+    def _auto_push_data_repo(self, interval=60):
         """
         run a coroutine that pushes the data repository at provided interval
         provided interval is in minutes
         meant to be run as gevent greenlet/coroutine
         """
-        logger.debug("waiting interval")
-        gevent.sleep(seconds=interval*60)
-        logger.debug("saving services and pushing data repo")
-        self._save_services()
-        self._push_data_repo()
+        while True:
+            logger.debug("waiting interval")
+            gevent.sleep(seconds=interval*60)
+            logger.debug("saving services and pushing data repo")
+            self._save_services()
+            self._push_data_repo()
 
     def _push_data_repo(self):
         """
