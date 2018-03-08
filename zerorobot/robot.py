@@ -20,6 +20,7 @@ from zerorobot.prometheus.flask import monitor
 from zerorobot.server.app import app
 from zerorobot.task import PRIORITY_SYSTEM
 from zerorobot import config
+from zerorobot import auto_pusher
 
 # create logger
 logger = j.logger.get('zerorobot')
@@ -103,9 +104,8 @@ class Robot:
 
         # auto-push data repo
         if auto_push:
-            logger.info("auto push enabled")
-            self._init_auto_push()
-            gevent.spawn(self._auto_push_data_repo, auto_push_interval)
+            logger.info("auto push of data repo enabled")
+            auto_pusher.run(interval=auto_push_interval, repo_dir=config.DATA_DIR, logger=logger)
 
         # using a pool allow to kill the request when stopping the server
         pool = Pool(None)
@@ -181,52 +181,6 @@ class Robot:
             # stop all the greenlets attached to the services
             service.gl_mgr.stop_all()
             service.save()
-
-    def _init_auto_push(self):
-        """
-        checks if setup is properly configured for auto pushing the data repo
-        """
-        # check if remote is ssh
-        git = j.clients.git.get(basedir=config.DATA_DIR)
-        remote = git.getConfig("remote.origin.url")
-        if not remote.startswith("ssh://") and not remote.startswith('git@'):
-            raise RuntimeError("The data repository is not an ssh endpoint which is required for auto pushing.")
-        
-        self._load_ssh_key()
-
-    def _load_ssh_key(self):
-        """
-        makes sure ssh key `j.tools.configmanager.keyname` is loaded
-        """
-        keyname = j.tools.configmanager.keyname
-        key = j.clients.sshkey.get(keyname)
-        key.load()
-
-    def _auto_push_data_repo(self, interval=60):
-        """
-        run a coroutine that pushes the data repository at provided interval
-        provided interval is in minutes
-        meant to be run as gevent greenlet/coroutine
-        """
-        while True:
-            logger.debug("waiting interval")
-            gevent.sleep(seconds=interval*60)
-            logger.debug("saving services and pushing data repo")
-            self._load_ssh_key()
-            
-            # save all services
-            for service in scol.list_services():
-                service.save()
-
-            self._push_data_repo()
-
-    def _push_data_repo(self):
-        """
-        commit and push (full) data repository
-        """
-        git = j.clients.git.get(basedir=config.DATA_DIR)
-        git.commit(message='zrobot sync', addremove=True)
-        git.push()
 
 def _try_load_service(services):
     """
