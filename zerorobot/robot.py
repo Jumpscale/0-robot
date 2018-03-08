@@ -192,7 +192,12 @@ class Robot:
         if not remote.startswith("ssh://"):
             raise RuntimeError("The data repository is not an ssh endpoint which is required for auto pushing.")
         
-        # make sure ssh key `j.tools.configmanager.keyname` is loaded
+        self._load_ssh_key()
+
+    def _load_ssh_key(self):
+        """
+        makes sure ssh key `j.tools.configmanager.keyname` is loaded
+        """
         keyname = j.tools.configmanager.keyname
         key = j.clients.sshkey.get(keyname)
         key.load()
@@ -207,6 +212,7 @@ class Robot:
             logger.debug("waiting interval")
             gevent.sleep(seconds=interval*60)
             logger.debug("saving services and pushing data repo")
+            self._load_ssh_key()
             self._save_services()
             self._push_data_repo()
 
