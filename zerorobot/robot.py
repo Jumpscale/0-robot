@@ -105,7 +105,7 @@ class Robot:
         if auto_push:
             logger.info("auto push enabled")
             self._init_auto_push()
-            gevent.spawn(self._auto_push_data_repo(auto_push_interval))
+            gevent.spawn(self._auto_push_data_repo, auto_push_interval)
 
         # using a pool allow to kill the request when stopping the server
         pool = Pool(None)
