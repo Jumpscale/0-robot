@@ -104,6 +104,7 @@ class Robot:
         # auto-push data repo
         if auto_push:
             logger.info("auto push enabled")
+            self._init_auto_push()
             gevent.spawn(self._auto_push_data_repo(auto_push_interval))
 
         # using a pool allow to kill the request when stopping the server
@@ -180,6 +181,21 @@ class Robot:
             # stop all the greenlets attached to the services
             service.gl_mgr.stop_all()
             service.save()
+
+    def _init_auto_push(self):
+        """
+        checks if setup is properly configured for auto pushing the data repo
+        """
+        # check if remote is ssh
+        git = j.clients.git.get(basedir=config.DATA_DIR)
+        remote = git.getConfig("remote.origin.url")
+        if not remote.startswith("ssh://"):
+            raise RuntimeError("The data repository is not an ssh endpoint which is required for auto pushing.")
+        
+        # make sure ssh key `j.tools.configmanager.keyname` is loaded
+        keyname = j.tools.configmanager.keyname
+        key = j.clients.sshkey.get(keyname)
+        key.load()
 
     def _auto_push_data_repo(self, interval=60):
         """
