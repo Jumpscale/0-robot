@@ -6,6 +6,7 @@ from zerorobot import service_collection as scol
 def run(interval=60, repo_dir="", logger=None):
     """
     runs auto push of provided repo directory in a greenlet
+    provided interval is in minutes
     """
     _init_auto_push(repo_dir=repo_dir)
     gevent.spawn(_auto_push_data_repo, interval, repo_dir, logger)
