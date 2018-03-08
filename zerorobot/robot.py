@@ -189,7 +189,7 @@ class Robot:
         # check if remote is ssh
         git = j.clients.git.get(basedir=config.DATA_DIR)
         remote = git.getConfig("remote.origin.url")
-        if not remote.startswith("ssh://"):
+        if not remote.startswith("ssh://") and not remote.startswith('git@'):
             raise RuntimeError("The data repository is not an ssh endpoint which is required for auto pushing.")
         
         self._load_ssh_key()
