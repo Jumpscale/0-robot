@@ -213,7 +213,11 @@ class Robot:
             gevent.sleep(seconds=interval*60)
             logger.debug("saving services and pushing data repo")
             self._load_ssh_key()
-            self._save_services()
+            
+            # save all services
+            for service in scol.list_services():
+                service.save()
+
             self._push_data_repo()
 
     def _push_data_repo(self):
