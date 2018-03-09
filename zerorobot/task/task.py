@@ -14,8 +14,12 @@ from gevent.lock import Semaphore
 
 from js9 import j
 
+
 from . import (TASK_STATE_ERROR, TASK_STATE_NEW, TASK_STATE_OK,
                TASK_STATE_RUNNING)
+
+
+logger = j.logger.get('zerorobot')
 
 
 class Task:
@@ -91,11 +95,13 @@ class Task:
         finally:
             self._state_lock.release()
 
-    def wait(self, timeout=None):
+    def wait(self, timeout=None, die=False):
         """
         wait blocks until the task has been executed
         if timeout is specified and the task didn't finished within timeout seconds,
         raises TimeoutError
+
+        if die is True and the state is TASK_STATE_ERROR after the wait, the eco of the exception will be raised
         """
         def wait():
             while self.state in ('new', 'running'):
@@ -110,6 +116,12 @@ class Task:
                 raise TimeoutError()
         else:
             wait()
+
+        if die is True and self.state == TASK_STATE_ERROR:
+            if not self.eco:
+                logger.critical('task is in error state, but no eco')
+            else:
+                raise self.eco
 
     def __lt__(self, other):
         return self._created < other._created
