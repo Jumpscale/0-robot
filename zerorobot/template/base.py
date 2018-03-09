@@ -203,9 +203,10 @@ class TemplateBase:
                     # notify the task list that this task is done
                     self.task_list.done(task)
                     if task.state == TASK_STATE_ERROR:
-                        tb = task.eco.traceback
+                        traceback = task.eco.traceback
+                        tb = task.eco.tb
 
-                        self.logger.error("error executing action %s:\n%s" % (task.action_name, task.eco.traceback))
+                        self.logger.error("error executing action %s:\n%s" % (task.action_name, traceback))
 
                         # go to last traceback
                         while tb.tb_next:
@@ -218,7 +219,7 @@ class TemplateBase:
                         self.logger.critical(
                             "Error executing action %s:\n%s\n\nLocal values:\n%s" % (
                                 task.action_name,
-                                tb,
+                                traceback,
                                 pprint.pformat(locals, width=50)
                             ))
 
