@@ -20,13 +20,19 @@ Usage: zrobot server start [OPTIONS]
   specified by --listen and block
 
 Options:
-  -L, --listen TEXT         listen address (default :6600)
-  -D, --data-repo TEXT      URL of the git repository where to save the data
-                            of the zero robot  [required]
-  -C, --config-repo TEXT    URL of the configuration repository (https://github.com/Jumpscale/core9/blob/development/docs/config/configmanager.md)
-  -T, --template-repo TEXT  list of template repository URL
-  -R, --robots TEXT         address of reachable robots
-  --help                    Show this message and exit.
+  -L, --listen TEXT             listen address (default :6600)
+  -D, --data-repo TEXT          URL of the git repository where to save the
+                                data of the zero robot  [required]
+  -T, --template-repo TEXT      list of template repository URL
+  -C, --config-repo TEXT        URL of the configuration repository (https://g
+                                ithub.com/Jumpscale/core9/blob/development/doc
+                                s/config/configmanager.md)
+  --debug                       enable debug logging
+  --auto-push                   enable automatically commit and pushing of
+                                data repository
+  --auto-push-interval INTEGER  interval in minutes of automatic pushing of
+                                data repository
+  --help                        Show this message and exit.
 ```
 Options details:
 
@@ -34,8 +40,11 @@ Options details:
 e.g: `0.0.0.0:8080`
 - `--data-repo`: The URL of a git repository where the data of your services will be stored. When starting, the robot also loads all the services present in this repository.
 This parameter is required for the robot to starts.
-- `--temlate-repo` The URL of a repository that contains templates. You can give multiple template repository by give multiple time the parameter.
+- `--template-repo` The URL of a repository that contains templates. You can give multiple template repository by give multiple time the parameter.
 - `--config-repo` URL of the configuration repository. This option is added to run 0-robot in a container (eg docker, core-0)
+- `--debug`: Sets the logger output level to debug
+- `auto-push`: Enables automatic commiting and pushing of the data repository for backup. Check the [automatic syncing chapter](#automatic-syncing-of-data-repository) for more details
+- `--auto-push-interval` Define a custom interval in minutes for `auto-push` if enabled (default: 60)
 
 ## Running 0-robot in a docker
 
@@ -54,3 +63,19 @@ root@myawesomemachine:~# docker run --name 0-robot -d -p 192.168.199.2:6600:6600
 ```bash
 zrobot server start --listen :6601 --template-repo https://github.com/jumpscale/0-robot.git --data-repo https://github.com/user/zrobot1.git --robots http://localhost:6602
 ```
+
+## Automatic syncing of data repository
+
+The `zrobot server start` command supports automatic pushing of the data repository to backup the data to the git server.
+This repository should be private as not to publish sensitive data publicly.
+The repository should also be added with it's **ssh url** (to the origin remote) for the automatic pushing to work. 0-Robot assumes that the ssh key set in the config repo has access to the data repository (key provided when calling `js9_config init` in the config repository).
+
+When the server is started, a greenlet is started that for each interval will commit and push the repository with the commit message `'zrobot sync'` if there are any changes since the last push.
+
+### example:
+```bash
+zrobot server start -D git@github.com:user/zrobot-data.git -C git@github.com:user/zrobot-config.git -T git@github.com:openvcloud/0-templates.git --auto-push --auto-push-interval 120
+```
+
+This call of zrobot server start would enable auto pushing of the data repository (git@github.com:user/zrobot-data.git) every 120 minutes.
+Omitting `--auto-push-interval 120` will push the repository every 60 minutes.

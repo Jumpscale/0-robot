@@ -11,15 +11,7 @@ def _install_js(prefab, branch):
     for component in ("core9", "lib9", "prefab9"):
         cmd = "cd /opt/code/github/jumpscale/%s; pip install ." % component
         prefab.core.run(cmd)
-    tmp = j.sal.fs.getTempFileName()
-    try:
-        prefab.executor.download("/root/js9host/cfg/jumpscale9.toml", tmp)
-        data = j.data.serializer.toml.load(tmp)
-        data["logging"]["filter"] = ["*"]
-        j.data.serializer.toml.dump(tmp, data)
-        prefab.executor.upload(tmp, "/root/js9host/cfg/jumpscale9.toml")
-    finally:
-        j.sal.fs.unlinkFile(tmp)
+    j.tools.prefab.local.executor.execute("sed -i 's/filter = \\[\\]/filter = [\"*\"]/g' /root/js9host/cfg/jumpscale9.toml")
 
 
 def _install_zrobot(prefab, branch):

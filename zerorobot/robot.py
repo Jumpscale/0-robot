@@ -19,6 +19,7 @@ from zerorobot import template_collection as tcol
 from zerorobot.prometheus.flask import monitor
 from zerorobot.server.app import app
 from zerorobot import config
+from zerorobot import auto_pusher
 
 # create logger
 logger = j.logger.get('zerorobot')
@@ -73,7 +74,8 @@ class Robot:
             j.sal.fs.createEmptyFile(os.path.join(location, '.jsconfig'))
         j.tools.configmanager._path = location
 
-    def start(self, listen=":6600", log_level=logging.DEBUG, block=True, **kwargs):
+    def start(self, listen=":6600", log_level=logging.DEBUG, block=True, auto_push=False, 
+        auto_push_interval=60, **kwargs):
         """
         start the rest web server
         load the services from the local git repository
@@ -98,6 +100,11 @@ class Robot:
 
         # configure logger
         app._logger = logger
+
+        # auto-push data repo
+        if auto_push:
+            logger.info("auto push of data repo enabled")
+            auto_pusher.run(interval=auto_push_interval, repo_dir=config.DATA_DIR, logger=logger)
 
         # using a pool allow to kill the request when stopping the server
         pool = Pool(None)
@@ -173,7 +180,6 @@ class Robot:
             # stop all the greenlets attached to the services
             service.gl_mgr.stop_all()
             service.save()
-
 
 def _try_load_service(services):
     """
