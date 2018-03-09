@@ -74,12 +74,17 @@ class Task:
         except Exception as err:
             self.state = TASK_STATE_ERROR
             # capture stacktrace and exception
-            _, _, exc_traceback = sys.exc_info()
-            self.eco = j.core.errorhandler.parsePythonExceptionObject(err, tb=exc_traceback)
-            self.eco.printTraceback()
+            exc_type, _, exc_traceback = sys.exc_info()
+            self._eco = j.core.errorhandler.parsePythonExceptionObject(err, tb=exc_traceback)
+            self._eco.printTraceback()
             # log critical error (might be picked up by telegram error logger)
             action_error_logger = j.logger.get("action_error_logger", force=True)
-            action_error_logger.critical("Stacktrace:\n%s\n\nArguments:\n%s" % (''.join(traceback.format_tb(exc_traceback)), pprint.pformat(self._args, width=20)))
+            action_error_logger.critical(
+                "Error type: %s\nError message:\n\t%s\nStacktrace:\n%s\n\nArguments:\n%s" % (
+                    exc_type,
+                    err,
+                    ''.join(traceback.format_tb(exc_traceback)),
+                    pprint.pformat(self._args, width=20)))
             self._eco = j.core.errorhandler.parsePythonExceptionObject(err, tb=exc_traceback)
             self._eco.printTraceback()
         finally:
