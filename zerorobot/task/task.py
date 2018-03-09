@@ -9,7 +9,6 @@ import os
 import sys
 import time
 import traceback
-import pprint
 
 import gevent
 from gevent.lock import Semaphore
@@ -92,8 +91,8 @@ class Task:
                     exc_type.__name__,
                     err,
                     ''.join(traceback.format_tb(exc_traceback)),
-                    pprint.pformat(self._args, width=20),
-                    pprint.pformat(locals, width=20)
+                    json.dumps(self._args, indent=2),
+                    json.dumps(locals, width=2)
                 ))
         finally:
             self._duration = time.time() - started
