@@ -26,7 +26,7 @@ _url_patterns = (_url_pattern_ssh, _url_pattern_ssh2, _url_pattern_ssh3, _url_pa
 _templates = {}
 
 
-def add_repo(url, branch='master', directory='templates'):
+def add_repo(url, branch=None, directory='templates'):
     """
     url: url of a git repository e.g: http://github.com/jumpscale/zeroroot
     branch: the branch of the repository to checkout
@@ -34,8 +34,18 @@ def add_repo(url, branch='master', directory='templates'):
     """
     new_templates = []
     dir_path = _git_path(url)
+
     if not os.path.exists(dir_path):
+        if branch is None:
+            branch = 'master'
         dir_path = j.clients.git.pullGitRepo(url, branch=branch)
+    else:
+        # if we didn't specify the branch and we already have the repo locally,
+        # don't switch branch, this is usefull when developping on different branches
+        repo = j.clients.git.get(dir_path)
+        if branch is not None and repo.branchName != branch:
+            repo.switchBranch(branch)
+
     for path in j.sal.fs.listDirsInDir(j.sal.fs.joinPaths(dir_path, directory)):
         if j.sal.fs.getBaseName(path) == '__pycache__':
             continue

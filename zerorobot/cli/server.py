@@ -23,7 +23,7 @@ def server():
 @server.command()
 @click.option('--listen', '-L', help='listen address (default :6600)', default=':6600')
 @click.option('--data-repo', '-D', required=True, help='URL of the git repository where to save the data of the zero robot')
-@click.option('--template-repo', '-T', multiple=True, help='list of template repository URL')
+@click.option('--template-repo', '-T', multiple=True, help='list of template repository URL. Use fragment URL to specify a branch: http://github.com/account/repo#branch')
 @click.option('--config-repo', '-C', required=False, help='URL of the configuration repository (https://github.com/Jumpscale/core9/blob/development/docs/config/configmanager.md)')
 @click.option('--debug', help='enable debug logging', is_flag=True, default=False)
 @click.option('--telegram-bot-token', help='Bot to push template action failures', required=False)

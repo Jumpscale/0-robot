@@ -7,6 +7,7 @@ It is the class responsible to start and managed the robot as well as the REST A
 import logging
 import os
 import signal
+from urllib.parse import urlparse
 
 import gevent
 from gevent import GreenletExit
@@ -16,10 +17,12 @@ from gevent.pywsgi import WSGIServer
 from js9 import j
 from zerorobot import service_collection as scol
 from zerorobot import template_collection as tcol
+from zerorobot import auto_pusher, config
 from zerorobot.prometheus.flask import monitor
 from zerorobot.server.app import app
 from zerorobot import config
 from zerorobot import auto_pusher
+from zerorobot.task import PRIORITY_SYSTEM
 
 # create logger
 logger = j.logger.get('zerorobot')
@@ -60,7 +63,8 @@ class Robot:
         self.data_repo_url = url
         config.DATA_DIR = j.sal.fs.joinPaths(location, 'zrobot_data')
 
-    def add_template_repo(self, url, branch='master', directory='templates'):
+    def add_template_repo(self, url, directory='templates'):
+        url, branch = _parse_template_repo_url(url)
         tcol.add_repo(url=url, branch=branch, directory=directory)
 
     def set_config_repo(self, url):
@@ -74,8 +78,8 @@ class Robot:
             j.sal.fs.createEmptyFile(os.path.join(location, '.jsconfig'))
         j.tools.configmanager._path = location
 
-    def start(self, listen=":6600", log_level=logging.DEBUG, block=True, auto_push=False, 
-        auto_push_interval=60, **kwargs):
+    def start(self, listen=":6600", log_level=logging.DEBUG, block=True, auto_push=False,
+              auto_push_interval=60, **kwargs):
         """
         start the rest web server
         load the services from the local git repository
@@ -181,6 +185,7 @@ class Robot:
             service.gl_mgr.stop_all()
             service.save()
 
+
 def _try_load_service(services):
     """
     this method tries to execute `validate` method on the services that failed to load
@@ -213,3 +218,12 @@ def _split_hostport(hostport):
     host = hostport[:i]
     port = hostport[i + 1:]
     return host, int(port)
+
+
+def _parse_template_repo_url(url):
+    branch = None
+    u = urlparse(url)
+    if u.fragment:
+        branch = u.fragment
+
+    return u.scheme+'://'+u.netloc+u.path, branch

@@ -23,7 +23,9 @@ Options:
   -L, --listen TEXT             listen address (default :6600)
   -D, --data-repo TEXT          URL of the git repository where to save the
                                 data of the zero robot  [required]
-  -T, --template-repo TEXT      list of template repository URL
+  -T, --template-repo TEXT      Use fragment
+                                URL to specify a branch:
+                                http://github.com/account/repo#branch
   -C, --config-repo TEXT        URL of the configuration repository (https://g
                                 ithub.com/Jumpscale/core9/blob/development/doc
                                 s/config/configmanager.md)
@@ -41,6 +43,7 @@ e.g: `0.0.0.0:8080`
 - `--data-repo`: The URL of a git repository where the data of your services will be stored. When starting, the robot also loads all the services present in this repository.
 This parameter is required for the robot to starts.
 - `--template-repo` The URL of a repository that contains templates. You can give multiple template repository by give multiple time the parameter.
+    if the url contains a fragment (#) the fragment is used as branch name. example: http://github.com/account/repo#mybranch will use the 'mybranch` branch
 - `--config-repo` URL of the configuration repository. This option is added to run 0-robot in a container (eg docker, core-0)
 - `--debug`: Sets the logger output level to debug
 - `auto-push`: Enables automatic commiting and pushing of the data repository for backup. Check the [automatic syncing chapter](#automatic-syncing-of-data-repository) for more details

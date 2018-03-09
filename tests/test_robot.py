@@ -2,7 +2,7 @@ import tempfile
 import unittest
 
 from gevent import monkey
-from zerorobot.robot import Robot
+from zerorobot.robot import Robot, _parse_template_repo_url
 from zerorobot import config
 
 # need to patch sockets to make requests async
@@ -35,3 +35,29 @@ class TestRobot(unittest.TestCase):
             self.assertEqual(robot.address, ('127.0.0.1', 6600))
             robot.stop()
         self.assertIsNone(robot.address)
+
+    def test_template_url(self):
+        tt = (
+            {
+                'url': 'http://github.com/zero-os/0-templates',
+                'repo': 'http://github.com/zero-os/0-templates',
+                'branch': None,
+                'exception': None,
+            },
+            {
+                'url': 'http://github.com/zero-os/0-templates#anotherbranch',
+                'repo': 'http://github.com/zero-os/0-templates',
+                'branch': 'anotherbranch',
+                'exception': None,
+            },
+        )
+
+        for test in tt:
+            with self.subTest(test['url']):
+                if test['exception']:
+                    with self.assertRaises(test['exception'], message='mal formatted url should raise ValueError'):
+                        repo, branch = _parse_template_repo_url(test['url'])
+                else:
+                    repo, branch = _parse_template_repo_url(test['url'])
+                    assert repo == test['repo']
+                    assert branch == test['branch']
