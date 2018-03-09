@@ -173,6 +173,9 @@ class Robot:
                 service.gl_mgr.stop('executor')
                 loading_failed.append(service)
 
+        # notify services that they can start processing their task list
+        config.SERVICE_LOADED.set()
+
         if len(loading_failed) > 0:
             gevent.spawn(_try_load_service, loading_failed)
 

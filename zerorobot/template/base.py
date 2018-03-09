@@ -174,6 +174,10 @@ class TemplateBase:
         _run is responsible to walk over the task list to execute actions
         and handle responses from other service
         """
+        # wait to start the processsing of task list after the service is fully loaded
+        if config.SERVICE_LOADED:
+            config.SERVICE_LOADED.wait()
+
         while True:
             task = None
             try:
