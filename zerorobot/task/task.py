@@ -4,12 +4,11 @@ task module holds the logic regarding TaskList and Task classes.
 These two classes are used by the services to managed the requested actions
 """
 
-import json
+import pprint
 import os
 import sys
 import time
 import traceback
-import pprint
 
 import gevent
 from gevent.lock import Semaphore
@@ -83,7 +82,7 @@ class Task:
                 exc_traceback = exc_traceback.tb_next
 
             # get locals
-            locals = exc_traceback.tb_frame.f_locals.items()
+            locals = exc_traceback.tb_frame.f_locals
 
             # log critical error (might be picked up by telegram error logger)
             action_error_logger = j.logger.get("action_error_logger", force=True)
@@ -92,8 +91,8 @@ class Task:
                     exc_type.__name__,
                     err,
                     ''.join(traceback.format_tb(exc_traceback)),
-                    pprint.pformat(self._args, width=20),
-                    pprint.pformat(locals, width=20)
+                    pprint.pformat(self._args, width=50),
+                    pprint.pformat(locals, width=50)
                 ))
         finally:
             self._duration = time.time() - started
