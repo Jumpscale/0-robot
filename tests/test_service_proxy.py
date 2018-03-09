@@ -1,21 +1,21 @@
+from gevent import monkey
+# need to patch sockets to make requests async
+monkey.patch_all(subprocess=False)
+
 import os
 import shutil
 import unittest
 import uuid
 
-from gevent import monkey
-
 from js9 import j
+from JumpScale9.errorhandling.ErrorConditionObject import ErrorConditionObject
 from zerorobot import service_collection as scol
 from zerorobot import template_collection as tcol
 from zerorobot import config
 from zerorobot.dsl.ZeroRobotManager import ZeroRobotManager
 from zerorobot.robot import Robot
-from zerorobot.task.task import TASK_STATE_ERROR, TASK_STATE_OK
 from zerorobot.service_proxy import ServiceProxy
-
-# need to patch sockets to make requests async
-monkey.patch_all(subprocess=False)
+from zerorobot.task.task import TASK_STATE_ERROR, TASK_STATE_OK
 
 
 class TestServiceProxy(unittest.TestCase):
@@ -97,6 +97,12 @@ class TestServiceProxy(unittest.TestCase):
         proxy_task = proxy.task_list.get_task_by_guid(task.guid)
         self.assertIsNotNone(proxy_task.eco)
         self.assertEqual(proxy_task.state, TASK_STATE_ERROR)
+
+        # task.wait should not raise is state is error but die is False
+        proxy_task.wait(die=False)
+
+        with self.assertRaises(ErrorConditionObject, message='task.wait should raise if state is error and die is True'):
+            proxy_task.wait(die=True)
 
     def test_delete(self):
         proxy, service = self._create_proxy()

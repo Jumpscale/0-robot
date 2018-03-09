@@ -1,7 +1,10 @@
-import unittest
-from zerorobot.task.task import Task, TASK_STATE_OK, TASK_STATE_ERROR, TASK_STATE_NEW, TASK_STATE_RUNNING
-from zerorobot.template.decorator import timeout
 import time
+import unittest
+
+from JumpScale9.errorhandling.ErrorConditionObject import ErrorConditionObject
+from zerorobot.task.task import (TASK_STATE_ERROR, TASK_STATE_NEW,
+                                 TASK_STATE_OK, TASK_STATE_RUNNING, Task)
+from zerorobot.template.decorator import timeout
 
 
 def noop():
@@ -42,3 +45,9 @@ class TestTask(unittest.TestCase):
         t.execute()
         assert t.state == TASK_STATE_ERROR
         assert t.eco is not None
+
+        # task.wait should not raise is state is error but die is False
+        t.wait(die=False)
+
+        with self.assertRaises(ErrorConditionObject, message='task.wait should raise if state is error and die is True'):
+            t.wait(die=True)

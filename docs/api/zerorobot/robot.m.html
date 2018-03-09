@@ -1253,6 +1253,9 @@ table {
                 <span class="n">service</span><span class="o">.</span><span class="n">gl_mgr</span><span class="o">.</span><span class="n">stop</span><span class="p">(</span><span class="s1">&#39;executor&#39;</span><span class="p">)</span>
                 <span class="n">loading_failed</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">service</span><span class="p">)</span>
 
+        <span class="c1"># notify services that they can start processing their task list</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">SERVICE_LOADED</span><span class="o">.</span><span class="n">set</span><span class="p">()</span>
+
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">loading_failed</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
             <span class="n">gevent</span><span class="o">.</span><span class="n">spawn</span><span class="p">(</span><span class="n">_try_load_service</span><span class="p">,</span> <span class="n">loading_failed</span><span class="p">)</span>
 
@@ -1475,6 +1478,9 @@ It is responsible to:
                 <span class="c1"># execute validate() without problem</span>
                 <span class="n">service</span><span class="o">.</span><span class="n">gl_mgr</span><span class="o">.</span><span class="n">stop</span><span class="p">(</span><span class="s1">&#39;executor&#39;</span><span class="p">)</span>
                 <span class="n">loading_failed</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">service</span><span class="p">)</span>
+
+        <span class="c1"># notify services that they can start processing their task list</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">SERVICE_LOADED</span><span class="o">.</span><span class="n">set</span><span class="p">()</span>
 
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">loading_failed</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
             <span class="n">gevent</span><span class="o">.</span><span class="n">spawn</span><span class="p">(</span><span class="n">_try_load_service</span><span class="p">,</span> <span class="n">loading_failed</span><span class="p">)</span>

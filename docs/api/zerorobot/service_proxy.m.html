@@ -1228,14 +1228,12 @@ so the robot see the service as if it as local to him while in reality the servi
 <span class="sd">    actual state of the task on the remote ZeroRobot</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">guid</span><span class="p">,</span> <span class="n">service</span><span class="p">,</span> <span class="n">action_name</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">created</span><span class="p">,</span> <span class="n">duration</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">guid</span><span class="p">,</span> <span class="n">service</span><span class="p">,</span> <span class="n">action_name</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">created</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">func</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="n">args</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">action_name</span> <span class="o">=</span> <span class="n">action_name</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">service</span> <span class="o">=</span> <span class="n">service</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">guid</span> <span class="o">=</span> <span class="n">guid</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_created</span> <span class="o">=</span> <span class="n">created</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_duration</span> <span class="o">=</span> <span class="n">duration</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_result</span> <span class="o">=</span> <span class="bp">None</span>
 
     <span class="k">def</span> <span class="nf">execute</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;a TaskProxy should never be executed&quot;</span><span class="p">)</span>
@@ -1249,22 +1247,40 @@ so the robot see the service as if it as local to him while in reality the servi
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_result</span>
 
     <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">duration</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_duration</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">task</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">service</span><span class="o">.</span><span class="n">_zrobot_client</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">services</span><span class="o">.</span><span class="n">GetTask</span><span class="p">(</span><span class="n">task_guid</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">guid</span><span class="p">,</span> <span class="n">service_guid</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">service</span><span class="o">.</span><span class="n">guid</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_duration</span> <span class="o">=</span> <span class="n">task</span><span class="o">.</span><span class="n">duration</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_duration</span>
+
+    <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">state</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">task</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">service</span><span class="o">.</span><span class="n">_zrobot_client</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">services</span><span class="o">.</span><span class="n">GetTask</span><span class="p">(</span>
-            <span class="n">task_guid</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">guid</span><span class="p">,</span> <span class="n">service_guid</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">service</span><span class="o">.</span><span class="n">guid</span><span class="p">)</span>
+        <span class="n">task</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">service</span><span class="o">.</span><span class="n">_zrobot_client</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">services</span><span class="o">.</span><span class="n">GetTask</span><span class="p">(</span><span class="n">task_guid</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">guid</span><span class="p">,</span> <span class="n">service_guid</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">service</span><span class="o">.</span><span class="n">guid</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">task</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">value</span>
 
     <span class="nd">@state.setter</span>
     <span class="k">def</span> <span class="nf">state</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;you can&#39;t change the statet of a TaskProxy&quot;</span><span class="p">)</span>
 
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">eco</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_eco</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">task</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">service</span><span class="o">.</span><span class="n">_zrobot_client</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">services</span><span class="o">.</span><span class="n">GetTask</span><span class="p">(</span><span class="n">task_guid</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">guid</span><span class="p">,</span> <span class="n">service_guid</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">service</span><span class="o">.</span><span class="n">guid</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">task</span><span class="o">.</span><span class="n">eco</span><span class="p">:</span>
+                <span class="n">d_eco</span> <span class="o">=</span> <span class="n">task</span><span class="o">.</span><span class="n">eco</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()</span>
+                <span class="n">d_eco</span><span class="p">[</span><span class="s1">&#39;_traceback&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">task</span><span class="o">.</span><span class="n">eco</span><span class="o">.</span><span class="n">_traceback</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_eco</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">errorhandler</span><span class="o">.</span><span class="n">getErrorConditionObject</span><span class="p">(</span><span class="n">ddict</span><span class="o">=</span><span class="n">d_eco</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_eco</span>
+
 
 <span class="k">def</span> <span class="nf">_task_proxy_from_api</span><span class="p">(</span><span class="n">task</span><span class="p">,</span> <span class="n">service</span><span class="p">):</span>
-    <span class="n">t</span> <span class="o">=</span> <span class="n">TaskProxy</span><span class="p">(</span><span class="n">task</span><span class="o">.</span><span class="n">guid</span><span class="p">,</span> <span class="n">service</span><span class="p">,</span> <span class="n">task</span><span class="o">.</span><span class="n">action_name</span><span class="p">,</span> <span class="n">task</span><span class="o">.</span><span class="n">args</span><span class="p">,</span> <span class="n">task</span><span class="o">.</span><span class="n">created</span><span class="p">,</span> <span class="n">task</span><span class="o">.</span><span class="n">duration</span><span class="p">)</span>
+    <span class="n">t</span> <span class="o">=</span> <span class="n">TaskProxy</span><span class="p">(</span><span class="n">task</span><span class="o">.</span><span class="n">guid</span><span class="p">,</span> <span class="n">service</span><span class="p">,</span> <span class="n">task</span><span class="o">.</span><span class="n">action_name</span><span class="p">,</span> <span class="n">task</span><span class="o">.</span><span class="n">args</span><span class="p">,</span> <span class="n">task</span><span class="o">.</span><span class="n">created</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">task</span><span class="o">.</span><span class="n">duration</span><span class="p">:</span>
+        <span class="n">t</span><span class="o">.</span><span class="n">_duration</span> <span class="o">=</span> <span class="n">task</span><span class="o">.</span><span class="n">duration</span>
     <span class="k">if</span> <span class="n">task</span><span class="o">.</span><span class="n">eco</span><span class="p">:</span>
         <span class="n">d_eco</span> <span class="o">=</span> <span class="n">task</span><span class="o">.</span><span class="n">eco</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()</span>
         <span class="n">d_eco</span><span class="p">[</span><span class="s1">&#39;_traceback&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">task</span><span class="o">.</span><span class="n">eco</span><span class="o">.</span><span class="n">_traceback</span>
-        <span class="n">t</span><span class="o">.</span><span class="n">eco</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">errorhandler</span><span class="o">.</span><span class="n">getErrorConditionObject</span><span class="p">(</span><span class="n">ddict</span><span class="o">=</span><span class="n">d_eco</span><span class="p">)</span>
+        <span class="n">t</span><span class="o">.</span><span class="n">_eco</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">errorhandler</span><span class="o">.</span><span class="n">getErrorConditionObject</span><span class="p">(</span><span class="n">ddict</span><span class="o">=</span><span class="n">d_eco</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">t</span>
 </pre></div>
 
@@ -1745,14 +1761,12 @@ actual state of the task on the remote ZeroRobot</p></div>
 <span class="sd">    actual state of the task on the remote ZeroRobot</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">guid</span><span class="p">,</span> <span class="n">service</span><span class="p">,</span> <span class="n">action_name</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">created</span><span class="p">,</span> <span class="n">duration</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">guid</span><span class="p">,</span> <span class="n">service</span><span class="p">,</span> <span class="n">action_name</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">created</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">func</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="n">args</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">action_name</span> <span class="o">=</span> <span class="n">action_name</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">service</span> <span class="o">=</span> <span class="n">service</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">guid</span> <span class="o">=</span> <span class="n">guid</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_created</span> <span class="o">=</span> <span class="n">created</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_duration</span> <span class="o">=</span> <span class="n">duration</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_result</span> <span class="o">=</span> <span class="bp">None</span>
 
     <span class="k">def</span> <span class="nf">execute</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;a TaskProxy should never be executed&quot;</span><span class="p">)</span>
@@ -1766,14 +1780,30 @@ actual state of the task on the remote ZeroRobot</p></div>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_result</span>
 
     <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">duration</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_duration</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">task</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">service</span><span class="o">.</span><span class="n">_zrobot_client</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">services</span><span class="o">.</span><span class="n">GetTask</span><span class="p">(</span><span class="n">task_guid</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">guid</span><span class="p">,</span> <span class="n">service_guid</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">service</span><span class="o">.</span><span class="n">guid</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_duration</span> <span class="o">=</span> <span class="n">task</span><span class="o">.</span><span class="n">duration</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_duration</span>
+
+    <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">state</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">task</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">service</span><span class="o">.</span><span class="n">_zrobot_client</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">services</span><span class="o">.</span><span class="n">GetTask</span><span class="p">(</span>
-            <span class="n">task_guid</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">guid</span><span class="p">,</span> <span class="n">service_guid</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">service</span><span class="o">.</span><span class="n">guid</span><span class="p">)</span>
+        <span class="n">task</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">service</span><span class="o">.</span><span class="n">_zrobot_client</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">services</span><span class="o">.</span><span class="n">GetTask</span><span class="p">(</span><span class="n">task_guid</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">guid</span><span class="p">,</span> <span class="n">service_guid</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">service</span><span class="o">.</span><span class="n">guid</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">task</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">value</span>
 
     <span class="nd">@state.setter</span>
     <span class="k">def</span> <span class="nf">state</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;you can&#39;t change the statet of a TaskProxy&quot;</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">eco</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_eco</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">task</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">service</span><span class="o">.</span><span class="n">_zrobot_client</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">services</span><span class="o">.</span><span class="n">GetTask</span><span class="p">(</span><span class="n">task_guid</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">guid</span><span class="p">,</span> <span class="n">service_guid</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">service</span><span class="o">.</span><span class="n">guid</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">task</span><span class="o">.</span><span class="n">eco</span><span class="p">:</span>
+                <span class="n">d_eco</span> <span class="o">=</span> <span class="n">task</span><span class="o">.</span><span class="n">eco</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()</span>
+                <span class="n">d_eco</span><span class="p">[</span><span class="s1">&#39;_traceback&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">task</span><span class="o">.</span><span class="n">eco</span><span class="o">.</span><span class="n">_traceback</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_eco</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">errorhandler</span><span class="o">.</span><span class="n">getErrorConditionObject</span><span class="p">(</span><span class="n">ddict</span><span class="o">=</span><span class="n">d_eco</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_eco</span>
 </pre></div>
 
   </div>
@@ -1791,7 +1821,7 @@ actual state of the task on the remote ZeroRobot</p></div>
             
   <div class="item">
     <div class="name def" id="zerorobot.service_proxy.TaskProxy.__init__">
-    <p>def <span class="ident">__init__</span>(</p><p>self, guid, service, action_name, args, created, duration)</p>
+    <p>def <span class="ident">__init__</span>(</p><p>self, guid, service, action_name, args, created)</p>
     </div>
     
 
@@ -1804,14 +1834,12 @@ actual state of the task on the remote ZeroRobot</p></div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.service_proxy.TaskProxy.__init__', this);">Show source &equiv;</a></p>
   <div id="source-zerorobot.service_proxy.TaskProxy.__init__" class="source">
-    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">guid</span><span class="p">,</span> <span class="n">service</span><span class="p">,</span> <span class="n">action_name</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">created</span><span class="p">,</span> <span class="n">duration</span><span class="p">):</span>
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">guid</span><span class="p">,</span> <span class="n">service</span><span class="p">,</span> <span class="n">action_name</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">created</span><span class="p">):</span>
     <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">func</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="n">args</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">action_name</span> <span class="o">=</span> <span class="n">action_name</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">service</span> <span class="o">=</span> <span class="n">service</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">guid</span> <span class="o">=</span> <span class="n">guid</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_created</span> <span class="o">=</span> <span class="n">created</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">_duration</span> <span class="o">=</span> <span class="n">duration</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">_result</span> <span class="o">=</span> <span class="bp">None</span>
 </pre></div>
 
   </div>
@@ -1843,7 +1871,7 @@ actual state of the task on the remote ZeroRobot</p></div>
             
   <div class="item">
     <div class="name def" id="zerorobot.service_proxy.TaskProxy.wait">
-    <p>def <span class="ident">wait</span>(</p><p>self, timeout=None)</p>
+    <p>def <span class="ident">wait</span>(</p><p>self, timeout=None, die=False)</p>
     </div>
     
 
@@ -1851,15 +1879,17 @@ actual state of the task on the remote ZeroRobot</p></div>
   
     <div class="desc"><p>wait blocks until the task has been executed
 if timeout is specified and the task didn't finished within timeout seconds,
-raises TimeoutError</p></div>
+raises TimeoutError</p>
+<p>if die is True and the state is TASK_STATE_ERROR after the wait, the eco of the exception will be raised</p></div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.service_proxy.TaskProxy.wait', this);">Show source &equiv;</a></p>
   <div id="source-zerorobot.service_proxy.TaskProxy.wait" class="source">
-    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">wait</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">wait</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">die</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    wait blocks until the task has been executed</span>
 <span class="sd">    if timeout is specified and the task didn&#39;t finished within timeout seconds,</span>
 <span class="sd">    raises TimeoutError</span>
+<span class="sd">    if die is True and the state is TASK_STATE_ERROR after the wait, the eco of the exception will be raised</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="nf">wait</span><span class="p">():</span>
         <span class="k">while</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;new&#39;</span><span class="p">,</span> <span class="s1">&#39;running&#39;</span><span class="p">):</span>
@@ -1873,6 +1903,11 @@ raises TimeoutError</p></div>
             <span class="k">raise</span> <span class="n">TimeoutError</span><span class="p">()</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">wait</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">die</span> <span class="ow">is</span> <span class="bp">True</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">==</span> <span class="n">TASK_STATE_ERROR</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">eco</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">critical</span><span class="p">(</span><span class="s1">&#39;task is in error state, but no eco&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="bp">self</span><span class="o">.</span><span class="n">eco</span>
 </pre></div>
 
   </div>
@@ -1903,6 +1938,16 @@ raises TimeoutError</p></div>
             </div>
             <div class="item">
             <p id="zerorobot.service_proxy.TaskProxy.duration" class="name">var <span class="ident">duration</span></p>
+            
+
+            
+  
+  <div class="source_cont">
+</div>
+
+            </div>
+            <div class="item">
+            <p id="zerorobot.service_proxy.TaskProxy.eco" class="name">var <span class="ident">eco</span></p>
             
 
             

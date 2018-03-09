@@ -1299,19 +1299,21 @@ It is the class every template should inherits from.</p>
 <span class="sd">        _run is responsible to walk over the task list to execute actions</span>
 <span class="sd">        and handle responses from other service</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># wait to start the processsing of task list after the service is fully loaded</span>
+        <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">SERVICE_LOADED</span><span class="p">:</span>
+            <span class="n">config</span><span class="o">.</span><span class="n">SERVICE_LOADED</span><span class="o">.</span><span class="n">wait</span><span class="p">()</span>
+
         <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
             <span class="n">task</span> <span class="o">=</span> <span class="bp">None</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">task</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">task_list</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
-                <span class="n">started</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
                 <span class="n">task</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
             <span class="k">except</span> <span class="n">gevent</span><span class="o">.</span><span class="n">GreenletExit</span><span class="p">:</span>
                 <span class="c1"># TODO: gracefull shutdown</span>
                 <span class="k">break</span>
             <span class="k">finally</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">task</span><span class="p">:</span>
-                    <span class="n">task</span><span class="o">.</span><span class="n">_duration</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">started</span>
-                    <span class="n">task_latency</span><span class="o">.</span><span class="n">labels</span><span class="p">(</span><span class="n">action_name</span><span class="o">=</span><span class="n">task</span><span class="o">.</span><span class="n">action_name</span><span class="p">,</span> <span class="n">template_uid</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">template_uid</span><span class="p">))</span><span class="o">.</span><span class="n">observe</span><span class="p">(</span><span class="n">task</span><span class="o">.</span><span class="n">_duration</span><span class="p">)</span>
+                    <span class="n">task_latency</span><span class="o">.</span><span class="n">labels</span><span class="p">(</span><span class="n">action_name</span><span class="o">=</span><span class="n">task</span><span class="o">.</span><span class="n">action_name</span><span class="p">,</span> <span class="n">template_uid</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">template_uid</span><span class="p">))</span><span class="o">.</span><span class="n">observe</span><span class="p">(</span><span class="n">task</span><span class="o">.</span><span class="n">duration</span><span class="p">)</span>
                     <span class="c1"># notify the task list that this task is done</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">task_list</span><span class="o">.</span><span class="n">done</span><span class="p">(</span><span class="n">task</span><span class="p">)</span>
 
@@ -1329,7 +1331,7 @@ It is the class every template should inherits from.</p>
 
     <span class="k">def</span> <span class="nf">_schedule_action</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">priority</span><span class="o">=</span><span class="n">PRIORITY_NORMAL</span><span class="p">):</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="n">ActionNotFoundError</span><span class="p">(</span><span class="s2">&quot;sel </span><span class="si">%s</span><span class="s2"> doesn&#39;t have action </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">action</span><span class="p">))</span>
+            <span class="k">raise</span> <span class="n">ActionNotFoundError</span><span class="p">(</span><span class="s2">&quot;service </span><span class="si">%s</span><span class="s2"> doesn&#39;t have action </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">action</span><span class="p">))</span>
 
         <span class="n">method</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">callable</span><span class="p">(</span><span class="n">method</span><span class="p">):</span>
@@ -1907,19 +1909,21 @@ manage a group of greenlets</p>
 <span class="sd">        _run is responsible to walk over the task list to execute actions</span>
 <span class="sd">        and handle responses from other service</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># wait to start the processsing of task list after the service is fully loaded</span>
+        <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">SERVICE_LOADED</span><span class="p">:</span>
+            <span class="n">config</span><span class="o">.</span><span class="n">SERVICE_LOADED</span><span class="o">.</span><span class="n">wait</span><span class="p">()</span>
+
         <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
             <span class="n">task</span> <span class="o">=</span> <span class="bp">None</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">task</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">task_list</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
-                <span class="n">started</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
                 <span class="n">task</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
             <span class="k">except</span> <span class="n">gevent</span><span class="o">.</span><span class="n">GreenletExit</span><span class="p">:</span>
                 <span class="c1"># TODO: gracefull shutdown</span>
                 <span class="k">break</span>
             <span class="k">finally</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">task</span><span class="p">:</span>
-                    <span class="n">task</span><span class="o">.</span><span class="n">_duration</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">started</span>
-                    <span class="n">task_latency</span><span class="o">.</span><span class="n">labels</span><span class="p">(</span><span class="n">action_name</span><span class="o">=</span><span class="n">task</span><span class="o">.</span><span class="n">action_name</span><span class="p">,</span> <span class="n">template_uid</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">template_uid</span><span class="p">))</span><span class="o">.</span><span class="n">observe</span><span class="p">(</span><span class="n">task</span><span class="o">.</span><span class="n">_duration</span><span class="p">)</span>
+                    <span class="n">task_latency</span><span class="o">.</span><span class="n">labels</span><span class="p">(</span><span class="n">action_name</span><span class="o">=</span><span class="n">task</span><span class="o">.</span><span class="n">action_name</span><span class="p">,</span> <span class="n">template_uid</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">template_uid</span><span class="p">))</span><span class="o">.</span><span class="n">observe</span><span class="p">(</span><span class="n">task</span><span class="o">.</span><span class="n">duration</span><span class="p">)</span>
                     <span class="c1"># notify the task list that this task is done</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">task_list</span><span class="o">.</span><span class="n">done</span><span class="p">(</span><span class="n">task</span><span class="p">)</span>
 
@@ -1937,7 +1941,7 @@ manage a group of greenlets</p>
 
     <span class="k">def</span> <span class="nf">_schedule_action</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">priority</span><span class="o">=</span><span class="n">PRIORITY_NORMAL</span><span class="p">):</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="n">ActionNotFoundError</span><span class="p">(</span><span class="s2">&quot;sel </span><span class="si">%s</span><span class="s2"> doesn&#39;t have action </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">action</span><span class="p">))</span>
+            <span class="k">raise</span> <span class="n">ActionNotFoundError</span><span class="p">(</span><span class="s2">&quot;service </span><span class="si">%s</span><span class="s2"> doesn&#39;t have action </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">action</span><span class="p">))</span>
 
         <span class="n">method</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">callable</span><span class="p">(</span><span class="n">method</span><span class="p">):</span>
