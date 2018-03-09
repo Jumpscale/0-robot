@@ -77,16 +77,24 @@ class Task:
             exc_type, _, exc_traceback = sys.exc_info()
             self._eco = j.core.errorhandler.parsePythonExceptionObject(err, tb=exc_traceback)
             self._eco.printTraceback()
+
+            # go to last traceback
+            while exc_traceback.tb_next:
+                exc_traceback = exc_traceback.tb_next
+
+            # get locals
+            locals = exc_traceback.tb_frame.f_locals.items()
+
             # log critical error (might be picked up by telegram error logger)
             action_error_logger = j.logger.get("action_error_logger", force=True)
             action_error_logger.critical(
-                "Error type: %s\nError message:\n\t%s\nStacktrace:\n%s\n\nArguments:\n%s" % (
-                    exc_type,
+                "Error type: %s\nError message:\n\t%s\nStacktrace:\n%s\n\nTask arguments:\n%s\n\nLocal values:\n%s" % (
+                    exc_type.__name__,
                     err,
                     ''.join(traceback.format_tb(exc_traceback)),
-                    pprint.pformat(self._args, width=20)))
-            self._eco = j.core.errorhandler.parsePythonExceptionObject(err, tb=exc_traceback)
-            self._eco.printTraceback()
+                    pprint.pformat(self._args, width=20),
+                    pprint.pformat(locals, width=20)
+                ))
         finally:
             self._duration = time.time() - started
         return result
