@@ -12,8 +12,6 @@ def _install_js(prefab, branch):
         cmd = "cd /opt/code/github/jumpscale/%s; pip install ." % component
         prefab.core.run(cmd)
     prefab.executor.execute("sed -i 's/filter = \\[\\]/filter = [\"*\"]/g' /root/js9host/cfg/jumpscale9.toml")
-    prefab.executor.execute('ssh-keygen -b 2048 -t rsa -f /root/.ssh/id_rsa -q -N ""')
-    prefab.executor.execute('js9_config init -s')
 
 
 def _install_zrobot(prefab, branch):
@@ -50,8 +48,8 @@ def build_docker(tag, jsbranch, zrbranch, push):
     finally:
         container.stop()
         container.remove()
-    container = j.sal.docker.client.containers.create("ubuntu:16.04", command="/usr/bin/python3 /opt/code/github/jumpscale/0-robot/utils/scripts/packages/dockerentrypoint.py")
-    container.start()
+    container = j.sal.docker.client.containers.create("jumpscale/0-robot-tmp", 
+                                                      command="/usr/bin/python3 /opt/code/github/jumpscale/0-robot/utils/scripts/packages/dockerentrypoint.py")
     container.commit("jumpscale/0-robot", tag)
     container.remove()
     if push:

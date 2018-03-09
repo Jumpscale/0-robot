@@ -3,12 +3,10 @@ import os
 import time
 from js9 import j
 
-if os.environ.get("dockerbuild"):
-    exit(0)
-
 if not j.sal.fs.exists("/root/.ssh/id_rsa"):
     j.tools.prefab.local.system.ssh.keygen(user='root', name='id_rsa')
-    j.tools.prefab.local.core.run("js9_config init -s")
+
+j.tools.prefab.local.core.run("js9_config init -s")
 
 cmd_line = "zrobot server start"
 args = [

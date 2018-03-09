@@ -46,22 +46,23 @@ This parameter is required for the robot to starts.
 - `auto-push`: Enables automatic commiting and pushing of the data repository for backup. Check the [automatic syncing chapter](#automatic-syncing-of-data-repository) for more details
 - `--auto-push-interval` Define a custom interval in minutes for `auto-push` if enabled (default: 60)
 
+### example:
+```bash
+zrobot server start --listen :6601 --template-repo https://github.com/jumpscale/0-robot.git --data-repo https://github.com/user/zrobot1.git --robots http://localhost:6602
+```
+
 ## Running 0-robot in a docker
 
 0-robot is available as a published docker image on docker hub: [https://hub.docker.com/r/jumpscale/0-robot/](https://hub.docker.com/r/jumpscale/0-robot/)
 
 To run it:
-- put the password-less ssh keys that have access to data, template & config repositories into a directory, and mount it into the docker image on `/root/.ssh`
+- mount the password-less id_rsa named ssh key into /root/.ssh. Make sure id_rsa is the only ssh key that is mounted into /root/.ssh
 - expose the 0-robot listening port 
+- pass the 0-robot arguments as environment variables
 
 eg:
 ```bash
-root@myawesomemachine:~# docker run --name 0-robot -d -p 192.168.199.2:6600:6600 -v /root/.ssh2:/root/.ssh jumpscale/0-robot:latest zrobot server start -D ssh://git@myawesomegitserver.org:10023/MyAwesomeOrganization/myawseomedatarepo.git -C ssh://git@myawesomegitserver.org:10023/MyAwesomeOrganization/myawseomeconfigrepo.git -T https://github.com/zero-os/0-templates.git
-```
-
-### example:
-```bash
-zrobot server start --listen :6601 --template-repo https://github.com/jumpscale/0-robot.git --data-repo https://github.com/user/zrobot1.git --robots http://localhost:6602
+root@myawesomemachine:~# docker run --name 0-robot -d -p 192.168.199.2:6600:6600 -v /root/.ssh2:/root/.ssh -e data-repo=ssh://git@myawesomegitserver.org:10023/MyAwesomeOrganization/myawseomedatarepo.git -e config-repo=ssh://git@myawesomegitserver.org:10023/MyAwesomeOrganization/myawseomeconfigrepo.git -e template-repo=https://github.com/zero-os/0-templates.git jumpscale/0-robot:latest
 ```
 
 ## Automatic syncing of data repository
