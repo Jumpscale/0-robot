@@ -8,6 +8,7 @@ from js9 import j
 import click
 import logging
 from JumpScale9.logging.Handlers import TelegramHandler
+from JumpScale9.logging.Handlers import TelegramFormatter
 from zerorobot.robot import Robot
 
 
@@ -45,7 +46,10 @@ def start(listen, data_repo, template_repo, config_repo, debug, telegram_bot_tok
     if telegram_bot_token:
         telegram_logger = logging.getLogger('telegram_logger')
         telegrambot = j.clients.telegram_bot.get(instance='errorbot', data=dict(bot_token_=telegram_bot_token))
-        telegram_logger.addHandler(TelegramHandler(telegrambot, telegram_chat_id))
+        handler = TelegramHandler(telegrambot, telegram_chat_id)
+        handler.setFormatter(TelegramFormatter())
+        handler.setLevel(logging.ERROR)
+        telegram_logger.addHandler(handler)
 
     robot = Robot()
 

@@ -217,7 +217,7 @@ class TemplateBase:
                         locals = tb.tb_frame.f_locals
 
                         # if enabled, this would be logged on the telegram chat
-                        telegram_logger.critical(
+                        telegram_logger.error(
                             "Error executing action %s:\n%s\n\nLocal values:\n%s" % (
                                 task.action_name,
                                 traceback,
