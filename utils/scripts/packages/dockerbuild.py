@@ -53,6 +53,7 @@ def build_docker(tag, jsbranch, zrbranch, push):
     container = j.sal.docker.client.containers.create("ubuntu:16.04", command="/usr/bin/python3 /opt/code/github/jumpscale/0-robot/utils/scripts/packages/dockerentrypoint.py")
     container.start()
     container.commit("jumpscale/0-robot", tag)
+    container.remove()
     if push:
         print("done!\nPushing docker image ... ")
         j.sal.docker.client.images.push("jumpscale/0-robot", tag)

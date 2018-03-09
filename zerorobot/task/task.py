@@ -91,8 +91,8 @@ class Task:
                     exc_type.__name__,
                     err,
                     ''.join(traceback.format_tb(exc_traceback)),
-                    json.dumps(self._args, indent=2),
-                    json.dumps(locals, width=2)
+                    pprint.pformat(self._args, width=50),
+                    pprint.pformat(locals, width=50)
                 ))
         finally:
             self._duration = time.time() - started
