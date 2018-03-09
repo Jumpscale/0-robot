@@ -75,7 +75,6 @@ class Task:
             # capture stacktrace and exception
             _, _, exc_traceback = sys.exc_info()
             self._eco = j.core.errorhandler.parsePythonExceptionObject(err, tb=exc_traceback)
-            self._eco.printTraceback()
         finally:
             self._duration = time.time() - started
 

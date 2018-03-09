@@ -201,6 +201,8 @@ class TemplateBase:
                     task_latency.labels(action_name=task.action_name, template_uid=str(self.template_uid)).observe(task.duration)
                     # notify the task list that this task is done
                     self.task_list.done(task)
+                    if task.state == TASK_STATE_ERROR:
+                        self.logger.error("error executing action %s:\n%s" % (task.action_name, task.eco.traceback))
 
     def schedule_action(self, action, args=None):
         """
