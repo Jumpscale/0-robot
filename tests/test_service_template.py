@@ -1,3 +1,4 @@
+import glob
 import os
 import tempfile
 import unittest
@@ -82,6 +83,11 @@ class TestServiceTemplate(unittest.TestCase):
 
         srv.delete()
         self.assertFalse(os.path.exists(srv_dir), "directory of the saved service not should exists anymore")
+
+        log_file_pattern = os.path.join(j.dirs.LOGDIR, 'zrobot', srv.guid) + '*'
+        log_files = glob.glob(log_file_pattern)
+        self.assertEqual(len(log_files), 0, "log files of the services should not should exists anymore")
+
         with self.assertRaises(scol.ServiceNotFoundError, message='service should not be found in memory anymore'):
             scol.get_by_guid(srv.guid)
 

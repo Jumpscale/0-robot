@@ -3,7 +3,7 @@ The base module defines the TemplateBase class.
 It is the class every template should inherits from.
 """
 
-
+import glob
 import inspect
 import logging
 import os
@@ -16,12 +16,13 @@ import gevent
 
 from js9 import j
 from zerorobot import service_collection as scol
+from zerorobot import config
 from zerorobot.dsl.ZeroRobotAPI import ZeroRobotAPI
 from zerorobot.prometheus.robot import task_latency
-from zerorobot.task import PRIORITY_NORMAL, PRIORITY_SYSTEM, Task, TaskList
+from zerorobot.task import (PRIORITY_NORMAL, PRIORITY_SYSTEM, TASK_STATE_ERROR,
+                            Task, TaskList)
 from zerorobot.template.data import ServiceData
 from zerorobot.template.state import ServiceState
-from zerorobot import config
 
 logger = j.logger.get('zerorobot')
 
@@ -283,6 +284,12 @@ class TemplateBase:
         # remove data from disk
         if self._path and os.path.exists(self._path):
             shutil.rmtree(self._path)
+
+        # remove logs from disk
+        log_file = os.path.join(j.dirs.LOGDIR, 'zrobot', self.guid)
+        for f in glob.glob(log_file+'*'):
+            os.remove(f)
+
         # remove from memory
         scol.delete(self)
 
@@ -338,8 +345,8 @@ def _configure_logger(guid):
     l.parent.handlers = []
     rfh = RotatingFileHandler(os.path.join(log_dir, guid),
                               mode='a',
-                              maxBytes=5 * 1024 * 1024,  # 5MiB
-                              backupCount=10,  # 10 * 5Mib = 50Mib of logs max
+                              maxBytes=512 * 1024,  # 512k
+                              backupCount=1,  # 2 * 512k = 1Mib of logs max per service
                               encoding=None,
                               delay=True)
     rfh.setLevel(logging.DEBUG)
