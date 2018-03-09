@@ -11,7 +11,9 @@ def _install_js(prefab, branch):
     for component in ("core9", "lib9", "prefab9"):
         cmd = "cd /opt/code/github/jumpscale/%s; pip install ." % component
         prefab.core.run(cmd)
-    j.tools.prefab.local.executor.execute("sed -i 's/filter = \\[\\]/filter = [\"*\"]/g' /root/js9host/cfg/jumpscale9.toml")
+    prefab.executor.execute("sed -i 's/filter = \\[\\]/filter = [\"*\"]/g' /root/js9host/cfg/jumpscale9.toml")
+    prefab.executor.execute('ssh-keygen -b 2048 -t rsa -f /root/.ssh/id_rsa -q -N ""')
+    prefab.executor.execute('js9_config init -s')
 
 
 def _install_zrobot(prefab, branch):
@@ -44,16 +46,19 @@ def build_docker(tag, jsbranch, zrbranch, push):
         print("done!\nInstalling 0-robot ... ", end='')
         _install_zrobot(prefab, zrbranch)
         print("done!\nCommiting 0-robot docker image ... ", end='')
-        container.commit("jumpscale/0-robot", tag)
-        if push:
-            print("done!\nPushing docker image ... ")
-            j.sal.docker.client.images.push("jumpscale/0-robot", tag)
-            print("0-robot build and published successfully!")
-        else:
-            print("done!\n0-robot build successfully!")
+        container.commit("jumpscale/0-robot-tmp")
     finally:
         container.stop()
         container.remove()
+    container = j.sal.docker.client.containers.create("ubuntu:16.04", command="/usr/bin/python3 /opt/code/github/jumpscale/0-robot/utils/scripts/packages/dockerentrypoint.py")
+    container.start()
+    container.commit("jumpscale/0-robot", tag)
+    if push:
+        print("done!\nPushing docker image ... ")
+        j.sal.docker.client.images.push("jumpscale/0-robot", tag)
+        print("0-robot build and published successfully!")
+    else:
+        print("done!\n0-robot build successfully!")
 
 
 def _main():
