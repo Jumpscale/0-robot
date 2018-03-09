@@ -6,7 +6,10 @@ monkey.patch_all(subprocess=False)
 
 from js9 import j
 import click
+import logging
+from JumpScale9.logging.Handlers import TelegramHandler
 from zerorobot.robot import Robot
+
 
 
 @click.group()
@@ -40,8 +43,9 @@ def start(listen, data_repo, template_repo, config_repo, debug, telegram_bot_tok
         raise ValueError("To enable telegram error logging, you need to specify both the --telegram-bot-token and the --telegram-chat-id options")
 
     if telegram_bot_token:
+        telegram_logger = logging.getLogger('telegram_logger')
         telegrambot = j.clients.telegram_bot.get(instance='errorbot', data=dict(bot_token_=telegram_bot_token))
-        j.logger.telegramhandler_enable(telegrambot, telegram_chat_id)
+        telegram_logger.addHandler(TelegramHandler(telegrambot, telegram_chat_id))
 
     robot = Robot()
 

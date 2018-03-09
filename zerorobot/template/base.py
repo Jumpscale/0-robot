@@ -26,6 +26,7 @@ from zerorobot.template.data import ServiceData
 from zerorobot.template.state import ServiceState
 
 logger = j.logger.get('zerorobot')
+telegram_logger = logging.getLogger('telegram_logger')
 
 
 class BadActionArgumentError(Exception):
@@ -215,8 +216,8 @@ class TemplateBase:
                         # get locals
                         locals = tb.tb_frame.f_locals
 
-                        # if enable, this would be logged on the telegram chat
-                        self.logger.critical(
+                        # if enabled, this would be logged on the telegram chat
+                        telegram_logger.critical(
                             "Error executing action %s:\n%s\n\nLocal values:\n%s" % (
                                 task.action_name,
                                 traceback,
