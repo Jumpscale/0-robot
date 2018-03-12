@@ -1,4 +1,5 @@
 from js9 import j
+from zerorobot.errors import ExpectedError
 
 SERVICE_STATE_OK = 'ok'
 SERVICE_STATE_ERROR = 'error'
@@ -22,11 +23,11 @@ class StateCategoryNotExistsError(Exception):
     pass
 
 
-class StateCheckError(Exception):
+class StateCheckError(ExpectedError, Exception):
     """
     This exception is raised when a call to ServiceState.check fails
     """
-
+    pass
 
 class ServiceState:
     """

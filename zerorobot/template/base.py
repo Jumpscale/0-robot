@@ -16,6 +16,7 @@ from uuid import uuid4
 import gevent
 
 from js9 import j
+from zerorobot.errors import ExpectedError
 from zerorobot import service_collection as scol
 from zerorobot import config
 from zerorobot.dsl.ZeroRobotAPI import ZeroRobotAPI
@@ -216,13 +217,14 @@ class TemplateBase:
                         # get locals
                         locals = tb.tb_frame.f_locals
 
-                        # if enabled, this would be logged on the telegram chat
-                        telegram_logger.error(
-                            "Error executing action %s:\n%s\n\nLocal values:\n%s" % (
-                                task.action_name,
-                                traceback,
-                                pprint.pformat(locals, width=50)
-                            ))
+                        # if enabled, unexpected errors would be logged on the telegram chat
+                        if not isinstance(task.eco, ExpectedError):
+                            telegram_logger.error(
+                                "Error executing action %s:\n%s\n\nLocal values:\n%s" % (
+                                    task.action_name,
+                                    traceback,
+                                    pprint.pformat(locals, width=50)
+                                ))
 
     def schedule_action(self, action, args=None):
         """
