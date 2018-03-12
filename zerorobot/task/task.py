@@ -8,9 +8,13 @@ import os
 import sys
 import time
 import traceback
+import pprint
+import logging
 
 import gevent
 from gevent.lock import Semaphore
+
+from zerorobot.errors import ExpectedError
 
 from js9 import j
 
@@ -20,6 +24,7 @@ from . import (TASK_STATE_ERROR, TASK_STATE_NEW, TASK_STATE_OK,
 
 
 logger = j.logger.get('zerorobot')
+telegram_logger = logging.getLogger('telegram_logger')
 
 
 class Task:
@@ -76,8 +81,26 @@ class Task:
         except Exception as err:
             self.state = TASK_STATE_ERROR
             # capture stacktrace and exception
-            _, _, exc_traceback = sys.exc_info()
+            exc_type, _, exc_traceback = sys.exc_info()
             self._eco = j.core.errorhandler.parsePythonExceptionObject(err, tb=exc_traceback)
+
+            # if enabled, unexpected errors would be logged on the telegram chat
+            if not isinstance(err, ExpectedError):
+                # go to last traceback
+                while exc_traceback.tb_next:
+                    exc_traceback = exc_traceback.tb_next
+
+                # get locals
+                locals = exc_traceback.tb_frame.f_locals
+
+                telegram_logger.error(
+                    "Error type: %s\nError message:\n\t%s\nStacktrace:\n%s\n\nTask arguments:\n%s\n\nLocal values:\n%s" % (
+                        exc_type.__name__,
+                        err,
+                        ''.join(traceback.format_tb(exc_traceback)),
+                        pprint.pformat(self._args, width=50),
+                        pprint.pformat(locals, width=50)
+                    ))
 
         finally:
             self._duration = time.time() - started
