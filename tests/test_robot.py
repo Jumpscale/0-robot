@@ -2,7 +2,8 @@ import tempfile
 import unittest
 
 from gevent import monkey
-from zerorobot.robot import Robot, _parse_template_repo_url
+from zerorobot.robot import Robot
+from zerorobot import giturl
 from zerorobot import config
 
 # need to patch sockets to make requests async
@@ -50,14 +51,32 @@ class TestRobot(unittest.TestCase):
                 'branch': 'anotherbranch',
                 'exception': None,
             },
+            {
+                'url': 'git@github:openvcloud/0-templates.git',
+                'repo': 'git@github:openvcloud/0-templates.git',
+                'branch': None,
+                'exception': None,
+            },
+            {
+                'url': 'git@github:openvcloud/0-templates.git#branch',
+                'repo': 'git@github:openvcloud/0-templates.git',
+                'branch': 'branch',
+                'exception': None,
+            },
+            {
+                'url': 'ssh://git@docs.greenitglobe.com:10022/account/repo.git',
+                'repo': 'ssh://git@docs.greenitglobe.com:10022/account/repo.git',
+                'branch': None,
+                'exception': None,
+            },
         )
 
         for test in tt:
             with self.subTest(test['url']):
                 if test['exception']:
                     with self.assertRaises(test['exception'], message='mal formatted url should raise ValueError'):
-                        repo, branch = _parse_template_repo_url(test['url'])
+                        repo, branch = giturl.parse_template_repo_url(test['url'])
                 else:
-                    repo, branch = _parse_template_repo_url(test['url'])
+                    repo, branch = giturl.parse_template_repo_url(test['url'])
                     assert repo == test['repo']
                     assert branch == test['branch']

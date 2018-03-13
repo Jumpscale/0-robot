@@ -7,7 +7,6 @@ It is the class responsible to start and managed the robot as well as the REST A
 import logging
 import os
 import signal
-from urllib.parse import urlparse
 
 import gevent
 from gevent import GreenletExit
@@ -17,11 +16,9 @@ from gevent.pywsgi import WSGIServer
 from js9 import j
 from zerorobot import service_collection as scol
 from zerorobot import template_collection as tcol
-from zerorobot import auto_pusher, config
+from zerorobot import auto_pusher, config, giturl
 from zerorobot.prometheus.flask import monitor
 from zerorobot.server.app import app
-from zerorobot import config
-from zerorobot import auto_pusher
 from zerorobot.task import PRIORITY_SYSTEM
 
 # create logger
@@ -56,7 +53,7 @@ class Robot:
         Set the url of the git repository to be used to serialize services state.
         It can be the same of one of the template repository used.
         """
-        location = tcol._git_path(url)
+        location = giturl.git_path(url)
         if not os.path.exists(location):
             location = j.clients.git.pullGitRepo(url)
 
@@ -64,7 +61,7 @@ class Robot:
         config.DATA_DIR = j.sal.fs.joinPaths(location, 'zrobot_data')
 
     def add_template_repo(self, url, directory='templates'):
-        url, branch = _parse_template_repo_url(url)
+        url, branch = giturl.parse_template_repo_url(url)
         tcol.add_repo(url=url, branch=branch, directory=directory)
 
     def set_config_repo(self, url):
@@ -72,7 +69,7 @@ class Robot:
         Set the url of the configuration repository used by JumpScale to store client configuration
         It can be the same URL as the data repository.
         """
-        location = tcol._git_path(url)
+        location = giturl.git_path(url)
         if not os.path.exists(location):
             location = j.clients.git.pullGitRepo(url)
             j.sal.fs.createEmptyFile(os.path.join(location, '.jsconfig'))
@@ -218,12 +215,3 @@ def _split_hostport(hostport):
     host = hostport[:i]
     port = hostport[i + 1:]
     return host, int(port)
-
-
-def _parse_template_repo_url(url):
-    branch = None
-    u = urlparse(url)
-    if u.fragment:
-        branch = u.fragment
-
-    return u.scheme+'://'+u.netloc+u.path, branch

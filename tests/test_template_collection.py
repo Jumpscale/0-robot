@@ -2,6 +2,7 @@ import os
 import unittest
 
 from zerorobot import template_collection as tcol
+from zerorobot import giturl
 from zerorobot.template_collection import TemplateNotFoundError
 from zerorobot.template_uid import TemplateUID
 
@@ -160,11 +161,11 @@ class TestTemplateCollection(unittest.TestCase):
 
         for test in tb:
             if test['valid']:
-                protocol, host, account, repo = tcol._parse_git_url(test['url'])
+                protocol, host, account, repo = giturl.parse(test['url'])
                 self.assertEqual(protocol, test['protocol'])
                 self.assertEqual(host, test['host'])
                 self.assertEqual(account, test['account'])
                 self.assertEqual(repo, test['repo'])
             else:
                 with self.assertRaises(RuntimeError):
-                    tcol._parse_git_url(test['url'])
+                    giturl.parse(test['url'])
