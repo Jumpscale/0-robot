@@ -9,7 +9,6 @@ class FakeService:
     def __init__(self, guid, name):
         self.name = name
         self.guid = guid
-        self.parent = None
         self.template_uid = TemplateUID.parse('github.com/jumpscale/0-robot/fakeservice/0.0.1')
 
 
@@ -18,7 +17,6 @@ class FakeService2:
     def __init__(self, guid, name):
         self.name = name
         self.guid = guid
-        self.parent = None
         self.template_uid = TemplateUID.parse('github.com/jumpscale/0-robot/other/0.0.1')
 
 
@@ -68,7 +66,6 @@ class TestServiceCollection(unittest.TestCase):
         s1 = FakeService('1111', 's1')
         s2 = FakeService('2222', 's2')
         s3 = FakeService2('3333', 's3')
-        s2.parent = s1
         scol.add(s1)
         scol.add(s2)
         scol.add(s3)
