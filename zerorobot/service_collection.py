@@ -83,8 +83,6 @@ def load(template, base_path):
                                % (base_path, service_info['name']))
 
     srv = template(name=service_info['name'], guid=service_info['guid'], data=service_data)
-    if service_info['parent']:
-        srv.parent = get_by_guid(service_info['parent'])
 
     srv.state.load(os.path.join(base_path, 'state.yaml'))
     srv.data.load(os.path.join(base_path, 'data.yaml'))

@@ -38,7 +38,7 @@ class ServicesMgr:
         """
         return scol._guid_index
 
-    def find(self, parent=None, **kwargs):
+    def find(self, **kwargs):
         """
         Search for services and filter results from kwargs.
         You can filter on:
@@ -48,28 +48,26 @@ class ServicesMgr:
         """
         services = {}
         for service in scol.find(**kwargs):
-            if parent and (service.parent is None or service.parent.guid != parent.guid):
-                continue
             services[service.guid] = service
 
         return list(services.values())
 
-    def exists(self, parent=None, **kwargs):
+    def exists(self, **kwargs):
         """
         Test if a service exists and filter results from kwargs.
         You can filter on:
         "name", "template_uid", "template_host", "template_account", "template_repo", "template_name", "template_version"
         """
-        results = self.find(parent=parent, **kwargs)
+        results = self.find(**kwargs)
         return len(results) > 0
 
-    def get(self, parent=None, **kwargs):
+    def get(self, **kwargs):
         """
         return a service service based on the filters in kwargs.
         You can filter on:
         "name", "template_uid", "template_host", "template_account", "template_repo", "template_name", "template_version"
         """
-        results = self.find(parent=parent, **kwargs)
+        results = self.find(**kwargs)
         i = len(results)
         if i > 1:
             raise scol.TooManyResults("%d services found" % i)

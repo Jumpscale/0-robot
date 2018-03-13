@@ -51,8 +51,6 @@ class ServicesMgr:
     def _instantiate(self, data):
         srv = ServiceProxy(data.name, data.guid, self._client)
         srv.template_uid = TemplateUID.parse(data.template)
-        if data.parent:
-            srv.parent = self._get(data.parent)
         return srv
 
     def _get(self, guid=None):
@@ -101,22 +99,22 @@ class ServicesMgr:
             results.append(self._instantiate(service))
         return results
 
-    def exists(self, parent=None, **kwargs):
+    def exists(self, **kwargs):
         """
         Test if a service exists and filter results from kwargs.
         You can filter on:
         "name", "template_uid", "template_host", "template_account", "template_repo", "template_name", "template_version"
         """
-        results = self.find(parent=parent, **kwargs)
+        results = self.find(**kwargs)
         return len(results) > 0
 
-    def get(self, parent=None, **kwargs):
+    def get(self, **kwargs):
         """
         return a service service based on the filters in kwargs.
         You can filter on:
         "name", "template_uid", "template_host", "template_account", "template_repo", "template_name", "template_version"
         """
-        results = self.find(parent=parent, **kwargs)
+        results = self.find(**kwargs)
         i = len(results)
         if i > 1:
             raise TooManyResults("%d services found" % i)
