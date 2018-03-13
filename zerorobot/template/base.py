@@ -156,18 +156,6 @@ class TemplateBase:
         if self._path is None:
             raise RuntimeError("service._path is None, don't know where to save the service")
 
-        # if base_path is not None and base_path != '':
-        #     parent = self.parent
-        #     path = base_path
-        #     while parent is not None:
-        #         path = os.path.join(path, parent.name)
-        #         parent = parent.parent
-
-        #     path = os.path.join(path, self.guid)
-        #     self._path = path
-        # else:
-        #     path = self._path
-
         os.makedirs(self._path, exist_ok=True)
 
         j.data.serializer.yaml.dump(os.path.join(self._path, 'service.yaml'), {
