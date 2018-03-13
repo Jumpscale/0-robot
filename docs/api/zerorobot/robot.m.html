@@ -1110,6 +1110,7 @@ table {
 <span class="kn">from</span> <span class="nn">zerorobot.server.app</span> <span class="kn">import</span> <span class="n">app</span>
 <span class="kn">from</span> <span class="nn">zerorobot.task</span> <span class="kn">import</span> <span class="n">PRIORITY_SYSTEM</span>
 <span class="kn">from</span> <span class="nn">zerorobot</span> <span class="kn">import</span> <span class="n">config</span>
+<span class="kn">from</span> <span class="nn">zerorobot</span> <span class="kn">import</span> <span class="n">auto_pusher</span>
 
 <span class="c1"># create logger</span>
 <span class="n">logger</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;zerorobot&#39;</span><span class="p">)</span>
@@ -1164,7 +1165,8 @@ table {
             <span class="n">j</span><span class="o">.</span><span class="n">sal</span><span class="o">.</span><span class="n">fs</span><span class="o">.</span><span class="n">createEmptyFile</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">location</span><span class="p">,</span> <span class="s1">&#39;.jsconfig&#39;</span><span class="p">))</span>
         <span class="n">j</span><span class="o">.</span><span class="n">tools</span><span class="o">.</span><span class="n">configmanager</span><span class="o">.</span><span class="n">_path</span> <span class="o">=</span> <span class="n">location</span>
 
-    <span class="k">def</span> <span class="nf">start</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">listen</span><span class="o">=</span><span class="s2">&quot;:6600&quot;</span><span class="p">,</span> <span class="n">log_level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">,</span> <span class="n">block</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">start</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">listen</span><span class="o">=</span><span class="s2">&quot;:6600&quot;</span><span class="p">,</span> <span class="n">log_level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">,</span> <span class="n">block</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">auto_push</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> 
+        <span class="n">auto_push_interval</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        start the rest web server</span>
 <span class="sd">        load the services from the local git repository</span>
@@ -1189,6 +1191,11 @@ table {
 
         <span class="c1"># configure logger</span>
         <span class="n">app</span><span class="o">.</span><span class="n">_logger</span> <span class="o">=</span> <span class="n">logger</span>
+
+        <span class="c1"># auto-push data repo</span>
+        <span class="k">if</span> <span class="n">auto_push</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;auto push of data repo enabled&quot;</span><span class="p">)</span>
+            <span class="n">auto_pusher</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">interval</span><span class="o">=</span><span class="n">auto_push_interval</span><span class="p">,</span> <span class="n">repo_dir</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">DATA_DIR</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">)</span>
 
         <span class="c1"># using a pool allow to kill the request when stopping the server</span>
         <span class="n">pool</span> <span class="o">=</span> <span class="n">Pool</span><span class="p">(</span><span class="bp">None</span><span class="p">)</span>
@@ -1253,9 +1260,6 @@ table {
                 <span class="n">service</span><span class="o">.</span><span class="n">gl_mgr</span><span class="o">.</span><span class="n">stop</span><span class="p">(</span><span class="s1">&#39;executor&#39;</span><span class="p">)</span>
                 <span class="n">loading_failed</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">service</span><span class="p">)</span>
 
-        <span class="c1"># notify services that they can start processing their task list</span>
-        <span class="n">config</span><span class="o">.</span><span class="n">SERVICE_LOADED</span><span class="o">.</span><span class="n">set</span><span class="p">()</span>
-
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">loading_failed</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
             <span class="n">gevent</span><span class="o">.</span><span class="n">spawn</span><span class="p">(</span><span class="n">_try_load_service</span><span class="p">,</span> <span class="n">loading_failed</span><span class="p">)</span>
 
@@ -1267,7 +1271,6 @@ table {
             <span class="c1"># stop all the greenlets attached to the services</span>
             <span class="n">service</span><span class="o">.</span><span class="n">gl_mgr</span><span class="o">.</span><span class="n">stop_all</span><span class="p">()</span>
             <span class="n">service</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
-
 
 <span class="k">def</span> <span class="nf">_try_load_service</span><span class="p">(</span><span class="n">services</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
@@ -1390,7 +1393,8 @@ It is responsible to:
             <span class="n">j</span><span class="o">.</span><span class="n">sal</span><span class="o">.</span><span class="n">fs</span><span class="o">.</span><span class="n">createEmptyFile</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">location</span><span class="p">,</span> <span class="s1">&#39;.jsconfig&#39;</span><span class="p">))</span>
         <span class="n">j</span><span class="o">.</span><span class="n">tools</span><span class="o">.</span><span class="n">configmanager</span><span class="o">.</span><span class="n">_path</span> <span class="o">=</span> <span class="n">location</span>
 
-    <span class="k">def</span> <span class="nf">start</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">listen</span><span class="o">=</span><span class="s2">&quot;:6600&quot;</span><span class="p">,</span> <span class="n">log_level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">,</span> <span class="n">block</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">start</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">listen</span><span class="o">=</span><span class="s2">&quot;:6600&quot;</span><span class="p">,</span> <span class="n">log_level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">,</span> <span class="n">block</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">auto_push</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> 
+        <span class="n">auto_push_interval</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        start the rest web server</span>
 <span class="sd">        load the services from the local git repository</span>
@@ -1415,6 +1419,11 @@ It is responsible to:
 
         <span class="c1"># configure logger</span>
         <span class="n">app</span><span class="o">.</span><span class="n">_logger</span> <span class="o">=</span> <span class="n">logger</span>
+
+        <span class="c1"># auto-push data repo</span>
+        <span class="k">if</span> <span class="n">auto_push</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;auto push of data repo enabled&quot;</span><span class="p">)</span>
+            <span class="n">auto_pusher</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">interval</span><span class="o">=</span><span class="n">auto_push_interval</span><span class="p">,</span> <span class="n">repo_dir</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">DATA_DIR</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">)</span>
 
         <span class="c1"># using a pool allow to kill the request when stopping the server</span>
         <span class="n">pool</span> <span class="o">=</span> <span class="n">Pool</span><span class="p">(</span><span class="bp">None</span><span class="p">)</span>
@@ -1478,9 +1487,6 @@ It is responsible to:
                 <span class="c1"># execute validate() without problem</span>
                 <span class="n">service</span><span class="o">.</span><span class="n">gl_mgr</span><span class="o">.</span><span class="n">stop</span><span class="p">(</span><span class="s1">&#39;executor&#39;</span><span class="p">)</span>
                 <span class="n">loading_failed</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">service</span><span class="p">)</span>
-
-        <span class="c1"># notify services that they can start processing their task list</span>
-        <span class="n">config</span><span class="o">.</span><span class="n">SERVICE_LOADED</span><span class="o">.</span><span class="n">set</span><span class="p">()</span>
 
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">loading_failed</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
             <span class="n">gevent</span><span class="o">.</span><span class="n">spawn</span><span class="p">(</span><span class="n">_try_load_service</span><span class="p">,</span> <span class="n">loading_failed</span><span class="p">)</span>
@@ -1619,7 +1625,7 @@ It can be the same of one of the template repository used.</p></div>
             
   <div class="item">
     <div class="name def" id="zerorobot.robot.Robot.start">
-    <p>def <span class="ident">start</span>(</p><p>self, listen=&#39;:6600&#39;, log_level=10, block=True, **kwargs)</p>
+    <p>def <span class="ident">start</span>(</p><p>self, listen=&#39;:6600&#39;, log_level=10, block=True, auto_push=False, auto_push_interval=60, **kwargs)</p>
     </div>
     
 
@@ -1630,7 +1636,8 @@ load the services from the local git repository</p></div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.robot.Robot.start', this);">Show source &equiv;</a></p>
   <div id="source-zerorobot.robot.Robot.start" class="source">
-    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">start</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">listen</span><span class="o">=</span><span class="s2">&quot;:6600&quot;</span><span class="p">,</span> <span class="n">log_level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">,</span> <span class="n">block</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">start</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">listen</span><span class="o">=</span><span class="s2">&quot;:6600&quot;</span><span class="p">,</span> <span class="n">log_level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">,</span> <span class="n">block</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">auto_push</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> 
+    <span class="n">auto_push_interval</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    start the rest web server</span>
 <span class="sd">    load the services from the local git repository</span>
@@ -1649,6 +1656,10 @@ load the services from the local git repository</p></div>
     <span class="bp">self</span><span class="o">.</span><span class="n">_sig_handler</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">gevent</span><span class="o">.</span><span class="n">signal</span><span class="p">(</span><span class="n">signal</span><span class="o">.</span><span class="n">SIGINT</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">stop</span><span class="p">))</span>
     <span class="c1"># configure logger</span>
     <span class="n">app</span><span class="o">.</span><span class="n">_logger</span> <span class="o">=</span> <span class="n">logger</span>
+    <span class="c1"># auto-push data repo</span>
+    <span class="k">if</span> <span class="n">auto_push</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;auto push of data repo enabled&quot;</span><span class="p">)</span>
+        <span class="n">auto_pusher</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">interval</span><span class="o">=</span><span class="n">auto_push_interval</span><span class="p">,</span> <span class="n">repo_dir</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">DATA_DIR</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">)</span>
     <span class="c1"># using a pool allow to kill the request when stopping the server</span>
     <span class="n">pool</span> <span class="o">=</span> <span class="n">Pool</span><span class="p">(</span><span class="bp">None</span><span class="p">)</span>
     <span class="n">hostport</span> <span class="o">=</span> <span class="n">_split_hostport</span><span class="p">(</span><span class="n">listen</span><span class="p">)</span>

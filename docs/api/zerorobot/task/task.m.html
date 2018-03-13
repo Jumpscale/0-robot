@@ -1049,7 +1049,6 @@ table {
     <li class="mono"><a href="#zerorobot.task.task.TASK_STATE_NEW">TASK_STATE_NEW</a></li>
     <li class="mono"><a href="#zerorobot.task.task.TASK_STATE_OK">TASK_STATE_OK</a></li>
     <li class="mono"><a href="#zerorobot.task.task.TASK_STATE_RUNNING">TASK_STATE_RUNNING</a></li>
-    <li class="mono"><a href="#zerorobot.task.task.logger">logger</a></li>
   </ul>
 
     </li>
@@ -1104,12 +1103,8 @@ table {
 
 <span class="kn">from</span> <span class="nn">js9</span> <span class="kn">import</span> <span class="n">j</span>
 
-
 <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="p">(</span><span class="n">TASK_STATE_ERROR</span><span class="p">,</span> <span class="n">TASK_STATE_NEW</span><span class="p">,</span> <span class="n">TASK_STATE_OK</span><span class="p">,</span>
                <span class="n">TASK_STATE_RUNNING</span><span class="p">)</span>
-
-
-<span class="n">logger</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;zerorobot&#39;</span><span class="p">)</span>
 
 
 <span class="k">class</span> <span class="nc">Task</span><span class="p">:</span>
@@ -1187,13 +1182,11 @@ table {
         <span class="k">finally</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_state_lock</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
 
-    <span class="k">def</span> <span class="nf">wait</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">die</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">wait</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        wait blocks until the task has been executed</span>
 <span class="sd">        if timeout is specified and the task didn&#39;t finished within timeout seconds,</span>
 <span class="sd">        raises TimeoutError</span>
-
-<span class="sd">        if die is True and the state is TASK_STATE_ERROR after the wait, the eco of the exception will be raised</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">def</span> <span class="nf">wait</span><span class="p">():</span>
             <span class="k">while</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;new&#39;</span><span class="p">,</span> <span class="s1">&#39;running&#39;</span><span class="p">):</span>
@@ -1208,12 +1201,6 @@ table {
                 <span class="k">raise</span> <span class="n">TimeoutError</span><span class="p">()</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">wait</span><span class="p">()</span>
-
-        <span class="k">if</span> <span class="n">die</span> <span class="ow">is</span> <span class="bp">True</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">==</span> <span class="n">TASK_STATE_ERROR</span><span class="p">:</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">eco</span><span class="p">:</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">critical</span><span class="p">(</span><span class="s1">&#39;task is in error state, but no eco&#39;</span><span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="bp">self</span><span class="o">.</span><span class="n">eco</span>
 
     <span class="k">def</span> <span class="fm">__lt__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_created</span> <span class="o">&lt;</span> <span class="n">other</span><span class="o">.</span><span class="n">_created</span>
@@ -1257,14 +1244,6 @@ table {
       </div>
       <div class="item">
       <p id="zerorobot.task.task.TASK_STATE_RUNNING" class="name">var <span class="ident">TASK_STATE_RUNNING</span></p>
-      
-  
-  <div class="source_cont">
-</div>
-
-      </div>
-      <div class="item">
-      <p id="zerorobot.task.task.logger" class="name">var <span class="ident">logger</span></p>
       
   
   <div class="source_cont">
@@ -1357,13 +1336,11 @@ table {
         <span class="k">finally</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_state_lock</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
 
-    <span class="k">def</span> <span class="nf">wait</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">die</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">wait</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        wait blocks until the task has been executed</span>
 <span class="sd">        if timeout is specified and the task didn&#39;t finished within timeout seconds,</span>
 <span class="sd">        raises TimeoutError</span>
-
-<span class="sd">        if die is True and the state is TASK_STATE_ERROR after the wait, the eco of the exception will be raised</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">def</span> <span class="nf">wait</span><span class="p">():</span>
             <span class="k">while</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;new&#39;</span><span class="p">,</span> <span class="s1">&#39;running&#39;</span><span class="p">):</span>
@@ -1378,12 +1355,6 @@ table {
                 <span class="k">raise</span> <span class="n">TimeoutError</span><span class="p">()</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">wait</span><span class="p">()</span>
-
-        <span class="k">if</span> <span class="n">die</span> <span class="ow">is</span> <span class="bp">True</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">==</span> <span class="n">TASK_STATE_ERROR</span><span class="p">:</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">eco</span><span class="p">:</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">critical</span><span class="p">(</span><span class="s1">&#39;task is in error state, but no eco&#39;</span><span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="bp">self</span><span class="o">.</span><span class="n">eco</span>
 
     <span class="k">def</span> <span class="fm">__lt__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_created</span> <span class="o">&lt;</span> <span class="n">other</span><span class="o">.</span><span class="n">_created</span>
@@ -1490,7 +1461,7 @@ table {
             
   <div class="item">
     <div class="name def" id="zerorobot.task.task.Task.wait">
-    <p>def <span class="ident">wait</span>(</p><p>self, timeout=None, die=False)</p>
+    <p>def <span class="ident">wait</span>(</p><p>self, timeout=None)</p>
     </div>
     
 
@@ -1498,17 +1469,15 @@ table {
   
     <div class="desc"><p>wait blocks until the task has been executed
 if timeout is specified and the task didn't finished within timeout seconds,
-raises TimeoutError</p>
-<p>if die is True and the state is TASK_STATE_ERROR after the wait, the eco of the exception will be raised</p></div>
+raises TimeoutError</p></div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.task.task.Task.wait', this);">Show source &equiv;</a></p>
   <div id="source-zerorobot.task.task.Task.wait" class="source">
-    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">wait</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">die</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">wait</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    wait blocks until the task has been executed</span>
 <span class="sd">    if timeout is specified and the task didn&#39;t finished within timeout seconds,</span>
 <span class="sd">    raises TimeoutError</span>
-<span class="sd">    if die is True and the state is TASK_STATE_ERROR after the wait, the eco of the exception will be raised</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="nf">wait</span><span class="p">():</span>
         <span class="k">while</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;new&#39;</span><span class="p">,</span> <span class="s1">&#39;running&#39;</span><span class="p">):</span>
@@ -1522,11 +1491,6 @@ raises TimeoutError</p>
             <span class="k">raise</span> <span class="n">TimeoutError</span><span class="p">()</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">wait</span><span class="p">()</span>
-    <span class="k">if</span> <span class="n">die</span> <span class="ow">is</span> <span class="bp">True</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">==</span> <span class="n">TASK_STATE_ERROR</span><span class="p">:</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">eco</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">critical</span><span class="p">(</span><span class="s1">&#39;task is in error state, but no eco&#39;</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="bp">self</span><span class="o">.</span><span class="n">eco</span>
 </pre></div>
 
   </div>

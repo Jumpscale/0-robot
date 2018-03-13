@@ -3,7 +3,7 @@
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 
-    <title>zerorobot API documentation</title>
+    <title>zerorobot.auto_pusher API documentation</title>
     <meta name="description" content="" />
 
   <link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:400,300' rel='stylesheet' type='text/css'>
@@ -1041,27 +1041,15 @@ table {
     <h1>Index</h1>
     <ul id="index">
 
+    <li class="set"><h3><a href="#header-functions">Functions</a></h3>
+      
+  <ul>
+    <li class="mono"><a href="#zerorobot.auto_pusher.run">run</a></li>
+  </ul>
 
-
-    <li class="set"><h3><a href="#header-submodules">Sub-modules</a></h3>
-      <ul>
-        <li class="mono"><a href="auto_pusher.m.html">zerorobot.auto_pusher</a></li>
-        <li class="mono"><a href="blueprint.m.html">zerorobot.blueprint</a></li>
-        <li class="mono"><a href="cli/index.html">zerorobot.cli</a></li>
-        <li class="mono"><a href="config.m.html">zerorobot.config</a></li>
-        <li class="mono"><a href="dsl/index.html">zerorobot.dsl</a></li>
-        <li class="mono"><a href="prometheus/index.html">zerorobot.prometheus</a></li>
-        <li class="mono"><a href="robot.m.html">zerorobot.robot</a></li>
-        <li class="mono"><a href="server/index.html">zerorobot.server</a></li>
-        <li class="mono"><a href="service_collection.m.html">zerorobot.service_collection</a></li>
-        <li class="mono"><a href="service_proxy.m.html">zerorobot.service_proxy</a></li>
-        <li class="mono"><a href="sqlite.m.html">zerorobot.sqlite</a></li>
-        <li class="mono"><a href="task/index.html">zerorobot.task</a></li>
-        <li class="mono"><a href="template/index.html">zerorobot.template</a></li>
-        <li class="mono"><a href="template_collection.m.html">zerorobot.template_collection</a></li>
-        <li class="mono"><a href="template_uid.m.html">zerorobot.template_uid</a></li>
-      </ul>
     </li>
+
+
     </ul>
   </div>
 
@@ -1073,131 +1061,114 @@ table {
 
 
   <header id="section-intro">
-  <h1 class="title"><span class="name">zerorobot</span> module</h1>
+  <h1 class="title"><span class="name">zerorobot.auto_pusher</span> module</h1>
   
   
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.auto_pusher', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.auto_pusher" class="source">
+    <div class="codehilite"><pre><span></span><span class="kn">import</span> <span class="nn">gevent</span>
+<span class="kn">from</span> <span class="nn">js9</span> <span class="kn">import</span> <span class="n">j</span>
+
+<span class="kn">from</span> <span class="nn">zerorobot</span> <span class="kn">import</span> <span class="n">service_collection</span> <span class="k">as</span> <span class="n">scol</span>
+
+<span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="n">interval</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span> <span class="n">repo_dir</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    runs auto push of provided repo directory in a greenlet</span>
+<span class="sd">    provided interval is in minutes</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">_init_auto_push</span><span class="p">(</span><span class="n">repo_dir</span><span class="o">=</span><span class="n">repo_dir</span><span class="p">)</span>
+    <span class="n">gevent</span><span class="o">.</span><span class="n">spawn</span><span class="p">(</span><span class="n">_auto_push_data_repo</span><span class="p">,</span> <span class="n">interval</span><span class="p">,</span> <span class="n">repo_dir</span><span class="p">,</span> <span class="n">logger</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">_init_auto_push</span><span class="p">(</span><span class="n">repo_dir</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    checks if setup is properly configured for auto pushing the repo</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># check if remote is ssh</span>
+    <span class="n">git</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">clients</span><span class="o">.</span><span class="n">git</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">basedir</span><span class="o">=</span><span class="n">repo_dir</span><span class="p">)</span>
+    <span class="n">remote</span> <span class="o">=</span> <span class="n">git</span><span class="o">.</span><span class="n">getConfig</span><span class="p">(</span><span class="s2">&quot;remote.origin.url&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">_is_ssh_remote</span><span class="p">(</span><span class="n">remote</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;The data repository is not an ssh endpoint which is required for auto pushing.&quot;</span><span class="p">)</span>
+    
+    <span class="n">_load_ssh_key</span><span class="p">()</span>
+
+<span class="k">def</span> <span class="nf">_auto_push_data_repo</span><span class="p">(</span><span class="n">interval</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span> <span class="n">repo_dir</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    run a coroutine that pushes the repository at provided interval</span>
+<span class="sd">    provided interval is in minutes</span>
+<span class="sd">    meant to be run as gevent greenlet/coroutine</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;waiting interval&quot;</span><span class="p">)</span>
+        <span class="n">gevent</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="n">seconds</span><span class="o">=</span><span class="n">interval</span><span class="o">*</span><span class="mi">60</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">logger</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;saving services and pushing data repo&quot;</span><span class="p">)</span>
+        <span class="n">_load_ssh_key</span><span class="p">()</span>
+        
+        <span class="c1"># save all services</span>
+        <span class="k">for</span> <span class="n">service</span> <span class="ow">in</span> <span class="n">scol</span><span class="o">.</span><span class="n">list_services</span><span class="p">():</span>
+            <span class="n">service</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+
+        <span class="n">_push_data_repo</span><span class="p">(</span><span class="n">repo_dir</span><span class="o">=</span><span class="n">repo_dir</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">_push_data_repo</span><span class="p">(</span><span class="n">repo_dir</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    commit and push (full) repository</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">git</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">clients</span><span class="o">.</span><span class="n">git</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">basedir</span><span class="o">=</span><span class="n">repo_dir</span><span class="p">)</span>
+    <span class="n">git</span><span class="o">.</span><span class="n">commit</span><span class="p">(</span><span class="n">message</span><span class="o">=</span><span class="s1">&#39;zrobot sync&#39;</span><span class="p">,</span> <span class="n">addremove</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+    <span class="n">git</span><span class="o">.</span><span class="n">push</span><span class="p">()</span>
+
+<span class="k">def</span> <span class="nf">_load_ssh_key</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    makes sure ssh key `j.tools.configmanager.keyname` is loaded</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">keyname</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">tools</span><span class="o">.</span><span class="n">configmanager</span><span class="o">.</span><span class="n">keyname</span>
+    <span class="n">key</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">clients</span><span class="o">.</span><span class="n">sshkey</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">keyname</span><span class="p">)</span>
+    <span class="n">key</span><span class="o">.</span><span class="n">load</span><span class="p">()</span>
+
+<span class="k">def</span> <span class="nf">_is_ssh_remote</span><span class="p">(</span><span class="n">url</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">url</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;ssh://&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">url</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;git@&#39;</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">True</span>
+    <span class="k">return</span> <span class="bp">False</span>
+</pre></div>
+
+  </div>
 
   </header>
 
   <section id="section-items">
 
-
-
-    <h2 class="section-title" id="header-submodules">Sub-modules</h2>
-      <div class="item">
-      <p class="name"><a href="auto_pusher.m.html">zerorobot.auto_pusher</a></p>
+    <h2 class="section-title" id="header-functions">Functions</h2>
       
+  <div class="item">
+    <div class="name def" id="zerorobot.auto_pusher.run">
+    <p>def <span class="ident">run</span>(</p><p>interval=60, repo_dir=&#39;&#39;, logger=None)</p>
+    </div>
+    
+
+    
+  
+    <div class="desc"><p>runs auto push of provided repo directory in a greenlet
+provided interval is in minutes</p></div>
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.auto_pusher.run', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.auto_pusher.run" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="n">interval</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span> <span class="n">repo_dir</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    runs auto push of provided repo directory in a greenlet</span>
+<span class="sd">    provided interval is in minutes</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">_init_auto_push</span><span class="p">(</span><span class="n">repo_dir</span><span class="o">=</span><span class="n">repo_dir</span><span class="p">)</span>
+    <span class="n">gevent</span><span class="o">.</span><span class="n">spawn</span><span class="p">(</span><span class="n">_auto_push_data_repo</span><span class="p">,</span> <span class="n">interval</span><span class="p">,</span> <span class="n">repo_dir</span><span class="p">,</span> <span class="n">logger</span><span class="p">)</span>
+</pre></div>
+
+  </div>
+</div>
+
+  </div>
   
 
-      </div>
-      <div class="item">
-      <p class="name"><a href="blueprint.m.html">zerorobot.blueprint</a></p>
-      
-  
-    <div class="desc"><p>This module holds all the logic regarding parsing and processing of a blueprint.</p>
-<p>It is being used from the REST API server handlers</p></div>
 
-      </div>
-      <div class="item">
-      <p class="name"><a href="cli/index.html">zerorobot.cli</a></p>
-      
-  
-
-      </div>
-      <div class="item">
-      <p class="name"><a href="config.m.html">zerorobot.config</a></p>
-      
-  
-    <div class="desc"><p>module where we store global configuration used thoughout the robot
-code base</p></div>
-
-      </div>
-      <div class="item">
-      <p class="name"><a href="dsl/index.html">zerorobot.dsl</a></p>
-      
-  
-    <div class="desc"><p>This package contains class that present a hight level API that are meant to be use by end-user and service developer</p></div>
-
-      </div>
-      <div class="item">
-      <p class="name"><a href="prometheus/index.html">zerorobot.prometheus</a></p>
-      
-  
-
-      </div>
-      <div class="item">
-      <p class="name"><a href="robot.m.html">zerorobot.robot</a></p>
-      
-  
-    <div class="desc"><p>robot modules define the Robot class</p>
-<p>It is the class responsible to start and managed the robot as well as the REST API.</p></div>
-
-      </div>
-      <div class="item">
-      <p class="name"><a href="server/index.html">zerorobot.server</a></p>
-      
-  
-
-      </div>
-      <div class="item">
-      <p class="name"><a href="service_collection.m.html">zerorobot.service_collection</a></p>
-      
-  
-    <div class="desc"><p>this module is the only place where the service will be kept in memory.
-other services and class need to use this module method to create, access, list and search the services</p></div>
-
-      </div>
-      <div class="item">
-      <p class="name"><a href="service_proxy.m.html">zerorobot.service_proxy</a></p>
-      
-  
-    <div class="desc"><p>This module implement the ServiceProxy class.</p>
-<p>This class is used to provide a local proxy to a remote service for a ZeroRobot.
-When a service or robot ask the creation of a service to another robot, a proxy class is created locally
-so the robot see the service as if it as local to him while in real...</p></div>
-
-      </div>
-      <div class="item">
-      <p class="name"><a href="sqlite.m.html">zerorobot.sqlite</a></p>
-      
-  
-    <div class="desc"><p>This module holds the logic of indexing services using sqlite in memory database
-It maps the in memory service object indexed by guid to a table in sqlite on which we
-can execute query to fast search</p></div>
-
-      </div>
-      <div class="item">
-      <p class="name"><a href="task/index.html">zerorobot.task</a></p>
-      
-  
-
-      </div>
-      <div class="item">
-      <p class="name"><a href="template/index.html">zerorobot.template</a></p>
-      
-  
-    <div class="desc"><p>This package contains all the logic regarding templates.</p>
-<p>This is mostly the only package AYS developer should work with when implementing services</p>
-<p>It contains 2 sub-module:
-- base:
- This is where the TemplateBase class is defined. This is the class every every service should inherits from.
-- decor...</p></div>
-
-      </div>
-      <div class="item">
-      <p class="name"><a href="template_collection.m.html">zerorobot.template_collection</a></p>
-      
-  
-    <div class="desc"><p>this module is the only place where the templates will be kept in memory.
-other services and class need to use this module method to load/access the templates</p></div>
-
-      </div>
-      <div class="item">
-      <p class="name"><a href="template_uid.m.html">zerorobot.template_uid</a></p>
-      
-  
-
-      </div>
   </section>
 
     </article>

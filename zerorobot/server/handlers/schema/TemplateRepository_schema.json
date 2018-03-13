@@ -3,7 +3,10 @@
 	"type": "object",
 	"properties": {
 		"branch": {
-			"type": "string"
+			"type": [
+				"string",
+				"null"
+			]
 		},
 		"url": {
 			"type": "string"

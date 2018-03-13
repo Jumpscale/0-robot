@@ -3,10 +3,16 @@
 	"type": "object",
 	"properties": {
 		"data": {
-			"type": "object"
+			"type": [
+				"object",
+				"null"
+			]
 		},
 		"name": {
-			"type": "string"
+			"type": [
+				"string",
+				"null"
+			]
 		},
 		"template": {
 			"type": "string"

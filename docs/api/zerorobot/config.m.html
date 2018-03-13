@@ -1045,7 +1045,6 @@ table {
       
   <ul>
     <li class="mono"><a href="#zerorobot.config.DATA_DIR">DATA_DIR</a></li>
-    <li class="mono"><a href="#zerorobot.config.SERVICE_LOADED">SERVICE_LOADED</a></li>
   </ul>
 
     </li>
@@ -1073,12 +1072,9 @@ code base</p>
 <span class="sd">module where we store global configuration used thoughout the robot</span>
 <span class="sd">code base</span>
 <span class="sd">&quot;&quot;&quot;</span>
-<span class="kn">import</span> <span class="nn">gevent.event</span>
 
 <span class="c1"># path to the data director where to save the services</span>
 <span class="n">DATA_DIR</span> <span class="o">=</span> <span class="bp">None</span>
-
-<span class="n">SERVICE_LOADED</span> <span class="o">=</span> <span class="n">gevent</span><span class="o">.</span><span class="n">event</span><span class="o">.</span><span class="n">Event</span><span class="p">()</span>
 </pre></div>
 
   </div>
@@ -1089,14 +1085,6 @@ code base</p>
     <h2 class="section-title" id="header-variables">Module variables</h2>
       <div class="item">
       <p id="zerorobot.config.DATA_DIR" class="name">var <span class="ident">DATA_DIR</span></p>
-      
-  
-  <div class="source_cont">
-</div>
-
-      </div>
-      <div class="item">
-      <p id="zerorobot.config.SERVICE_LOADED" class="name">var <span class="ident">SERVICE_LOADED</span></p>
       
   
   <div class="source_cont">

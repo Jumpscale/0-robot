@@ -6,13 +6,19 @@
 			"type": "string"
 		},
 		"args": {
-			"type": "object"
+			"type": [
+				"object",
+				"null"
+			]
 		},
 		"created": {
 			"type": "integer"
 		},
 		"duration": {
-			"type": "number"
+			"type": [
+				"number",
+				"null"
+			]
 		},
 		"eco": {
 			"$ref": "Eco_schema.json"
@@ -21,7 +27,10 @@
 			"type": "string"
 		},
 		"result": {
-			"type": "string"
+			"type": [
+				"string",
+				"null"
+			]
 		},
 		"service_guid": {
 			"type": "string"

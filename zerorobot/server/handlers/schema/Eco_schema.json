@@ -21,7 +21,10 @@
 			"type": "string"
 		},
 		"data": {
-			"type": "object"
+			"type": [
+				"object",
+				"null"
+			]
 		},
 		"epoch": {
 			"type": "integer"

@@ -1299,10 +1299,6 @@ It is the class every template should inherits from.</p>
 <span class="sd">        _run is responsible to walk over the task list to execute actions</span>
 <span class="sd">        and handle responses from other service</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c1"># wait to start the processsing of task list after the service is fully loaded</span>
-        <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">SERVICE_LOADED</span><span class="p">:</span>
-            <span class="n">config</span><span class="o">.</span><span class="n">SERVICE_LOADED</span><span class="o">.</span><span class="n">wait</span><span class="p">()</span>
-
         <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
             <span class="n">task</span> <span class="o">=</span> <span class="bp">None</span>
             <span class="k">try</span><span class="p">:</span>
@@ -1909,10 +1905,6 @@ manage a group of greenlets</p>
 <span class="sd">        _run is responsible to walk over the task list to execute actions</span>
 <span class="sd">        and handle responses from other service</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c1"># wait to start the processsing of task list after the service is fully loaded</span>
-        <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">SERVICE_LOADED</span><span class="p">:</span>
-            <span class="n">config</span><span class="o">.</span><span class="n">SERVICE_LOADED</span><span class="o">.</span><span class="n">wait</span><span class="p">()</span>
-
         <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
             <span class="n">task</span> <span class="o">=</span> <span class="bp">None</span>
             <span class="k">try</span><span class="p">:</span>

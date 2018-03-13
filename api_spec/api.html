@@ -4,7 +4,7 @@
     <title>ZeroRobot API documentation</title>
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <meta name="generator" content="https://github.com/raml2html/raml2html 6.4.2">
+    <meta name="generator" content="https://github.com/raml2html/raml2html 6.4.1">
 
     <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.3.0/styles/default.min.css">
@@ -431,7 +431,7 @@ Which mean all the service have been created and all actions added to the task l
                                     <ul>
                                       
                                         <li>
-  <strong>action_name</strong>:
+  <strong>service_guid</strong>:
 
     
       <em>required (string)
@@ -487,7 +487,7 @@ Which mean all the service have been created and all actions added to the task l
 
                                       
                                         <li>
-  <strong>template_name</strong>:
+  <strong>action_name</strong>:
 
     
       <em>required (string)
@@ -521,89 +521,6 @@ Which mean all the service have been created and all actions added to the task l
     
   
 
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-                                      
-                                        <li>
-  <strong>service_guid</strong>:
-
-    
-      <em>required (string)
-      </em>
-    
-  
-
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-                                      
-                                        <li>
-  <strong>guid</strong>:
-
-    
-      <em>required (string)
-      </em>
-    
-  
-
-<p>unique ID of the task</p>
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-                                      
-                                        <li>
-  <strong>state</strong>:
-
-    
-      <em>required (one of new, ok, running, error)
-      </em>
-    
-  
-
-<p>a task that is waiting to be executed is in state new.
-a task that being executed is in state running
-a task that executed successfully is in state ok
-a task that failed to execute and/or is being retried is in state error.</p>
 
 
   
@@ -676,6 +593,63 @@ a task that failed to execute and/or is being retried is in state error.</p>
 
                                       
                                         <li>
+  <strong>state</strong>:
+
+    
+      <em>required (one of new, ok, running, error)
+      </em>
+    
+  
+
+<p>a task that is waiting to be executed is in state new.
+a task that being executed is in state running
+a task that executed successfully is in state ok
+a task that failed to execute and/or is being retried is in state error.</p>
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                                      
+                                        <li>
+  <strong>result</strong>:
+
+    
+      <em>(string)
+      </em>
+    
+  
+
+<p>serialized version of the result of the task</p>
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                                      
+                                        <li>
   <strong>eco</strong>:
 
     
@@ -695,7 +669,59 @@ a task that failed to execute and/or is being retried is in state error.</p>
     <ul>
       
         <li>
-  <strong>appname</strong>:
+  <strong>errormessagePub</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>category</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>tags</strong>:
 
     
       <em>required (string)
@@ -747,10 +773,166 @@ a task that failed to execute and/or is being retried is in state error.</p>
 
       
         <li>
-  <strong>errormessagePub</strong>:
+  <strong>funcfilename</strong>:
 
     
       <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>appname</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>_limit</strong>:
+
+    
+      <em>required (integer)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>funcname</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>masterjid</strong>:
+
+    
+      <em>required (integer)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>closetime</strong>:
+
+    
+      <em>required (integer)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>jid</strong>:
+
+    
+      <em>required (integer)
       </em>
     
   
@@ -799,7 +981,293 @@ a task that failed to execute and/or is being retried is in state error.</p>
 
       
         <li>
+  <strong>occurrences</strong>:
+
+    
+      <em>required (integer)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
   <strong>state</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>level</strong>:
+
+    
+      <em>required (integer)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>lasttime</strong>:
+
+    
+      <em>required (integer)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>pid</strong>:
+
+    
+      <em>required (integer)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>errormessage</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>_traceback</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>code</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>uniquekey</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>exceptionclassname</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>funclinenr</strong>:
+
+    
+      <em>required (integer)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>guid</strong>:
 
     
       <em>required (string)
@@ -854,500 +1322,6 @@ a task that failed to execute and/or is being retried is in state error.</p>
 </li>
 
       
-        <li>
-  <strong>jid</strong>:
-
-    
-      <em>required (integer)
-      </em>
-    
-  
-
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-      
-        <li>
-  <strong>masterjid</strong>:
-
-    
-      <em>required (integer)
-      </em>
-    
-  
-
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-      
-        <li>
-  <strong>errormessage</strong>:
-
-    
-      <em>required (string)
-      </em>
-    
-  
-
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-      
-        <li>
-  <strong>uniquekey</strong>:
-
-    
-      <em>required (string)
-      </em>
-    
-  
-
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-      
-        <li>
-  <strong>category</strong>:
-
-    
-      <em>required (string)
-      </em>
-    
-  
-
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-      
-        <li>
-  <strong>exceptionclassname</strong>:
-
-    
-      <em>required (string)
-      </em>
-    
-  
-
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-      
-        <li>
-  <strong>funcfilename</strong>:
-
-    
-      <em>required (string)
-      </em>
-    
-  
-
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-      
-        <li>
-  <strong>closetime</strong>:
-
-    
-      <em>required (integer)
-      </em>
-    
-  
-
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-      
-        <li>
-  <strong>level</strong>:
-
-    
-      <em>required (integer)
-      </em>
-    
-  
-
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-      
-        <li>
-  <strong>_limit</strong>:
-
-    
-      <em>required (integer)
-      </em>
-    
-  
-
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-      
-        <li>
-  <strong>lasttime</strong>:
-
-    
-      <em>required (integer)
-      </em>
-    
-  
-
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-      
-        <li>
-  <strong>code</strong>:
-
-    
-      <em>required (string)
-      </em>
-    
-  
-
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-      
-        <li>
-  <strong>guid</strong>:
-
-    
-      <em>required (string)
-      </em>
-    
-  
-
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-      
-        <li>
-  <strong>tags</strong>:
-
-    
-      <em>required (string)
-      </em>
-    
-  
-
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-      
-        <li>
-  <strong>funclinenr</strong>:
-
-    
-      <em>required (integer)
-      </em>
-    
-  
-
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-      
-        <li>
-  <strong>_traceback</strong>:
-
-    
-      <em>required (string)
-      </em>
-    
-  
-
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-      
-        <li>
-  <strong>funcname</strong>:
-
-    
-      <em>required (string)
-      </em>
-    
-  
-
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-      
-        <li>
-  <strong>pid</strong>:
-
-    
-      <em>required (integer)
-      </em>
-    
-  
-
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-      
-        <li>
-  <strong>occurrences</strong>:
-
-    
-      <em>required (integer)
-      </em>
-    
-  
-
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-      
     </ul>
   
 
@@ -1361,15 +1335,41 @@ a task that failed to execute and/or is being retried is in state error.</p>
 
                                       
                                         <li>
-  <strong>result</strong>:
+  <strong>template_name</strong>:
 
     
-      <em>(string)
+      <em>required (string)
       </em>
     
   
 
-<p>serialized version of the result of the task</p>
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                                      
+                                        <li>
+  <strong>guid</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+<p>unique ID of the task</p>
 
 
   
@@ -2799,33 +2799,6 @@ There are different informations extracted from</p>
 </li>
 
                                       
-                                        <li>
-  <strong>parent</strong>:
-
-    
-      <em>(string)
-      </em>
-    
-  
-
-<p>guid of the parent service</p>
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-                                      
                                     </ul>
                                   
 
@@ -3341,33 +3314,6 @@ There are different informations extracted from</p>
 </li>
 
                               
-                                <li>
-  <strong>parent</strong>:
-
-    
-      <em>(string)
-      </em>
-    
-  
-
-<p>guid of the parent service</p>
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-                              
                             </ul>
                           
 
@@ -3851,33 +3797,6 @@ body:
         </div>
       
     
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-                              
-                                <li>
-  <strong>parent</strong>:
-
-    
-      <em>(string)
-      </em>
-    
-  
-
-<p>guid of the parent service</p>
-
-
-  
-
   
 
   
@@ -4467,33 +4386,6 @@ body:
         </div>
       
     
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-                              
-                                <li>
-  <strong>parent</strong>:
-
-    
-      <em>(string)
-      </em>
-    
-  
-
-<p>guid of the parent service</p>
-
-
-  
-
   
 
   
@@ -5249,7 +5141,7 @@ default: false</p>
                                     <ul>
                                       
                                         <li>
-  <strong>action_name</strong>:
+  <strong>service_guid</strong>:
 
     
       <em>required (string)
@@ -5305,7 +5197,7 @@ default: false</p>
 
                                       
                                         <li>
-  <strong>template_name</strong>:
+  <strong>action_name</strong>:
 
     
       <em>required (string)
@@ -5339,89 +5231,6 @@ default: false</p>
     
   
 
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-                                      
-                                        <li>
-  <strong>service_guid</strong>:
-
-    
-      <em>required (string)
-      </em>
-    
-  
-
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-                                      
-                                        <li>
-  <strong>guid</strong>:
-
-    
-      <em>required (string)
-      </em>
-    
-  
-
-<p>unique ID of the task</p>
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-                                      
-                                        <li>
-  <strong>state</strong>:
-
-    
-      <em>required (one of new, ok, running, error)
-      </em>
-    
-  
-
-<p>a task that is waiting to be executed is in state new.
-a task that being executed is in state running
-a task that executed successfully is in state ok
-a task that failed to execute and/or is being retried is in state error.</p>
 
 
   
@@ -5494,6 +5303,63 @@ a task that failed to execute and/or is being retried is in state error.</p>
 
                                       
                                         <li>
+  <strong>state</strong>:
+
+    
+      <em>required (one of new, ok, running, error)
+      </em>
+    
+  
+
+<p>a task that is waiting to be executed is in state new.
+a task that being executed is in state running
+a task that executed successfully is in state ok
+a task that failed to execute and/or is being retried is in state error.</p>
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                                      
+                                        <li>
+  <strong>result</strong>:
+
+    
+      <em>(string)
+      </em>
+    
+  
+
+<p>serialized version of the result of the task</p>
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                                      
+                                        <li>
   <strong>eco</strong>:
 
     
@@ -5513,7 +5379,59 @@ a task that failed to execute and/or is being retried is in state error.</p>
     <ul>
       
         <li>
-  <strong>appname</strong>:
+  <strong>errormessagePub</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>category</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>tags</strong>:
 
     
       <em>required (string)
@@ -5565,10 +5483,166 @@ a task that failed to execute and/or is being retried is in state error.</p>
 
       
         <li>
-  <strong>errormessagePub</strong>:
+  <strong>funcfilename</strong>:
 
     
       <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>appname</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>_limit</strong>:
+
+    
+      <em>required (integer)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>funcname</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>masterjid</strong>:
+
+    
+      <em>required (integer)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>closetime</strong>:
+
+    
+      <em>required (integer)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>jid</strong>:
+
+    
+      <em>required (integer)
       </em>
     
   
@@ -5617,7 +5691,293 @@ a task that failed to execute and/or is being retried is in state error.</p>
 
       
         <li>
+  <strong>occurrences</strong>:
+
+    
+      <em>required (integer)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
   <strong>state</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>level</strong>:
+
+    
+      <em>required (integer)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>lasttime</strong>:
+
+    
+      <em>required (integer)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>pid</strong>:
+
+    
+      <em>required (integer)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>errormessage</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>_traceback</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>code</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>uniquekey</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>exceptionclassname</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>funclinenr</strong>:
+
+    
+      <em>required (integer)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>guid</strong>:
 
     
       <em>required (string)
@@ -5672,500 +6032,6 @@ a task that failed to execute and/or is being retried is in state error.</p>
 </li>
 
       
-        <li>
-  <strong>jid</strong>:
-
-    
-      <em>required (integer)
-      </em>
-    
-  
-
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-      
-        <li>
-  <strong>masterjid</strong>:
-
-    
-      <em>required (integer)
-      </em>
-    
-  
-
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-      
-        <li>
-  <strong>errormessage</strong>:
-
-    
-      <em>required (string)
-      </em>
-    
-  
-
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-      
-        <li>
-  <strong>uniquekey</strong>:
-
-    
-      <em>required (string)
-      </em>
-    
-  
-
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-      
-        <li>
-  <strong>category</strong>:
-
-    
-      <em>required (string)
-      </em>
-    
-  
-
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-      
-        <li>
-  <strong>exceptionclassname</strong>:
-
-    
-      <em>required (string)
-      </em>
-    
-  
-
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-      
-        <li>
-  <strong>funcfilename</strong>:
-
-    
-      <em>required (string)
-      </em>
-    
-  
-
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-      
-        <li>
-  <strong>closetime</strong>:
-
-    
-      <em>required (integer)
-      </em>
-    
-  
-
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-      
-        <li>
-  <strong>level</strong>:
-
-    
-      <em>required (integer)
-      </em>
-    
-  
-
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-      
-        <li>
-  <strong>_limit</strong>:
-
-    
-      <em>required (integer)
-      </em>
-    
-  
-
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-      
-        <li>
-  <strong>lasttime</strong>:
-
-    
-      <em>required (integer)
-      </em>
-    
-  
-
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-      
-        <li>
-  <strong>code</strong>:
-
-    
-      <em>required (string)
-      </em>
-    
-  
-
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-      
-        <li>
-  <strong>guid</strong>:
-
-    
-      <em>required (string)
-      </em>
-    
-  
-
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-      
-        <li>
-  <strong>tags</strong>:
-
-    
-      <em>required (string)
-      </em>
-    
-  
-
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-      
-        <li>
-  <strong>funclinenr</strong>:
-
-    
-      <em>required (integer)
-      </em>
-    
-  
-
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-      
-        <li>
-  <strong>_traceback</strong>:
-
-    
-      <em>required (string)
-      </em>
-    
-  
-
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-      
-        <li>
-  <strong>funcname</strong>:
-
-    
-      <em>required (string)
-      </em>
-    
-  
-
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-      
-        <li>
-  <strong>pid</strong>:
-
-    
-      <em>required (integer)
-      </em>
-    
-  
-
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-      
-        <li>
-  <strong>occurrences</strong>:
-
-    
-      <em>required (integer)
-      </em>
-    
-  
-
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-      
     </ul>
   
 
@@ -6179,15 +6045,41 @@ a task that failed to execute and/or is being retried is in state error.</p>
 
                                       
                                         <li>
-  <strong>result</strong>:
+  <strong>template_name</strong>:
 
     
-      <em>(string)
+      <em>required (string)
       </em>
     
   
 
-<p>serialized version of the result of the task</p>
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                                      
+                                        <li>
+  <strong>guid</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+<p>unique ID of the task</p>
 
 
   
@@ -6481,7 +6373,7 @@ a task that failed to execute and/or is being retried is in state error.</p>
                             <ul>
                               
                                 <li>
-  <strong>action_name</strong>:
+  <strong>service_guid</strong>:
 
     
       <em>required (string)
@@ -6537,7 +6429,7 @@ a task that failed to execute and/or is being retried is in state error.</p>
 
                               
                                 <li>
-  <strong>template_name</strong>:
+  <strong>action_name</strong>:
 
     
       <em>required (string)
@@ -6571,89 +6463,6 @@ a task that failed to execute and/or is being retried is in state error.</p>
     
   
 
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-                              
-                                <li>
-  <strong>service_guid</strong>:
-
-    
-      <em>required (string)
-      </em>
-    
-  
-
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-                              
-                                <li>
-  <strong>guid</strong>:
-
-    
-      <em>required (string)
-      </em>
-    
-  
-
-<p>unique ID of the task</p>
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-                              
-                                <li>
-  <strong>state</strong>:
-
-    
-      <em>required (one of new, ok, running, error)
-      </em>
-    
-  
-
-<p>a task that is waiting to be executed is in state new.
-a task that being executed is in state running
-a task that executed successfully is in state ok
-a task that failed to execute and/or is being retried is in state error.</p>
 
 
   
@@ -6726,6 +6535,63 @@ a task that failed to execute and/or is being retried is in state error.</p>
 
                               
                                 <li>
+  <strong>state</strong>:
+
+    
+      <em>required (one of new, ok, running, error)
+      </em>
+    
+  
+
+<p>a task that is waiting to be executed is in state new.
+a task that being executed is in state running
+a task that executed successfully is in state ok
+a task that failed to execute and/or is being retried is in state error.</p>
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                              
+                                <li>
+  <strong>result</strong>:
+
+    
+      <em>(string)
+      </em>
+    
+  
+
+<p>serialized version of the result of the task</p>
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                              
+                                <li>
   <strong>eco</strong>:
 
     
@@ -6745,7 +6611,59 @@ a task that failed to execute and/or is being retried is in state error.</p>
     <ul>
       
         <li>
-  <strong>appname</strong>:
+  <strong>errormessagePub</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>category</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>tags</strong>:
 
     
       <em>required (string)
@@ -6797,10 +6715,166 @@ a task that failed to execute and/or is being retried is in state error.</p>
 
       
         <li>
-  <strong>errormessagePub</strong>:
+  <strong>funcfilename</strong>:
 
     
       <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>appname</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>_limit</strong>:
+
+    
+      <em>required (integer)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>funcname</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>masterjid</strong>:
+
+    
+      <em>required (integer)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>closetime</strong>:
+
+    
+      <em>required (integer)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>jid</strong>:
+
+    
+      <em>required (integer)
       </em>
     
   
@@ -6849,7 +6923,293 @@ a task that failed to execute and/or is being retried is in state error.</p>
 
       
         <li>
+  <strong>occurrences</strong>:
+
+    
+      <em>required (integer)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
   <strong>state</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>level</strong>:
+
+    
+      <em>required (integer)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>lasttime</strong>:
+
+    
+      <em>required (integer)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>pid</strong>:
+
+    
+      <em>required (integer)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>errormessage</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>_traceback</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>code</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>uniquekey</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>exceptionclassname</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>funclinenr</strong>:
+
+    
+      <em>required (integer)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>guid</strong>:
 
     
       <em>required (string)
@@ -6904,500 +7264,6 @@ a task that failed to execute and/or is being retried is in state error.</p>
 </li>
 
       
-        <li>
-  <strong>jid</strong>:
-
-    
-      <em>required (integer)
-      </em>
-    
-  
-
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-      
-        <li>
-  <strong>masterjid</strong>:
-
-    
-      <em>required (integer)
-      </em>
-    
-  
-
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-      
-        <li>
-  <strong>errormessage</strong>:
-
-    
-      <em>required (string)
-      </em>
-    
-  
-
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-      
-        <li>
-  <strong>uniquekey</strong>:
-
-    
-      <em>required (string)
-      </em>
-    
-  
-
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-      
-        <li>
-  <strong>category</strong>:
-
-    
-      <em>required (string)
-      </em>
-    
-  
-
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-      
-        <li>
-  <strong>exceptionclassname</strong>:
-
-    
-      <em>required (string)
-      </em>
-    
-  
-
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-      
-        <li>
-  <strong>funcfilename</strong>:
-
-    
-      <em>required (string)
-      </em>
-    
-  
-
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-      
-        <li>
-  <strong>closetime</strong>:
-
-    
-      <em>required (integer)
-      </em>
-    
-  
-
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-      
-        <li>
-  <strong>level</strong>:
-
-    
-      <em>required (integer)
-      </em>
-    
-  
-
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-      
-        <li>
-  <strong>_limit</strong>:
-
-    
-      <em>required (integer)
-      </em>
-    
-  
-
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-      
-        <li>
-  <strong>lasttime</strong>:
-
-    
-      <em>required (integer)
-      </em>
-    
-  
-
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-      
-        <li>
-  <strong>code</strong>:
-
-    
-      <em>required (string)
-      </em>
-    
-  
-
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-      
-        <li>
-  <strong>guid</strong>:
-
-    
-      <em>required (string)
-      </em>
-    
-  
-
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-      
-        <li>
-  <strong>tags</strong>:
-
-    
-      <em>required (string)
-      </em>
-    
-  
-
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-      
-        <li>
-  <strong>funclinenr</strong>:
-
-    
-      <em>required (integer)
-      </em>
-    
-  
-
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-      
-        <li>
-  <strong>_traceback</strong>:
-
-    
-      <em>required (string)
-      </em>
-    
-  
-
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-      
-        <li>
-  <strong>funcname</strong>:
-
-    
-      <em>required (string)
-      </em>
-    
-  
-
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-      
-        <li>
-  <strong>pid</strong>:
-
-    
-      <em>required (integer)
-      </em>
-    
-  
-
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-      
-        <li>
-  <strong>occurrences</strong>:
-
-    
-      <em>required (integer)
-      </em>
-    
-  
-
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-      
     </ul>
   
 
@@ -7411,15 +7277,41 @@ a task that failed to execute and/or is being retried is in state error.</p>
 
                               
                                 <li>
-  <strong>result</strong>:
+  <strong>template_name</strong>:
 
     
-      <em>(string)
+      <em>required (string)
       </em>
     
   
 
-<p>serialized version of the result of the task</p>
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                              
+                                <li>
+  <strong>guid</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+<p>unique ID of the task</p>
 
 
   
@@ -7662,7 +7554,7 @@ a task that failed to execute and/or is being retried is in state error.</p>
                             <ul>
                               
                                 <li>
-  <strong>action_name</strong>:
+  <strong>service_guid</strong>:
 
     
       <em>required (string)
@@ -7718,7 +7610,7 @@ a task that failed to execute and/or is being retried is in state error.</p>
 
                               
                                 <li>
-  <strong>template_name</strong>:
+  <strong>action_name</strong>:
 
     
       <em>required (string)
@@ -7752,89 +7644,6 @@ a task that failed to execute and/or is being retried is in state error.</p>
     
   
 
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-                              
-                                <li>
-  <strong>service_guid</strong>:
-
-    
-      <em>required (string)
-      </em>
-    
-  
-
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-                              
-                                <li>
-  <strong>guid</strong>:
-
-    
-      <em>required (string)
-      </em>
-    
-  
-
-<p>unique ID of the task</p>
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-                              
-                                <li>
-  <strong>state</strong>:
-
-    
-      <em>required (one of new, ok, running, error)
-      </em>
-    
-  
-
-<p>a task that is waiting to be executed is in state new.
-a task that being executed is in state running
-a task that executed successfully is in state ok
-a task that failed to execute and/or is being retried is in state error.</p>
 
 
   
@@ -7907,6 +7716,63 @@ a task that failed to execute and/or is being retried is in state error.</p>
 
                               
                                 <li>
+  <strong>state</strong>:
+
+    
+      <em>required (one of new, ok, running, error)
+      </em>
+    
+  
+
+<p>a task that is waiting to be executed is in state new.
+a task that being executed is in state running
+a task that executed successfully is in state ok
+a task that failed to execute and/or is being retried is in state error.</p>
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                              
+                                <li>
+  <strong>result</strong>:
+
+    
+      <em>(string)
+      </em>
+    
+  
+
+<p>serialized version of the result of the task</p>
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                              
+                                <li>
   <strong>eco</strong>:
 
     
@@ -7926,7 +7792,59 @@ a task that failed to execute and/or is being retried is in state error.</p>
     <ul>
       
         <li>
-  <strong>appname</strong>:
+  <strong>errormessagePub</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>category</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>tags</strong>:
 
     
       <em>required (string)
@@ -7978,10 +7896,166 @@ a task that failed to execute and/or is being retried is in state error.</p>
 
       
         <li>
-  <strong>errormessagePub</strong>:
+  <strong>funcfilename</strong>:
 
     
       <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>appname</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>_limit</strong>:
+
+    
+      <em>required (integer)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>funcname</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>masterjid</strong>:
+
+    
+      <em>required (integer)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>closetime</strong>:
+
+    
+      <em>required (integer)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>jid</strong>:
+
+    
+      <em>required (integer)
       </em>
     
   
@@ -8030,7 +8104,293 @@ a task that failed to execute and/or is being retried is in state error.</p>
 
       
         <li>
+  <strong>occurrences</strong>:
+
+    
+      <em>required (integer)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
   <strong>state</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>level</strong>:
+
+    
+      <em>required (integer)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>lasttime</strong>:
+
+    
+      <em>required (integer)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>pid</strong>:
+
+    
+      <em>required (integer)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>errormessage</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>_traceback</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>code</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>uniquekey</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>exceptionclassname</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>funclinenr</strong>:
+
+    
+      <em>required (integer)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>guid</strong>:
 
     
       <em>required (string)
@@ -8085,500 +8445,6 @@ a task that failed to execute and/or is being retried is in state error.</p>
 </li>
 
       
-        <li>
-  <strong>jid</strong>:
-
-    
-      <em>required (integer)
-      </em>
-    
-  
-
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-      
-        <li>
-  <strong>masterjid</strong>:
-
-    
-      <em>required (integer)
-      </em>
-    
-  
-
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-      
-        <li>
-  <strong>errormessage</strong>:
-
-    
-      <em>required (string)
-      </em>
-    
-  
-
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-      
-        <li>
-  <strong>uniquekey</strong>:
-
-    
-      <em>required (string)
-      </em>
-    
-  
-
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-      
-        <li>
-  <strong>category</strong>:
-
-    
-      <em>required (string)
-      </em>
-    
-  
-
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-      
-        <li>
-  <strong>exceptionclassname</strong>:
-
-    
-      <em>required (string)
-      </em>
-    
-  
-
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-      
-        <li>
-  <strong>funcfilename</strong>:
-
-    
-      <em>required (string)
-      </em>
-    
-  
-
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-      
-        <li>
-  <strong>closetime</strong>:
-
-    
-      <em>required (integer)
-      </em>
-    
-  
-
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-      
-        <li>
-  <strong>level</strong>:
-
-    
-      <em>required (integer)
-      </em>
-    
-  
-
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-      
-        <li>
-  <strong>_limit</strong>:
-
-    
-      <em>required (integer)
-      </em>
-    
-  
-
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-      
-        <li>
-  <strong>lasttime</strong>:
-
-    
-      <em>required (integer)
-      </em>
-    
-  
-
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-      
-        <li>
-  <strong>code</strong>:
-
-    
-      <em>required (string)
-      </em>
-    
-  
-
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-      
-        <li>
-  <strong>guid</strong>:
-
-    
-      <em>required (string)
-      </em>
-    
-  
-
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-      
-        <li>
-  <strong>tags</strong>:
-
-    
-      <em>required (string)
-      </em>
-    
-  
-
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-      
-        <li>
-  <strong>funclinenr</strong>:
-
-    
-      <em>required (integer)
-      </em>
-    
-  
-
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-      
-        <li>
-  <strong>_traceback</strong>:
-
-    
-      <em>required (string)
-      </em>
-    
-  
-
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-      
-        <li>
-  <strong>funcname</strong>:
-
-    
-      <em>required (string)
-      </em>
-    
-  
-
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-      
-        <li>
-  <strong>pid</strong>:
-
-    
-      <em>required (integer)
-      </em>
-    
-  
-
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-      
-        <li>
-  <strong>occurrences</strong>:
-
-    
-      <em>required (integer)
-      </em>
-    
-  
-
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-      
     </ul>
   
 
@@ -8592,15 +8458,41 @@ a task that failed to execute and/or is being retried is in state error.</p>
 
                               
                                 <li>
-  <strong>result</strong>:
+  <strong>template_name</strong>:
 
     
-      <em>(string)
+      <em>required (string)
       </em>
     
   
 
-<p>serialized version of the result of the task</p>
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                              
+                                <li>
+  <strong>guid</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+<p>unique ID of the task</p>
 
 
   
