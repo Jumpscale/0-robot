@@ -14,8 +14,8 @@ from zerorobot.template_collection import TemplateNotFoundError
 
 class ServicesMgr:
 
-    def __init__(self, base):
-        self._base = base
+    def __init__(self):
+        pass
 
     @property
     def names(self):
@@ -104,12 +104,36 @@ class ServicesMgr:
         return scol.upgrade(service, new_template)
 
 
+class TemplatesMgr:
+
+    def __init__(self):
+        pass
+
+    def add_repo(self, url, branch='master'):
+        """
+        Add a new template repository
+
+        returns the templates that were added from this repository
+        """
+        return tcol.add_repo(url=url, branch=branch)
+
+    @property
+    def uids(self):
+        """
+        Returns a dict of template UID present on the ZeroRobot
+        keys are the templates uids
+        values are the templates objects
+        """
+        return tcol._templates
+
+
 class ZeroRobotAPI:
     # TODO: find better name
 
     def __init__(self):
         self._config_mgr = ConfigMgr()
-        self.services = ServicesMgr(self)
+        self.services = ServicesMgr()
+        self.templates = TemplatesMgr()
 
     @property
     def robots(self):

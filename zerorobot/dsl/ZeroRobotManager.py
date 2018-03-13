@@ -13,6 +13,8 @@ from zerorobot.service_proxy import ServiceProxy
 from zerorobot.template_uid import TemplateUID
 from zerorobot.service_collection import ServiceNotFoundError, TooManyResults
 
+logger = j.logger.get('zerorobot')
+
 
 class TemplateNotFoundError(Exception):
     """
@@ -151,6 +153,7 @@ class ServicesMgr:
             if err.response.status_code == 409:
                 raise ServiceConflictError(err.response.json()['message'], None)
             e = err.response.json()
+            logger.error('fail to create service: %s' % e['message'])
             raise ServiceCreateError(e['message'], err)
 
         service = ServiceProxy(new_service.name, new_service.guid, self._client)
