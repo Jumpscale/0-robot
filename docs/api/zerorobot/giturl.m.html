@@ -3,8 +3,8 @@
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 
-    <title>zerorobot API documentation</title>
-    <meta name="description" content="" />
+    <title>zerorobot.giturl API documentation</title>
+    <meta name="description" content="this module contains utility to parse git URL" />
 
   <link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:400,300' rel='stylesheet' type='text/css'>
   
@@ -1041,30 +1041,17 @@ table {
     <h1>Index</h1>
     <ul id="index">
 
+    <li class="set"><h3><a href="#header-functions">Functions</a></h3>
+      
+  <ul>
+    <li class="mono"><a href="#zerorobot.giturl.git_path">git_path</a></li>
+    <li class="mono"><a href="#zerorobot.giturl.parse">parse</a></li>
+    <li class="mono"><a href="#zerorobot.giturl.parse_template_repo_url">parse_template_repo_url</a></li>
+  </ul>
 
-
-    <li class="set"><h3><a href="#header-submodules">Sub-modules</a></h3>
-      <ul>
-        <li class="mono"><a href="auto_pusher.m.html">zerorobot.auto_pusher</a></li>
-        <li class="mono"><a href="blueprint.m.html">zerorobot.blueprint</a></li>
-        <li class="mono"><a href="cli/index.html">zerorobot.cli</a></li>
-        <li class="mono"><a href="config.m.html">zerorobot.config</a></li>
-        <li class="mono"><a href="dsl/index.html">zerorobot.dsl</a></li>
-        <li class="mono"><a href="errors.m.html">zerorobot.errors</a></li>
-        <li class="mono"><a href="giturl.m.html">zerorobot.giturl</a></li>
-        <li class="mono"><a href="prometheus/index.html">zerorobot.prometheus</a></li>
-        <li class="mono"><a href="robot.m.html">zerorobot.robot</a></li>
-        <li class="mono"><a href="server/index.html">zerorobot.server</a></li>
-        <li class="mono"><a href="service_collection.m.html">zerorobot.service_collection</a></li>
-        <li class="mono"><a href="service_proxy.m.html">zerorobot.service_proxy</a></li>
-        <li class="mono"><a href="sqlite.m.html">zerorobot.sqlite</a></li>
-        <li class="mono"><a href="task/index.html">zerorobot.task</a></li>
-        <li class="mono"><a href="template/index.html">zerorobot.template</a></li>
-        <li class="mono"><a href="template_collection.m.html">zerorobot.template_collection</a></li>
-        <li class="mono"><a href="template_uid.m.html">zerorobot.template_uid</a></li>
-        <li class="mono"><a href="whoosh.m.html">zerorobot.whoosh</a></li>
-      </ul>
     </li>
+
+
     </ul>
   </div>
 
@@ -1076,153 +1063,197 @@ table {
 
 
   <header id="section-intro">
-  <h1 class="title"><span class="name">zerorobot</span> module</h1>
+  <h1 class="title"><span class="name">zerorobot.giturl</span> module</h1>
+  <p>this module contains utility to parse git URL</p>
   
-  
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.giturl', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.giturl" class="source">
+    <div class="codehilite"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">this module contains utility to parse git URL</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">urllib</span>
+
+<span class="kn">from</span> <span class="nn">js9</span> <span class="kn">import</span> <span class="n">j</span>
+
+<span class="n">_url_pattern_ssh</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s1">&#39;^(git)@(.*?):(.*?)/(.*?)/?$&#39;</span><span class="p">)</span>
+<span class="n">_url_pattern_ssh2</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s1">&#39;^(git)@(.*?)/(.*?)/(.*?)/?$&#39;</span><span class="p">)</span>
+<span class="n">_url_pattern_ssh3</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s1">&#39;^ssh://(git)@(.*?)/(.*?)/(.*?)/?$&#39;</span><span class="p">)</span>
+<span class="n">_url_pattern_http</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s1">&#39;^(https?)://(.*?)/(.*?)/(.*?)/?$&#39;</span><span class="p">)</span>
+<span class="n">_url_patterns</span> <span class="o">=</span> <span class="p">(</span><span class="n">_url_pattern_ssh</span><span class="p">,</span> <span class="n">_url_pattern_ssh2</span><span class="p">,</span> <span class="n">_url_pattern_ssh3</span><span class="p">,</span> <span class="n">_url_pattern_http</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">parse</span><span class="p">(</span><span class="n">url</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    return (protocol, repository_host, repository_account, repository_name)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">match</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="k">for</span> <span class="n">pattern</span> <span class="ow">in</span> <span class="n">_url_patterns</span><span class="p">:</span>
+        <span class="n">m</span> <span class="o">=</span> <span class="n">pattern</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">m</span><span class="p">:</span>
+            <span class="n">match</span> <span class="o">=</span> <span class="n">m</span>
+            <span class="k">break</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">match</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+            <span class="s2">&quot;Url is invalid. Must be in the form of &#39;http(s)://hostname/account/repo&#39;, &#39;git@hostname:account/repo&#39; or &#39;ssh://git@hostname/account/repo&#39; </span><span class="se">\n</span><span class="s2">now:</span><span class="se">\n</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">url</span><span class="p">)</span>
+
+    <span class="n">protocol</span><span class="p">,</span> <span class="n">repository_host</span><span class="p">,</span> <span class="n">repository_account</span><span class="p">,</span> <span class="n">repository_name</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">groups</span><span class="p">()</span>
+    <span class="n">repository_name</span> <span class="o">=</span> <span class="n">repository_name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.git&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">repository_host</span> <span class="o">=</span> <span class="n">urllib</span><span class="o">.</span><span class="n">parse</span><span class="o">.</span><span class="n">splitport</span><span class="p">(</span><span class="n">repository_host</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">protocol</span><span class="p">,</span> <span class="n">repository_host</span><span class="p">,</span> <span class="n">repository_account</span><span class="p">,</span> <span class="n">repository_name</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">git_path</span><span class="p">(</span><span class="n">url</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    return the location on the filesystem where a git repo would be cloned</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">_</span><span class="p">,</span> <span class="n">host</span><span class="p">,</span> <span class="n">account</span><span class="p">,</span> <span class="n">name</span> <span class="o">=</span> <span class="n">parse</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+    <span class="n">host</span> <span class="o">=</span> <span class="n">host</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">dest</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">%(codedir)s</span><span class="s1">/</span><span class="si">%(type)s</span><span class="s1">/</span><span class="si">%(account)s</span><span class="s1">/</span><span class="si">%(repo_name)s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">{</span>
+        <span class="s1">&#39;codedir&#39;</span><span class="p">:</span> <span class="n">j</span><span class="o">.</span><span class="n">dirs</span><span class="o">.</span><span class="n">CODEDIR</span><span class="p">,</span>
+        <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="n">host</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span>
+        <span class="s1">&#39;account&#39;</span><span class="p">:</span> <span class="n">account</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span>
+        <span class="s1">&#39;repo_name&#39;</span><span class="p">:</span> <span class="n">name</span><span class="p">,</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="n">dest</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.git&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+
+
+<span class="k">def</span> <span class="nf">parse_template_repo_url</span><span class="p">(</span><span class="n">url</span><span class="p">):</span>
+    <span class="n">branch</span> <span class="o">=</span> <span class="bp">None</span>
+
+    <span class="n">protocol</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">parse</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">protocol</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;ssh&#39;</span><span class="p">,</span> <span class="s1">&#39;git&#39;</span><span class="p">):</span>
+        <span class="n">ss</span> <span class="o">=</span> <span class="n">url</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;#&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ss</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">ss</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">ss</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">url</span><span class="p">,</span> <span class="bp">None</span>
+
+    <span class="n">u</span> <span class="o">=</span> <span class="n">urllib</span><span class="o">.</span><span class="n">parse</span><span class="o">.</span><span class="n">urlparse</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">u</span><span class="o">.</span><span class="n">fragment</span><span class="p">:</span>
+        <span class="n">branch</span> <span class="o">=</span> <span class="n">u</span><span class="o">.</span><span class="n">fragment</span>
+
+    <span class="k">return</span> <span class="n">u</span><span class="o">.</span><span class="n">scheme</span><span class="o">+</span><span class="s1">&#39;://&#39;</span><span class="o">+</span><span class="n">u</span><span class="o">.</span><span class="n">netloc</span><span class="o">+</span><span class="n">u</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="n">branch</span>
+</pre></div>
+
+  </div>
 
   </header>
 
   <section id="section-items">
 
-
-
-    <h2 class="section-title" id="header-submodules">Sub-modules</h2>
-      <div class="item">
-      <p class="name"><a href="auto_pusher.m.html">zerorobot.auto_pusher</a></p>
+    <h2 class="section-title" id="header-functions">Functions</h2>
       
+  <div class="item">
+    <div class="name def" id="zerorobot.giturl.git_path">
+    <p>def <span class="ident">git_path</span>(</p><p>url)</p>
+    </div>
+    
+
+    
+  
+    <div class="desc"><p>return the location on the filesystem where a git repo would be cloned</p></div>
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.giturl.git_path', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.giturl.git_path" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">git_path</span><span class="p">(</span><span class="n">url</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    return the location on the filesystem where a git repo would be cloned</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">_</span><span class="p">,</span> <span class="n">host</span><span class="p">,</span> <span class="n">account</span><span class="p">,</span> <span class="n">name</span> <span class="o">=</span> <span class="n">parse</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+    <span class="n">host</span> <span class="o">=</span> <span class="n">host</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">dest</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">%(codedir)s</span><span class="s1">/</span><span class="si">%(type)s</span><span class="s1">/</span><span class="si">%(account)s</span><span class="s1">/</span><span class="si">%(repo_name)s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">{</span>
+        <span class="s1">&#39;codedir&#39;</span><span class="p">:</span> <span class="n">j</span><span class="o">.</span><span class="n">dirs</span><span class="o">.</span><span class="n">CODEDIR</span><span class="p">,</span>
+        <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="n">host</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span>
+        <span class="s1">&#39;account&#39;</span><span class="p">:</span> <span class="n">account</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span>
+        <span class="s1">&#39;repo_name&#39;</span><span class="p">:</span> <span class="n">name</span><span class="p">,</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="n">dest</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.git&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+</pre></div>
+
+  </div>
+</div>
+
+  </div>
+  
+      
+  <div class="item">
+    <div class="name def" id="zerorobot.giturl.parse">
+    <p>def <span class="ident">parse</span>(</p><p>url)</p>
+    </div>
+    
+
+    
+  
+    <div class="desc"><p>return (protocol, repository_host, repository_account, repository_name)</p></div>
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.giturl.parse', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.giturl.parse" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">parse</span><span class="p">(</span><span class="n">url</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    return (protocol, repository_host, repository_account, repository_name)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">match</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="k">for</span> <span class="n">pattern</span> <span class="ow">in</span> <span class="n">_url_patterns</span><span class="p">:</span>
+        <span class="n">m</span> <span class="o">=</span> <span class="n">pattern</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">m</span><span class="p">:</span>
+            <span class="n">match</span> <span class="o">=</span> <span class="n">m</span>
+            <span class="k">break</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">match</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+            <span class="s2">&quot;Url is invalid. Must be in the form of &#39;http(s)://hostname/account/repo&#39;, &#39;git@hostname:account/repo&#39; or &#39;ssh://git@hostname/account/repo&#39; </span><span class="se">\n</span><span class="s2">now:</span><span class="se">\n</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">url</span><span class="p">)</span>
+
+    <span class="n">protocol</span><span class="p">,</span> <span class="n">repository_host</span><span class="p">,</span> <span class="n">repository_account</span><span class="p">,</span> <span class="n">repository_name</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">groups</span><span class="p">()</span>
+    <span class="n">repository_name</span> <span class="o">=</span> <span class="n">repository_name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.git&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">repository_host</span> <span class="o">=</span> <span class="n">urllib</span><span class="o">.</span><span class="n">parse</span><span class="o">.</span><span class="n">splitport</span><span class="p">(</span><span class="n">repository_host</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">protocol</span><span class="p">,</span> <span class="n">repository_host</span><span class="p">,</span> <span class="n">repository_account</span><span class="p">,</span> <span class="n">repository_name</span><span class="p">)</span>
+</pre></div>
+
+  </div>
+</div>
+
+  </div>
+  
+      
+  <div class="item">
+    <div class="name def" id="zerorobot.giturl.parse_template_repo_url">
+    <p>def <span class="ident">parse_template_repo_url</span>(</p><p>url)</p>
+    </div>
+    
+
+    
+  
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.giturl.parse_template_repo_url', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.giturl.parse_template_repo_url" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">parse_template_repo_url</span><span class="p">(</span><span class="n">url</span><span class="p">):</span>
+    <span class="n">branch</span> <span class="o">=</span> <span class="bp">None</span>
+
+    <span class="n">protocol</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">parse</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">protocol</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;ssh&#39;</span><span class="p">,</span> <span class="s1">&#39;git&#39;</span><span class="p">):</span>
+        <span class="n">ss</span> <span class="o">=</span> <span class="n">url</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;#&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ss</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">ss</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">ss</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">url</span><span class="p">,</span> <span class="bp">None</span>
+
+    <span class="n">u</span> <span class="o">=</span> <span class="n">urllib</span><span class="o">.</span><span class="n">parse</span><span class="o">.</span><span class="n">urlparse</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">u</span><span class="o">.</span><span class="n">fragment</span><span class="p">:</span>
+        <span class="n">branch</span> <span class="o">=</span> <span class="n">u</span><span class="o">.</span><span class="n">fragment</span>
+
+    <span class="k">return</span> <span class="n">u</span><span class="o">.</span><span class="n">scheme</span><span class="o">+</span><span class="s1">&#39;://&#39;</span><span class="o">+</span><span class="n">u</span><span class="o">.</span><span class="n">netloc</span><span class="o">+</span><span class="n">u</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="n">branch</span>
+</pre></div>
+
+  </div>
+</div>
+
+  </div>
   
 
-      </div>
-      <div class="item">
-      <p class="name"><a href="blueprint.m.html">zerorobot.blueprint</a></p>
-      
-  
-    <div class="desc"><p>This module holds all the logic regarding parsing and processing of a blueprint.</p>
-<p>It is being used from the REST API server handlers</p></div>
 
-      </div>
-      <div class="item">
-      <p class="name"><a href="cli/index.html">zerorobot.cli</a></p>
-      
-  
-
-      </div>
-      <div class="item">
-      <p class="name"><a href="config.m.html">zerorobot.config</a></p>
-      
-  
-    <div class="desc"><p>module where we store global configuration used thoughout the robot
-code base</p></div>
-
-      </div>
-      <div class="item">
-      <p class="name"><a href="dsl/index.html">zerorobot.dsl</a></p>
-      
-  
-    <div class="desc"><p>This package contains class that present a hight level API that are meant to be use by end-user and service developer</p></div>
-
-      </div>
-      <div class="item">
-      <p class="name"><a href="errors.m.html">zerorobot.errors</a></p>
-      
-  
-
-      </div>
-      <div class="item">
-      <p class="name"><a href="giturl.m.html">zerorobot.giturl</a></p>
-      
-  
-    <div class="desc"><p>this module contains utility to parse git URL</p></div>
-
-      </div>
-      <div class="item">
-      <p class="name"><a href="prometheus/index.html">zerorobot.prometheus</a></p>
-      
-  
-
-      </div>
-      <div class="item">
-      <p class="name"><a href="robot.m.html">zerorobot.robot</a></p>
-      
-  
-    <div class="desc"><p>robot modules define the Robot class</p>
-<p>It is the class responsible to start and managed the robot as well as the REST API.</p></div>
-
-      </div>
-      <div class="item">
-      <p class="name"><a href="server/index.html">zerorobot.server</a></p>
-      
-  
-
-      </div>
-      <div class="item">
-      <p class="name"><a href="service_collection.m.html">zerorobot.service_collection</a></p>
-      
-  
-    <div class="desc"><p>this module is the only place where the service will be kept in memory.
-other services and class need to use this module method to create, access, list and search the services</p></div>
-
-      </div>
-      <div class="item">
-      <p class="name"><a href="service_proxy.m.html">zerorobot.service_proxy</a></p>
-      
-  
-    <div class="desc"><p>This module implement the ServiceProxy class.</p>
-<p>This class is used to provide a local proxy to a remote service for a ZeroRobot.
-When a service or robot ask the creation of a service to another robot, a proxy class is created locally
-so the robot see the service as if it as local to him while in real...</p></div>
-
-      </div>
-      <div class="item">
-      <p class="name"><a href="sqlite.m.html">zerorobot.sqlite</a></p>
-      
-  
-    <div class="desc"><p>This module holds the logic of indexing services using sqlite in memory database
-It maps the in memory service object indexed by guid to a table in sqlite on which we
-can execute query to fast search</p></div>
-
-      </div>
-      <div class="item">
-      <p class="name"><a href="task/index.html">zerorobot.task</a></p>
-      
-  
-
-      </div>
-      <div class="item">
-      <p class="name"><a href="template/index.html">zerorobot.template</a></p>
-      
-  
-    <div class="desc"><p>This package contains all the logic regarding templates.</p>
-<p>This is mostly the only package AYS developer should work with when implementing services</p>
-<p>It contains 2 sub-module:
-- base:
- This is where the TemplateBase class is defined. This is the class every every service should inherits from.
-- decor...</p></div>
-
-      </div>
-      <div class="item">
-      <p class="name"><a href="template_collection.m.html">zerorobot.template_collection</a></p>
-      
-  
-    <div class="desc"><p>this module is the only place where the templates will be kept in memory.
-other services and class need to use this module method to load/access the templates</p></div>
-
-      </div>
-      <div class="item">
-      <p class="name"><a href="template_uid.m.html">zerorobot.template_uid</a></p>
-      
-  
-
-      </div>
-      <div class="item">
-      <p class="name"><a href="whoosh.m.html">zerorobot.whoosh</a></p>
-      
-  
-    <div class="desc"><p>This module holds the logic of indexing services using sqlite in memory database
-It maps the in memory service object indexed by guid to a table in sqlite on which we
-can execute query to fast search</p></div>
-
-      </div>
   </section>
 
     </article>
