@@ -1097,6 +1097,7 @@ table {
 <span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">signal</span>
+<span class="kn">from</span> <span class="nn">urllib.parse</span> <span class="kn">import</span> <span class="n">urlparse</span>
 
 <span class="kn">import</span> <span class="nn">gevent</span>
 <span class="kn">from</span> <span class="nn">gevent</span> <span class="kn">import</span> <span class="n">GreenletExit</span>
@@ -1106,11 +1107,12 @@ table {
 <span class="kn">from</span> <span class="nn">js9</span> <span class="kn">import</span> <span class="n">j</span>
 <span class="kn">from</span> <span class="nn">zerorobot</span> <span class="kn">import</span> <span class="n">service_collection</span> <span class="k">as</span> <span class="n">scol</span>
 <span class="kn">from</span> <span class="nn">zerorobot</span> <span class="kn">import</span> <span class="n">template_collection</span> <span class="k">as</span> <span class="n">tcol</span>
+<span class="kn">from</span> <span class="nn">zerorobot</span> <span class="kn">import</span> <span class="n">auto_pusher</span><span class="p">,</span> <span class="n">config</span>
 <span class="kn">from</span> <span class="nn">zerorobot.prometheus.flask</span> <span class="kn">import</span> <span class="n">monitor</span>
 <span class="kn">from</span> <span class="nn">zerorobot.server.app</span> <span class="kn">import</span> <span class="n">app</span>
-<span class="kn">from</span> <span class="nn">zerorobot.task</span> <span class="kn">import</span> <span class="n">PRIORITY_SYSTEM</span>
 <span class="kn">from</span> <span class="nn">zerorobot</span> <span class="kn">import</span> <span class="n">config</span>
 <span class="kn">from</span> <span class="nn">zerorobot</span> <span class="kn">import</span> <span class="n">auto_pusher</span>
+<span class="kn">from</span> <span class="nn">zerorobot.task</span> <span class="kn">import</span> <span class="n">PRIORITY_SYSTEM</span>
 
 <span class="c1"># create logger</span>
 <span class="n">logger</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;zerorobot&#39;</span><span class="p">)</span>
@@ -1151,7 +1153,8 @@ table {
         <span class="bp">self</span><span class="o">.</span><span class="n">data_repo_url</span> <span class="o">=</span> <span class="n">url</span>
         <span class="n">config</span><span class="o">.</span><span class="n">DATA_DIR</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">sal</span><span class="o">.</span><span class="n">fs</span><span class="o">.</span><span class="n">joinPaths</span><span class="p">(</span><span class="n">location</span><span class="p">,</span> <span class="s1">&#39;zrobot_data&#39;</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">add_template_repo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">branch</span><span class="o">=</span><span class="s1">&#39;master&#39;</span><span class="p">,</span> <span class="n">directory</span><span class="o">=</span><span class="s1">&#39;templates&#39;</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">add_template_repo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">directory</span><span class="o">=</span><span class="s1">&#39;templates&#39;</span><span class="p">):</span>
+        <span class="n">url</span><span class="p">,</span> <span class="n">branch</span> <span class="o">=</span> <span class="n">_parse_template_repo_url</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
         <span class="n">tcol</span><span class="o">.</span><span class="n">add_repo</span><span class="p">(</span><span class="n">url</span><span class="o">=</span><span class="n">url</span><span class="p">,</span> <span class="n">branch</span><span class="o">=</span><span class="n">branch</span><span class="p">,</span> <span class="n">directory</span><span class="o">=</span><span class="n">directory</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">set_config_repo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">):</span>
@@ -1165,8 +1168,8 @@ table {
             <span class="n">j</span><span class="o">.</span><span class="n">sal</span><span class="o">.</span><span class="n">fs</span><span class="o">.</span><span class="n">createEmptyFile</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">location</span><span class="p">,</span> <span class="s1">&#39;.jsconfig&#39;</span><span class="p">))</span>
         <span class="n">j</span><span class="o">.</span><span class="n">tools</span><span class="o">.</span><span class="n">configmanager</span><span class="o">.</span><span class="n">_path</span> <span class="o">=</span> <span class="n">location</span>
 
-    <span class="k">def</span> <span class="nf">start</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">listen</span><span class="o">=</span><span class="s2">&quot;:6600&quot;</span><span class="p">,</span> <span class="n">log_level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">,</span> <span class="n">block</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">auto_push</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> 
-        <span class="n">auto_push_interval</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">start</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">listen</span><span class="o">=</span><span class="s2">&quot;:6600&quot;</span><span class="p">,</span> <span class="n">log_level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">,</span> <span class="n">block</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">auto_push</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+              <span class="n">auto_push_interval</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        start the rest web server</span>
 <span class="sd">        load the services from the local git repository</span>
@@ -1272,6 +1275,7 @@ table {
             <span class="n">service</span><span class="o">.</span><span class="n">gl_mgr</span><span class="o">.</span><span class="n">stop_all</span><span class="p">()</span>
             <span class="n">service</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
 
+
 <span class="k">def</span> <span class="nf">_try_load_service</span><span class="p">(</span><span class="n">services</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    this method tries to execute `validate` method on the services that failed to load</span>
@@ -1304,6 +1308,15 @@ table {
     <span class="n">host</span> <span class="o">=</span> <span class="n">hostport</span><span class="p">[:</span><span class="n">i</span><span class="p">]</span>
     <span class="n">port</span> <span class="o">=</span> <span class="n">hostport</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">:]</span>
     <span class="k">return</span> <span class="n">host</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">port</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_parse_template_repo_url</span><span class="p">(</span><span class="n">url</span><span class="p">):</span>
+    <span class="n">branch</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="n">u</span> <span class="o">=</span> <span class="n">urlparse</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">u</span><span class="o">.</span><span class="n">fragment</span><span class="p">:</span>
+        <span class="n">branch</span> <span class="o">=</span> <span class="n">u</span><span class="o">.</span><span class="n">fragment</span>
+
+    <span class="k">return</span> <span class="n">u</span><span class="o">.</span><span class="n">scheme</span><span class="o">+</span><span class="s1">&#39;://&#39;</span><span class="o">+</span><span class="n">u</span><span class="o">.</span><span class="n">netloc</span><span class="o">+</span><span class="n">u</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="n">branch</span>
 </pre></div>
 
   </div>
@@ -1379,7 +1392,8 @@ It is responsible to:
         <span class="bp">self</span><span class="o">.</span><span class="n">data_repo_url</span> <span class="o">=</span> <span class="n">url</span>
         <span class="n">config</span><span class="o">.</span><span class="n">DATA_DIR</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">sal</span><span class="o">.</span><span class="n">fs</span><span class="o">.</span><span class="n">joinPaths</span><span class="p">(</span><span class="n">location</span><span class="p">,</span> <span class="s1">&#39;zrobot_data&#39;</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">add_template_repo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">branch</span><span class="o">=</span><span class="s1">&#39;master&#39;</span><span class="p">,</span> <span class="n">directory</span><span class="o">=</span><span class="s1">&#39;templates&#39;</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">add_template_repo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">directory</span><span class="o">=</span><span class="s1">&#39;templates&#39;</span><span class="p">):</span>
+        <span class="n">url</span><span class="p">,</span> <span class="n">branch</span> <span class="o">=</span> <span class="n">_parse_template_repo_url</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
         <span class="n">tcol</span><span class="o">.</span><span class="n">add_repo</span><span class="p">(</span><span class="n">url</span><span class="o">=</span><span class="n">url</span><span class="p">,</span> <span class="n">branch</span><span class="o">=</span><span class="n">branch</span><span class="p">,</span> <span class="n">directory</span><span class="o">=</span><span class="n">directory</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">set_config_repo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">):</span>
@@ -1393,8 +1407,8 @@ It is responsible to:
             <span class="n">j</span><span class="o">.</span><span class="n">sal</span><span class="o">.</span><span class="n">fs</span><span class="o">.</span><span class="n">createEmptyFile</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">location</span><span class="p">,</span> <span class="s1">&#39;.jsconfig&#39;</span><span class="p">))</span>
         <span class="n">j</span><span class="o">.</span><span class="n">tools</span><span class="o">.</span><span class="n">configmanager</span><span class="o">.</span><span class="n">_path</span> <span class="o">=</span> <span class="n">location</span>
 
-    <span class="k">def</span> <span class="nf">start</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">listen</span><span class="o">=</span><span class="s2">&quot;:6600&quot;</span><span class="p">,</span> <span class="n">log_level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">,</span> <span class="n">block</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">auto_push</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> 
-        <span class="n">auto_push_interval</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">start</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">listen</span><span class="o">=</span><span class="s2">&quot;:6600&quot;</span><span class="p">,</span> <span class="n">log_level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">,</span> <span class="n">block</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">auto_push</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+              <span class="n">auto_push_interval</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        start the rest web server</span>
 <span class="sd">        load the services from the local git repository</span>
@@ -1542,7 +1556,7 @@ It is responsible to:
             
   <div class="item">
     <div class="name def" id="zerorobot.robot.Robot.add_template_repo">
-    <p>def <span class="ident">add_template_repo</span>(</p><p>self, url, branch=&#39;master&#39;, directory=&#39;templates&#39;)</p>
+    <p>def <span class="ident">add_template_repo</span>(</p><p>self, url, directory=&#39;templates&#39;)</p>
     </div>
     
 
@@ -1551,7 +1565,8 @@ It is responsible to:
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.robot.Robot.add_template_repo', this);">Show source &equiv;</a></p>
   <div id="source-zerorobot.robot.Robot.add_template_repo" class="source">
-    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">add_template_repo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">branch</span><span class="o">=</span><span class="s1">&#39;master&#39;</span><span class="p">,</span> <span class="n">directory</span><span class="o">=</span><span class="s1">&#39;templates&#39;</span><span class="p">):</span>
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">add_template_repo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">directory</span><span class="o">=</span><span class="s1">&#39;templates&#39;</span><span class="p">):</span>
+    <span class="n">url</span><span class="p">,</span> <span class="n">branch</span> <span class="o">=</span> <span class="n">_parse_template_repo_url</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
     <span class="n">tcol</span><span class="o">.</span><span class="n">add_repo</span><span class="p">(</span><span class="n">url</span><span class="o">=</span><span class="n">url</span><span class="p">,</span> <span class="n">branch</span><span class="o">=</span><span class="n">branch</span><span class="p">,</span> <span class="n">directory</span><span class="o">=</span><span class="n">directory</span><span class="p">)</span>
 </pre></div>
 
@@ -1636,8 +1651,8 @@ load the services from the local git repository</p></div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.robot.Robot.start', this);">Show source &equiv;</a></p>
   <div id="source-zerorobot.robot.Robot.start" class="source">
-    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">start</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">listen</span><span class="o">=</span><span class="s2">&quot;:6600&quot;</span><span class="p">,</span> <span class="n">log_level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">,</span> <span class="n">block</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">auto_push</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> 
-    <span class="n">auto_push_interval</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">start</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">listen</span><span class="o">=</span><span class="s2">&quot;:6600&quot;</span><span class="p">,</span> <span class="n">log_level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">,</span> <span class="n">block</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">auto_push</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+          <span class="n">auto_push_interval</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    start the rest web server</span>
 <span class="sd">    load the services from the local git repository</span>

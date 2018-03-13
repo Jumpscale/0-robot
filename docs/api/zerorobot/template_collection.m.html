@@ -1118,7 +1118,7 @@ other services and class need to use this module method to load/access the templ
 <span class="n">_templates</span> <span class="o">=</span> <span class="p">{}</span>
 
 
-<span class="k">def</span> <span class="nf">add_repo</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">branch</span><span class="o">=</span><span class="s1">&#39;master&#39;</span><span class="p">,</span> <span class="n">directory</span><span class="o">=</span><span class="s1">&#39;templates&#39;</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">add_repo</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">branch</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">directory</span><span class="o">=</span><span class="s1">&#39;templates&#39;</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    url: url of a git repository e.g: http://github.com/jumpscale/zeroroot</span>
 <span class="sd">    branch: the branch of the repository to checkout</span>
@@ -1126,8 +1126,18 @@ other services and class need to use this module method to load/access the templ
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">new_templates</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">dir_path</span> <span class="o">=</span> <span class="n">_git_path</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+
     <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">dir_path</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">branch</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">branch</span> <span class="o">=</span> <span class="s1">&#39;master&#39;</span>
         <span class="n">dir_path</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">clients</span><span class="o">.</span><span class="n">git</span><span class="o">.</span><span class="n">pullGitRepo</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">branch</span><span class="o">=</span><span class="n">branch</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># if we didn&#39;t specify the branch and we already have the repo locally,</span>
+        <span class="c1"># don&#39;t switch branch, this is usefull when developping on different branches</span>
+        <span class="n">repo</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">clients</span><span class="o">.</span><span class="n">git</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">dir_path</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">branch</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="ow">and</span> <span class="n">repo</span><span class="o">.</span><span class="n">branchName</span> <span class="o">!=</span> <span class="n">branch</span><span class="p">:</span>
+            <span class="n">repo</span><span class="o">.</span><span class="n">switchBranch</span><span class="p">(</span><span class="n">branch</span><span class="p">)</span>
+
     <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="n">j</span><span class="o">.</span><span class="n">sal</span><span class="o">.</span><span class="n">fs</span><span class="o">.</span><span class="n">listDirsInDir</span><span class="p">(</span><span class="n">j</span><span class="o">.</span><span class="n">sal</span><span class="o">.</span><span class="n">fs</span><span class="o">.</span><span class="n">joinPaths</span><span class="p">(</span><span class="n">dir_path</span><span class="p">,</span> <span class="n">directory</span><span class="p">)):</span>
         <span class="k">if</span> <span class="n">j</span><span class="o">.</span><span class="n">sal</span><span class="o">.</span><span class="n">fs</span><span class="o">.</span><span class="n">getBaseName</span><span class="p">(</span><span class="n">path</span><span class="p">)</span> <span class="o">==</span> <span class="s1">&#39;__pycache__&#39;</span><span class="p">:</span>
             <span class="k">continue</span>
@@ -1273,7 +1283,7 @@ other services and class need to use this module method to load/access the templ
       
   <div class="item">
     <div class="name def" id="zerorobot.template_collection.add_repo">
-    <p>def <span class="ident">add_repo</span>(</p><p>url, branch=&#39;master&#39;, directory=&#39;templates&#39;)</p>
+    <p>def <span class="ident">add_repo</span>(</p><p>url, branch=None, directory=&#39;templates&#39;)</p>
     </div>
     
 
@@ -1285,7 +1295,7 @@ directory: the path to the directory where the templates are located in the repo
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.template_collection.add_repo', this);">Show source &equiv;</a></p>
   <div id="source-zerorobot.template_collection.add_repo" class="source">
-    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">add_repo</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">branch</span><span class="o">=</span><span class="s1">&#39;master&#39;</span><span class="p">,</span> <span class="n">directory</span><span class="o">=</span><span class="s1">&#39;templates&#39;</span><span class="p">):</span>
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">add_repo</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">branch</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">directory</span><span class="o">=</span><span class="s1">&#39;templates&#39;</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    url: url of a git repository e.g: http://github.com/jumpscale/zeroroot</span>
 <span class="sd">    branch: the branch of the repository to checkout</span>
@@ -1293,8 +1303,18 @@ directory: the path to the directory where the templates are located in the repo
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">new_templates</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">dir_path</span> <span class="o">=</span> <span class="n">_git_path</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+
     <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">dir_path</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">branch</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">branch</span> <span class="o">=</span> <span class="s1">&#39;master&#39;</span>
         <span class="n">dir_path</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">clients</span><span class="o">.</span><span class="n">git</span><span class="o">.</span><span class="n">pullGitRepo</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">branch</span><span class="o">=</span><span class="n">branch</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># if we didn&#39;t specify the branch and we already have the repo locally,</span>
+        <span class="c1"># don&#39;t switch branch, this is usefull when developping on different branches</span>
+        <span class="n">repo</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">clients</span><span class="o">.</span><span class="n">git</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">dir_path</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">branch</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="ow">and</span> <span class="n">repo</span><span class="o">.</span><span class="n">branchName</span> <span class="o">!=</span> <span class="n">branch</span><span class="p">:</span>
+            <span class="n">repo</span><span class="o">.</span><span class="n">switchBranch</span><span class="p">(</span><span class="n">branch</span><span class="p">)</span>
+
     <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="n">j</span><span class="o">.</span><span class="n">sal</span><span class="o">.</span><span class="n">fs</span><span class="o">.</span><span class="n">listDirsInDir</span><span class="p">(</span><span class="n">j</span><span class="o">.</span><span class="n">sal</span><span class="o">.</span><span class="n">fs</span><span class="o">.</span><span class="n">joinPaths</span><span class="p">(</span><span class="n">dir_path</span><span class="p">,</span> <span class="n">directory</span><span class="p">)):</span>
         <span class="k">if</span> <span class="n">j</span><span class="o">.</span><span class="n">sal</span><span class="o">.</span><span class="n">fs</span><span class="o">.</span><span class="n">getBaseName</span><span class="p">(</span><span class="n">path</span><span class="p">)</span> <span class="o">==</span> <span class="s1">&#39;__pycache__&#39;</span><span class="p">:</span>
             <span class="k">continue</span>

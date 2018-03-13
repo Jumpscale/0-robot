@@ -1040,6 +1040,13 @@ table {
   <div id="sidebar">
     <h1>Index</h1>
     <ul id="index">
+    <li class="set"><h3><a href="#header-variables">Module variables</a></h3>
+      
+  <ul>
+    <li class="mono"><a href="#zerorobot.cli.server.telegram_logger">telegram_logger</a></li>
+  </ul>
+
+    </li>
 
 
 
@@ -1064,19 +1071,26 @@ table {
 <span class="n">onkey</span><span class="o">.</span><span class="n">patch_all</span><span class="p">(</span><span class="n">subprocess</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
 <span class="n">rom</span> <span class="n">js9</span> <span class="kn">import</span> <span class="nn">j</span>
 <span class="n">mport</span> <span class="n">click</span>
+<span class="n">mport</span> <span class="n">logging</span>
+<span class="n">rom</span> <span class="n">JumpScale9</span><span class="o">.</span><span class="n">logging</span><span class="o">.</span><span class="n">Handlers</span> <span class="kn">import</span> <span class="nn">TelegramHandler</span>
+<span class="n">rom</span> <span class="n">JumpScale9</span><span class="o">.</span><span class="n">logging</span><span class="o">.</span><span class="n">Handlers</span> <span class="kn">import</span> <span class="nn">TelegramFormatter</span>
 <span class="n">rom</span> <span class="n">zerorobot</span><span class="o">.</span><span class="n">robot</span> <span class="kn">import</span> <span class="nn">Robot</span>
+<span class="n">elegram_logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;telegram_logger&#39;</span><span class="p">)</span>
+<span class="n">elegram_logger</span><span class="o">.</span><span class="n">disabled</span> <span class="o">=</span> <span class="bp">True</span>
 <span class="n">click</span><span class="o">.</span><span class="n">group</span><span class="p">()</span>
 <span class="n">ef</span> <span class="n">server</span><span class="p">():</span>
    <span class="k">pass</span>
 <span class="n">server</span><span class="o">.</span><span class="n">command</span><span class="p">()</span>
 <span class="n">click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span><span class="s1">&#39;--listen&#39;</span><span class="p">,</span> <span class="s1">&#39;-L&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;listen address (default :6600)&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s1">&#39;:6600&#39;</span><span class="p">)</span>
 <span class="n">click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span><span class="s1">&#39;--data-repo&#39;</span><span class="p">,</span> <span class="s1">&#39;-D&#39;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;URL of the git repository where to save the data of the zero robot&#39;</span><span class="p">)</span>
-<span class="n">click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span><span class="s1">&#39;--template-repo&#39;</span><span class="p">,</span> <span class="s1">&#39;-T&#39;</span><span class="p">,</span> <span class="n">multiple</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;list of template repository URL&#39;</span><span class="p">)</span>
+<span class="n">click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span><span class="s1">&#39;--template-repo&#39;</span><span class="p">,</span> <span class="s1">&#39;-T&#39;</span><span class="p">,</span> <span class="n">multiple</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;list of template repository URL. Use fragment URL to specify a branch: http://github.com/account/repo#branch&#39;</span><span class="p">)</span>
 <span class="n">click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span><span class="s1">&#39;--config-repo&#39;</span><span class="p">,</span> <span class="s1">&#39;-C&#39;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;URL of the configuration repository (https://github.com/Jumpscale/core9/blob/development/docs/config/configmanager.md)&#39;</span><span class="p">)</span>
 <span class="n">click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span><span class="s1">&#39;--debug&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;enable debug logging&#39;</span><span class="p">,</span> <span class="n">is_flag</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+<span class="n">click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span><span class="s1">&#39;--telegram-bot-token&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Bot to push template action failures&#39;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+<span class="n">click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span><span class="s1">&#39;--telegram-chat-id&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Chat id to push template action failures&#39;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
 <span class="n">click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span><span class="s1">&#39;--auto-push&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;enable automatically commit and pushing of data repository&#39;</span><span class="p">,</span> <span class="n">is_flag</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
 <span class="n">click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span><span class="s1">&#39;--auto-push-interval&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;interval in minutes of automatic pushing of data repository&#39;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">60</span><span class="p">)</span>
-<span class="n">ef</span> <span class="n">start</span><span class="p">(</span><span class="n">listen</span><span class="p">,</span> <span class="n">data_repo</span><span class="p">,</span> <span class="n">template_repo</span><span class="p">,</span> <span class="n">config_repo</span><span class="p">,</span> <span class="n">debug</span><span class="p">,</span> <span class="n">auto_push</span><span class="p">,</span> <span class="n">auto_push_interval</span><span class="p">):</span>
+<span class="n">ef</span> <span class="n">start</span><span class="p">(</span><span class="n">listen</span><span class="p">,</span> <span class="n">data_repo</span><span class="p">,</span> <span class="n">template_repo</span><span class="p">,</span> <span class="n">config_repo</span><span class="p">,</span> <span class="n">debug</span><span class="p">,</span> <span class="n">telegram_bot_token</span><span class="p">,</span> <span class="n">telegram_chat_id</span><span class="p">,</span> <span class="n">auto_push</span><span class="p">,</span> <span class="n">auto_push_interval</span><span class="p">):</span>
    <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">   start the 0-robot daemon.</span>
 <span class="sd">   this will start the REST API on address and port specified by --listen and block</span>
@@ -1086,6 +1100,15 @@ table {
        <span class="n">level</span> <span class="o">=</span> <span class="s2">&quot;DEBUG&quot;</span>
    <span class="n">j</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">handlers_level_set</span><span class="p">(</span><span class="n">level</span><span class="p">)</span>
    <span class="n">j</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">loggers_level_set</span><span class="p">(</span><span class="n">level</span><span class="p">)</span>
+   <span class="k">if</span> <span class="p">(</span><span class="n">telegram_bot_token</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">telegram_chat_id</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">telegram_chat_id</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">telegram_bot_token</span><span class="p">):</span>
+       <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;To enable telegram error logging, you need to specify both the --telegram-bot-token and the --telegram-chat-id options&quot;</span><span class="p">)</span>
+   <span class="k">if</span> <span class="n">telegram_bot_token</span><span class="p">:</span>
+       <span class="n">telegram_logger</span><span class="o">.</span><span class="n">disabled</span> <span class="o">=</span> <span class="bp">False</span>
+       <span class="n">telegrambot</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">clients</span><span class="o">.</span><span class="n">telegram_bot</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">instance</span><span class="o">=</span><span class="s1">&#39;errorbot&#39;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">bot_token_</span><span class="o">=</span><span class="n">telegram_bot_token</span><span class="p">))</span>
+       <span class="n">handler</span> <span class="o">=</span> <span class="n">TelegramHandler</span><span class="p">(</span><span class="n">telegrambot</span><span class="p">,</span> <span class="n">telegram_chat_id</span><span class="p">)</span>
+       <span class="n">handler</span><span class="o">.</span><span class="n">setFormatter</span><span class="p">(</span><span class="n">TelegramFormatter</span><span class="p">())</span>
+       <span class="n">handler</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">ERROR</span><span class="p">)</span>
+       <span class="n">telegram_logger</span><span class="o">.</span><span class="n">addHandler</span><span class="p">(</span><span class="n">handler</span><span class="p">)</span>
    <span class="n">robot</span> <span class="o">=</span> <span class="n">Robot</span><span class="p">()</span>
    <span class="k">for</span> <span class="n">url</span> <span class="ow">in</span> <span class="n">template_repo</span><span class="p">:</span>
        <span class="n">robot</span><span class="o">.</span><span class="n">add_template_repo</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
@@ -1100,6 +1123,15 @@ table {
   </header>
 
   <section id="section-items">
+    <h2 class="section-title" id="header-variables">Module variables</h2>
+      <div class="item">
+      <p id="zerorobot.cli.server.telegram_logger" class="name">var <span class="ident">telegram_logger</span></p>
+      
+  
+  <div class="source_cont">
+</div>
+
+      </div>
 
 
 

@@ -1049,6 +1049,8 @@ table {
     <li class="mono"><a href="#zerorobot.task.task.TASK_STATE_NEW">TASK_STATE_NEW</a></li>
     <li class="mono"><a href="#zerorobot.task.task.TASK_STATE_OK">TASK_STATE_OK</a></li>
     <li class="mono"><a href="#zerorobot.task.task.TASK_STATE_RUNNING">TASK_STATE_RUNNING</a></li>
+    <li class="mono"><a href="#zerorobot.task.task.logger">logger</a></li>
+    <li class="mono"><a href="#zerorobot.task.task.telegram_logger">telegram_logger</a></li>
   </ul>
 
     </li>
@@ -1093,28 +1095,36 @@ table {
 <span class="sd">These two classes are used by the services to managed the requested actions</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="kn">import</span> <span class="nn">json</span>
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">sys</span>
 <span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">traceback</span>
+<span class="kn">import</span> <span class="nn">pprint</span>
+<span class="kn">import</span> <span class="nn">logging</span>
 
 <span class="kn">import</span> <span class="nn">gevent</span>
 <span class="kn">from</span> <span class="nn">gevent.lock</span> <span class="kn">import</span> <span class="n">Semaphore</span>
 
+<span class="kn">from</span> <span class="nn">zerorobot.errors</span> <span class="kn">import</span> <span class="n">ExpectedError</span>
+
 <span class="kn">from</span> <span class="nn">js9</span> <span class="kn">import</span> <span class="n">j</span>
+
 
 <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="p">(</span><span class="n">TASK_STATE_ERROR</span><span class="p">,</span> <span class="n">TASK_STATE_NEW</span><span class="p">,</span> <span class="n">TASK_STATE_OK</span><span class="p">,</span>
                <span class="n">TASK_STATE_RUNNING</span><span class="p">)</span>
 
 
+<span class="n">logger</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;zerorobot&#39;</span><span class="p">)</span>
+<span class="n">telegram_logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;telegram_logger&#39;</span><span class="p">)</span>
+
+
 <span class="k">class</span> <span class="nc">Task</span><span class="p">:</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">resp_q</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        @param service: is the service object that own the action to be executed</span>
-<span class="sd">        @param action_name: is the method name of the action that this task need to execute</span>
+<span class="sd">        @param func: action that needs to be called</span>
+<span class="sd">        @param action_name: arguments for the action</span>
 <span class="sd">        @param args: argument to pass to the action when executing</span>
-<span class="sd">        @param resp_q: is the response queue on which the result of the action need to be put</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">guid</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">idgenerator</span><span class="o">.</span><span class="n">generateGUID</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">func</span> <span class="o">=</span> <span class="n">func</span>
@@ -1162,12 +1172,29 @@ table {
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="n">TASK_STATE_ERROR</span>
             <span class="c1"># capture stacktrace and exception</span>
-            <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">exc_traceback</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">exc_info</span><span class="p">()</span>
+            <span class="n">exc_type</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">exc_traceback</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">exc_info</span><span class="p">()</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_eco</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">errorhandler</span><span class="o">.</span><span class="n">parsePythonExceptionObject</span><span class="p">(</span><span class="n">err</span><span class="p">,</span> <span class="n">tb</span><span class="o">=</span><span class="n">exc_traceback</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_eco</span><span class="o">.</span><span class="n">printTraceback</span><span class="p">()</span>
+
+            <span class="c1"># if enabled, unexpected errors would be logged on the telegram chat</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">err</span><span class="p">,</span> <span class="n">ExpectedError</span><span class="p">):</span>
+                <span class="c1"># go to last traceback</span>
+                <span class="k">while</span> <span class="n">exc_traceback</span><span class="o">.</span><span class="n">tb_next</span><span class="p">:</span>
+                    <span class="n">exc_traceback</span> <span class="o">=</span> <span class="n">exc_traceback</span><span class="o">.</span><span class="n">tb_next</span>
+
+                <span class="c1"># get locals</span>
+                <span class="nb">locals</span> <span class="o">=</span> <span class="n">exc_traceback</span><span class="o">.</span><span class="n">tb_frame</span><span class="o">.</span><span class="n">f_locals</span>
+
+                <span class="n">telegram_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                    <span class="s2">&quot;Error type: </span><span class="si">%s</span><span class="se">\n</span><span class="s2">Error message:</span><span class="se">\n\t</span><span class="si">%s</span><span class="se">\n</span><span class="s2">Stacktrace:</span><span class="se">\n</span><span class="si">%s</span><span class="se">\n\n</span><span class="s2">Task arguments:</span><span class="se">\n</span><span class="si">%s</span><span class="se">\n\n</span><span class="s2">Local values:</span><span class="se">\n</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span>
+                        <span class="n">exc_type</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span>
+                        <span class="n">err</span><span class="p">,</span>
+                        <span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">traceback</span><span class="o">.</span><span class="n">format_tb</span><span class="p">(</span><span class="n">exc_traceback</span><span class="p">)),</span>
+                        <span class="n">pprint</span><span class="o">.</span><span class="n">pformat</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_args</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">50</span><span class="p">),</span>
+                        <span class="n">pprint</span><span class="o">.</span><span class="n">pformat</span><span class="p">(</span><span class="nb">locals</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">50</span><span class="p">)</span>
+                    <span class="p">))</span>
+
         <span class="k">finally</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_duration</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">started</span>
-
         <span class="k">return</span> <span class="n">result</span>
 
     <span class="nd">@property</span>
@@ -1182,11 +1209,13 @@ table {
         <span class="k">finally</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_state_lock</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
 
-    <span class="k">def</span> <span class="nf">wait</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">wait</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">die</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        wait blocks until the task has been executed</span>
 <span class="sd">        if timeout is specified and the task didn&#39;t finished within timeout seconds,</span>
 <span class="sd">        raises TimeoutError</span>
+
+<span class="sd">        if die is True and the state is TASK_STATE_ERROR after the wait, the eco of the exception will be raised</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">def</span> <span class="nf">wait</span><span class="p">():</span>
             <span class="k">while</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;new&#39;</span><span class="p">,</span> <span class="s1">&#39;running&#39;</span><span class="p">):</span>
@@ -1201,6 +1230,12 @@ table {
                 <span class="k">raise</span> <span class="n">TimeoutError</span><span class="p">()</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">wait</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">die</span> <span class="ow">is</span> <span class="bp">True</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">==</span> <span class="n">TASK_STATE_ERROR</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">eco</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">critical</span><span class="p">(</span><span class="s1">&#39;task is in error state, but no eco&#39;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="bp">self</span><span class="o">.</span><span class="n">eco</span>
 
     <span class="k">def</span> <span class="fm">__lt__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_created</span> <span class="o">&lt;</span> <span class="n">other</span><span class="o">.</span><span class="n">_created</span>
@@ -1250,6 +1285,22 @@ table {
 </div>
 
       </div>
+      <div class="item">
+      <p id="zerorobot.task.task.logger" class="name">var <span class="ident">logger</span></p>
+      
+  
+  <div class="source_cont">
+</div>
+
+      </div>
+      <div class="item">
+      <p id="zerorobot.task.task.telegram_logger" class="name">var <span class="ident">telegram_logger</span></p>
+      
+  
+  <div class="source_cont">
+</div>
+
+      </div>
 
 
     <h2 class="section-title" id="header-classes">Classes</h2>
@@ -1263,12 +1314,11 @@ table {
   <div id="source-zerorobot.task.task.Task" class="source">
     <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">Task</span><span class="p">:</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">resp_q</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        @param service: is the service object that own the action to be executed</span>
-<span class="sd">        @param action_name: is the method name of the action that this task need to execute</span>
+<span class="sd">        @param func: action that needs to be called</span>
+<span class="sd">        @param action_name: arguments for the action</span>
 <span class="sd">        @param args: argument to pass to the action when executing</span>
-<span class="sd">        @param resp_q: is the response queue on which the result of the action need to be put</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">guid</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">idgenerator</span><span class="o">.</span><span class="n">generateGUID</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">func</span> <span class="o">=</span> <span class="n">func</span>
@@ -1316,12 +1366,29 @@ table {
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="n">TASK_STATE_ERROR</span>
             <span class="c1"># capture stacktrace and exception</span>
-            <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">exc_traceback</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">exc_info</span><span class="p">()</span>
+            <span class="n">exc_type</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">exc_traceback</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">exc_info</span><span class="p">()</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_eco</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">errorhandler</span><span class="o">.</span><span class="n">parsePythonExceptionObject</span><span class="p">(</span><span class="n">err</span><span class="p">,</span> <span class="n">tb</span><span class="o">=</span><span class="n">exc_traceback</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_eco</span><span class="o">.</span><span class="n">printTraceback</span><span class="p">()</span>
+
+            <span class="c1"># if enabled, unexpected errors would be logged on the telegram chat</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">err</span><span class="p">,</span> <span class="n">ExpectedError</span><span class="p">):</span>
+                <span class="c1"># go to last traceback</span>
+                <span class="k">while</span> <span class="n">exc_traceback</span><span class="o">.</span><span class="n">tb_next</span><span class="p">:</span>
+                    <span class="n">exc_traceback</span> <span class="o">=</span> <span class="n">exc_traceback</span><span class="o">.</span><span class="n">tb_next</span>
+
+                <span class="c1"># get locals</span>
+                <span class="nb">locals</span> <span class="o">=</span> <span class="n">exc_traceback</span><span class="o">.</span><span class="n">tb_frame</span><span class="o">.</span><span class="n">f_locals</span>
+
+                <span class="n">telegram_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                    <span class="s2">&quot;Error type: </span><span class="si">%s</span><span class="se">\n</span><span class="s2">Error message:</span><span class="se">\n\t</span><span class="si">%s</span><span class="se">\n</span><span class="s2">Stacktrace:</span><span class="se">\n</span><span class="si">%s</span><span class="se">\n\n</span><span class="s2">Task arguments:</span><span class="se">\n</span><span class="si">%s</span><span class="se">\n\n</span><span class="s2">Local values:</span><span class="se">\n</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span>
+                        <span class="n">exc_type</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span>
+                        <span class="n">err</span><span class="p">,</span>
+                        <span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">traceback</span><span class="o">.</span><span class="n">format_tb</span><span class="p">(</span><span class="n">exc_traceback</span><span class="p">)),</span>
+                        <span class="n">pprint</span><span class="o">.</span><span class="n">pformat</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_args</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">50</span><span class="p">),</span>
+                        <span class="n">pprint</span><span class="o">.</span><span class="n">pformat</span><span class="p">(</span><span class="nb">locals</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">50</span><span class="p">)</span>
+                    <span class="p">))</span>
+
         <span class="k">finally</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_duration</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">started</span>
-
         <span class="k">return</span> <span class="n">result</span>
 
     <span class="nd">@property</span>
@@ -1336,11 +1403,13 @@ table {
         <span class="k">finally</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_state_lock</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
 
-    <span class="k">def</span> <span class="nf">wait</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">wait</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">die</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        wait blocks until the task has been executed</span>
 <span class="sd">        if timeout is specified and the task didn&#39;t finished within timeout seconds,</span>
 <span class="sd">        raises TimeoutError</span>
+
+<span class="sd">        if die is True and the state is TASK_STATE_ERROR after the wait, the eco of the exception will be raised</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">def</span> <span class="nf">wait</span><span class="p">():</span>
             <span class="k">while</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;new&#39;</span><span class="p">,</span> <span class="s1">&#39;running&#39;</span><span class="p">):</span>
@@ -1355,6 +1424,12 @@ table {
                 <span class="k">raise</span> <span class="n">TimeoutError</span><span class="p">()</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">wait</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">die</span> <span class="ow">is</span> <span class="bp">True</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">==</span> <span class="n">TASK_STATE_ERROR</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">eco</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">critical</span><span class="p">(</span><span class="s1">&#39;task is in error state, but no eco&#39;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="bp">self</span><span class="o">.</span><span class="n">eco</span>
 
     <span class="k">def</span> <span class="fm">__lt__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_created</span> <span class="o">&lt;</span> <span class="n">other</span><span class="o">.</span><span class="n">_created</span>
@@ -1380,25 +1455,23 @@ table {
             
   <div class="item">
     <div class="name def" id="zerorobot.task.task.Task.__init__">
-    <p>def <span class="ident">__init__</span>(</p><p>self, func, args, resp_q=None)</p>
+    <p>def <span class="ident">__init__</span>(</p><p>self, func, args)</p>
     </div>
     
 
     
   
-    <div class="desc"><p>@param service: is the service object that own the action to be executed
-@param action_name: is the method name of the action that this task need to execute
-@param args: argument to pass to the action when executing
-@param resp_q: is the response queue on which the result of the action need to be put</p></div>
+    <div class="desc"><p>@param func: action that needs to be called
+@param action_name: arguments for the action
+@param args: argument to pass to the action when executing</p></div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.task.task.Task.__init__', this);">Show source &equiv;</a></p>
   <div id="source-zerorobot.task.task.Task.__init__" class="source">
-    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">resp_q</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    @param service: is the service object that own the action to be executed</span>
-<span class="sd">    @param action_name: is the method name of the action that this task need to execute</span>
+<span class="sd">    @param func: action that needs to be called</span>
+<span class="sd">    @param action_name: arguments for the action</span>
 <span class="sd">    @param args: argument to pass to the action when executing</span>
-<span class="sd">    @param resp_q: is the response queue on which the result of the action need to be put</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">guid</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">idgenerator</span><span class="o">.</span><span class="n">generateGUID</span><span class="p">()</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">func</span> <span class="o">=</span> <span class="n">func</span>
@@ -1445,9 +1518,23 @@ table {
     <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="n">TASK_STATE_ERROR</span>
         <span class="c1"># capture stacktrace and exception</span>
-        <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">exc_traceback</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">exc_info</span><span class="p">()</span>
+        <span class="n">exc_type</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">exc_traceback</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">exc_info</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_eco</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">errorhandler</span><span class="o">.</span><span class="n">parsePythonExceptionObject</span><span class="p">(</span><span class="n">err</span><span class="p">,</span> <span class="n">tb</span><span class="o">=</span><span class="n">exc_traceback</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_eco</span><span class="o">.</span><span class="n">printTraceback</span><span class="p">()</span>
+        <span class="c1"># if enabled, unexpected errors would be logged on the telegram chat</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">err</span><span class="p">,</span> <span class="n">ExpectedError</span><span class="p">):</span>
+            <span class="c1"># go to last traceback</span>
+            <span class="k">while</span> <span class="n">exc_traceback</span><span class="o">.</span><span class="n">tb_next</span><span class="p">:</span>
+                <span class="n">exc_traceback</span> <span class="o">=</span> <span class="n">exc_traceback</span><span class="o">.</span><span class="n">tb_next</span>
+            <span class="c1"># get locals</span>
+            <span class="nb">locals</span> <span class="o">=</span> <span class="n">exc_traceback</span><span class="o">.</span><span class="n">tb_frame</span><span class="o">.</span><span class="n">f_locals</span>
+            <span class="n">telegram_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                <span class="s2">&quot;Error type: </span><span class="si">%s</span><span class="se">\n</span><span class="s2">Error message:</span><span class="se">\n\t</span><span class="si">%s</span><span class="se">\n</span><span class="s2">Stacktrace:</span><span class="se">\n</span><span class="si">%s</span><span class="se">\n\n</span><span class="s2">Task arguments:</span><span class="se">\n</span><span class="si">%s</span><span class="se">\n\n</span><span class="s2">Local values:</span><span class="se">\n</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span>
+                    <span class="n">exc_type</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span>
+                    <span class="n">err</span><span class="p">,</span>
+                    <span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">traceback</span><span class="o">.</span><span class="n">format_tb</span><span class="p">(</span><span class="n">exc_traceback</span><span class="p">)),</span>
+                    <span class="n">pprint</span><span class="o">.</span><span class="n">pformat</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_args</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">50</span><span class="p">),</span>
+                    <span class="n">pprint</span><span class="o">.</span><span class="n">pformat</span><span class="p">(</span><span class="nb">locals</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">50</span><span class="p">)</span>
+                <span class="p">))</span>
     <span class="k">finally</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_duration</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">started</span>
     <span class="k">return</span> <span class="n">result</span>
@@ -1461,7 +1548,7 @@ table {
             
   <div class="item">
     <div class="name def" id="zerorobot.task.task.Task.wait">
-    <p>def <span class="ident">wait</span>(</p><p>self, timeout=None)</p>
+    <p>def <span class="ident">wait</span>(</p><p>self, timeout=None, die=False)</p>
     </div>
     
 
@@ -1469,15 +1556,17 @@ table {
   
     <div class="desc"><p>wait blocks until the task has been executed
 if timeout is specified and the task didn't finished within timeout seconds,
-raises TimeoutError</p></div>
+raises TimeoutError</p>
+<p>if die is True and the state is TASK_STATE_ERROR after the wait, the eco of the exception will be raised</p></div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.task.task.Task.wait', this);">Show source &equiv;</a></p>
   <div id="source-zerorobot.task.task.Task.wait" class="source">
-    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">wait</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">wait</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">die</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    wait blocks until the task has been executed</span>
 <span class="sd">    if timeout is specified and the task didn&#39;t finished within timeout seconds,</span>
 <span class="sd">    raises TimeoutError</span>
+<span class="sd">    if die is True and the state is TASK_STATE_ERROR after the wait, the eco of the exception will be raised</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="nf">wait</span><span class="p">():</span>
         <span class="k">while</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;new&#39;</span><span class="p">,</span> <span class="s1">&#39;running&#39;</span><span class="p">):</span>
@@ -1491,6 +1580,11 @@ raises TimeoutError</p></div>
             <span class="k">raise</span> <span class="n">TimeoutError</span><span class="p">()</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">wait</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">die</span> <span class="ow">is</span> <span class="bp">True</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">==</span> <span class="n">TASK_STATE_ERROR</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">eco</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">critical</span><span class="p">(</span><span class="s1">&#39;task is in error state, but no eco&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="bp">self</span><span class="o">.</span><span class="n">eco</span>
 </pre></div>
 
   </div>

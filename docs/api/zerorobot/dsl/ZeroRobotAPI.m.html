@@ -1140,7 +1140,7 @@ table {
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">scol</span><span class="o">.</span><span class="n">_guid_index</span>
 
-    <span class="k">def</span> <span class="nf">find</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">find</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Search for services and filter results from kwargs.</span>
 <span class="sd">        You can filter on:</span>
@@ -1150,28 +1150,26 @@ table {
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">services</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">for</span> <span class="n">service</span> <span class="ow">in</span> <span class="n">scol</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-            <span class="k">if</span> <span class="n">parent</span> <span class="ow">and</span> <span class="p">(</span><span class="n">service</span><span class="o">.</span><span class="n">parent</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">or</span> <span class="n">service</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">guid</span> <span class="o">!=</span> <span class="n">parent</span><span class="o">.</span><span class="n">guid</span><span class="p">):</span>
-                <span class="k">continue</span>
             <span class="n">services</span><span class="p">[</span><span class="n">service</span><span class="o">.</span><span class="n">guid</span><span class="p">]</span> <span class="o">=</span> <span class="n">service</span>
 
         <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">services</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
 
-    <span class="k">def</span> <span class="nf">exists</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">exists</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Test if a service exists and filter results from kwargs.</span>
 <span class="sd">        You can filter on:</span>
 <span class="sd">        &quot;name&quot;, &quot;template_uid&quot;, &quot;template_host&quot;, &quot;template_account&quot;, &quot;template_repo&quot;, &quot;template_name&quot;, &quot;template_version&quot;</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">results</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">parent</span><span class="o">=</span><span class="n">parent</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">results</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">results</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span>
 
-    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        return a service service based on the filters in kwargs.</span>
 <span class="sd">        You can filter on:</span>
 <span class="sd">        &quot;name&quot;, &quot;template_uid&quot;, &quot;template_host&quot;, &quot;template_account&quot;, &quot;template_repo&quot;, &quot;template_name&quot;, &quot;template_version&quot;</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">results</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">parent</span><span class="o">=</span><span class="n">parent</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">results</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="n">i</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">results</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">i</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">scol</span><span class="o">.</span><span class="n">TooManyResults</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%d</span><span class="s2"> services found&quot;</span> <span class="o">%</span> <span class="n">i</span><span class="p">)</span>
@@ -1526,7 +1524,7 @@ table {
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">scol</span><span class="o">.</span><span class="n">_guid_index</span>
 
-    <span class="k">def</span> <span class="nf">find</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">find</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Search for services and filter results from kwargs.</span>
 <span class="sd">        You can filter on:</span>
@@ -1536,28 +1534,26 @@ table {
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">services</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">for</span> <span class="n">service</span> <span class="ow">in</span> <span class="n">scol</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-            <span class="k">if</span> <span class="n">parent</span> <span class="ow">and</span> <span class="p">(</span><span class="n">service</span><span class="o">.</span><span class="n">parent</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">or</span> <span class="n">service</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">guid</span> <span class="o">!=</span> <span class="n">parent</span><span class="o">.</span><span class="n">guid</span><span class="p">):</span>
-                <span class="k">continue</span>
             <span class="n">services</span><span class="p">[</span><span class="n">service</span><span class="o">.</span><span class="n">guid</span><span class="p">]</span> <span class="o">=</span> <span class="n">service</span>
 
         <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">services</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
 
-    <span class="k">def</span> <span class="nf">exists</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">exists</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Test if a service exists and filter results from kwargs.</span>
 <span class="sd">        You can filter on:</span>
 <span class="sd">        &quot;name&quot;, &quot;template_uid&quot;, &quot;template_host&quot;, &quot;template_account&quot;, &quot;template_repo&quot;, &quot;template_name&quot;, &quot;template_version&quot;</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">results</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">parent</span><span class="o">=</span><span class="n">parent</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">results</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">results</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span>
 
-    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        return a service service based on the filters in kwargs.</span>
 <span class="sd">        You can filter on:</span>
 <span class="sd">        &quot;name&quot;, &quot;template_uid&quot;, &quot;template_host&quot;, &quot;template_account&quot;, &quot;template_repo&quot;, &quot;template_name&quot;, &quot;template_version&quot;</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">results</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">parent</span><span class="o">=</span><span class="n">parent</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">results</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="n">i</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">results</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">i</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">scol</span><span class="o">.</span><span class="n">TooManyResults</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%d</span><span class="s2"> services found&quot;</span> <span class="o">%</span> <span class="n">i</span><span class="p">)</span>
@@ -1669,7 +1665,7 @@ If not, it raises TemplateNotFound error</p>
             
   <div class="item">
     <div class="name def" id="zerorobot.dsl.ZeroRobotAPI.ServicesMgr.exists">
-    <p>def <span class="ident">exists</span>(</p><p>self, parent=None, **kwargs)</p>
+    <p>def <span class="ident">exists</span>(</p><p>self, **kwargs)</p>
     </div>
     
 
@@ -1681,13 +1677,13 @@ You can filter on:
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.dsl.ZeroRobotAPI.ServicesMgr.exists', this);">Show source &equiv;</a></p>
   <div id="source-zerorobot.dsl.ZeroRobotAPI.ServicesMgr.exists" class="source">
-    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">exists</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">exists</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Test if a service exists and filter results from kwargs.</span>
 <span class="sd">    You can filter on:</span>
 <span class="sd">    &quot;name&quot;, &quot;template_uid&quot;, &quot;template_host&quot;, &quot;template_account&quot;, &quot;template_repo&quot;, &quot;template_name&quot;, &quot;template_version&quot;</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">results</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">parent</span><span class="o">=</span><span class="n">parent</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="n">results</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
     <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">results</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span>
 </pre></div>
 
@@ -1699,7 +1695,7 @@ You can filter on:
             
   <div class="item">
     <div class="name def" id="zerorobot.dsl.ZeroRobotAPI.ServicesMgr.find">
-    <p>def <span class="ident">find</span>(</p><p>self, parent=None, **kwargs)</p>
+    <p>def <span class="ident">find</span>(</p><p>self, **kwargs)</p>
     </div>
     
 
@@ -1712,7 +1708,7 @@ You can filter on:
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.dsl.ZeroRobotAPI.ServicesMgr.find', this);">Show source &equiv;</a></p>
   <div id="source-zerorobot.dsl.ZeroRobotAPI.ServicesMgr.find" class="source">
-    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">find</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">find</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Search for services and filter results from kwargs.</span>
 <span class="sd">    You can filter on:</span>
@@ -1721,8 +1717,6 @@ You can filter on:
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">services</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="k">for</span> <span class="n">service</span> <span class="ow">in</span> <span class="n">scol</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">parent</span> <span class="ow">and</span> <span class="p">(</span><span class="n">service</span><span class="o">.</span><span class="n">parent</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">or</span> <span class="n">service</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">guid</span> <span class="o">!=</span> <span class="n">parent</span><span class="o">.</span><span class="n">guid</span><span class="p">):</span>
-            <span class="k">continue</span>
         <span class="n">services</span><span class="p">[</span><span class="n">service</span><span class="o">.</span><span class="n">guid</span><span class="p">]</span> <span class="o">=</span> <span class="n">service</span>
     <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">services</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
 </pre></div>
@@ -1735,7 +1729,7 @@ You can filter on:
             
   <div class="item">
     <div class="name def" id="zerorobot.dsl.ZeroRobotAPI.ServicesMgr.get">
-    <p>def <span class="ident">get</span>(</p><p>self, parent=None, **kwargs)</p>
+    <p>def <span class="ident">get</span>(</p><p>self, **kwargs)</p>
     </div>
     
 
@@ -1747,13 +1741,13 @@ You can filter on:
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.dsl.ZeroRobotAPI.ServicesMgr.get', this);">Show source &equiv;</a></p>
   <div id="source-zerorobot.dsl.ZeroRobotAPI.ServicesMgr.get" class="source">
-    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    return a service service based on the filters in kwargs.</span>
 <span class="sd">    You can filter on:</span>
 <span class="sd">    &quot;name&quot;, &quot;template_uid&quot;, &quot;template_host&quot;, &quot;template_account&quot;, &quot;template_repo&quot;, &quot;template_name&quot;, &quot;template_version&quot;</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">results</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">parent</span><span class="o">=</span><span class="n">parent</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="n">results</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
     <span class="n">i</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">results</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">i</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">scol</span><span class="o">.</span><span class="n">TooManyResults</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%d</span><span class="s2"> services found&quot;</span> <span class="o">%</span> <span class="n">i</span><span class="p">)</span>

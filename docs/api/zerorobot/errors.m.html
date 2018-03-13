@@ -3,7 +3,7 @@
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 
-    <title>zerorobot.task.utils API documentation</title>
+    <title>zerorobot.errors API documentation</title>
     <meta name="description" content="" />
 
   <link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:400,300' rel='stylesheet' type='text/css'>
@@ -1040,21 +1040,16 @@ table {
   <div id="sidebar">
     <h1>Index</h1>
     <ul id="index">
-    <li class="set"><h3><a href="#header-variables">Module variables</a></h3>
-      
-  <ul>
-    <li class="mono"><a href="#zerorobot.task.utils.PRIORITY_NORMAL">PRIORITY_NORMAL</a></li>
-    <li class="mono"><a href="#zerorobot.task.utils.PRIORITY_RECURRING">PRIORITY_RECURRING</a></li>
-    <li class="mono"><a href="#zerorobot.task.utils.PRIORITY_SYSTEM">PRIORITY_SYSTEM</a></li>
-    <li class="mono"><a href="#zerorobot.task.utils.TASK_STATE_ERROR">TASK_STATE_ERROR</a></li>
-    <li class="mono"><a href="#zerorobot.task.utils.TASK_STATE_NEW">TASK_STATE_NEW</a></li>
-    <li class="mono"><a href="#zerorobot.task.utils.TASK_STATE_OK">TASK_STATE_OK</a></li>
-    <li class="mono"><a href="#zerorobot.task.utils.TASK_STATE_RUNNING">TASK_STATE_RUNNING</a></li>
-  </ul>
 
+
+    <li class="set"><h3><a href="#header-classes">Classes</a></h3>
+      <ul>
+        <li class="mono">
+        <span class="class_name"><a href="#zerorobot.errors.ExpectedError">ExpectedError</a></span>
+        
+        </li>
+      </ul>
     </li>
-
-
 
     </ul>
   </div>
@@ -1067,33 +1062,18 @@ table {
 
 
   <header id="section-intro">
-  <h1 class="title"><span class="name">zerorobot.task.utils</span> module</h1>
+  <h1 class="title"><span class="name">zerorobot.errors</span> module</h1>
   
   
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.task.utils', this);">Show source &equiv;</a></p>
-  <div id="source-zerorobot.task.utils" class="source">
-    <div class="codehilite"><pre><span></span><span class="kn">from</span> <span class="nn">js9</span> <span class="kn">import</span> <span class="n">j</span>
-
-<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="p">(</span><span class="n">PRIORITY_NORMAL</span><span class="p">,</span> <span class="n">PRIORITY_RECURRING</span><span class="p">,</span> <span class="n">PRIORITY_SYSTEM</span><span class="p">,</span>
-               <span class="n">TASK_STATE_ERROR</span><span class="p">,</span> <span class="n">TASK_STATE_NEW</span><span class="p">,</span> <span class="n">TASK_STATE_OK</span><span class="p">,</span>
-               <span class="n">TASK_STATE_RUNNING</span><span class="p">)</span>
-<span class="kn">from</span> <span class="nn">.task</span> <span class="kn">import</span> <span class="n">Task</span>
-
-
-<span class="k">def</span> <span class="nf">_instantiate_task</span><span class="p">(</span><span class="n">task</span><span class="p">,</span> <span class="n">service</span><span class="p">):</span>
-    <span class="n">func</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">service</span><span class="p">,</span> <span class="n">task</span><span class="p">[</span><span class="s1">&#39;action_name&#39;</span><span class="p">])</span>
-    <span class="n">t</span> <span class="o">=</span> <span class="n">Task</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">task</span><span class="p">[</span><span class="s1">&#39;args&#39;</span><span class="p">])</span>
-    <span class="k">if</span> <span class="n">task</span><span class="p">[</span><span class="s1">&#39;state&#39;</span><span class="p">]</span> <span class="ow">in</span> <span class="p">[</span><span class="n">TASK_STATE_RUNNING</span><span class="p">,</span> <span class="n">TASK_STATE_NEW</span><span class="p">]:</span>
-        <span class="n">t</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="n">TASK_STATE_NEW</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">t</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="n">task</span><span class="p">[</span><span class="s1">&#39;state&#39;</span><span class="p">]</span>
-    <span class="n">t</span><span class="o">.</span><span class="n">guid</span> <span class="o">=</span> <span class="n">task</span><span class="p">[</span><span class="s1">&#39;guid&#39;</span><span class="p">]</span>
-    <span class="k">if</span> <span class="n">task</span><span class="p">[</span><span class="s1">&#39;eco&#39;</span><span class="p">]:</span>
-        <span class="n">t</span><span class="o">.</span><span class="n">_eco</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">errorhandler</span><span class="o">.</span><span class="n">getErrorConditionObject</span><span class="p">(</span><span class="n">ddict</span><span class="o">=</span><span class="n">task</span><span class="p">[</span><span class="s1">&#39;eco&#39;</span><span class="p">])</span>
-    <span class="n">t</span><span class="o">.</span><span class="n">_result</span> <span class="o">=</span> <span class="n">task</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;result&#39;</span><span class="p">)</span>
-    <span class="n">t</span><span class="o">.</span><span class="n">_created</span> <span class="o">=</span> <span class="n">task</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;created&#39;</span><span class="p">)</span>
-    <span class="n">t</span><span class="o">.</span><span class="n">_duration</span> <span class="o">=</span> <span class="n">task</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;duration&#39;</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">t</span>
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.errors', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.errors" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">ExpectedError</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Defines an exception base for expected 0-robot errors</span>
+<span class="sd">    This allows us to detect expected exceptions.</span>
+<span class="sd">    Make the error object inherit this class to mark it as an expected error.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">pass</span>
 </pre></div>
 
   </div>
@@ -1101,65 +1081,41 @@ table {
   </header>
 
   <section id="section-items">
-    <h2 class="section-title" id="header-variables">Module variables</h2>
+
+
+    <h2 class="section-title" id="header-classes">Classes</h2>
+      
       <div class="item">
-      <p id="zerorobot.task.utils.PRIORITY_NORMAL" class="name">var <span class="ident">PRIORITY_NORMAL</span></p>
+      <p id="zerorobot.errors.ExpectedError" class="name">class <span class="ident">ExpectedError</span></p>
       
   
+    <div class="desc"><p>Defines an exception base for expected 0-robot errors
+This allows us to detect expected exceptions.
+Make the error object inherit this class to mark it as an expected error.</p></div>
   <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.errors.ExpectedError', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.errors.ExpectedError" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">ExpectedError</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Defines an exception base for expected 0-robot errors</span>
+<span class="sd">    This allows us to detect expected exceptions.</span>
+<span class="sd">    Make the error object inherit this class to mark it as an expected error.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">pass</span>
+</pre></div>
+
+  </div>
 </div>
 
+
+      <div class="class">
+          <h3>Ancestors (in MRO)</h3>
+          <ul class="class_list">
+          <li><a href="#zerorobot.errors.ExpectedError">ExpectedError</a></li>
+          <li>builtins.object</li>
+          </ul>
       </div>
-      <div class="item">
-      <p id="zerorobot.task.utils.PRIORITY_RECURRING" class="name">var <span class="ident">PRIORITY_RECURRING</span></p>
-      
-  
-  <div class="source_cont">
-</div>
-
       </div>
-      <div class="item">
-      <p id="zerorobot.task.utils.PRIORITY_SYSTEM" class="name">var <span class="ident">PRIORITY_SYSTEM</span></p>
-      
-  
-  <div class="source_cont">
-</div>
-
-      </div>
-      <div class="item">
-      <p id="zerorobot.task.utils.TASK_STATE_ERROR" class="name">var <span class="ident">TASK_STATE_ERROR</span></p>
-      
-  
-  <div class="source_cont">
-</div>
-
-      </div>
-      <div class="item">
-      <p id="zerorobot.task.utils.TASK_STATE_NEW" class="name">var <span class="ident">TASK_STATE_NEW</span></p>
-      
-  
-  <div class="source_cont">
-</div>
-
-      </div>
-      <div class="item">
-      <p id="zerorobot.task.utils.TASK_STATE_OK" class="name">var <span class="ident">TASK_STATE_OK</span></p>
-      
-  
-  <div class="source_cont">
-</div>
-
-      </div>
-      <div class="item">
-      <p id="zerorobot.task.utils.TASK_STATE_RUNNING" class="name">var <span class="ident">TASK_STATE_RUNNING</span></p>
-      
-  
-  <div class="source_cont">
-</div>
-
-      </div>
-
-
 
   </section>
 

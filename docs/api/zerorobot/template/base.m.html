@@ -1046,6 +1046,7 @@ table {
   <ul>
     <li class="mono"><a href="#zerorobot.template.base.PRIORITY_NORMAL">PRIORITY_NORMAL</a></li>
     <li class="mono"><a href="#zerorobot.template.base.PRIORITY_SYSTEM">PRIORITY_SYSTEM</a></li>
+    <li class="mono"><a href="#zerorobot.template.base.TASK_STATE_ERROR">TASK_STATE_ERROR</a></li>
     <li class="mono"><a href="#zerorobot.template.base.logger">logger</a></li>
   </ul>
 
@@ -1115,7 +1116,7 @@ It is the class every template should inherits from.</p>
 <span class="sd">It is the class every template should inherits from.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
-
+<span class="kn">import</span> <span class="nn">glob</span>
 <span class="kn">import</span> <span class="nn">inspect</span>
 <span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">import</span> <span class="nn">os</span>
@@ -1128,12 +1129,13 @@ It is the class every template should inherits from.</p>
 
 <span class="kn">from</span> <span class="nn">js9</span> <span class="kn">import</span> <span class="n">j</span>
 <span class="kn">from</span> <span class="nn">zerorobot</span> <span class="kn">import</span> <span class="n">service_collection</span> <span class="k">as</span> <span class="n">scol</span>
+<span class="kn">from</span> <span class="nn">zerorobot</span> <span class="kn">import</span> <span class="n">config</span>
 <span class="kn">from</span> <span class="nn">zerorobot.dsl.ZeroRobotAPI</span> <span class="kn">import</span> <span class="n">ZeroRobotAPI</span>
 <span class="kn">from</span> <span class="nn">zerorobot.prometheus.robot</span> <span class="kn">import</span> <span class="n">task_latency</span>
-<span class="kn">from</span> <span class="nn">zerorobot.task</span> <span class="kn">import</span> <span class="n">PRIORITY_NORMAL</span><span class="p">,</span> <span class="n">PRIORITY_SYSTEM</span><span class="p">,</span> <span class="n">Task</span><span class="p">,</span> <span class="n">TaskList</span>
+<span class="kn">from</span> <span class="nn">zerorobot.task</span> <span class="kn">import</span> <span class="p">(</span><span class="n">PRIORITY_NORMAL</span><span class="p">,</span> <span class="n">PRIORITY_SYSTEM</span><span class="p">,</span> <span class="n">TASK_STATE_ERROR</span><span class="p">,</span>
+                            <span class="n">Task</span><span class="p">,</span> <span class="n">TaskList</span><span class="p">)</span>
 <span class="kn">from</span> <span class="nn">zerorobot.template.data</span> <span class="kn">import</span> <span class="n">ServiceData</span>
 <span class="kn">from</span> <span class="nn">zerorobot.template.state</span> <span class="kn">import</span> <span class="n">ServiceState</span>
-<span class="kn">from</span> <span class="nn">zerorobot</span> <span class="kn">import</span> <span class="n">config</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;zerorobot&#39;</span><span class="p">)</span>
 
@@ -1220,7 +1222,6 @@ It is the class every template should inherits from.</p>
         <span class="bp">self</span><span class="o">.</span><span class="n">template_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">inspect</span><span class="o">.</span><span class="n">getsourcefile</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">guid</span> <span class="o">=</span> <span class="n">guid</span> <span class="ow">or</span> <span class="nb">str</span><span class="p">(</span><span class="n">uuid4</span><span class="p">())</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">guid</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">parent</span> <span class="o">=</span> <span class="bp">None</span>
         <span class="c1"># location on the filesystem where to store the service</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
             <span class="n">config</span><span class="o">.</span><span class="n">DATA_DIR</span><span class="p">,</span>
@@ -1268,18 +1269,6 @@ It is the class every template should inherits from.</p>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_path</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;service._path is None, don&#39;t know where to save the service&quot;</span><span class="p">)</span>
 
-        <span class="c1"># if base_path is not None and base_path != &#39;&#39;:</span>
-        <span class="c1">#     parent = self.parent</span>
-        <span class="c1">#     path = base_path</span>
-        <span class="c1">#     while parent is not None:</span>
-        <span class="c1">#         path = os.path.join(path, parent.name)</span>
-        <span class="c1">#         parent = parent.parent</span>
-
-        <span class="c1">#     path = os.path.join(path, self.guid)</span>
-        <span class="c1">#     self._path = path</span>
-        <span class="c1"># else:</span>
-        <span class="c1">#     path = self._path</span>
-
         <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_path</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
 
         <span class="n">j</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">serializer</span><span class="o">.</span><span class="n">yaml</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_path</span><span class="p">,</span> <span class="s1">&#39;service.yaml&#39;</span><span class="p">),</span> <span class="p">{</span>
@@ -1287,7 +1276,6 @@ It is the class every template should inherits from.</p>
             <span class="s1">&#39;version&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">version</span><span class="p">,</span>
             <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
             <span class="s1">&#39;guid&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">guid</span><span class="p">,</span>
-            <span class="s1">&#39;parent&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">guid</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span> <span class="k">else</span> <span class="bp">None</span><span class="p">,</span>
         <span class="p">})</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_path</span><span class="p">,</span> <span class="s1">&#39;state.yaml&#39;</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_path</span><span class="p">,</span> <span class="s1">&#39;data.yaml&#39;</span><span class="p">))</span>
@@ -1312,6 +1300,8 @@ It is the class every template should inherits from.</p>
                     <span class="n">task_latency</span><span class="o">.</span><span class="n">labels</span><span class="p">(</span><span class="n">action_name</span><span class="o">=</span><span class="n">task</span><span class="o">.</span><span class="n">action_name</span><span class="p">,</span> <span class="n">template_uid</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">template_uid</span><span class="p">))</span><span class="o">.</span><span class="n">observe</span><span class="p">(</span><span class="n">task</span><span class="o">.</span><span class="n">duration</span><span class="p">)</span>
                     <span class="c1"># notify the task list that this task is done</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">task_list</span><span class="o">.</span><span class="n">done</span><span class="p">(</span><span class="n">task</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">task</span><span class="o">.</span><span class="n">state</span> <span class="o">==</span> <span class="n">TASK_STATE_ERROR</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;error executing action </span><span class="si">%s</span><span class="s2">:</span><span class="se">\n</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">task</span><span class="o">.</span><span class="n">action_name</span><span class="p">,</span> <span class="n">task</span><span class="o">.</span><span class="n">eco</span><span class="o">.</span><span class="n">traceback</span><span class="p">))</span>
 
     <span class="k">def</span> <span class="nf">schedule_action</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -1395,6 +1385,12 @@ It is the class every template should inherits from.</p>
         <span class="c1"># remove data from disk</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_path</span> <span class="ow">and</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_path</span><span class="p">):</span>
             <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_path</span><span class="p">)</span>
+
+        <span class="c1"># remove logs from disk</span>
+        <span class="n">log_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">j</span><span class="o">.</span><span class="n">dirs</span><span class="o">.</span><span class="n">LOGDIR</span><span class="p">,</span> <span class="s1">&#39;zrobot&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">guid</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">log_file</span><span class="o">+</span><span class="s1">&#39;*&#39;</span><span class="p">):</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+
         <span class="c1"># remove from memory</span>
         <span class="n">scol</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
@@ -1450,8 +1446,8 @@ It is the class every template should inherits from.</p>
     <span class="n">l</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">handlers</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">rfh</span> <span class="o">=</span> <span class="n">RotatingFileHandler</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">log_dir</span><span class="p">,</span> <span class="n">guid</span><span class="p">),</span>
                               <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;a&#39;</span><span class="p">,</span>
-                              <span class="n">maxBytes</span><span class="o">=</span><span class="mi">5</span> <span class="o">*</span> <span class="mi">1024</span> <span class="o">*</span> <span class="mi">1024</span><span class="p">,</span>  <span class="c1"># 5MiB</span>
-                              <span class="n">backupCount</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>  <span class="c1"># 10 * 5Mib = 50Mib of logs max</span>
+                              <span class="n">maxBytes</span><span class="o">=</span><span class="mi">512</span> <span class="o">*</span> <span class="mi">1024</span><span class="p">,</span>  <span class="c1"># 512k</span>
+                              <span class="n">backupCount</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>  <span class="c1"># 2 * 512k = 1Mib of logs max per service</span>
                               <span class="n">encoding</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
                               <span class="n">delay</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
     <span class="n">rfh</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">)</span>
@@ -1479,6 +1475,14 @@ It is the class every template should inherits from.</p>
       </div>
       <div class="item">
       <p id="zerorobot.template.base.PRIORITY_SYSTEM" class="name">var <span class="ident">PRIORITY_SYSTEM</span></p>
+      
+  
+  <div class="source_cont">
+</div>
+
+      </div>
+      <div class="item">
+      <p id="zerorobot.template.base.TASK_STATE_ERROR" class="name">var <span class="ident">TASK_STATE_ERROR</span></p>
       
   
   <div class="source_cont">
@@ -1826,7 +1830,6 @@ manage a group of greenlets</p>
         <span class="bp">self</span><span class="o">.</span><span class="n">template_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">inspect</span><span class="o">.</span><span class="n">getsourcefile</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">guid</span> <span class="o">=</span> <span class="n">guid</span> <span class="ow">or</span> <span class="nb">str</span><span class="p">(</span><span class="n">uuid4</span><span class="p">())</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">guid</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">parent</span> <span class="o">=</span> <span class="bp">None</span>
         <span class="c1"># location on the filesystem where to store the service</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
             <span class="n">config</span><span class="o">.</span><span class="n">DATA_DIR</span><span class="p">,</span>
@@ -1874,18 +1877,6 @@ manage a group of greenlets</p>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_path</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;service._path is None, don&#39;t know where to save the service&quot;</span><span class="p">)</span>
 
-        <span class="c1"># if base_path is not None and base_path != &#39;&#39;:</span>
-        <span class="c1">#     parent = self.parent</span>
-        <span class="c1">#     path = base_path</span>
-        <span class="c1">#     while parent is not None:</span>
-        <span class="c1">#         path = os.path.join(path, parent.name)</span>
-        <span class="c1">#         parent = parent.parent</span>
-
-        <span class="c1">#     path = os.path.join(path, self.guid)</span>
-        <span class="c1">#     self._path = path</span>
-        <span class="c1"># else:</span>
-        <span class="c1">#     path = self._path</span>
-
         <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_path</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
 
         <span class="n">j</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">serializer</span><span class="o">.</span><span class="n">yaml</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_path</span><span class="p">,</span> <span class="s1">&#39;service.yaml&#39;</span><span class="p">),</span> <span class="p">{</span>
@@ -1893,7 +1884,6 @@ manage a group of greenlets</p>
             <span class="s1">&#39;version&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">version</span><span class="p">,</span>
             <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
             <span class="s1">&#39;guid&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">guid</span><span class="p">,</span>
-            <span class="s1">&#39;parent&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">guid</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span> <span class="k">else</span> <span class="bp">None</span><span class="p">,</span>
         <span class="p">})</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_path</span><span class="p">,</span> <span class="s1">&#39;state.yaml&#39;</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_path</span><span class="p">,</span> <span class="s1">&#39;data.yaml&#39;</span><span class="p">))</span>
@@ -1918,6 +1908,8 @@ manage a group of greenlets</p>
                     <span class="n">task_latency</span><span class="o">.</span><span class="n">labels</span><span class="p">(</span><span class="n">action_name</span><span class="o">=</span><span class="n">task</span><span class="o">.</span><span class="n">action_name</span><span class="p">,</span> <span class="n">template_uid</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">template_uid</span><span class="p">))</span><span class="o">.</span><span class="n">observe</span><span class="p">(</span><span class="n">task</span><span class="o">.</span><span class="n">duration</span><span class="p">)</span>
                     <span class="c1"># notify the task list that this task is done</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">task_list</span><span class="o">.</span><span class="n">done</span><span class="p">(</span><span class="n">task</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">task</span><span class="o">.</span><span class="n">state</span> <span class="o">==</span> <span class="n">TASK_STATE_ERROR</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;error executing action </span><span class="si">%s</span><span class="s2">:</span><span class="se">\n</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">task</span><span class="o">.</span><span class="n">action_name</span><span class="p">,</span> <span class="n">task</span><span class="o">.</span><span class="n">eco</span><span class="o">.</span><span class="n">traceback</span><span class="p">))</span>
 
     <span class="k">def</span> <span class="nf">schedule_action</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -2001,6 +1993,12 @@ manage a group of greenlets</p>
         <span class="c1"># remove data from disk</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_path</span> <span class="ow">and</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_path</span><span class="p">):</span>
             <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_path</span><span class="p">)</span>
+
+        <span class="c1"># remove logs from disk</span>
+        <span class="n">log_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">j</span><span class="o">.</span><span class="n">dirs</span><span class="o">.</span><span class="n">LOGDIR</span><span class="p">,</span> <span class="s1">&#39;zrobot&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">guid</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">log_file</span><span class="o">+</span><span class="s1">&#39;*&#39;</span><span class="p">):</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+
         <span class="c1"># remove from memory</span>
         <span class="n">scol</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
@@ -2076,7 +2074,6 @@ manage a group of greenlets</p>
     <span class="bp">self</span><span class="o">.</span><span class="n">template_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">inspect</span><span class="o">.</span><span class="n">getsourcefile</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">))</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">guid</span> <span class="o">=</span> <span class="n">guid</span> <span class="ow">or</span> <span class="nb">str</span><span class="p">(</span><span class="n">uuid4</span><span class="p">())</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">guid</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">parent</span> <span class="o">=</span> <span class="bp">None</span>
     <span class="c1"># location on the filesystem where to store the service</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
         <span class="n">config</span><span class="o">.</span><span class="n">DATA_DIR</span><span class="p">,</span>
@@ -2138,6 +2135,10 @@ e.g: super().delete()</p></div>
     <span class="c1"># remove data from disk</span>
     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_path</span> <span class="ow">and</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_path</span><span class="p">):</span>
         <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_path</span><span class="p">)</span>
+    <span class="c1"># remove logs from disk</span>
+    <span class="n">log_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">j</span><span class="o">.</span><span class="n">dirs</span><span class="o">.</span><span class="n">LOGDIR</span><span class="p">,</span> <span class="s1">&#39;zrobot&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">guid</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">log_file</span><span class="o">+</span><span class="s1">&#39;*&#39;</span><span class="p">):</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
     <span class="c1"># remove from memory</span>
     <span class="n">scol</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 </pre></div>
@@ -2212,23 +2213,12 @@ return the path where the service is saved</p></div>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_path</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;service._path is None, don&#39;t know where to save the service&quot;</span><span class="p">)</span>
-    <span class="c1"># if base_path is not None and base_path != &#39;&#39;:</span>
-    <span class="c1">#     parent = self.parent</span>
-    <span class="c1">#     path = base_path</span>
-    <span class="c1">#     while parent is not None:</span>
-    <span class="c1">#         path = os.path.join(path, parent.name)</span>
-    <span class="c1">#         parent = parent.parent</span>
-    <span class="c1">#     path = os.path.join(path, self.guid)</span>
-    <span class="c1">#     self._path = path</span>
-    <span class="c1"># else:</span>
-    <span class="c1">#     path = self._path</span>
     <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_path</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
     <span class="n">j</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">serializer</span><span class="o">.</span><span class="n">yaml</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_path</span><span class="p">,</span> <span class="s1">&#39;service.yaml&#39;</span><span class="p">),</span> <span class="p">{</span>
         <span class="s1">&#39;template&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">template_uid</span><span class="p">),</span>
         <span class="s1">&#39;version&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">version</span><span class="p">,</span>
         <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
         <span class="s1">&#39;guid&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">guid</span><span class="p">,</span>
-        <span class="s1">&#39;parent&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">guid</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span> <span class="k">else</span> <span class="bp">None</span><span class="p">,</span>
     <span class="p">})</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_path</span><span class="p">,</span> <span class="s1">&#39;state.yaml&#39;</span><span class="p">))</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_path</span><span class="p">,</span> <span class="s1">&#39;data.yaml&#39;</span><span class="p">))</span>
@@ -2393,16 +2383,6 @@ of you service are still met after a restart of the 0-robot</p></div>
             </div>
             <div class="item">
             <p id="zerorobot.template.base.TemplateBase.name" class="name">var <span class="ident">name</span></p>
-            
-
-            
-  
-  <div class="source_cont">
-</div>
-
-            </div>
-            <div class="item">
-            <p id="zerorobot.template.base.TemplateBase.parent" class="name">var <span class="ident">parent</span></p>
             
 
             
