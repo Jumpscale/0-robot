@@ -1065,6 +1065,7 @@ table {
     <li class="mono"><a href="#zerorobot.dsl.ZeroRobotAPI.ServicesMgr.create">create</a></li>
     <li class="mono"><a href="#zerorobot.dsl.ZeroRobotAPI.ServicesMgr.exists">exists</a></li>
     <li class="mono"><a href="#zerorobot.dsl.ZeroRobotAPI.ServicesMgr.find">find</a></li>
+    <li class="mono"><a href="#zerorobot.dsl.ZeroRobotAPI.ServicesMgr.find_or_create">find_or_create</a></li>
     <li class="mono"><a href="#zerorobot.dsl.ZeroRobotAPI.ServicesMgr.get">get</a></li>
     <li class="mono"><a href="#zerorobot.dsl.ZeroRobotAPI.ServicesMgr.upgrade">upgrade</a></li>
   </ul>
@@ -1202,6 +1203,21 @@ table {
         <span class="c1"># we can create a service locally, the local robot has the template</span>
         <span class="n">template</span> <span class="o">=</span> <span class="n">tcol</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">template_uid</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">tcol</span><span class="o">.</span><span class="n">instantiate_service</span><span class="p">(</span><span class="n">template</span><span class="p">,</span> <span class="n">service_name</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">find_or_create</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">template_uid</span><span class="p">,</span> <span class="n">service_name</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Helper method that first check if a service exists and if not then creates it</span>
+<span class="sd">        if the service is found, it is returned</span>
+<span class="sd">        if the service is not found, it is created using the data passed then returned</span>
+
+<span class="sd">        @param template_uid: UID of the template of the service</span>
+<span class="sd">        @param service: the name of the service.</span>
+<span class="sd">        @param data: a dictionnary with the data of the service when it is created</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">template_uid</span><span class="o">=</span><span class="n">template_uid</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">service_name</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">scol</span><span class="o">.</span><span class="n">ServiceNotFoundError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">template_uid</span><span class="o">=</span><span class="n">template_uid</span><span class="p">,</span> <span class="n">service_name</span><span class="o">=</span><span class="n">service_name</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">upgrade</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">service_guid</span><span class="p">,</span> <span class="n">template_uid</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -1611,6 +1627,21 @@ table {
         <span class="n">template</span> <span class="o">=</span> <span class="n">tcol</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">template_uid</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">tcol</span><span class="o">.</span><span class="n">instantiate_service</span><span class="p">(</span><span class="n">template</span><span class="p">,</span> <span class="n">service_name</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
 
+    <span class="k">def</span> <span class="nf">find_or_create</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">template_uid</span><span class="p">,</span> <span class="n">service_name</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Helper method that first check if a service exists and if not then creates it</span>
+<span class="sd">        if the service is found, it is returned</span>
+<span class="sd">        if the service is not found, it is created using the data passed then returned</span>
+
+<span class="sd">        @param template_uid: UID of the template of the service</span>
+<span class="sd">        @param service: the name of the service.</span>
+<span class="sd">        @param data: a dictionnary with the data of the service when it is created</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">template_uid</span><span class="o">=</span><span class="n">template_uid</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">service_name</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">scol</span><span class="o">.</span><span class="n">ServiceNotFoundError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">template_uid</span><span class="o">=</span><span class="n">template_uid</span><span class="p">,</span> <span class="n">service_name</span><span class="o">=</span><span class="n">service_name</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">)</span>
+
     <span class="k">def</span> <span class="nf">upgrade</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">service_guid</span><span class="p">,</span> <span class="n">template_uid</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        upgrade the template version of a service</span>
@@ -1753,6 +1784,44 @@ You can filter on:
     <span class="k">for</span> <span class="n">service</span> <span class="ow">in</span> <span class="n">scol</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="n">services</span><span class="p">[</span><span class="n">service</span><span class="o">.</span><span class="n">guid</span><span class="p">]</span> <span class="o">=</span> <span class="n">service</span>
     <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">services</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+</pre></div>
+
+  </div>
+</div>
+
+  </div>
+  
+            
+  <div class="item">
+    <div class="name def" id="zerorobot.dsl.ZeroRobotAPI.ServicesMgr.find_or_create">
+    <p>def <span class="ident">find_or_create</span>(</p><p>self, template_uid, service_name, data)</p>
+    </div>
+    
+
+    
+  
+    <div class="desc"><p>Helper method that first check if a service exists and if not then creates it
+if the service is found, it is returned
+if the service is not found, it is created using the data passed then returned</p>
+<p>@param template_uid: UID of the template of the service
+@param service: the name of the service.
+@param data: a dictionnary with the data of the service when it is created</p></div>
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.dsl.ZeroRobotAPI.ServicesMgr.find_or_create', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.dsl.ZeroRobotAPI.ServicesMgr.find_or_create" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">find_or_create</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">template_uid</span><span class="p">,</span> <span class="n">service_name</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Helper method that first check if a service exists and if not then creates it</span>
+<span class="sd">    if the service is found, it is returned</span>
+<span class="sd">    if the service is not found, it is created using the data passed then returned</span>
+<span class="sd">    @param template_uid: UID of the template of the service</span>
+<span class="sd">    @param service: the name of the service.</span>
+<span class="sd">    @param data: a dictionnary with the data of the service when it is created</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">template_uid</span><span class="o">=</span><span class="n">template_uid</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">service_name</span><span class="p">)</span>
+    <span class="k">except</span> <span class="n">scol</span><span class="o">.</span><span class="n">ServiceNotFoundError</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">template_uid</span><span class="o">=</span><span class="n">template_uid</span><span class="p">,</span> <span class="n">service_name</span><span class="o">=</span><span class="n">service_name</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">)</span>
 </pre></div>
 
   </div>

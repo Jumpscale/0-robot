@@ -167,7 +167,8 @@ class ServicesMgr:
 
         @param template_uid: UID of the template of the service
         @param service: the name of the service.
-        @param data: a dictionnary with the data of the service when it is created
+        @param data: a dictionnary with the data of the service if and only if the service is created
+                    so if the service already exists, the data argument is not used
         """
         try:
             return self.get(template_uid=template_uid, name=service_name)
