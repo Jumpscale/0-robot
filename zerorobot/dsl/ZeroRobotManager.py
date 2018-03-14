@@ -159,6 +159,21 @@ class ServicesMgr:
         service = ServiceProxy(new_service.name, new_service.guid, self._client)
         return service
 
+    def find_or_create(self, template_uid, service_name, data):
+        """
+        Helper method that first check if a service exists and if not then creates it
+        if the service is found, it is returned
+        if the service is not found, it is created using the data passed then returned
+
+        @param template_uid: UID of the template of the service
+        @param service: the name of the service.
+        @param data: a dictionnary with the data of the service when it is created
+        """
+        try:
+            return self.get(template_uid=template_uid, name=service_name)
+        except ServiceNotFoundError:
+            return self.create(template_uid=template_uid, service_name=service_name, data=data)
+
     def upgrade(self, service_guid, new_template_uid):
         """
         Upgrade a service to a new version

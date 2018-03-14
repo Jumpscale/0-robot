@@ -308,7 +308,7 @@ def _recurring_action(service, action, period):
     while True:
         tasks_name = [t.action_name for t in service.task_list.list_tasks()]
         try:
-            # schedule if period time has elasped and the same action is not already in the task list
+            # schedule if period time has elapsed and the same action is not already in the task list
             if elapsed == -1 or elapsed >= period and action not in tasks_name:
                 task = service._schedule_action(action, priority=PRIORITY_SYSTEM)
                 task.wait()

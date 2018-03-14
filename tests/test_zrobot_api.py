@@ -160,6 +160,18 @@ class TestZRobotAPI(unittest.TestCase):
         with self.subTest(name='remote'):
             self._test_get(self.api.robots['robot1'])
 
+    def test_service_find_or_create(self):
+        with self.subTest(name='local'):
+            # load template in current process
+            with tempfile.TemporaryDirectory(prefix="robotlocal") as tmpdir:
+                config.DATA_DIR = tmpdir
+                tcol.add_repo('http://github.com/jumpscale/0-robot', directory='tests/fixtures/templates')
+
+                self._test_find_or_create(self.api)
+
+        with self.subTest(name='remote'):
+            self._test_find_or_create(self.api.robots['robot1'])
+
     def _test_get(self, robot):
         node1 = robot.services.create("github.com/jumpscale/0-robot/node/0.0.1", 'node1')
         node2 = robot.services.create("github.com/jumpscale/0-robot/node/0.0.1", 'node2')
@@ -229,3 +241,15 @@ class TestZRobotAPI(unittest.TestCase):
         guids = [node1.guid, node2.guid]
         for s in results:
             self.assertIn(s.guid, guids)
+
+    def _test_find_or_create(self, robot):
+        node1 = robot.services.create("github.com/jumpscale/0-robot/node/0.0.1", 'node1')
+        assert len(robot.services.guids) == 1
+
+        srv = robot.services.find_or_create(template_uid="github.com/jumpscale/0-robot/node/0.0.1", service_name='node1', data={})
+        assert node1.guid == srv.guid, "find or create should return service if it exists"
+        assert len(robot.services.guids) == 1
+
+        srv = robot.services.find_or_create(template_uid="github.com/jumpscale/0-robot/node/0.0.1", service_name='node2', data={})
+        assert node1.guid != srv.guid, "find or create should create a service if it doesn't exists"
+        assert len(robot.services.guids) == 2
