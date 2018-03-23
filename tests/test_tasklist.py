@@ -35,9 +35,11 @@ class TestTaskList(unittest.TestCase):
         self.tl._done.drop()
 
     def tearDown(self):
-        self.tl._done.close()
-        if os.path.exists(config.DATA_DIR):
-            shutil.rmtree(config.DATA_DIR)
+        try:
+            self.tl._done.close()
+        finally:
+            if os.path.exists(config.DATA_DIR):
+                shutil.rmtree(config.DATA_DIR)
 
     def _load_template(self, name):
         """

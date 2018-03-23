@@ -26,7 +26,8 @@ setup(
         'gevent >= 1.2.2',
         'psutil>=5.4.3',
         'prometheus_client>=0.1.1',
-        'netifaces>=0.10.6'
+        'netifaces>=0.10.6',
+        'msgpack-python>=0.4.8'
     ],
     scripts=['cmd/zrobot']
 )

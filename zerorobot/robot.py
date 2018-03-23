@@ -7,6 +7,7 @@ It is the class responsible to start and managed the robot as well as the REST A
 import logging
 import os
 import signal
+import time
 
 import gevent
 from gevent import GreenletExit
@@ -119,6 +120,9 @@ class Robot:
         # load services from data repo
         self._load_services()
 
+        # only keep executed tasks for 2 hours
+        gevent.spawn(_trim_tasks, 7200)
+
         if block:
             self._http.serve_forever()
             # this is executed when self.stop is called.
@@ -207,6 +211,30 @@ def _try_load_service(services):
                 logger.debug("loading failed again for %s" % service.guid)
         gevent.sleep(10)  # fixme: why 10 ? why not?
         size = len(services)
+
+
+def _trim_tasks(period=7200):  # default 2 hours ago
+    """
+    this greenlet delete the task of all services that are older
+    then 'period'
+    This is to limit the amount of storage used to keep track of the tasks
+    """
+    while True:
+        try:
+            time.sleep(20*60)  # runs every 20 minutes
+            ago = int(time.time()) - period
+
+            for service in scol.list_services():
+                if not hasattr(service.task_list._done, 'delete_until'):
+                    continue
+                # delete all task that have been created before ago
+                service.task_list._done.delete_until(ago)
+        except gevent.GreenletExit:
+            # exit properly
+            return
+        except:
+            logger.exception("error deleting old tasks")
+            continue
 
 
 def _split_hostport(hostport):

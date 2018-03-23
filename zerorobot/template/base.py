@@ -191,6 +191,8 @@ class TemplateBase:
                         self.logger.error("error executing action %s:\n%s" % (task.action_name, task.eco.traceback))
             except gevent.GreenletExit:
                 # TODO: gracefull shutdown
+                # make sure the task storage is close properly
+                self.task_list._done.close()
                 return
             except:
                 self.logger.exception("Uncaught exception in service task loop!")

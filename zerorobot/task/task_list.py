@@ -10,8 +10,9 @@ from js9 import j
 from . import (PRIORITY_NORMAL, PRIORITY_SYSTEM, TASK_STATE_ERROR,
                TASK_STATE_NEW, TASK_STATE_OK, TASK_STATE_RUNNING)
 from .storage.base import TaskNotFoundError
-from .storage.file import TaskStorageFile
-from .storage.redis import TaskStorageRedis
+from .storage.sqlite import TaskStorageSqlite
+# from .storage.file import TaskStorageFile
+# from .storage.redis import TaskStorageRedis
 from .task import Task
 from .utils import _instantiate_task
 from zerorobot.prometheus.robot import nr_task_waiting
@@ -32,7 +33,8 @@ class TaskList:
         # now we use the filesystem, but we could plug any key-value stor or database behind
         # check TaskStorageBase to see the interface your storage needs to have
         # to be used to store tasks
-        self._done = TaskStorageFile(self)
+        # self._done = TaskStorageFile(self)
+        self._done = TaskStorageSqlite(self)
         # pointer to current task
         self.current = None
 
