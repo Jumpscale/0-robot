@@ -54,14 +54,14 @@ class ServiceState:
         get the value of a state
         """
         if category not in self.categories:
-            raise StateCategoryNotExistsError("category %s does not exists" % category)
+            raise StateCategoryNotExistsError("category %s does not exist" % category)
 
         # we don't filer on tag, early return
         if tag is None:
             return self.categories[category]
 
         if tag not in self.categories[category]:
-            raise StateCategoryNotExistsError("tag %s does not exists in category %s" % (tag, category))
+            raise StateCategoryNotExistsError("tag %s does not exist in category %s" % (tag, category))
 
         # return only the state for this tag
         # we return a dict so it's consistent with the case when tag is None
