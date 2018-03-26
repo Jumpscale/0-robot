@@ -33,10 +33,10 @@ class TestServiceState(unittest.TestCase):
         self.assertDictEqual(state.get('network'), {'tcp-80': 'ok', 'tcp-81': 'error'})
         self.assertDictEqual(state.get('network', 'tcp-80'), {'tcp-80': 'ok'})
 
-        with self.assertRaises(StateCategoryNotExistsError, msg='category should not exists'):
+        with self.assertRaises(StateCategoryNotExistsError, msg='category should not exist'):
             state.get('foo')
 
-        with self.assertRaises(StateCategoryNotExistsError, msg='tag should not exists'):
+        with self.assertRaises(StateCategoryNotExistsError, msg='tag should not exist'):
             # also when trying to get tag that doesn't exists
             state.get('network', 'foo')
 
@@ -91,7 +91,7 @@ class TestServiceState(unittest.TestCase):
         self.assertEqual(state.categories['network']['tcp-81'], 'error', "state should be error")
 
         state.delete('network', 'tcp-80')
-        with self.assertRaises(StateCategoryNotExistsError, msg='tag tcp-80 should not exists'):
+        with self.assertRaises(StateCategoryNotExistsError, msg='tag tcp-80 should not exist'):
             state.get('network', 'tcp-80')
 
         state.delete('network')
