@@ -25,14 +25,28 @@ def robot():
 @robot.command()
 @click.argument('instance', required=True)
 @click.argument('addr', required=False)
-def connect(instance, addr):
+@click.argument('jwt', required=False)
+def connect(instance, addr, jwt):
     """
-    configure the zrobot CLI to work against the 0-robot named --instance
+    configure the zrobot CLI to work against the 0-robot
+
+    examples:
+
+    - create a new connection: `zrobot robot connect myRobot http://myrobot.com:6600`
+
+    - create a new connection to a JWT protected robot: `zrobot robot connect myRobot http://myrobot.com:6600 eyJhbGciOiJFUzM4NCIsInR5cCI6IkpXVCJ9.eyJh......`
+
+    - connect to an already configured robot: `zrobot robot connect myRobot`
     """
     # create new config
     if addr is not None:
         # create new configuration for this instance-addr
-        cl = j.clients.zrobot.get(instance=instance, data={'url': addr})
+        data = {'url': addr}
+        if jwt:
+            data['jwt_'] = jwt
+        # make sure instance is clean
+        j.clients.zrobot.delete(instance)
+        cl = j.clients.zrobot.get(instance=instance, data=data, create=True, interactive=False, die=True)
         cl.config.data['url'] = addr
         cl.config.save()
 

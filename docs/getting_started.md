@@ -34,6 +34,8 @@ Options:
                                 data repository
   --auto-push-interval INTEGER  interval in minutes of automatic pushing of
                                 data repository
+  --organization TEXT           if specified, enable JWT authentication for
+                                each request.
   --help                        Show this message and exit.
 ```
 Options details:
@@ -48,10 +50,11 @@ This parameter is required for the robot to starts.
 - `--debug`: Sets the logger output level to debug
 - `auto-push`: Enables automatic commiting and pushing of the data repository for backup. Check the [automatic syncing chapter](#automatic-syncing-of-data-repository) for more details
 - `--auto-push-interval` Define a custom interval in minutes for `auto-push` if enabled (default: 60)
+- `--organization` If specified, enable JWT authentication for each request. To be valid the JWT must contain a scope `user:memberof:<org>` where <org> is a valid ItYouOnline organization
 
 ### example:
 ```bash
-zrobot server start --listen :6601 --template-repo https://github.com/zero-os/0-robot.git --data-repo https://github.com/user/zrobot1.git --robots http://localhost:6602
+zrobot server start --listen :6601 --template-repo https://github.com/zero-os/0-robot.git --data-repo https://github.com/user/zrobot1.git --robots http://localhost:6602 --organization myOrg
 ```
 
 ## Running 0-robot in a docker

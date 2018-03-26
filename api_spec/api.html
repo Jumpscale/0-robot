@@ -4,7 +4,7 @@
     <title>ZeroRobot API documentation</title>
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <meta name="generator" content="https://github.com/raml2html/raml2html 6.4.1">
+    <meta name="generator" content="https://github.com/raml2html/raml2html 6.4.2">
 
     <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.3.0/styles/default.min.css">
@@ -233,7 +233,7 @@ and what action you want to add to a task list.</p>
         <span class="methods">
           
             <a href="#blueprints_post"><!-- modal shown by hashchange event -->
-              <span class="badge badge_post">post</span>
+              <span class="badge badge_post">post <span class="glyphicon glyphicon-lock" title="Authentication required"></span></span>
             </a>
           
         </span>
@@ -247,7 +247,7 @@ and what action you want to add to a task list.</p>
         <div class="list-group">
           
             <div onclick="window.location.href = '#blueprints_post'" class="list-group-item">
-              <span class="badge badge_post">post</span>
+              <span class="badge badge_post">post <span class="glyphicon glyphicon-lock" title="Authentication required"></span></span>
               <div class="method_description">
 <p>Execute a blueprint on the ZeroRobot</p>
 
@@ -266,7 +266,7 @@ and what action you want to add to a task list.</p>
             <div class="modal-header">
               <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
               <h4 class="modal-title" id="myModalLabel">
-                <span class="badge badge_post">post</span>
+                <span class="badge badge_post">post <span class="glyphicon glyphicon-lock" title="Authentication required"></span></span>
                 <span class="parent"></span>/blueprints
               </h4>
             </div>
@@ -279,6 +279,21 @@ and what action you want to add to a task list.</p>
                 </div>
               
 
+              
+                
+                  
+                    <div class="alert alert-warning">
+                      
+                      <span class="glyphicon glyphicon-lock" title="Authentication required"></span>
+                      Secured by <b>iyo</b>
+                      
+                      
+<p>0-robot support authentication using a JWT containing the "user:memberof:" scope for an IYO organization</p>
+
+                      
+                    </div>
+                  
+                
               
 
               <!-- Nav tabs -->
@@ -295,6 +310,10 @@ and what action you want to add to a task list.</p>
                   </li>
                 
 
+                
+                  <li>
+                    <a href="#blueprints_post_securedby" data-toggle="tab">Security</a>
+                  </li>
                 
               </ul>
 
@@ -431,7 +450,7 @@ Which mean all the service have been created and all actions added to the task l
                                     <ul>
                                       
                                         <li>
-  <strong>service_guid</strong>:
+  <strong>action_name</strong>:
 
     
       <em>required (string)
@@ -487,7 +506,7 @@ Which mean all the service have been created and all actions added to the task l
 
                                       
                                         <li>
-  <strong>action_name</strong>:
+  <strong>template_name</strong>:
 
     
       <em>required (string)
@@ -521,6 +540,89 @@ Which mean all the service have been created and all actions added to the task l
     
   
 
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                                      
+                                        <li>
+  <strong>service_guid</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                                      
+                                        <li>
+  <strong>guid</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+<p>unique ID of the task</p>
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                                      
+                                        <li>
+  <strong>state</strong>:
+
+    
+      <em>required (one of new, ok, running, error)
+      </em>
+    
+  
+
+<p>a task that is waiting to be executed is in state new.
+a task that being executed is in state running
+a task that executed successfully is in state ok
+a task that failed to execute and/or is being retried is in state error.</p>
 
 
   
@@ -593,63 +695,6 @@ Which mean all the service have been created and all actions added to the task l
 
                                       
                                         <li>
-  <strong>state</strong>:
-
-    
-      <em>required (one of new, ok, running, error)
-      </em>
-    
-  
-
-<p>a task that is waiting to be executed is in state new.
-a task that being executed is in state running
-a task that executed successfully is in state ok
-a task that failed to execute and/or is being retried is in state error.</p>
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-                                      
-                                        <li>
-  <strong>result</strong>:
-
-    
-      <em>(string)
-      </em>
-    
-  
-
-<p>serialized version of the result of the task</p>
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-                                      
-                                        <li>
   <strong>eco</strong>:
 
     
@@ -669,59 +714,7 @@ a task that failed to execute and/or is being retried is in state error.</p>
     <ul>
       
         <li>
-  <strong>errormessagePub</strong>:
-
-    
-      <em>required (string)
-      </em>
-    
-  
-
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-      
-        <li>
-  <strong>category</strong>:
-
-    
-      <em>required (string)
-      </em>
-    
-  
-
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-      
-        <li>
-  <strong>tags</strong>:
+  <strong>appname</strong>:
 
     
       <em>required (string)
@@ -773,166 +766,10 @@ a task that failed to execute and/or is being retried is in state error.</p>
 
       
         <li>
-  <strong>funcfilename</strong>:
+  <strong>errormessagePub</strong>:
 
     
       <em>required (string)
-      </em>
-    
-  
-
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-      
-        <li>
-  <strong>appname</strong>:
-
-    
-      <em>required (string)
-      </em>
-    
-  
-
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-      
-        <li>
-  <strong>_limit</strong>:
-
-    
-      <em>required (integer)
-      </em>
-    
-  
-
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-      
-        <li>
-  <strong>funcname</strong>:
-
-    
-      <em>required (string)
-      </em>
-    
-  
-
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-      
-        <li>
-  <strong>masterjid</strong>:
-
-    
-      <em>required (integer)
-      </em>
-    
-  
-
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-      
-        <li>
-  <strong>closetime</strong>:
-
-    
-      <em>required (integer)
-      </em>
-    
-  
-
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-      
-        <li>
-  <strong>jid</strong>:
-
-    
-      <em>required (integer)
       </em>
     
   
@@ -981,293 +818,7 @@ a task that failed to execute and/or is being retried is in state error.</p>
 
       
         <li>
-  <strong>occurrences</strong>:
-
-    
-      <em>required (integer)
-      </em>
-    
-  
-
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-      
-        <li>
   <strong>state</strong>:
-
-    
-      <em>required (string)
-      </em>
-    
-  
-
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-      
-        <li>
-  <strong>level</strong>:
-
-    
-      <em>required (integer)
-      </em>
-    
-  
-
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-      
-        <li>
-  <strong>lasttime</strong>:
-
-    
-      <em>required (integer)
-      </em>
-    
-  
-
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-      
-        <li>
-  <strong>pid</strong>:
-
-    
-      <em>required (integer)
-      </em>
-    
-  
-
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-      
-        <li>
-  <strong>errormessage</strong>:
-
-    
-      <em>required (string)
-      </em>
-    
-  
-
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-      
-        <li>
-  <strong>_traceback</strong>:
-
-    
-      <em>required (string)
-      </em>
-    
-  
-
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-      
-        <li>
-  <strong>code</strong>:
-
-    
-      <em>required (string)
-      </em>
-    
-  
-
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-      
-        <li>
-  <strong>uniquekey</strong>:
-
-    
-      <em>required (string)
-      </em>
-    
-  
-
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-      
-        <li>
-  <strong>exceptionclassname</strong>:
-
-    
-      <em>required (string)
-      </em>
-    
-  
-
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-      
-        <li>
-  <strong>funclinenr</strong>:
-
-    
-      <em>required (integer)
-      </em>
-    
-  
-
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-      
-        <li>
-  <strong>guid</strong>:
 
     
       <em>required (string)
@@ -1322,6 +873,500 @@ a task that failed to execute and/or is being retried is in state error.</p>
 </li>
 
       
+        <li>
+  <strong>jid</strong>:
+
+    
+      <em>required (integer)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>masterjid</strong>:
+
+    
+      <em>required (integer)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>errormessage</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>uniquekey</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>category</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>exceptionclassname</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>funcfilename</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>closetime</strong>:
+
+    
+      <em>required (integer)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>level</strong>:
+
+    
+      <em>required (integer)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>_limit</strong>:
+
+    
+      <em>required (integer)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>lasttime</strong>:
+
+    
+      <em>required (integer)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>code</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>guid</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>tags</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>funclinenr</strong>:
+
+    
+      <em>required (integer)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>_traceback</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>funcname</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>pid</strong>:
+
+    
+      <em>required (integer)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>occurrences</strong>:
+
+    
+      <em>required (integer)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
     </ul>
   
 
@@ -1335,41 +1380,15 @@ a task that failed to execute and/or is being retried is in state error.</p>
 
                                       
                                         <li>
-  <strong>template_name</strong>:
+  <strong>result</strong>:
 
     
-      <em>required (string)
+      <em>(string)
       </em>
     
   
 
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-                                      
-                                        <li>
-  <strong>guid</strong>:
-
-    
-      <em>required (string)
-      </em>
-    
-  
-
-<p>unique ID of the task</p>
+<p>serialized version of the result of the task</p>
 
 
   
@@ -1409,6 +1428,70 @@ a task that failed to execute and/or is being retried is in state error.</p>
                   </div>
                 
 
+                
+                  <div class="tab-pane" id="blueprints_post_securedby">
+                    
+                      
+                      <h1>Secured by iyo</h1>
+
+                      
+                        <h3>Headers</h3>
+                        <ul>
+                          
+                            <li>
+  <strong>Authorization</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+<p>JWT given by ItYouOnline
+It needs to contains the "user:memberof:<org>" scope, where <org> is the organization authorized to access the robot.</p>
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                          
+                        </ul>
+                      
+
+                      
+
+                      
+                        <h2>HTTP status code <a href="http://httpstatus.es/401" target="_blank">401</a></h2>
+<p>Bad or expired token. This can happen if the user is revoked or an expired access token. To fix, re-authenticate
+the user.</p>
+
+                        
+
+                        
+
+                      
+                        <h2>HTTP status code <a href="http://httpstatus.es/403" target="_blank">403</a></h2>
+<p>Bad request wrong scope in the JWT. Unfortunately, re-authenticating the user won&#39;t help here.</p>
+
+                        
+
+                        
+
+                      
+
+                    
+                  </div>
                 
               </div>
             </div>
@@ -1453,11 +1536,11 @@ Once the templates are available, you can send blueprint with the description of
         <span class="methods">
           
             <a href="#templates_get"><!-- modal shown by hashchange event -->
-              <span class="badge badge_get">get</span>
+              <span class="badge badge_get">get <span class="glyphicon glyphicon-lock" title="Authentication required"></span></span>
             </a>
           
             <a href="#templates_post"><!-- modal shown by hashchange event -->
-              <span class="badge badge_post">post</span>
+              <span class="badge badge_post">post <span class="glyphicon glyphicon-lock" title="Authentication required"></span></span>
             </a>
           
         </span>
@@ -1471,7 +1554,7 @@ Once the templates are available, you can send blueprint with the description of
         <div class="list-group">
           
             <div onclick="window.location.href = '#templates_get'" class="list-group-item">
-              <span class="badge badge_get">get</span>
+              <span class="badge badge_get">get <span class="glyphicon glyphicon-lock" title="Authentication required"></span></span>
               <div class="method_description">
 <p>List all the templates available to the ZeroRobot</p>
 
@@ -1480,7 +1563,7 @@ Once the templates are available, you can send blueprint with the description of
             </div>
           
             <div onclick="window.location.href = '#templates_post'" class="list-group-item">
-              <span class="badge badge_post">post</span>
+              <span class="badge badge_post">post <span class="glyphicon glyphicon-lock" title="Authentication required"></span></span>
               <div class="method_description">
 <p>Clone a template repository and make the templates available to the ZeroRobot</p>
 
@@ -1499,7 +1582,7 @@ Once the templates are available, you can send blueprint with the description of
             <div class="modal-header">
               <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
               <h4 class="modal-title" id="myModalLabel">
-                <span class="badge badge_get">get</span>
+                <span class="badge badge_get">get <span class="glyphicon glyphicon-lock" title="Authentication required"></span></span>
                 <span class="parent"></span>/templates
               </h4>
             </div>
@@ -1513,6 +1596,21 @@ Once the templates are available, you can send blueprint with the description of
               
 
               
+                
+                  
+                    <div class="alert alert-warning">
+                      
+                      <span class="glyphicon glyphicon-lock" title="Authentication required"></span>
+                      Secured by <b>iyo</b>
+                      
+                      
+<p>0-robot support authentication using a JWT containing the "user:memberof:" scope for an IYO organization</p>
+
+                      
+                    </div>
+                  
+                
+              
 
               <!-- Nav tabs -->
               <ul class="nav nav-tabs">
@@ -1524,6 +1622,10 @@ Once the templates are available, you can send blueprint with the description of
                   </li>
                 
 
+                
+                  <li>
+                    <a href="#templates_get_securedby" data-toggle="tab">Security</a>
+                  </li>
                 
               </ul>
 
@@ -1754,6 +1856,70 @@ There are different informations extracted from</p>
                 
 
                 
+                  <div class="tab-pane" id="templates_get_securedby">
+                    
+                      
+                      <h1>Secured by iyo</h1>
+
+                      
+                        <h3>Headers</h3>
+                        <ul>
+                          
+                            <li>
+  <strong>Authorization</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+<p>JWT given by ItYouOnline
+It needs to contains the "user:memberof:<org>" scope, where <org> is the organization authorized to access the robot.</p>
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                          
+                        </ul>
+                      
+
+                      
+
+                      
+                        <h2>HTTP status code <a href="http://httpstatus.es/401" target="_blank">401</a></h2>
+<p>Bad or expired token. This can happen if the user is revoked or an expired access token. To fix, re-authenticate
+the user.</p>
+
+                        
+
+                        
+
+                      
+                        <h2>HTTP status code <a href="http://httpstatus.es/403" target="_blank">403</a></h2>
+<p>Bad request wrong scope in the JWT. Unfortunately, re-authenticating the user won&#39;t help here.</p>
+
+                        
+
+                        
+
+                      
+
+                    
+                  </div>
+                
               </div>
             </div>
           </div>
@@ -1766,7 +1932,7 @@ There are different informations extracted from</p>
             <div class="modal-header">
               <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
               <h4 class="modal-title" id="myModalLabel">
-                <span class="badge badge_post">post</span>
+                <span class="badge badge_post">post <span class="glyphicon glyphicon-lock" title="Authentication required"></span></span>
                 <span class="parent"></span>/templates
               </h4>
             </div>
@@ -1779,6 +1945,21 @@ There are different informations extracted from</p>
                 </div>
               
 
+              
+                
+                  
+                    <div class="alert alert-warning">
+                      
+                      <span class="glyphicon glyphicon-lock" title="Authentication required"></span>
+                      Secured by <b>iyo</b>
+                      
+                      
+<p>0-robot support authentication using a JWT containing the "user:memberof:" scope for an IYO organization</p>
+
+                      
+                    </div>
+                  
+                
               
 
               <!-- Nav tabs -->
@@ -1795,6 +1976,10 @@ There are different informations extracted from</p>
                   </li>
                 
 
+                
+                  <li>
+                    <a href="#templates_post_securedby" data-toggle="tab">Security</a>
+                  </li>
                 
               </ul>
 
@@ -2138,6 +2323,70 @@ There are different informations extracted from</p>
                 
 
                 
+                  <div class="tab-pane" id="templates_post_securedby">
+                    
+                      
+                      <h1>Secured by iyo</h1>
+
+                      
+                        <h3>Headers</h3>
+                        <ul>
+                          
+                            <li>
+  <strong>Authorization</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+<p>JWT given by ItYouOnline
+It needs to contains the "user:memberof:<org>" scope, where <org> is the organization authorized to access the robot.</p>
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                          
+                        </ul>
+                      
+
+                      
+
+                      
+                        <h2>HTTP status code <a href="http://httpstatus.es/401" target="_blank">401</a></h2>
+<p>Bad or expired token. This can happen if the user is revoked or an expired access token. To fix, re-authenticate
+the user.</p>
+
+                        
+
+                        
+
+                      
+                        <h2>HTTP status code <a href="http://httpstatus.es/403" target="_blank">403</a></h2>
+<p>Bad request wrong scope in the JWT. Unfortunately, re-authenticating the user won&#39;t help here.</p>
+
+                        
+
+                        
+
+                      
+
+                    
+                  </div>
+                
               </div>
             </div>
           </div>
@@ -2178,11 +2427,11 @@ There are different informations extracted from</p>
         <span class="methods">
           
             <a href="#services_get"><!-- modal shown by hashchange event -->
-              <span class="badge badge_get">get</span>
+              <span class="badge badge_get">get <span class="glyphicon glyphicon-lock" title="Authentication required"></span></span>
             </a>
           
             <a href="#services_post"><!-- modal shown by hashchange event -->
-              <span class="badge badge_post">post</span>
+              <span class="badge badge_post">post <span class="glyphicon glyphicon-lock" title="Authentication required"></span></span>
             </a>
           
         </span>
@@ -2196,7 +2445,7 @@ There are different informations extracted from</p>
         <div class="list-group">
           
             <div onclick="window.location.href = '#services_get'" class="list-group-item">
-              <span class="badge badge_get">get</span>
+              <span class="badge badge_get">get <span class="glyphicon glyphicon-lock" title="Authentication required"></span></span>
               <div class="method_description">
 <p>List all the services known by the ZeroRobot.</p>
 
@@ -2205,7 +2454,7 @@ There are different informations extracted from</p>
             </div>
           
             <div onclick="window.location.href = '#services_post'" class="list-group-item">
-              <span class="badge badge_post">post</span>
+              <span class="badge badge_post">post <span class="glyphicon glyphicon-lock" title="Authentication required"></span></span>
               <div class="method_description">
 <p>create a new service</p>
 
@@ -2224,7 +2473,7 @@ There are different informations extracted from</p>
             <div class="modal-header">
               <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
               <h4 class="modal-title" id="myModalLabel">
-                <span class="badge badge_get">get</span>
+                <span class="badge badge_get">get <span class="glyphicon glyphicon-lock" title="Authentication required"></span></span>
                 <span class="parent"></span>/services
               </h4>
             </div>
@@ -2237,6 +2486,21 @@ There are different informations extracted from</p>
                 </div>
               
 
+              
+                
+                  
+                    <div class="alert alert-warning">
+                      
+                      <span class="glyphicon glyphicon-lock" title="Authentication required"></span>
+                      Secured by <b>iyo</b>
+                      
+                      
+<p>0-robot support authentication using a JWT containing the "user:memberof:" scope for an IYO organization</p>
+
+                      
+                    </div>
+                  
+                
               
 
               <!-- Nav tabs -->
@@ -2253,6 +2517,10 @@ There are different informations extracted from</p>
                   </li>
                 
 
+                
+                  <li>
+                    <a href="#services_get_securedby" data-toggle="tab">Security</a>
+                  </li>
                 
               </ul>
 
@@ -2822,6 +3090,70 @@ There are different informations extracted from</p>
                 
 
                 
+                  <div class="tab-pane" id="services_get_securedby">
+                    
+                      
+                      <h1>Secured by iyo</h1>
+
+                      
+                        <h3>Headers</h3>
+                        <ul>
+                          
+                            <li>
+  <strong>Authorization</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+<p>JWT given by ItYouOnline
+It needs to contains the "user:memberof:<org>" scope, where <org> is the organization authorized to access the robot.</p>
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                          
+                        </ul>
+                      
+
+                      
+
+                      
+                        <h2>HTTP status code <a href="http://httpstatus.es/401" target="_blank">401</a></h2>
+<p>Bad or expired token. This can happen if the user is revoked or an expired access token. To fix, re-authenticate
+the user.</p>
+
+                        
+
+                        
+
+                      
+                        <h2>HTTP status code <a href="http://httpstatus.es/403" target="_blank">403</a></h2>
+<p>Bad request wrong scope in the JWT. Unfortunately, re-authenticating the user won&#39;t help here.</p>
+
+                        
+
+                        
+
+                      
+
+                    
+                  </div>
+                
               </div>
             </div>
           </div>
@@ -2834,7 +3166,7 @@ There are different informations extracted from</p>
             <div class="modal-header">
               <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
               <h4 class="modal-title" id="myModalLabel">
-                <span class="badge badge_post">post</span>
+                <span class="badge badge_post">post <span class="glyphicon glyphicon-lock" title="Authentication required"></span></span>
                 <span class="parent"></span>/services
               </h4>
             </div>
@@ -2847,6 +3179,21 @@ There are different informations extracted from</p>
                 </div>
               
 
+              
+                
+                  
+                    <div class="alert alert-warning">
+                      
+                      <span class="glyphicon glyphicon-lock" title="Authentication required"></span>
+                      Secured by <b>iyo</b>
+                      
+                      
+<p>0-robot support authentication using a JWT containing the "user:memberof:" scope for an IYO organization</p>
+
+                      
+                    </div>
+                  
+                
               
 
               <!-- Nav tabs -->
@@ -2863,6 +3210,10 @@ There are different informations extracted from</p>
                   </li>
                 
 
+                
+                  <li>
+                    <a href="#services_post_securedby" data-toggle="tab">Security</a>
+                  </li>
                 
               </ul>
 
@@ -3377,6 +3728,70 @@ body:
                 
 
                 
+                  <div class="tab-pane" id="services_post_securedby">
+                    
+                      
+                      <h1>Secured by iyo</h1>
+
+                      
+                        <h3>Headers</h3>
+                        <ul>
+                          
+                            <li>
+  <strong>Authorization</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+<p>JWT given by ItYouOnline
+It needs to contains the "user:memberof:<org>" scope, where <org> is the organization authorized to access the robot.</p>
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                          
+                        </ul>
+                      
+
+                      
+
+                      
+                        <h2>HTTP status code <a href="http://httpstatus.es/401" target="_blank">401</a></h2>
+<p>Bad or expired token. This can happen if the user is revoked or an expired access token. To fix, re-authenticate
+the user.</p>
+
+                        
+
+                        
+
+                      
+                        <h2>HTTP status code <a href="http://httpstatus.es/403" target="_blank">403</a></h2>
+<p>Bad request wrong scope in the JWT. Unfortunately, re-authenticating the user won&#39;t help here.</p>
+
+                        
+
+                        
+
+                      
+
+                    
+                  </div>
+                
               </div>
             </div>
           </div>
@@ -3398,15 +3813,15 @@ body:
         <span class="methods">
           
             <a href="#services__service_guid__get"><!-- modal shown by hashchange event -->
-              <span class="badge badge_get">get</span>
+              <span class="badge badge_get">get <span class="glyphicon glyphicon-lock" title="Authentication required"></span></span>
             </a>
           
             <a href="#services__service_guid__put"><!-- modal shown by hashchange event -->
-              <span class="badge badge_put">put</span>
+              <span class="badge badge_put">put <span class="glyphicon glyphicon-lock" title="Authentication required"></span></span>
             </a>
           
             <a href="#services__service_guid__delete"><!-- modal shown by hashchange event -->
-              <span class="badge badge_delete">delete</span>
+              <span class="badge badge_delete">delete <span class="glyphicon glyphicon-lock" title="Authentication required"></span></span>
             </a>
           
         </span>
@@ -3422,7 +3837,7 @@ body:
         <div class="list-group">
           
             <div onclick="window.location.href = '#services__service_guid__get'" class="list-group-item">
-              <span class="badge badge_get">get</span>
+              <span class="badge badge_get">get <span class="glyphicon glyphicon-lock" title="Authentication required"></span></span>
               <div class="method_description">
 <p>Get the detail of a service</p>
 
@@ -3431,7 +3846,7 @@ body:
             </div>
           
             <div onclick="window.location.href = '#services__service_guid__put'" class="list-group-item">
-              <span class="badge badge_put">put</span>
+              <span class="badge badge_put">put <span class="glyphicon glyphicon-lock" title="Authentication required"></span></span>
               <div class="method_description">
 <p>Upgrade a service from one version to another</p>
 
@@ -3440,7 +3855,7 @@ body:
             </div>
           
             <div onclick="window.location.href = '#services__service_guid__delete'" class="list-group-item">
-              <span class="badge badge_delete">delete</span>
+              <span class="badge badge_delete">delete <span class="glyphicon glyphicon-lock" title="Authentication required"></span></span>
               <div class="method_description">
 <p>Delete a service</p>
 
@@ -3459,7 +3874,7 @@ body:
             <div class="modal-header">
               <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
               <h4 class="modal-title" id="myModalLabel">
-                <span class="badge badge_get">get</span>
+                <span class="badge badge_get">get <span class="glyphicon glyphicon-lock" title="Authentication required"></span></span>
                 <span class="parent">/services</span>/{service_guid}
               </h4>
             </div>
@@ -3472,6 +3887,21 @@ body:
                 </div>
               
 
+              
+                
+                  
+                    <div class="alert alert-warning">
+                      
+                      <span class="glyphicon glyphicon-lock" title="Authentication required"></span>
+                      Secured by <b>iyo</b>
+                      
+                      
+<p>0-robot support authentication using a JWT containing the "user:memberof:" scope for an IYO organization</p>
+
+                      
+                    </div>
+                  
+                
               
 
               <!-- Nav tabs -->
@@ -3488,6 +3918,10 @@ body:
                   </li>
                 
 
+                
+                  <li>
+                    <a href="#services__service_guid__get_securedby" data-toggle="tab">Security</a>
+                  </li>
                 
               </ul>
 
@@ -3970,6 +4404,70 @@ body:
                 
 
                 
+                  <div class="tab-pane" id="services__service_guid__get_securedby">
+                    
+                      
+                      <h1>Secured by iyo</h1>
+
+                      
+                        <h3>Headers</h3>
+                        <ul>
+                          
+                            <li>
+  <strong>Authorization</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+<p>JWT given by ItYouOnline
+It needs to contains the "user:memberof:<org>" scope, where <org> is the organization authorized to access the robot.</p>
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                          
+                        </ul>
+                      
+
+                      
+
+                      
+                        <h2>HTTP status code <a href="http://httpstatus.es/401" target="_blank">401</a></h2>
+<p>Bad or expired token. This can happen if the user is revoked or an expired access token. To fix, re-authenticate
+the user.</p>
+
+                        
+
+                        
+
+                      
+                        <h2>HTTP status code <a href="http://httpstatus.es/403" target="_blank">403</a></h2>
+<p>Bad request wrong scope in the JWT. Unfortunately, re-authenticating the user won&#39;t help here.</p>
+
+                        
+
+                        
+
+                      
+
+                    
+                  </div>
+                
               </div>
             </div>
           </div>
@@ -3982,7 +4480,7 @@ body:
             <div class="modal-header">
               <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
               <h4 class="modal-title" id="myModalLabel">
-                <span class="badge badge_put">put</span>
+                <span class="badge badge_put">put <span class="glyphicon glyphicon-lock" title="Authentication required"></span></span>
                 <span class="parent">/services</span>/{service_guid}
               </h4>
             </div>
@@ -3995,6 +4493,21 @@ body:
                 </div>
               
 
+              
+                
+                  
+                    <div class="alert alert-warning">
+                      
+                      <span class="glyphicon glyphicon-lock" title="Authentication required"></span>
+                      Secured by <b>iyo</b>
+                      
+                      
+<p>0-robot support authentication using a JWT containing the "user:memberof:" scope for an IYO organization</p>
+
+                      
+                    </div>
+                  
+                
               
 
               <!-- Nav tabs -->
@@ -4011,6 +4524,10 @@ body:
                   </li>
                 
 
+                
+                  <li>
+                    <a href="#services__service_guid__put_securedby" data-toggle="tab">Security</a>
+                  </li>
                 
               </ul>
 
@@ -4559,6 +5076,70 @@ body:
                 
 
                 
+                  <div class="tab-pane" id="services__service_guid__put_securedby">
+                    
+                      
+                      <h1>Secured by iyo</h1>
+
+                      
+                        <h3>Headers</h3>
+                        <ul>
+                          
+                            <li>
+  <strong>Authorization</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+<p>JWT given by ItYouOnline
+It needs to contains the "user:memberof:<org>" scope, where <org> is the organization authorized to access the robot.</p>
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                          
+                        </ul>
+                      
+
+                      
+
+                      
+                        <h2>HTTP status code <a href="http://httpstatus.es/401" target="_blank">401</a></h2>
+<p>Bad or expired token. This can happen if the user is revoked or an expired access token. To fix, re-authenticate
+the user.</p>
+
+                        
+
+                        
+
+                      
+                        <h2>HTTP status code <a href="http://httpstatus.es/403" target="_blank">403</a></h2>
+<p>Bad request wrong scope in the JWT. Unfortunately, re-authenticating the user won&#39;t help here.</p>
+
+                        
+
+                        
+
+                      
+
+                    
+                  </div>
+                
               </div>
             </div>
           </div>
@@ -4571,7 +5152,7 @@ body:
             <div class="modal-header">
               <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
               <h4 class="modal-title" id="myModalLabel">
-                <span class="badge badge_delete">delete</span>
+                <span class="badge badge_delete">delete <span class="glyphicon glyphicon-lock" title="Authentication required"></span></span>
                 <span class="parent">/services</span>/{service_guid}
               </h4>
             </div>
@@ -4584,6 +5165,21 @@ body:
                 </div>
               
 
+              
+                
+                  
+                    <div class="alert alert-warning">
+                      
+                      <span class="glyphicon glyphicon-lock" title="Authentication required"></span>
+                      Secured by <b>iyo</b>
+                      
+                      
+<p>0-robot support authentication using a JWT containing the "user:memberof:" scope for an IYO organization</p>
+
+                      
+                    </div>
+                  
+                
               
 
               <!-- Nav tabs -->
@@ -4600,6 +5196,10 @@ body:
                   </li>
                 
 
+                
+                  <li>
+                    <a href="#services__service_guid__delete_securedby" data-toggle="tab">Security</a>
+                  </li>
                 
               </ul>
 
@@ -4667,6 +5267,70 @@ body:
                 
 
                 
+                  <div class="tab-pane" id="services__service_guid__delete_securedby">
+                    
+                      
+                      <h1>Secured by iyo</h1>
+
+                      
+                        <h3>Headers</h3>
+                        <ul>
+                          
+                            <li>
+  <strong>Authorization</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+<p>JWT given by ItYouOnline
+It needs to contains the "user:memberof:<org>" scope, where <org> is the organization authorized to access the robot.</p>
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                          
+                        </ul>
+                      
+
+                      
+
+                      
+                        <h2>HTTP status code <a href="http://httpstatus.es/401" target="_blank">401</a></h2>
+<p>Bad or expired token. This can happen if the user is revoked or an expired access token. To fix, re-authenticate
+the user.</p>
+
+                        
+
+                        
+
+                      
+                        <h2>HTTP status code <a href="http://httpstatus.es/403" target="_blank">403</a></h2>
+<p>Bad request wrong scope in the JWT. Unfortunately, re-authenticating the user won&#39;t help here.</p>
+
+                        
+
+                        
+
+                      
+
+                    
+                  </div>
+                
               </div>
             </div>
           </div>
@@ -4688,7 +5352,7 @@ body:
         <span class="methods">
           
             <a href="#services__service_guid__actions_get"><!-- modal shown by hashchange event -->
-              <span class="badge badge_get">get</span>
+              <span class="badge badge_get">get <span class="glyphicon glyphicon-lock" title="Authentication required"></span></span>
             </a>
           
         </span>
@@ -4704,7 +5368,7 @@ body:
         <div class="list-group">
           
             <div onclick="window.location.href = '#services__service_guid__actions_get'" class="list-group-item">
-              <span class="badge badge_get">get</span>
+              <span class="badge badge_get">get <span class="glyphicon glyphicon-lock" title="Authentication required"></span></span>
               <div class="method_description">
 <p>List all the possible action a service can do.</p>
 
@@ -4723,7 +5387,7 @@ body:
             <div class="modal-header">
               <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
               <h4 class="modal-title" id="myModalLabel">
-                <span class="badge badge_get">get</span>
+                <span class="badge badge_get">get <span class="glyphicon glyphicon-lock" title="Authentication required"></span></span>
                 <span class="parent">/services/{service_guid}</span>/actions
               </h4>
             </div>
@@ -4736,6 +5400,21 @@ body:
                 </div>
               
 
+              
+                
+                  
+                    <div class="alert alert-warning">
+                      
+                      <span class="glyphicon glyphicon-lock" title="Authentication required"></span>
+                      Secured by <b>iyo</b>
+                      
+                      
+<p>0-robot support authentication using a JWT containing the "user:memberof:" scope for an IYO organization</p>
+
+                      
+                    </div>
+                  
+                
               
 
               <!-- Nav tabs -->
@@ -4752,6 +5431,10 @@ body:
                   </li>
                 
 
+                
+                  <li>
+                    <a href="#services__service_guid__actions_get_securedby" data-toggle="tab">Security</a>
+                  </li>
                 
               </ul>
 
@@ -4913,6 +5596,70 @@ body:
                 
 
                 
+                  <div class="tab-pane" id="services__service_guid__actions_get_securedby">
+                    
+                      
+                      <h1>Secured by iyo</h1>
+
+                      
+                        <h3>Headers</h3>
+                        <ul>
+                          
+                            <li>
+  <strong>Authorization</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+<p>JWT given by ItYouOnline
+It needs to contains the "user:memberof:<org>" scope, where <org> is the organization authorized to access the robot.</p>
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                          
+                        </ul>
+                      
+
+                      
+
+                      
+                        <h2>HTTP status code <a href="http://httpstatus.es/401" target="_blank">401</a></h2>
+<p>Bad or expired token. This can happen if the user is revoked or an expired access token. To fix, re-authenticate
+the user.</p>
+
+                        
+
+                        
+
+                      
+                        <h2>HTTP status code <a href="http://httpstatus.es/403" target="_blank">403</a></h2>
+<p>Bad request wrong scope in the JWT. Unfortunately, re-authenticating the user won&#39;t help here.</p>
+
+                        
+
+                        
+
+                      
+
+                    
+                  </div>
+                
               </div>
             </div>
           </div>
@@ -4936,11 +5683,11 @@ body:
         <span class="methods">
           
             <a href="#services__service_guid__task_list_get"><!-- modal shown by hashchange event -->
-              <span class="badge badge_get">get</span>
+              <span class="badge badge_get">get <span class="glyphicon glyphicon-lock" title="Authentication required"></span></span>
             </a>
           
             <a href="#services__service_guid__task_list_post"><!-- modal shown by hashchange event -->
-              <span class="badge badge_post">post</span>
+              <span class="badge badge_post">post <span class="glyphicon glyphicon-lock" title="Authentication required"></span></span>
             </a>
           
         </span>
@@ -4961,7 +5708,7 @@ body:
         <div class="list-group">
           
             <div onclick="window.location.href = '#services__service_guid__task_list_get'" class="list-group-item">
-              <span class="badge badge_get">get</span>
+              <span class="badge badge_get">get <span class="glyphicon glyphicon-lock" title="Authentication required"></span></span>
               <div class="method_description">
 <p>Return all the action in the task list</p>
 
@@ -4970,7 +5717,7 @@ body:
             </div>
           
             <div onclick="window.location.href = '#services__service_guid__task_list_post'" class="list-group-item">
-              <span class="badge badge_post">post</span>
+              <span class="badge badge_post">post <span class="glyphicon glyphicon-lock" title="Authentication required"></span></span>
               <div class="method_description">
 <p>Add a task to the task list</p>
 
@@ -4989,7 +5736,7 @@ body:
             <div class="modal-header">
               <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
               <h4 class="modal-title" id="myModalLabel">
-                <span class="badge badge_get">get</span>
+                <span class="badge badge_get">get <span class="glyphicon glyphicon-lock" title="Authentication required"></span></span>
                 <span class="parent">/services/{service_guid}</span>/task_list
               </h4>
             </div>
@@ -5002,6 +5749,21 @@ body:
                 </div>
               
 
+              
+                
+                  
+                    <div class="alert alert-warning">
+                      
+                      <span class="glyphicon glyphicon-lock" title="Authentication required"></span>
+                      Secured by <b>iyo</b>
+                      
+                      
+<p>0-robot support authentication using a JWT containing the "user:memberof:" scope for an IYO organization</p>
+
+                      
+                    </div>
+                  
+                
               
 
               <!-- Nav tabs -->
@@ -5018,6 +5780,10 @@ body:
                   </li>
                 
 
+                
+                  <li>
+                    <a href="#services__service_guid__task_list_get_securedby" data-toggle="tab">Security</a>
+                  </li>
                 
               </ul>
 
@@ -5141,7 +5907,7 @@ default: false</p>
                                     <ul>
                                       
                                         <li>
-  <strong>service_guid</strong>:
+  <strong>action_name</strong>:
 
     
       <em>required (string)
@@ -5197,7 +5963,7 @@ default: false</p>
 
                                       
                                         <li>
-  <strong>action_name</strong>:
+  <strong>template_name</strong>:
 
     
       <em>required (string)
@@ -5231,6 +5997,89 @@ default: false</p>
     
   
 
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                                      
+                                        <li>
+  <strong>service_guid</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                                      
+                                        <li>
+  <strong>guid</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+<p>unique ID of the task</p>
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                                      
+                                        <li>
+  <strong>state</strong>:
+
+    
+      <em>required (one of new, ok, running, error)
+      </em>
+    
+  
+
+<p>a task that is waiting to be executed is in state new.
+a task that being executed is in state running
+a task that executed successfully is in state ok
+a task that failed to execute and/or is being retried is in state error.</p>
 
 
   
@@ -5303,63 +6152,6 @@ default: false</p>
 
                                       
                                         <li>
-  <strong>state</strong>:
-
-    
-      <em>required (one of new, ok, running, error)
-      </em>
-    
-  
-
-<p>a task that is waiting to be executed is in state new.
-a task that being executed is in state running
-a task that executed successfully is in state ok
-a task that failed to execute and/or is being retried is in state error.</p>
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-                                      
-                                        <li>
-  <strong>result</strong>:
-
-    
-      <em>(string)
-      </em>
-    
-  
-
-<p>serialized version of the result of the task</p>
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-                                      
-                                        <li>
   <strong>eco</strong>:
 
     
@@ -5379,59 +6171,7 @@ a task that failed to execute and/or is being retried is in state error.</p>
     <ul>
       
         <li>
-  <strong>errormessagePub</strong>:
-
-    
-      <em>required (string)
-      </em>
-    
-  
-
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-      
-        <li>
-  <strong>category</strong>:
-
-    
-      <em>required (string)
-      </em>
-    
-  
-
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-      
-        <li>
-  <strong>tags</strong>:
+  <strong>appname</strong>:
 
     
       <em>required (string)
@@ -5483,166 +6223,10 @@ a task that failed to execute and/or is being retried is in state error.</p>
 
       
         <li>
-  <strong>funcfilename</strong>:
+  <strong>errormessagePub</strong>:
 
     
       <em>required (string)
-      </em>
-    
-  
-
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-      
-        <li>
-  <strong>appname</strong>:
-
-    
-      <em>required (string)
-      </em>
-    
-  
-
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-      
-        <li>
-  <strong>_limit</strong>:
-
-    
-      <em>required (integer)
-      </em>
-    
-  
-
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-      
-        <li>
-  <strong>funcname</strong>:
-
-    
-      <em>required (string)
-      </em>
-    
-  
-
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-      
-        <li>
-  <strong>masterjid</strong>:
-
-    
-      <em>required (integer)
-      </em>
-    
-  
-
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-      
-        <li>
-  <strong>closetime</strong>:
-
-    
-      <em>required (integer)
-      </em>
-    
-  
-
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-      
-        <li>
-  <strong>jid</strong>:
-
-    
-      <em>required (integer)
       </em>
     
   
@@ -5691,293 +6275,7 @@ a task that failed to execute and/or is being retried is in state error.</p>
 
       
         <li>
-  <strong>occurrences</strong>:
-
-    
-      <em>required (integer)
-      </em>
-    
-  
-
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-      
-        <li>
   <strong>state</strong>:
-
-    
-      <em>required (string)
-      </em>
-    
-  
-
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-      
-        <li>
-  <strong>level</strong>:
-
-    
-      <em>required (integer)
-      </em>
-    
-  
-
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-      
-        <li>
-  <strong>lasttime</strong>:
-
-    
-      <em>required (integer)
-      </em>
-    
-  
-
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-      
-        <li>
-  <strong>pid</strong>:
-
-    
-      <em>required (integer)
-      </em>
-    
-  
-
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-      
-        <li>
-  <strong>errormessage</strong>:
-
-    
-      <em>required (string)
-      </em>
-    
-  
-
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-      
-        <li>
-  <strong>_traceback</strong>:
-
-    
-      <em>required (string)
-      </em>
-    
-  
-
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-      
-        <li>
-  <strong>code</strong>:
-
-    
-      <em>required (string)
-      </em>
-    
-  
-
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-      
-        <li>
-  <strong>uniquekey</strong>:
-
-    
-      <em>required (string)
-      </em>
-    
-  
-
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-      
-        <li>
-  <strong>exceptionclassname</strong>:
-
-    
-      <em>required (string)
-      </em>
-    
-  
-
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-      
-        <li>
-  <strong>funclinenr</strong>:
-
-    
-      <em>required (integer)
-      </em>
-    
-  
-
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-      
-        <li>
-  <strong>guid</strong>:
 
     
       <em>required (string)
@@ -6032,6 +6330,500 @@ a task that failed to execute and/or is being retried is in state error.</p>
 </li>
 
       
+        <li>
+  <strong>jid</strong>:
+
+    
+      <em>required (integer)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>masterjid</strong>:
+
+    
+      <em>required (integer)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>errormessage</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>uniquekey</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>category</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>exceptionclassname</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>funcfilename</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>closetime</strong>:
+
+    
+      <em>required (integer)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>level</strong>:
+
+    
+      <em>required (integer)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>_limit</strong>:
+
+    
+      <em>required (integer)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>lasttime</strong>:
+
+    
+      <em>required (integer)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>code</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>guid</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>tags</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>funclinenr</strong>:
+
+    
+      <em>required (integer)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>_traceback</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>funcname</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>pid</strong>:
+
+    
+      <em>required (integer)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>occurrences</strong>:
+
+    
+      <em>required (integer)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
     </ul>
   
 
@@ -6045,41 +6837,15 @@ a task that failed to execute and/or is being retried is in state error.</p>
 
                                       
                                         <li>
-  <strong>template_name</strong>:
+  <strong>result</strong>:
 
     
-      <em>required (string)
+      <em>(string)
       </em>
     
   
 
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-                                      
-                                        <li>
-  <strong>guid</strong>:
-
-    
-      <em>required (string)
-      </em>
-    
-  
-
-<p>unique ID of the task</p>
+<p>serialized version of the result of the task</p>
 
 
   
@@ -6120,6 +6886,70 @@ a task that failed to execute and/or is being retried is in state error.</p>
                 
 
                 
+                  <div class="tab-pane" id="services__service_guid__task_list_get_securedby">
+                    
+                      
+                      <h1>Secured by iyo</h1>
+
+                      
+                        <h3>Headers</h3>
+                        <ul>
+                          
+                            <li>
+  <strong>Authorization</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+<p>JWT given by ItYouOnline
+It needs to contains the "user:memberof:<org>" scope, where <org> is the organization authorized to access the robot.</p>
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                          
+                        </ul>
+                      
+
+                      
+
+                      
+                        <h2>HTTP status code <a href="http://httpstatus.es/401" target="_blank">401</a></h2>
+<p>Bad or expired token. This can happen if the user is revoked or an expired access token. To fix, re-authenticate
+the user.</p>
+
+                        
+
+                        
+
+                      
+                        <h2>HTTP status code <a href="http://httpstatus.es/403" target="_blank">403</a></h2>
+<p>Bad request wrong scope in the JWT. Unfortunately, re-authenticating the user won&#39;t help here.</p>
+
+                        
+
+                        
+
+                      
+
+                    
+                  </div>
+                
               </div>
             </div>
           </div>
@@ -6132,7 +6962,7 @@ a task that failed to execute and/or is being retried is in state error.</p>
             <div class="modal-header">
               <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
               <h4 class="modal-title" id="myModalLabel">
-                <span class="badge badge_post">post</span>
+                <span class="badge badge_post">post <span class="glyphicon glyphicon-lock" title="Authentication required"></span></span>
                 <span class="parent">/services/{service_guid}</span>/task_list
               </h4>
             </div>
@@ -6145,6 +6975,21 @@ a task that failed to execute and/or is being retried is in state error.</p>
                 </div>
               
 
+              
+                
+                  
+                    <div class="alert alert-warning">
+                      
+                      <span class="glyphicon glyphicon-lock" title="Authentication required"></span>
+                      Secured by <b>iyo</b>
+                      
+                      
+<p>0-robot support authentication using a JWT containing the "user:memberof:" scope for an IYO organization</p>
+
+                      
+                    </div>
+                  
+                
               
 
               <!-- Nav tabs -->
@@ -6161,6 +7006,10 @@ a task that failed to execute and/or is being retried is in state error.</p>
                   </li>
                 
 
+                
+                  <li>
+                    <a href="#services__service_guid__task_list_post_securedby" data-toggle="tab">Security</a>
+                  </li>
                 
               </ul>
 
@@ -6373,7 +7222,7 @@ a task that failed to execute and/or is being retried is in state error.</p>
                             <ul>
                               
                                 <li>
-  <strong>service_guid</strong>:
+  <strong>action_name</strong>:
 
     
       <em>required (string)
@@ -6429,7 +7278,7 @@ a task that failed to execute and/or is being retried is in state error.</p>
 
                               
                                 <li>
-  <strong>action_name</strong>:
+  <strong>template_name</strong>:
 
     
       <em>required (string)
@@ -6463,6 +7312,89 @@ a task that failed to execute and/or is being retried is in state error.</p>
     
   
 
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                              
+                                <li>
+  <strong>service_guid</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                              
+                                <li>
+  <strong>guid</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+<p>unique ID of the task</p>
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                              
+                                <li>
+  <strong>state</strong>:
+
+    
+      <em>required (one of new, ok, running, error)
+      </em>
+    
+  
+
+<p>a task that is waiting to be executed is in state new.
+a task that being executed is in state running
+a task that executed successfully is in state ok
+a task that failed to execute and/or is being retried is in state error.</p>
 
 
   
@@ -6535,63 +7467,6 @@ a task that failed to execute and/or is being retried is in state error.</p>
 
                               
                                 <li>
-  <strong>state</strong>:
-
-    
-      <em>required (one of new, ok, running, error)
-      </em>
-    
-  
-
-<p>a task that is waiting to be executed is in state new.
-a task that being executed is in state running
-a task that executed successfully is in state ok
-a task that failed to execute and/or is being retried is in state error.</p>
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-                              
-                                <li>
-  <strong>result</strong>:
-
-    
-      <em>(string)
-      </em>
-    
-  
-
-<p>serialized version of the result of the task</p>
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-                              
-                                <li>
   <strong>eco</strong>:
 
     
@@ -6611,59 +7486,7 @@ a task that failed to execute and/or is being retried is in state error.</p>
     <ul>
       
         <li>
-  <strong>errormessagePub</strong>:
-
-    
-      <em>required (string)
-      </em>
-    
-  
-
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-      
-        <li>
-  <strong>category</strong>:
-
-    
-      <em>required (string)
-      </em>
-    
-  
-
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-      
-        <li>
-  <strong>tags</strong>:
+  <strong>appname</strong>:
 
     
       <em>required (string)
@@ -6715,166 +7538,10 @@ a task that failed to execute and/or is being retried is in state error.</p>
 
       
         <li>
-  <strong>funcfilename</strong>:
+  <strong>errormessagePub</strong>:
 
     
       <em>required (string)
-      </em>
-    
-  
-
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-      
-        <li>
-  <strong>appname</strong>:
-
-    
-      <em>required (string)
-      </em>
-    
-  
-
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-      
-        <li>
-  <strong>_limit</strong>:
-
-    
-      <em>required (integer)
-      </em>
-    
-  
-
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-      
-        <li>
-  <strong>funcname</strong>:
-
-    
-      <em>required (string)
-      </em>
-    
-  
-
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-      
-        <li>
-  <strong>masterjid</strong>:
-
-    
-      <em>required (integer)
-      </em>
-    
-  
-
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-      
-        <li>
-  <strong>closetime</strong>:
-
-    
-      <em>required (integer)
-      </em>
-    
-  
-
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-      
-        <li>
-  <strong>jid</strong>:
-
-    
-      <em>required (integer)
       </em>
     
   
@@ -6923,293 +7590,7 @@ a task that failed to execute and/or is being retried is in state error.</p>
 
       
         <li>
-  <strong>occurrences</strong>:
-
-    
-      <em>required (integer)
-      </em>
-    
-  
-
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-      
-        <li>
   <strong>state</strong>:
-
-    
-      <em>required (string)
-      </em>
-    
-  
-
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-      
-        <li>
-  <strong>level</strong>:
-
-    
-      <em>required (integer)
-      </em>
-    
-  
-
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-      
-        <li>
-  <strong>lasttime</strong>:
-
-    
-      <em>required (integer)
-      </em>
-    
-  
-
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-      
-        <li>
-  <strong>pid</strong>:
-
-    
-      <em>required (integer)
-      </em>
-    
-  
-
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-      
-        <li>
-  <strong>errormessage</strong>:
-
-    
-      <em>required (string)
-      </em>
-    
-  
-
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-      
-        <li>
-  <strong>_traceback</strong>:
-
-    
-      <em>required (string)
-      </em>
-    
-  
-
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-      
-        <li>
-  <strong>code</strong>:
-
-    
-      <em>required (string)
-      </em>
-    
-  
-
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-      
-        <li>
-  <strong>uniquekey</strong>:
-
-    
-      <em>required (string)
-      </em>
-    
-  
-
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-      
-        <li>
-  <strong>exceptionclassname</strong>:
-
-    
-      <em>required (string)
-      </em>
-    
-  
-
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-      
-        <li>
-  <strong>funclinenr</strong>:
-
-    
-      <em>required (integer)
-      </em>
-    
-  
-
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-      
-        <li>
-  <strong>guid</strong>:
 
     
       <em>required (string)
@@ -7264,6 +7645,500 @@ a task that failed to execute and/or is being retried is in state error.</p>
 </li>
 
       
+        <li>
+  <strong>jid</strong>:
+
+    
+      <em>required (integer)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>masterjid</strong>:
+
+    
+      <em>required (integer)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>errormessage</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>uniquekey</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>category</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>exceptionclassname</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>funcfilename</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>closetime</strong>:
+
+    
+      <em>required (integer)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>level</strong>:
+
+    
+      <em>required (integer)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>_limit</strong>:
+
+    
+      <em>required (integer)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>lasttime</strong>:
+
+    
+      <em>required (integer)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>code</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>guid</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>tags</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>funclinenr</strong>:
+
+    
+      <em>required (integer)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>_traceback</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>funcname</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>pid</strong>:
+
+    
+      <em>required (integer)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>occurrences</strong>:
+
+    
+      <em>required (integer)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
     </ul>
   
 
@@ -7277,41 +8152,15 @@ a task that failed to execute and/or is being retried is in state error.</p>
 
                               
                                 <li>
-  <strong>template_name</strong>:
+  <strong>result</strong>:
 
     
-      <em>required (string)
+      <em>(string)
       </em>
     
   
 
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-                              
-                                <li>
-  <strong>guid</strong>:
-
-    
-      <em>required (string)
-      </em>
-    
-  
-
-<p>unique ID of the task</p>
+<p>serialized version of the result of the task</p>
 
 
   
@@ -7361,6 +8210,70 @@ a task that failed to execute and/or is being retried is in state error.</p>
                 
 
                 
+                  <div class="tab-pane" id="services__service_guid__task_list_post_securedby">
+                    
+                      
+                      <h1>Secured by iyo</h1>
+
+                      
+                        <h3>Headers</h3>
+                        <ul>
+                          
+                            <li>
+  <strong>Authorization</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+<p>JWT given by ItYouOnline
+It needs to contains the "user:memberof:<org>" scope, where <org> is the organization authorized to access the robot.</p>
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                          
+                        </ul>
+                      
+
+                      
+
+                      
+                        <h2>HTTP status code <a href="http://httpstatus.es/401" target="_blank">401</a></h2>
+<p>Bad or expired token. This can happen if the user is revoked or an expired access token. To fix, re-authenticate
+the user.</p>
+
+                        
+
+                        
+
+                      
+                        <h2>HTTP status code <a href="http://httpstatus.es/403" target="_blank">403</a></h2>
+<p>Bad request wrong scope in the JWT. Unfortunately, re-authenticating the user won&#39;t help here.</p>
+
+                        
+
+                        
+
+                      
+
+                    
+                  </div>
+                
               </div>
             </div>
           </div>
@@ -7382,7 +8295,7 @@ a task that failed to execute and/or is being retried is in state error.</p>
         <span class="methods">
           
             <a href="#services__service_guid__task_list__task_guid__get"><!-- modal shown by hashchange event -->
-              <span class="badge badge_get">get</span>
+              <span class="badge badge_get">get <span class="glyphicon glyphicon-lock" title="Authentication required"></span></span>
             </a>
           
         </span>
@@ -7398,7 +8311,7 @@ a task that failed to execute and/or is being retried is in state error.</p>
         <div class="list-group">
           
             <div onclick="window.location.href = '#services__service_guid__task_list__task_guid__get'" class="list-group-item">
-              <span class="badge badge_get">get</span>
+              <span class="badge badge_get">get <span class="glyphicon glyphicon-lock" title="Authentication required"></span></span>
               <div class="method_description">
 <p>Retrieve the detail of a task</p>
 
@@ -7417,7 +8330,7 @@ a task that failed to execute and/or is being retried is in state error.</p>
             <div class="modal-header">
               <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
               <h4 class="modal-title" id="myModalLabel">
-                <span class="badge badge_get">get</span>
+                <span class="badge badge_get">get <span class="glyphicon glyphicon-lock" title="Authentication required"></span></span>
                 <span class="parent">/services/{service_guid}/task_list</span>/{task_guid}
               </h4>
             </div>
@@ -7430,6 +8343,21 @@ a task that failed to execute and/or is being retried is in state error.</p>
                 </div>
               
 
+              
+                
+                  
+                    <div class="alert alert-warning">
+                      
+                      <span class="glyphicon glyphicon-lock" title="Authentication required"></span>
+                      Secured by <b>iyo</b>
+                      
+                      
+<p>0-robot support authentication using a JWT containing the "user:memberof:" scope for an IYO organization</p>
+
+                      
+                    </div>
+                  
+                
               
 
               <!-- Nav tabs -->
@@ -7446,6 +8374,10 @@ a task that failed to execute and/or is being retried is in state error.</p>
                   </li>
                 
 
+                
+                  <li>
+                    <a href="#services__service_guid__task_list__task_guid__get_securedby" data-toggle="tab">Security</a>
+                  </li>
                 
               </ul>
 
@@ -7554,7 +8486,7 @@ a task that failed to execute and/or is being retried is in state error.</p>
                             <ul>
                               
                                 <li>
-  <strong>service_guid</strong>:
+  <strong>action_name</strong>:
 
     
       <em>required (string)
@@ -7610,7 +8542,7 @@ a task that failed to execute and/or is being retried is in state error.</p>
 
                               
                                 <li>
-  <strong>action_name</strong>:
+  <strong>template_name</strong>:
 
     
       <em>required (string)
@@ -7644,6 +8576,89 @@ a task that failed to execute and/or is being retried is in state error.</p>
     
   
 
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                              
+                                <li>
+  <strong>service_guid</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                              
+                                <li>
+  <strong>guid</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+<p>unique ID of the task</p>
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                              
+                                <li>
+  <strong>state</strong>:
+
+    
+      <em>required (one of new, ok, running, error)
+      </em>
+    
+  
+
+<p>a task that is waiting to be executed is in state new.
+a task that being executed is in state running
+a task that executed successfully is in state ok
+a task that failed to execute and/or is being retried is in state error.</p>
 
 
   
@@ -7716,63 +8731,6 @@ a task that failed to execute and/or is being retried is in state error.</p>
 
                               
                                 <li>
-  <strong>state</strong>:
-
-    
-      <em>required (one of new, ok, running, error)
-      </em>
-    
-  
-
-<p>a task that is waiting to be executed is in state new.
-a task that being executed is in state running
-a task that executed successfully is in state ok
-a task that failed to execute and/or is being retried is in state error.</p>
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-                              
-                                <li>
-  <strong>result</strong>:
-
-    
-      <em>(string)
-      </em>
-    
-  
-
-<p>serialized version of the result of the task</p>
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-                              
-                                <li>
   <strong>eco</strong>:
 
     
@@ -7792,59 +8750,7 @@ a task that failed to execute and/or is being retried is in state error.</p>
     <ul>
       
         <li>
-  <strong>errormessagePub</strong>:
-
-    
-      <em>required (string)
-      </em>
-    
-  
-
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-      
-        <li>
-  <strong>category</strong>:
-
-    
-      <em>required (string)
-      </em>
-    
-  
-
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-      
-        <li>
-  <strong>tags</strong>:
+  <strong>appname</strong>:
 
     
       <em>required (string)
@@ -7896,166 +8802,10 @@ a task that failed to execute and/or is being retried is in state error.</p>
 
       
         <li>
-  <strong>funcfilename</strong>:
+  <strong>errormessagePub</strong>:
 
     
       <em>required (string)
-      </em>
-    
-  
-
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-      
-        <li>
-  <strong>appname</strong>:
-
-    
-      <em>required (string)
-      </em>
-    
-  
-
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-      
-        <li>
-  <strong>_limit</strong>:
-
-    
-      <em>required (integer)
-      </em>
-    
-  
-
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-      
-        <li>
-  <strong>funcname</strong>:
-
-    
-      <em>required (string)
-      </em>
-    
-  
-
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-      
-        <li>
-  <strong>masterjid</strong>:
-
-    
-      <em>required (integer)
-      </em>
-    
-  
-
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-      
-        <li>
-  <strong>closetime</strong>:
-
-    
-      <em>required (integer)
-      </em>
-    
-  
-
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-      
-        <li>
-  <strong>jid</strong>:
-
-    
-      <em>required (integer)
       </em>
     
   
@@ -8104,293 +8854,7 @@ a task that failed to execute and/or is being retried is in state error.</p>
 
       
         <li>
-  <strong>occurrences</strong>:
-
-    
-      <em>required (integer)
-      </em>
-    
-  
-
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-      
-        <li>
   <strong>state</strong>:
-
-    
-      <em>required (string)
-      </em>
-    
-  
-
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-      
-        <li>
-  <strong>level</strong>:
-
-    
-      <em>required (integer)
-      </em>
-    
-  
-
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-      
-        <li>
-  <strong>lasttime</strong>:
-
-    
-      <em>required (integer)
-      </em>
-    
-  
-
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-      
-        <li>
-  <strong>pid</strong>:
-
-    
-      <em>required (integer)
-      </em>
-    
-  
-
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-      
-        <li>
-  <strong>errormessage</strong>:
-
-    
-      <em>required (string)
-      </em>
-    
-  
-
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-      
-        <li>
-  <strong>_traceback</strong>:
-
-    
-      <em>required (string)
-      </em>
-    
-  
-
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-      
-        <li>
-  <strong>code</strong>:
-
-    
-      <em>required (string)
-      </em>
-    
-  
-
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-      
-        <li>
-  <strong>uniquekey</strong>:
-
-    
-      <em>required (string)
-      </em>
-    
-  
-
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-      
-        <li>
-  <strong>exceptionclassname</strong>:
-
-    
-      <em>required (string)
-      </em>
-    
-  
-
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-      
-        <li>
-  <strong>funclinenr</strong>:
-
-    
-      <em>required (integer)
-      </em>
-    
-  
-
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-      
-        <li>
-  <strong>guid</strong>:
 
     
       <em>required (string)
@@ -8445,6 +8909,500 @@ a task that failed to execute and/or is being retried is in state error.</p>
 </li>
 
       
+        <li>
+  <strong>jid</strong>:
+
+    
+      <em>required (integer)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>masterjid</strong>:
+
+    
+      <em>required (integer)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>errormessage</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>uniquekey</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>category</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>exceptionclassname</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>funcfilename</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>closetime</strong>:
+
+    
+      <em>required (integer)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>level</strong>:
+
+    
+      <em>required (integer)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>_limit</strong>:
+
+    
+      <em>required (integer)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>lasttime</strong>:
+
+    
+      <em>required (integer)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>code</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>guid</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>tags</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>funclinenr</strong>:
+
+    
+      <em>required (integer)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>_traceback</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>funcname</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>pid</strong>:
+
+    
+      <em>required (integer)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>occurrences</strong>:
+
+    
+      <em>required (integer)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
     </ul>
   
 
@@ -8458,41 +9416,15 @@ a task that failed to execute and/or is being retried is in state error.</p>
 
                               
                                 <li>
-  <strong>template_name</strong>:
+  <strong>result</strong>:
 
     
-      <em>required (string)
+      <em>(string)
       </em>
     
   
 
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-                              
-                                <li>
-  <strong>guid</strong>:
-
-    
-      <em>required (string)
-      </em>
-    
-  
-
-<p>unique ID of the task</p>
+<p>serialized version of the result of the task</p>
 
 
   
@@ -8658,6 +9590,70 @@ a task that failed to execute and/or is being retried is in state error.</p>
                   </div>
                 
 
+                
+                  <div class="tab-pane" id="services__service_guid__task_list__task_guid__get_securedby">
+                    
+                      
+                      <h1>Secured by iyo</h1>
+
+                      
+                        <h3>Headers</h3>
+                        <ul>
+                          
+                            <li>
+  <strong>Authorization</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+<p>JWT given by ItYouOnline
+It needs to contains the "user:memberof:<org>" scope, where <org> is the organization authorized to access the robot.</p>
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                          
+                        </ul>
+                      
+
+                      
+
+                      
+                        <h2>HTTP status code <a href="http://httpstatus.es/401" target="_blank">401</a></h2>
+<p>Bad or expired token. This can happen if the user is revoked or an expired access token. To fix, re-authenticate
+the user.</p>
+
+                        
+
+                        
+
+                      
+                        <h2>HTTP status code <a href="http://httpstatus.es/403" target="_blank">403</a></h2>
+<p>Bad request wrong scope in the JWT. Unfortunately, re-authenticating the user won&#39;t help here.</p>
+
+                        
+
+                        
+
+                      
+
+                    
+                  </div>
                 
               </div>
             </div>

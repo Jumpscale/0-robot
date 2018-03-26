@@ -19,8 +19,9 @@ def monitor(app):
             http_request_size_bytes.labels(request.method, request.path).observe(content_length)
 
     def after_request(response):
-        request_latency = time.time() - flask.g.start_time
-        http_request_latency_ms.labels(request.method, request.path).observe(request_latency)
+        if hasattr(flask.g, 'start_time'):
+            request_latency = time.time() - flask.g.start_time
+            http_request_latency_ms.labels(request.method, request.path).observe(request_latency)
 
         http_concurrent_request_count.dec()
 

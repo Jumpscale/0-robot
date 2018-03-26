@@ -19,6 +19,7 @@ from zerorobot import template_collection as tcol
 from zerorobot import auto_pusher, config, giturl
 from zerorobot.prometheus.flask import monitor
 from zerorobot.server.app import app
+from zerorobot.server.middleware import authenticate
 from zerorobot.task import PRIORITY_SYSTEM
 
 # create logger
@@ -76,7 +77,7 @@ class Robot:
         j.tools.configmanager._path = location
 
     def start(self, listen=":6600", log_level=logging.DEBUG, block=True, auto_push=False,
-              auto_push_interval=60, **kwargs):
+              auto_push_interval=60, jwt_organization=None, **kwargs):
         """
         start the rest web server
         load the services from the local git repository
@@ -94,6 +95,11 @@ class Robot:
         # configure prometheus monitoring
         if not kwargs.get('testing', False):
             monitor(app)
+
+        # configure authentication middleware
+        if jwt_organization:
+            logger.info("JWT authentication enabled for organization: %s" % jwt_organization)
+            authenticate(app, allowed_scopes=['user:memberof:%s' % jwt_organization])
 
         self._block = block
 

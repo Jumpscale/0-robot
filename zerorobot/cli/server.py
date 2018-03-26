@@ -15,6 +15,7 @@ from zerorobot.robot import Robot
 telegram_logger = logging.getLogger('telegram_logger')
 telegram_logger.disabled = True
 
+
 @click.group()
 def server():
     pass
@@ -30,7 +31,8 @@ def server():
 @click.option('--telegram-chat-id', help='Chat id to push template action failures', required=False)
 @click.option('--auto-push', help='enable automatically commit and pushing of data repository', is_flag=True, default=False)
 @click.option('--auto-push-interval', help='interval in minutes of automatic pushing of data repository', required=False, default=60)
-def start(listen, data_repo, template_repo, config_repo, debug, telegram_bot_token, telegram_chat_id, auto_push, auto_push_interval):
+@click.option('--organization', help='if specified, enable JWT authentication for each request.', required=False)
+def start(listen, data_repo, template_repo, config_repo, debug, telegram_bot_token, telegram_chat_id, auto_push, auto_push_interval, organization):
     """
     start the 0-robot daemon.
     this will start the REST API on address and port specified by --listen and block
@@ -62,4 +64,4 @@ def start(listen, data_repo, template_repo, config_repo, debug, telegram_bot_tok
     if config_repo:
         robot.set_config_repo(config_repo)
 
-    robot.start(listen=listen, auto_push=auto_push, auto_push_interval=auto_push_interval)
+    robot.start(listen=listen, auto_push=auto_push, auto_push_interval=auto_push_interval, jwt_organization=organization)
