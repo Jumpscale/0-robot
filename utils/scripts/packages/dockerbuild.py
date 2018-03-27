@@ -1,6 +1,7 @@
 #! /usr/bin/python3
 "Docker image build script for 0-robot"
 from js9 import j
+import docker
 
 
 REPOSITORY = "jumpscale/0-robot"
@@ -28,8 +29,9 @@ def _install_zrobot(prefab, branch):
 def build_docker(tag, jsbranch, zrbranch, push):
     "Build and push docker image for 0-robot"
     print("Starting docker container ... ", end='')
-    j.sal.docker.client.images.pull(repository="ubuntu", tag="16.04")
-    container = j.sal.docker.client.containers.create("ubuntu:16.04", command="sleep 3600")
+    client = docker.DockerClient(base_url='unix://var/run/docker.sock')
+    client.images.pull(repository="ubuntu", tag="16.04")
+    container = client.containers.create("ubuntu:16.04", command="sleep 3600")
     container.start()
     print("done!\nEstablishing prefab connection ... ", end='')
     try:
@@ -48,13 +50,13 @@ def build_docker(tag, jsbranch, zrbranch, push):
     finally:
         container.stop()
         container.remove()
-    container = j.sal.docker.client.containers.create("jumpscale/0-robot-tmp", 
+    container = client.containers.create("jumpscale/0-robot-tmp",
                                                       command="/usr/bin/python3 /opt/code/github/jumpscale/0-robot/utils/scripts/packages/dockerentrypoint.py")
     container.commit("jumpscale/0-robot", tag)
     container.remove()
     if push:
         print("done!\nPushing docker image ... ")
-        j.sal.docker.client.images.push("jumpscale/0-robot", tag)
+        client.images.push("jumpscale/0-robot", tag)
         print("0-robot build and published successfully!")
     else:
         print("done!\n0-robot build successfully!")
@@ -68,11 +70,11 @@ def _main():
                         help="Jumpscale git branch, tag or revision to build")
     parser.add_argument("--zrbranch", type=str, default="master",
                         help="0-robot git branch, tag or revision to build")
-    parser.add_argument("--push", help="Push to docker hub")
-    parser.add_argument("--debug", help="Print debug information")
+    parser.add_argument("--push", const=True, nargs='?', type=bool, help="Push to docker hub")
+    parser.add_argument("--debug", const=True, nargs='?', type=bool, help="Print debug information")
     args = parser.parse_args()
-    if not args.debug:
-        j.logger.set_mode(j.logger.PRODUCTION)
+    # if not args.debug:
+    #     j.logger.set_mode(j.logger.PRODUCTION)
     build_docker(args.tag, args.jsbranch, args.zrbranch, args.push)
 
 
