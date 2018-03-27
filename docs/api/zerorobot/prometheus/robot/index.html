@@ -1043,7 +1043,6 @@ table {
     <li class="set"><h3><a href="#header-variables">Module variables</a></h3>
       
   <ul>
-    <li class="mono"><a href="#zerorobot.prometheus.robot.nr_service">nr_service</a></li>
     <li class="mono"><a href="#zerorobot.prometheus.robot.nr_task_waiting">nr_task_waiting</a></li>
     <li class="mono"><a href="#zerorobot.prometheus.robot.process">process</a></li>
     <li class="mono"><a href="#zerorobot.prometheus.robot.task_latency">task_latency</a></li>
@@ -1086,7 +1085,7 @@ table {
 <span class="n">nr_task_waiting</span> <span class="o">=</span> <span class="n">Gauge</span><span class="p">(</span><span class="s2">&quot;robot_tasks_waiting_total&quot;</span><span class="p">,</span> <span class="s2">&quot;Number of task waiting per service&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;service_guid&#39;</span><span class="p">])</span>
 <span class="n">task_latency</span> <span class="o">=</span> <span class="n">Histogram</span><span class="p">(</span><span class="s1">&#39;robot_tasks_latency_ms&#39;</span><span class="p">,</span> <span class="s1">&#39;Task latency&#39;</span><span class="p">,</span>
                          <span class="p">[</span><span class="s1">&#39;action_name&#39;</span><span class="p">,</span> <span class="s1">&#39;template_uid&#39;</span><span class="p">])</span>
-<span class="n">nr_service</span> <span class="o">=</span> <span class="n">Gauge</span><span class="p">(</span><span class="s1">&#39;robot_service_nr&#39;</span><span class="p">,</span> <span class="s2">&quot;Number of services&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;template_uid&#39;</span><span class="p">])</span>
+
 
 <span class="n">process</span> <span class="o">=</span> <span class="n">psutil</span><span class="o">.</span><span class="n">Process</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getpid</span><span class="p">())</span>
 
@@ -1110,14 +1109,6 @@ table {
 
   <section id="section-items">
     <h2 class="section-title" id="header-variables">Module variables</h2>
-      <div class="item">
-      <p id="zerorobot.prometheus.robot.nr_service" class="name">var <span class="ident">nr_service</span></p>
-      
-  
-  <div class="source_cont">
-</div>
-
-      </div>
       <div class="item">
       <p id="zerorobot.prometheus.robot.nr_task_waiting" class="name">var <span class="ident">nr_task_waiting</span></p>
       

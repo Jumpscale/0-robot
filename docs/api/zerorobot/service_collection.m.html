@@ -1117,7 +1117,6 @@ other services and class need to use this module method to create, access, list 
 <span class="kn">from</span> <span class="nn">js9</span> <span class="kn">import</span> <span class="n">j</span>
 <span class="kn">from</span> <span class="nn">zerorobot.sqlite</span> <span class="kn">import</span> <span class="n">SqliteIndex</span>
 <span class="kn">from</span> <span class="nn">zerorobot.template_uid</span> <span class="kn">import</span> <span class="n">TemplateUID</span>
-<span class="kn">from</span> <span class="nn">zerorobot.prometheus.robot</span> <span class="kn">import</span> <span class="n">nr_service</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;zerorobot&#39;</span><span class="p">)</span>
 
@@ -1132,8 +1131,6 @@ other services and class need to use this module method to create, access, list 
             <span class="n">service</span><span class="o">=</span><span class="n">_guid_index</span><span class="p">[</span><span class="n">service</span><span class="o">.</span><span class="n">guid</span><span class="p">])</span>
     <span class="n">_guid_index</span><span class="p">[</span><span class="n">service</span><span class="o">.</span><span class="n">guid</span><span class="p">]</span> <span class="o">=</span> <span class="n">service</span>
     <span class="n">_sqlite_index</span><span class="o">.</span><span class="n">add_service</span><span class="p">(</span><span class="n">service</span><span class="p">)</span>
-
-    <span class="n">nr_service</span><span class="o">.</span><span class="n">labels</span><span class="p">(</span><span class="n">template_uid</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">service</span><span class="o">.</span><span class="n">template_uid</span><span class="p">))</span><span class="o">.</span><span class="n">inc</span><span class="p">()</span>
 
     <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;add service </span><span class="si">%s</span><span class="s2"> to collection&quot;</span> <span class="o">%</span> <span class="n">service</span><span class="p">)</span>
 
@@ -1167,8 +1164,6 @@ other services and class need to use this module method to create, access, list 
     <span class="k">if</span> <span class="n">service</span><span class="o">.</span><span class="n">guid</span> <span class="ow">in</span> <span class="n">_guid_index</span><span class="p">:</span>
         <span class="k">del</span> <span class="n">_guid_index</span><span class="p">[</span><span class="n">service</span><span class="o">.</span><span class="n">guid</span><span class="p">]</span>
     <span class="n">_sqlite_index</span><span class="o">.</span><span class="n">delete_service</span><span class="p">(</span><span class="n">service</span><span class="p">)</span>
-
-    <span class="n">nr_service</span><span class="o">.</span><span class="n">labels</span><span class="p">(</span><span class="n">template_uid</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">service</span><span class="o">.</span><span class="n">template_uid</span><span class="p">))</span><span class="o">.</span><span class="n">dec</span><span class="p">()</span>
 
     <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;delete service </span><span class="si">%s</span><span class="s2"> from collection&quot;</span> <span class="o">%</span> <span class="n">service</span><span class="p">)</span>
 
@@ -1306,8 +1301,6 @@ other services and class need to use this module method to create, access, list 
     <span class="n">_guid_index</span><span class="p">[</span><span class="n">service</span><span class="o">.</span><span class="n">guid</span><span class="p">]</span> <span class="o">=</span> <span class="n">service</span>
     <span class="n">_sqlite_index</span><span class="o">.</span><span class="n">add_service</span><span class="p">(</span><span class="n">service</span><span class="p">)</span>
 
-    <span class="n">nr_service</span><span class="o">.</span><span class="n">labels</span><span class="p">(</span><span class="n">template_uid</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">service</span><span class="o">.</span><span class="n">template_uid</span><span class="p">))</span><span class="o">.</span><span class="n">inc</span><span class="p">()</span>
-
     <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;add service </span><span class="si">%s</span><span class="s2"> to collection&quot;</span> <span class="o">%</span> <span class="n">service</span><span class="p">)</span>
 </pre></div>
 
@@ -1332,8 +1325,6 @@ other services and class need to use this module method to create, access, list 
     <span class="k">if</span> <span class="n">service</span><span class="o">.</span><span class="n">guid</span> <span class="ow">in</span> <span class="n">_guid_index</span><span class="p">:</span>
         <span class="k">del</span> <span class="n">_guid_index</span><span class="p">[</span><span class="n">service</span><span class="o">.</span><span class="n">guid</span><span class="p">]</span>
     <span class="n">_sqlite_index</span><span class="o">.</span><span class="n">delete_service</span><span class="p">(</span><span class="n">service</span><span class="p">)</span>
-
-    <span class="n">nr_service</span><span class="o">.</span><span class="n">labels</span><span class="p">(</span><span class="n">template_uid</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">service</span><span class="o">.</span><span class="n">template_uid</span><span class="p">))</span><span class="o">.</span><span class="n">dec</span><span class="p">()</span>
 
     <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;delete service </span><span class="si">%s</span><span class="s2"> from collection&quot;</span> <span class="o">%</span> <span class="n">service</span><span class="p">)</span>
 </pre></div>

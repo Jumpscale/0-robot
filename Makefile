@@ -20,11 +20,14 @@ source_pkg:
 bin_pkg:
 	python3 setup.py bdist_wheel
 
-test:
+test: clean
 	pytest --cov=./ tests -v
 
-test-ui:
+test-ui: clean
 	pytest --cov=./ --cov-report=html tests -v
+
+clean:
+	find . | grep -E "(__pycache__|\.pyc|\.pyo$)" | xargs rm -rf
 
 
 .PHONY: all generate generate-server generate-apidoc package source_pkg bin_pkg test test-ui

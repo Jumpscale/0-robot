@@ -26,7 +26,7 @@ def parse(url):
             break
 
     if not match:
-        raise RuntimeError(
+        raise ValueError(
             "Url is invalid. Must be in the form of 'http(s)://hostname/account/repo', 'git@hostname:account/repo' or 'ssh://git@hostname/account/repo' \nnow:\n%s" % url)
 
     protocol, repository_host, repository_account, repository_name = match.groups()

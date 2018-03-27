@@ -3,10 +3,8 @@
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 
-    <title>zerorobot.robot API documentation</title>
-    <meta name="description" content="robot modules define the Robot class
-
-It is the class responsible to start and managed the robot as ..." />
+    <title>zerorobot.robot.robot API documentation</title>
+    <meta name="description" content="" />
 
   <link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:400,300' rel='stylesheet' type='text/css'>
   
@@ -1045,8 +1043,8 @@ table {
     <li class="set"><h3><a href="#header-variables">Module variables</a></h3>
       
   <ul>
-    <li class="mono"><a href="#zerorobot.robot.PRIORITY_SYSTEM">PRIORITY_SYSTEM</a></li>
-    <li class="mono"><a href="#zerorobot.robot.logger">logger</a></li>
+    <li class="mono"><a href="#zerorobot.robot.robot.PRIORITY_SYSTEM">PRIORITY_SYSTEM</a></li>
+    <li class="mono"><a href="#zerorobot.robot.robot.logger">logger</a></li>
   </ul>
 
     </li>
@@ -1055,16 +1053,16 @@ table {
     <li class="set"><h3><a href="#header-classes">Classes</a></h3>
       <ul>
         <li class="mono">
-        <span class="class_name"><a href="#zerorobot.robot.Robot">Robot</a></span>
+        <span class="class_name"><a href="#zerorobot.robot.robot.Robot">Robot</a></span>
         
           
   <ul>
-    <li class="mono"><a href="#zerorobot.robot.Robot.__init__">__init__</a></li>
-    <li class="mono"><a href="#zerorobot.robot.Robot.add_template_repo">add_template_repo</a></li>
-    <li class="mono"><a href="#zerorobot.robot.Robot.set_config_repo">set_config_repo</a></li>
-    <li class="mono"><a href="#zerorobot.robot.Robot.set_data_repo">set_data_repo</a></li>
-    <li class="mono"><a href="#zerorobot.robot.Robot.start">start</a></li>
-    <li class="mono"><a href="#zerorobot.robot.Robot.stop">stop</a></li>
+    <li class="mono"><a href="#zerorobot.robot.robot.Robot.__init__">__init__</a></li>
+    <li class="mono"><a href="#zerorobot.robot.robot.Robot.add_template_repo">add_template_repo</a></li>
+    <li class="mono"><a href="#zerorobot.robot.robot.Robot.set_config_repo">set_config_repo</a></li>
+    <li class="mono"><a href="#zerorobot.robot.robot.Robot.set_data_repo">set_data_repo</a></li>
+    <li class="mono"><a href="#zerorobot.robot.robot.Robot.start">start</a></li>
+    <li class="mono"><a href="#zerorobot.robot.robot.Robot.stop">stop</a></li>
   </ul>
 
         </li>
@@ -1082,21 +1080,15 @@ table {
 
 
   <header id="section-intro">
-  <h1 class="title"><span class="name">zerorobot.robot</span> module</h1>
-  <p>robot modules define the Robot class</p>
-<p>It is the class responsible to start and managed the robot as well as the REST API.</p>
+  <h1 class="title"><span class="name">zerorobot.robot.robot</span> module</h1>
   
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.robot', this);">Show source &equiv;</a></p>
-  <div id="source-zerorobot.robot" class="source">
-    <div class="codehilite"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">robot modules define the Robot class</span>
-
-<span class="sd">It is the class responsible to start and managed the robot as well as the REST API.</span>
-<span class="sd">&quot;&quot;&quot;</span>
-
-<span class="kn">import</span> <span class="nn">logging</span>
+  
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.robot.robot', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.robot.robot" class="source">
+    <div class="codehilite"><pre><span></span><span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">signal</span>
+<span class="kn">import</span> <span class="nn">time</span>
 
 <span class="kn">import</span> <span class="nn">gevent</span>
 <span class="kn">from</span> <span class="nn">gevent</span> <span class="kn">import</span> <span class="n">GreenletExit</span>
@@ -1109,7 +1101,9 @@ table {
 <span class="kn">from</span> <span class="nn">zerorobot</span> <span class="kn">import</span> <span class="n">auto_pusher</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">giturl</span>
 <span class="kn">from</span> <span class="nn">zerorobot.prometheus.flask</span> <span class="kn">import</span> <span class="n">monitor</span>
 <span class="kn">from</span> <span class="nn">zerorobot.server.app</span> <span class="kn">import</span> <span class="n">app</span>
+<span class="kn">from</span> <span class="nn">zerorobot.server.middleware</span> <span class="kn">import</span> <span class="n">authenticate</span>
 <span class="kn">from</span> <span class="nn">zerorobot.task</span> <span class="kn">import</span> <span class="n">PRIORITY_SYSTEM</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">config_repo</span><span class="p">,</span> <span class="n">data_repo</span>
 
 <span class="c1"># create logger</span>
 <span class="n">logger</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;zerorobot&#39;</span><span class="p">)</span>
@@ -1140,33 +1134,37 @@ table {
 
     <span class="k">def</span> <span class="nf">set_data_repo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Set the url of the git repository to be used to serialize services state.</span>
+<span class="sd">        Set the data repository used to serialize services state.</span>
+
+<span class="sd">        @param path: can be a git URL or a absolute path or None</span>
+<span class="sd">            if git url: clone the repository locally, and use it as configuration repo</span>
+<span class="sd">            if absolute path: make sure the directory exist and use it as configuration repo</span>
+<span class="sd">            if None: automatically create a configuration repository in `{j.dirs.DATADIR}/zrobot`</span>
+
 <span class="sd">        It can be the same of one of the template repository used.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">location</span> <span class="o">=</span> <span class="n">giturl</span><span class="o">.</span><span class="n">git_path</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">location</span><span class="p">):</span>
-            <span class="n">location</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">clients</span><span class="o">.</span><span class="n">git</span><span class="o">.</span><span class="n">pullGitRepo</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">data_repo_url</span> <span class="o">=</span> <span class="n">url</span>
+        <span class="n">location</span> <span class="o">=</span> <span class="n">data_repo</span><span class="o">.</span><span class="n">ensure</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
         <span class="n">config</span><span class="o">.</span><span class="n">DATA_DIR</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">sal</span><span class="o">.</span><span class="n">fs</span><span class="o">.</span><span class="n">joinPaths</span><span class="p">(</span><span class="n">location</span><span class="p">,</span> <span class="s1">&#39;zrobot_data&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data_repo_url</span> <span class="o">=</span> <span class="n">url</span>
 
     <span class="k">def</span> <span class="nf">add_template_repo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">directory</span><span class="o">=</span><span class="s1">&#39;templates&#39;</span><span class="p">):</span>
         <span class="n">url</span><span class="p">,</span> <span class="n">branch</span> <span class="o">=</span> <span class="n">giturl</span><span class="o">.</span><span class="n">parse_template_repo_url</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
         <span class="n">tcol</span><span class="o">.</span><span class="n">add_repo</span><span class="p">(</span><span class="n">url</span><span class="o">=</span><span class="n">url</span><span class="p">,</span> <span class="n">branch</span><span class="o">=</span><span class="n">branch</span><span class="p">,</span> <span class="n">directory</span><span class="o">=</span><span class="n">directory</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">set_config_repo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">set_config_repo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Set the url of the configuration repository used by JumpScale to store client configuration</span>
-<span class="sd">        It can be the same URL as the data repository.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">location</span> <span class="o">=</span> <span class="n">giturl</span><span class="o">.</span><span class="n">git_path</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">location</span><span class="p">):</span>
-            <span class="n">location</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">clients</span><span class="o">.</span><span class="n">git</span><span class="o">.</span><span class="n">pullGitRepo</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
-            <span class="n">j</span><span class="o">.</span><span class="n">sal</span><span class="o">.</span><span class="n">fs</span><span class="o">.</span><span class="n">createEmptyFile</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">location</span><span class="p">,</span> <span class="s1">&#39;.jsconfig&#39;</span><span class="p">))</span>
-        <span class="n">j</span><span class="o">.</span><span class="n">tools</span><span class="o">.</span><span class="n">configmanager</span><span class="o">.</span><span class="n">_path</span> <span class="o">=</span> <span class="n">location</span>
+<span class="sd">        make sure the jumpscale configuration repository is initialized</span>
+<span class="sd">        @param path: can be a git URL or a absolute path or None</span>
+<span class="sd">            if git url: clone the repository locally, and use it as configuration repo</span>
+<span class="sd">            if absolute path: make sure the directory exist and use it as configuration repo</span>
+<span class="sd">            if None: automatically create a configuration repository in `{j.dirs.CODEDIR}/local/stdorg/config`</span>
 
-    <span class="k">def</span> <span class="nf">start</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">listen</span><span class="o">=</span><span class="s2">&quot;:6600&quot;</span><span class="p">,</span> <span class="n">log_level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">,</span> <span class="n">block</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">auto_push</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
-              <span class="n">auto_push_interval</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="sd">        @param key: path to the sshkey to use with the configuration repo</span>
+<span class="sd">        if key is None, a key is automatically generated</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">config_repo</span><span class="o">.</span><span class="n">init</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">start</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">listen</span><span class="o">=</span><span class="s2">&quot;:6600&quot;</span><span class="p">,</span> <span class="n">log_level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">,</span> <span class="n">block</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">auto_push</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">auto_push_interval</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        start the rest web server</span>
 <span class="sd">        load the services from the local git repository</span>
@@ -1174,16 +1172,20 @@ table {
         <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">DATA_DIR</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Not data repository set. Robot doesn&#39;t know where to save data.&quot;</span><span class="p">)</span>
 
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;data directory: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">config</span><span class="o">.</span><span class="n">DATA_DIR</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">j</span><span class="o">.</span><span class="n">tools</span><span class="o">.</span><span class="n">configmanager</span><span class="o">.</span><span class="n">path</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;config manager is not configured, can&#39;t continue&quot;</span><span class="p">)</span>
 
-        <span class="c1"># FIXME: I need way to know there is a properly inited config repo</span>
-        <span class="c1"># will raise if not config repo is found</span>
-        <span class="c1"># if not j.tools.configmanager.path:</span>
-        <span class="c1">#     raise RuntimeError(&quot;config manager is not configured, can&#39;t continue&quot;)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;data directory: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">config</span><span class="o">.</span><span class="n">DATA_DIR</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;config directory: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">j</span><span class="o">.</span><span class="n">tools</span><span class="o">.</span><span class="n">configmanager</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
 
         <span class="c1"># configure prometheus monitoring</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;testing&#39;</span><span class="p">,</span> <span class="bp">False</span><span class="p">):</span>
             <span class="n">monitor</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>
+
+        <span class="c1"># configure authentication middleware</span>
+        <span class="k">if</span> <span class="n">jwt_organization</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;JWT authentication enabled for organization: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">jwt_organization</span><span class="p">)</span>
+            <span class="n">authenticate</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="n">allowed_scopes</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;user:memberof:</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">jwt_organization</span><span class="p">])</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_block</span> <span class="o">=</span> <span class="n">block</span>
 
@@ -1208,6 +1210,9 @@ table {
 
         <span class="c1"># load services from data repo</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_load_services</span><span class="p">()</span>
+
+        <span class="c1"># only keep executed tasks for 2 hours</span>
+        <span class="n">gevent</span><span class="o">.</span><span class="n">spawn</span><span class="p">(</span><span class="n">_trim_tasks</span><span class="p">,</span> <span class="mi">7200</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">block</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_http</span><span class="o">.</span><span class="n">serve_forever</span><span class="p">()</span>
@@ -1299,6 +1304,30 @@ table {
         <span class="n">size</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">services</span><span class="p">)</span>
 
 
+<span class="k">def</span> <span class="nf">_trim_tasks</span><span class="p">(</span><span class="n">period</span><span class="o">=</span><span class="mi">7200</span><span class="p">):</span>  <span class="c1"># default 2 hours ago</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    this greenlet delete the task of all services that are older</span>
+<span class="sd">    then &#39;period&#39;</span>
+<span class="sd">    This is to limit the amount of storage used to keep track of the tasks</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">20</span><span class="o">*</span><span class="mi">60</span><span class="p">)</span>  <span class="c1"># runs every 20 minutes</span>
+            <span class="n">ago</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">())</span> <span class="o">-</span> <span class="n">period</span>
+
+            <span class="k">for</span> <span class="n">service</span> <span class="ow">in</span> <span class="n">scol</span><span class="o">.</span><span class="n">list_services</span><span class="p">():</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">service</span><span class="o">.</span><span class="n">task_list</span><span class="o">.</span><span class="n">_done</span><span class="p">,</span> <span class="s1">&#39;delete_until&#39;</span><span class="p">):</span>
+                    <span class="k">continue</span>
+                <span class="c1"># delete all task that have been created before ago</span>
+                <span class="n">service</span><span class="o">.</span><span class="n">task_list</span><span class="o">.</span><span class="n">_done</span><span class="o">.</span><span class="n">delete_until</span><span class="p">(</span><span class="n">ago</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">gevent</span><span class="o">.</span><span class="n">GreenletExit</span><span class="p">:</span>
+            <span class="c1"># exit properly</span>
+            <span class="k">return</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="s2">&quot;error deleting old tasks&quot;</span><span class="p">)</span>
+            <span class="k">continue</span>
+
+
 <span class="k">def</span> <span class="nf">_split_hostport</span><span class="p">(</span><span class="n">hostport</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    convert a listen addres of the form</span>
@@ -1318,7 +1347,7 @@ table {
   <section id="section-items">
     <h2 class="section-title" id="header-variables">Module variables</h2>
       <div class="item">
-      <p id="zerorobot.robot.PRIORITY_SYSTEM" class="name">var <span class="ident">PRIORITY_SYSTEM</span></p>
+      <p id="zerorobot.robot.robot.PRIORITY_SYSTEM" class="name">var <span class="ident">PRIORITY_SYSTEM</span></p>
       
   
   <div class="source_cont">
@@ -1326,7 +1355,7 @@ table {
 
       </div>
       <div class="item">
-      <p id="zerorobot.robot.logger" class="name">var <span class="ident">logger</span></p>
+      <p id="zerorobot.robot.robot.logger" class="name">var <span class="ident">logger</span></p>
       
   
   <div class="source_cont">
@@ -1338,7 +1367,7 @@ table {
     <h2 class="section-title" id="header-classes">Classes</h2>
       
       <div class="item">
-      <p id="zerorobot.robot.Robot" class="name">class <span class="ident">Robot</span></p>
+      <p id="zerorobot.robot.robot.Robot" class="name">class <span class="ident">Robot</span></p>
       
   
     <div class="desc"><p>A robot is the main context where the templates and service lives.
@@ -1347,8 +1376,8 @@ It is responsible to:
     - download the template from a git repository
     - load the templates in memory and make them available</p></div>
   <div class="source_cont">
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.robot.Robot', this);">Show source &equiv;</a></p>
-  <div id="source-zerorobot.robot.Robot" class="source">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.robot.robot.Robot', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.robot.robot.Robot" class="source">
     <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">Robot</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A robot is the main context where the templates and service lives.</span>
@@ -1374,33 +1403,37 @@ It is responsible to:
 
     <span class="k">def</span> <span class="nf">set_data_repo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Set the url of the git repository to be used to serialize services state.</span>
+<span class="sd">        Set the data repository used to serialize services state.</span>
+
+<span class="sd">        @param path: can be a git URL or a absolute path or None</span>
+<span class="sd">            if git url: clone the repository locally, and use it as configuration repo</span>
+<span class="sd">            if absolute path: make sure the directory exist and use it as configuration repo</span>
+<span class="sd">            if None: automatically create a configuration repository in `{j.dirs.DATADIR}/zrobot`</span>
+
 <span class="sd">        It can be the same of one of the template repository used.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">location</span> <span class="o">=</span> <span class="n">giturl</span><span class="o">.</span><span class="n">git_path</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">location</span><span class="p">):</span>
-            <span class="n">location</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">clients</span><span class="o">.</span><span class="n">git</span><span class="o">.</span><span class="n">pullGitRepo</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">data_repo_url</span> <span class="o">=</span> <span class="n">url</span>
+        <span class="n">location</span> <span class="o">=</span> <span class="n">data_repo</span><span class="o">.</span><span class="n">ensure</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
         <span class="n">config</span><span class="o">.</span><span class="n">DATA_DIR</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">sal</span><span class="o">.</span><span class="n">fs</span><span class="o">.</span><span class="n">joinPaths</span><span class="p">(</span><span class="n">location</span><span class="p">,</span> <span class="s1">&#39;zrobot_data&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data_repo_url</span> <span class="o">=</span> <span class="n">url</span>
 
     <span class="k">def</span> <span class="nf">add_template_repo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">directory</span><span class="o">=</span><span class="s1">&#39;templates&#39;</span><span class="p">):</span>
         <span class="n">url</span><span class="p">,</span> <span class="n">branch</span> <span class="o">=</span> <span class="n">giturl</span><span class="o">.</span><span class="n">parse_template_repo_url</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
         <span class="n">tcol</span><span class="o">.</span><span class="n">add_repo</span><span class="p">(</span><span class="n">url</span><span class="o">=</span><span class="n">url</span><span class="p">,</span> <span class="n">branch</span><span class="o">=</span><span class="n">branch</span><span class="p">,</span> <span class="n">directory</span><span class="o">=</span><span class="n">directory</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">set_config_repo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">set_config_repo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Set the url of the configuration repository used by JumpScale to store client configuration</span>
-<span class="sd">        It can be the same URL as the data repository.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">location</span> <span class="o">=</span> <span class="n">giturl</span><span class="o">.</span><span class="n">git_path</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">location</span><span class="p">):</span>
-            <span class="n">location</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">clients</span><span class="o">.</span><span class="n">git</span><span class="o">.</span><span class="n">pullGitRepo</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
-            <span class="n">j</span><span class="o">.</span><span class="n">sal</span><span class="o">.</span><span class="n">fs</span><span class="o">.</span><span class="n">createEmptyFile</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">location</span><span class="p">,</span> <span class="s1">&#39;.jsconfig&#39;</span><span class="p">))</span>
-        <span class="n">j</span><span class="o">.</span><span class="n">tools</span><span class="o">.</span><span class="n">configmanager</span><span class="o">.</span><span class="n">_path</span> <span class="o">=</span> <span class="n">location</span>
+<span class="sd">        make sure the jumpscale configuration repository is initialized</span>
+<span class="sd">        @param path: can be a git URL or a absolute path or None</span>
+<span class="sd">            if git url: clone the repository locally, and use it as configuration repo</span>
+<span class="sd">            if absolute path: make sure the directory exist and use it as configuration repo</span>
+<span class="sd">            if None: automatically create a configuration repository in `{j.dirs.CODEDIR}/local/stdorg/config`</span>
 
-    <span class="k">def</span> <span class="nf">start</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">listen</span><span class="o">=</span><span class="s2">&quot;:6600&quot;</span><span class="p">,</span> <span class="n">log_level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">,</span> <span class="n">block</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">auto_push</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
-              <span class="n">auto_push_interval</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="sd">        @param key: path to the sshkey to use with the configuration repo</span>
+<span class="sd">        if key is None, a key is automatically generated</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">config_repo</span><span class="o">.</span><span class="n">init</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">start</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">listen</span><span class="o">=</span><span class="s2">&quot;:6600&quot;</span><span class="p">,</span> <span class="n">log_level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">,</span> <span class="n">block</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">auto_push</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">auto_push_interval</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        start the rest web server</span>
 <span class="sd">        load the services from the local git repository</span>
@@ -1408,16 +1441,20 @@ It is responsible to:
         <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">DATA_DIR</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Not data repository set. Robot doesn&#39;t know where to save data.&quot;</span><span class="p">)</span>
 
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;data directory: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">config</span><span class="o">.</span><span class="n">DATA_DIR</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">j</span><span class="o">.</span><span class="n">tools</span><span class="o">.</span><span class="n">configmanager</span><span class="o">.</span><span class="n">path</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;config manager is not configured, can&#39;t continue&quot;</span><span class="p">)</span>
 
-        <span class="c1"># FIXME: I need way to know there is a properly inited config repo</span>
-        <span class="c1"># will raise if not config repo is found</span>
-        <span class="c1"># if not j.tools.configmanager.path:</span>
-        <span class="c1">#     raise RuntimeError(&quot;config manager is not configured, can&#39;t continue&quot;)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;data directory: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">config</span><span class="o">.</span><span class="n">DATA_DIR</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;config directory: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">j</span><span class="o">.</span><span class="n">tools</span><span class="o">.</span><span class="n">configmanager</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
 
         <span class="c1"># configure prometheus monitoring</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;testing&#39;</span><span class="p">,</span> <span class="bp">False</span><span class="p">):</span>
             <span class="n">monitor</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>
+
+        <span class="c1"># configure authentication middleware</span>
+        <span class="k">if</span> <span class="n">jwt_organization</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;JWT authentication enabled for organization: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">jwt_organization</span><span class="p">)</span>
+            <span class="n">authenticate</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="n">allowed_scopes</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;user:memberof:</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">jwt_organization</span><span class="p">])</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_block</span> <span class="o">=</span> <span class="n">block</span>
 
@@ -1442,6 +1479,9 @@ It is responsible to:
 
         <span class="c1"># load services from data repo</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_load_services</span><span class="p">()</span>
+
+        <span class="c1"># only keep executed tasks for 2 hours</span>
+        <span class="n">gevent</span><span class="o">.</span><span class="n">spawn</span><span class="p">(</span><span class="n">_trim_tasks</span><span class="p">,</span> <span class="mi">7200</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">block</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_http</span><span class="o">.</span><span class="n">serve_forever</span><span class="p">()</span>
@@ -1518,13 +1558,13 @@ It is responsible to:
       <div class="class">
           <h3>Ancestors (in MRO)</h3>
           <ul class="class_list">
-          <li><a href="#zerorobot.robot.Robot">Robot</a></li>
+          <li><a href="#zerorobot.robot.robot.Robot">Robot</a></li>
           <li>builtins.object</li>
           </ul>
           <h3>Static methods</h3>
             
   <div class="item">
-    <div class="name def" id="zerorobot.robot.Robot.__init__">
+    <div class="name def" id="zerorobot.robot.robot.Robot.__init__">
     <p>def <span class="ident">__init__</span>(</p><p>self)</p>
     </div>
     
@@ -1533,8 +1573,8 @@ It is responsible to:
   
     <div class="desc"><p>Initialize self.  See help(type(self)) for accurate signature.</p></div>
   <div class="source_cont">
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.robot.Robot.__init__', this);">Show source &equiv;</a></p>
-  <div id="source-zerorobot.robot.Robot.__init__" class="source">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.robot.robot.Robot.__init__', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.robot.robot.Robot.__init__" class="source">
     <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_started</span> <span class="o">=</span> <span class="bp">False</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_block</span> <span class="o">=</span> <span class="bp">True</span>
@@ -1551,7 +1591,7 @@ It is responsible to:
   
             
   <div class="item">
-    <div class="name def" id="zerorobot.robot.Robot.add_template_repo">
+    <div class="name def" id="zerorobot.robot.robot.Robot.add_template_repo">
     <p>def <span class="ident">add_template_repo</span>(</p><p>self, url, directory=&#39;templates&#39;)</p>
     </div>
     
@@ -1559,8 +1599,8 @@ It is responsible to:
     
   
   <div class="source_cont">
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.robot.Robot.add_template_repo', this);">Show source &equiv;</a></p>
-  <div id="source-zerorobot.robot.Robot.add_template_repo" class="source">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.robot.robot.Robot.add_template_repo', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.robot.robot.Robot.add_template_repo" class="source">
     <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">add_template_repo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">directory</span><span class="o">=</span><span class="s1">&#39;templates&#39;</span><span class="p">):</span>
     <span class="n">url</span><span class="p">,</span> <span class="n">branch</span> <span class="o">=</span> <span class="n">giturl</span><span class="o">.</span><span class="n">parse_template_repo_url</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
     <span class="n">tcol</span><span class="o">.</span><span class="n">add_repo</span><span class="p">(</span><span class="n">url</span><span class="o">=</span><span class="n">url</span><span class="p">,</span> <span class="n">branch</span><span class="o">=</span><span class="n">branch</span><span class="p">,</span> <span class="n">directory</span><span class="o">=</span><span class="n">directory</span><span class="p">)</span>
@@ -1573,28 +1613,34 @@ It is responsible to:
   
             
   <div class="item">
-    <div class="name def" id="zerorobot.robot.Robot.set_config_repo">
-    <p>def <span class="ident">set_config_repo</span>(</p><p>self, url)</p>
+    <div class="name def" id="zerorobot.robot.robot.Robot.set_config_repo">
+    <p>def <span class="ident">set_config_repo</span>(</p><p>self, path=None, key=None)</p>
     </div>
     
 
     
   
-    <div class="desc"><p>Set the url of the configuration repository used by JumpScale to store client configuration
-It can be the same URL as the data repository.</p></div>
+    <div class="desc"><p>make sure the jumpscale configuration repository is initialized
+@param path: can be a git URL or a absolute path or None
+    if git url: clone the repository locally, and use it as configuration repo
+    if absolute path: make sure the directory exist and use it as configuration repo
+    if None: automatically create a configuration repository in <code>{j.dirs.CODEDIR}/local/stdorg/config</code></p>
+<p>@param key: path to the sshkey to use with the configuration repo
+if key is None, a key is automatically generated</p></div>
   <div class="source_cont">
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.robot.Robot.set_config_repo', this);">Show source &equiv;</a></p>
-  <div id="source-zerorobot.robot.Robot.set_config_repo" class="source">
-    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">set_config_repo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">):</span>
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.robot.robot.Robot.set_config_repo', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.robot.robot.Robot.set_config_repo" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">set_config_repo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Set the url of the configuration repository used by JumpScale to store client configuration</span>
-<span class="sd">    It can be the same URL as the data repository.</span>
+<span class="sd">    make sure the jumpscale configuration repository is initialized</span>
+<span class="sd">    @param path: can be a git URL or a absolute path or None</span>
+<span class="sd">        if git url: clone the repository locally, and use it as configuration repo</span>
+<span class="sd">        if absolute path: make sure the directory exist and use it as configuration repo</span>
+<span class="sd">        if None: automatically create a configuration repository in `{j.dirs.CODEDIR}/local/stdorg/config`</span>
+<span class="sd">    @param key: path to the sshkey to use with the configuration repo</span>
+<span class="sd">    if key is None, a key is automatically generated</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">location</span> <span class="o">=</span> <span class="n">giturl</span><span class="o">.</span><span class="n">git_path</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">location</span><span class="p">):</span>
-        <span class="n">location</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">clients</span><span class="o">.</span><span class="n">git</span><span class="o">.</span><span class="n">pullGitRepo</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
-        <span class="n">j</span><span class="o">.</span><span class="n">sal</span><span class="o">.</span><span class="n">fs</span><span class="o">.</span><span class="n">createEmptyFile</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">location</span><span class="p">,</span> <span class="s1">&#39;.jsconfig&#39;</span><span class="p">))</span>
-    <span class="n">j</span><span class="o">.</span><span class="n">tools</span><span class="o">.</span><span class="n">configmanager</span><span class="o">.</span><span class="n">_path</span> <span class="o">=</span> <span class="n">location</span>
+    <span class="n">config_repo</span><span class="o">.</span><span class="n">init</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span>
 </pre></div>
 
   </div>
@@ -1604,28 +1650,34 @@ It can be the same URL as the data repository.</p></div>
   
             
   <div class="item">
-    <div class="name def" id="zerorobot.robot.Robot.set_data_repo">
+    <div class="name def" id="zerorobot.robot.robot.Robot.set_data_repo">
     <p>def <span class="ident">set_data_repo</span>(</p><p>self, url)</p>
     </div>
     
 
     
   
-    <div class="desc"><p>Set the url of the git repository to be used to serialize services state.
-It can be the same of one of the template repository used.</p></div>
+    <div class="desc"><p>Set the data repository used to serialize services state.</p>
+<p>@param path: can be a git URL or a absolute path or None
+    if git url: clone the repository locally, and use it as configuration repo
+    if absolute path: make sure the directory exist and use it as configuration repo
+    if None: automatically create a configuration repository in <code>{j.dirs.DATADIR}/zrobot</code></p>
+<p>It can be the same of one of the template repository used.</p></div>
   <div class="source_cont">
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.robot.Robot.set_data_repo', this);">Show source &equiv;</a></p>
-  <div id="source-zerorobot.robot.Robot.set_data_repo" class="source">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.robot.robot.Robot.set_data_repo', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.robot.robot.Robot.set_data_repo" class="source">
     <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">set_data_repo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Set the url of the git repository to be used to serialize services state.</span>
+<span class="sd">    Set the data repository used to serialize services state.</span>
+<span class="sd">    @param path: can be a git URL or a absolute path or None</span>
+<span class="sd">        if git url: clone the repository locally, and use it as configuration repo</span>
+<span class="sd">        if absolute path: make sure the directory exist and use it as configuration repo</span>
+<span class="sd">        if None: automatically create a configuration repository in `{j.dirs.DATADIR}/zrobot`</span>
 <span class="sd">    It can be the same of one of the template repository used.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">location</span> <span class="o">=</span> <span class="n">giturl</span><span class="o">.</span><span class="n">git_path</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">location</span><span class="p">):</span>
-        <span class="n">location</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">clients</span><span class="o">.</span><span class="n">git</span><span class="o">.</span><span class="n">pullGitRepo</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">data_repo_url</span> <span class="o">=</span> <span class="n">url</span>
+    <span class="n">location</span> <span class="o">=</span> <span class="n">data_repo</span><span class="o">.</span><span class="n">ensure</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
     <span class="n">config</span><span class="o">.</span><span class="n">DATA_DIR</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">sal</span><span class="o">.</span><span class="n">fs</span><span class="o">.</span><span class="n">joinPaths</span><span class="p">(</span><span class="n">location</span><span class="p">,</span> <span class="s1">&#39;zrobot_data&#39;</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">data_repo_url</span> <span class="o">=</span> <span class="n">url</span>
 </pre></div>
 
   </div>
@@ -1635,7 +1687,7 @@ It can be the same of one of the template repository used.</p></div>
   
             
   <div class="item">
-    <div class="name def" id="zerorobot.robot.Robot.start">
+    <div class="name def" id="zerorobot.robot.robot.Robot.start">
     <p>def <span class="ident">start</span>(</p><p>self, listen=&#39;:6600&#39;, log_level=10, block=True, auto_push=False, auto_push_interval=60, **kwargs)</p>
     </div>
     
@@ -1645,24 +1697,26 @@ It can be the same of one of the template repository used.</p></div>
     <div class="desc"><p>start the rest web server
 load the services from the local git repository</p></div>
   <div class="source_cont">
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.robot.Robot.start', this);">Show source &equiv;</a></p>
-  <div id="source-zerorobot.robot.Robot.start" class="source">
-    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">start</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">listen</span><span class="o">=</span><span class="s2">&quot;:6600&quot;</span><span class="p">,</span> <span class="n">log_level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">,</span> <span class="n">block</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">auto_push</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
-          <span class="n">auto_push_interval</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.robot.robot.Robot.start', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.robot.robot.Robot.start" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">start</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">listen</span><span class="o">=</span><span class="s2">&quot;:6600&quot;</span><span class="p">,</span> <span class="n">log_level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">,</span> <span class="n">block</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">auto_push</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">auto_push_interval</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    start the rest web server</span>
 <span class="sd">    load the services from the local git repository</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">DATA_DIR</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Not data repository set. Robot doesn&#39;t know where to save data.&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">j</span><span class="o">.</span><span class="n">tools</span><span class="o">.</span><span class="n">configmanager</span><span class="o">.</span><span class="n">path</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;config manager is not configured, can&#39;t continue&quot;</span><span class="p">)</span>
     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;data directory: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">config</span><span class="o">.</span><span class="n">DATA_DIR</span><span class="p">)</span>
-    <span class="c1"># FIXME: I need way to know there is a properly inited config repo</span>
-    <span class="c1"># will raise if not config repo is found</span>
-    <span class="c1"># if not j.tools.configmanager.path:</span>
-    <span class="c1">#     raise RuntimeError(&quot;config manager is not configured, can&#39;t continue&quot;)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;config directory: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">j</span><span class="o">.</span><span class="n">tools</span><span class="o">.</span><span class="n">configmanager</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
     <span class="c1"># configure prometheus monitoring</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;testing&#39;</span><span class="p">,</span> <span class="bp">False</span><span class="p">):</span>
         <span class="n">monitor</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>
+    <span class="c1"># configure authentication middleware</span>
+    <span class="k">if</span> <span class="n">jwt_organization</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;JWT authentication enabled for organization: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">jwt_organization</span><span class="p">)</span>
+        <span class="n">authenticate</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="n">allowed_scopes</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;user:memberof:</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">jwt_organization</span><span class="p">])</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_block</span> <span class="o">=</span> <span class="n">block</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_sig_handler</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">gevent</span><span class="o">.</span><span class="n">signal</span><span class="p">(</span><span class="n">signal</span><span class="o">.</span><span class="n">SIGINT</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">stop</span><span class="p">))</span>
     <span class="c1"># configure logger</span>
@@ -1680,6 +1734,8 @@ load the services from the local git repository</p></div>
     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;robot running at </span><span class="si">%s</span><span class="s2">:</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">hostport</span><span class="p">)</span>
     <span class="c1"># load services from data repo</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_load_services</span><span class="p">()</span>
+    <span class="c1"># only keep executed tasks for 2 hours</span>
+    <span class="n">gevent</span><span class="o">.</span><span class="n">spawn</span><span class="p">(</span><span class="n">_trim_tasks</span><span class="p">,</span> <span class="mi">7200</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">block</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_http</span><span class="o">.</span><span class="n">serve_forever</span><span class="p">()</span>
         <span class="c1"># this is executed when self.stop is called.</span>
@@ -1696,7 +1752,7 @@ load the services from the local git repository</p></div>
   
             
   <div class="item">
-    <div class="name def" id="zerorobot.robot.Robot.stop">
+    <div class="name def" id="zerorobot.robot.robot.Robot.stop">
     <p>def <span class="ident">stop</span>(</p><p>self)</p>
     </div>
     
@@ -1707,8 +1763,8 @@ load the services from the local git repository</p></div>
 gracefully stop all the services
 serialize all services state to disk</p></div>
   <div class="source_cont">
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.robot.Robot.stop', this);">Show source &equiv;</a></p>
-  <div id="source-zerorobot.robot.Robot.stop" class="source">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.robot.robot.Robot.stop', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.robot.robot.Robot.stop" class="source">
     <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">stop</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    stop receiving requests</span>
@@ -1736,7 +1792,7 @@ serialize all services state to disk</p></div>
   
           <h3>Instance variables</h3>
             <div class="item">
-            <p id="zerorobot.robot.Robot.addr" class="name">var <span class="ident">addr</span></p>
+            <p id="zerorobot.robot.robot.Robot.addr" class="name">var <span class="ident">addr</span></p>
             
 
             
@@ -1746,7 +1802,7 @@ serialize all services state to disk</p></div>
 
             </div>
             <div class="item">
-            <p id="zerorobot.robot.Robot.address" class="name">var <span class="ident">address</span></p>
+            <p id="zerorobot.robot.robot.Robot.address" class="name">var <span class="ident">address</span></p>
             
 
             
@@ -1756,7 +1812,7 @@ serialize all services state to disk</p></div>
 
             </div>
             <div class="item">
-            <p id="zerorobot.robot.Robot.data_repo_url" class="name">var <span class="ident">data_repo_url</span></p>
+            <p id="zerorobot.robot.robot.Robot.data_repo_url" class="name">var <span class="ident">data_repo_url</span></p>
             
 
             

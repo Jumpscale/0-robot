@@ -13,7 +13,6 @@ pip install .
 ```
 ## Start the robot:
 ```
-zrobot server start --help
 Usage: zrobot server start [OPTIONS]
 
   start the 0-robot daemon. this will start the REST API on address and port
@@ -21,15 +20,23 @@ Usage: zrobot server start [OPTIONS]
 
 Options:
   -L, --listen TEXT             listen address (default :6600)
-  -D, --data-repo TEXT          URL of the git repository where to save the
-                                data of the zero robot  [required]
-  -T, --template-repo TEXT      Use fragment
+  -D, --data-repo TEXT          URL of the git repository or absolute path
+                                where to save the data of the zero robot
+  -T, --template-repo TEXT      list of template repository URL. Use fragment
                                 URL to specify a branch:
                                 http://github.com/account/repo#branch
   -C, --config-repo TEXT        URL of the configuration repository (https://g
                                 ithub.com/Jumpscale/core9/blob/development/doc
                                 s/config/configmanager.md)
+  -K, --config-key TEXT         Absolute path to ssh key to secure
+                                configuration data, which is committed and
+                                pushed (see auto-push) in the configuration
+                                repo. If omitted, the robot will try to use
+                                the key configured key in jumpscale if any or
+                                will generate a new ssh key.
   --debug                       enable debug logging
+  --telegram-bot-token TEXT     Bot to push template action failures
+  --telegram-chat-id TEXT       Chat id to push template action failures
   --auto-push                   enable automatically commit and pushing of
                                 data repository
   --auto-push-interval INTEGER  interval in minutes of automatic pushing of
@@ -37,20 +44,31 @@ Options:
   --organization TEXT           if specified, enable JWT authentication for
                                 each request.
   --help                        Show this message and exit.
+
 ```
 Options details:
 
 - `--listen`: The interface and port on which the robot REST API need to listen to. Has to be under the form `host:port`  
 e.g: `0.0.0.0:8080`
-- `--data-repo`: The URL of a git repository where the data of your services will be stored. When starting, the robot also loads all the services present in this repository.
-This parameter is required for the robot to starts.
-- `--template-repo` The URL of a repository that contains templates. You can give multiple template repository by give multiple time the parameter.
-    if the url contains a fragment (#) the fragment is used as branch name. example: http://github.com/account/repo#mybranch will use the 'mybranch` branch
-- `--config-repo` URL of the configuration repository. This option is added to run 0-robot in a container (eg docker, core-0)
-- `--debug`: Sets the logger output level to debug
-- `auto-push`: Enables automatic commiting and pushing of the data repository for backup. Check the [automatic syncing chapter](#automatic-syncing-of-data-repository) for more details
-- `--auto-push-interval` Define a custom interval in minutes for `auto-push` if enabled (default: 60)
-- `--organization` If specified, enable JWT authentication for each request. To be valid the JWT must contain a scope `user:memberof:<org>` where <org> is a valid ItYouOnline organization
+- `--data-repo`:  
+The URL of a git repository or the absolute path of a directory on the local file system where the data of your services will be stored  
+if not specified, a directory is automatically created `{j.dirs.DATADIR}/zrobot`  
+When starting, the robot also loads all the services present in this repository.  
+- `--template-repo`:  
+The URL of a repository that contains templates. You can give multiple template repository by give multiple time the parameter.
+if the url contains a fragment (#) the fragment is used as branch name. example: http://github.com/account/repo#mybranch will use the 'mybranch` branch
+- `--config-repo`:  
+URL or absolute path of the configuration repository.  
+ if not specified and jumpscale doens't have a configuration repo already configure a directory is automatically created in `{j.dirs.CODEDIR}/local/stdorg/config`
+ otherwise the robot uses the configuration from jumpscale
+ - `--config-key`: 
+Absolute path to ssh key to secure configuration data, which is committed and pushed (see auto-push) in the configuration repo. If omitted, the robot will try to use the key configured key in jumpscale if any or will generate a new ssh key.
+- `--debug`:  
+Sets the logger output level to debug
+- `auto-push`:  
+Enables automatic commiting and pushing of the data repository for backup. Check the [automatic syncing chapter](#automatic-syncing-of-data-repository) for more details
+- `--auto-push-interval`:  
+Define a custom interval in minutes for `auto-push` if enabled (default: 60)
 
 ### example:
 ```bash
@@ -68,7 +86,7 @@ To run it:
 
 eg:
 ```bash
-root@myawesomemachine:~# docker run --name 0-robot -d -p 192.168.199.2:6600:6600 -v /root/.ssh2:/root/.ssh -e data-repo=ssh://git@myawesomegitserver.org:10023/MyAwesomeOrganization/myawseomedatarepo.git -e config-repo=ssh://git@myawesomegitserver.org:10023/MyAwesomeOrganization/myawseomeconfigrepo.git -e template-repo=https://github.com/zero-os/0-templates.git jumpscale/0-robot:latest
+root@myawesomemachine:~# docker run --name 0-robot -d -p 192.168.199.2:6600:6600 -v /root/.ssh2:/root/.ssh -e data-repo=ssh://git@myawesomegitserver.org:10023/MyAwesomeOrganization/myawseomedatarepo.git -e config-repo=ssh://git@myawesomegitserver.org:10023/MyAwesomeOrganization/myawseomeconfigrepo.git -e config-key=/root/.ssh/id_rsa -e template-repo=https://github.com/zero-os/0-templates.git jumpscale/0-robot:latest
 ```
 
 ## Automatic syncing of data repository

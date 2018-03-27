@@ -1,9 +1,3 @@
-"""
-robot modules define the Robot class
-
-It is the class responsible to start and managed the robot as well as the REST API.
-"""
-
 import logging
 import os
 import signal
@@ -22,6 +16,7 @@ from zerorobot.prometheus.flask import monitor
 from zerorobot.server.app import app
 from zerorobot.server.middleware import authenticate
 from zerorobot.task import PRIORITY_SYSTEM
+from . import config_repo, data_repo
 
 # create logger
 logger = j.logger.get('zerorobot')
@@ -52,33 +47,37 @@ class Robot:
 
     def set_data_repo(self, url):
         """
-        Set the url of the git repository to be used to serialize services state.
+        Set the data repository used to serialize services state.
+
+        @param path: can be a git URL or a absolute path or None
+            if git url: clone the repository locally, and use it as configuration repo
+            if absolute path: make sure the directory exist and use it as configuration repo
+            if None: automatically create a configuration repository in `{j.dirs.DATADIR}/zrobot`
+
         It can be the same of one of the template repository used.
         """
-        location = giturl.git_path(url)
-        if not os.path.exists(location):
-            location = j.clients.git.pullGitRepo(url)
-
-        self.data_repo_url = url
+        location = data_repo.ensure(url)
         config.DATA_DIR = j.sal.fs.joinPaths(location, 'zrobot_data')
+        self.data_repo_url = url
 
     def add_template_repo(self, url, directory='templates'):
         url, branch = giturl.parse_template_repo_url(url)
         tcol.add_repo(url=url, branch=branch, directory=directory)
 
-    def set_config_repo(self, url):
+    def set_config_repo(self, path=None, key=None):
         """
-        Set the url of the configuration repository used by JumpScale to store client configuration
-        It can be the same URL as the data repository.
-        """
-        location = giturl.git_path(url)
-        if not os.path.exists(location):
-            location = j.clients.git.pullGitRepo(url)
-            j.sal.fs.createEmptyFile(os.path.join(location, '.jsconfig'))
-        j.tools.configmanager._path = location
+        make sure the jumpscale configuration repository is initialized
+        @param path: can be a git URL or a absolute path or None
+            if git url: clone the repository locally, and use it as configuration repo
+            if absolute path: make sure the directory exist and use it as configuration repo
+            if None: automatically create a configuration repository in `{j.dirs.CODEDIR}/local/stdorg/config`
 
-    def start(self, listen=":6600", log_level=logging.DEBUG, block=True, auto_push=False,
-              auto_push_interval=60, jwt_organization=None, **kwargs):
+        @param key: path to the sshkey to use with the configuration repo
+        if key is None, a key is automatically generated
+        """
+        config_repo.init(path, key)
+
+    def start(self, listen=":6600", log_level=logging.DEBUG, block=True, auto_push=False, auto_push_interval=60, **kwargs):
         """
         start the rest web server
         load the services from the local git repository
@@ -86,12 +85,11 @@ class Robot:
         if config.DATA_DIR is None:
             raise RuntimeError("Not data repository set. Robot doesn't know where to save data.")
 
-        logger.info("data directory: %s" % config.DATA_DIR)
+        if not j.tools.configmanager.path:
+            raise RuntimeError("config manager is not configured, can't continue")
 
-        # FIXME: I need way to know there is a properly inited config repo
-        # will raise if not config repo is found
-        # if not j.tools.configmanager.path:
-        #     raise RuntimeError("config manager is not configured, can't continue")
+        logger.info("data directory: %s" % config.DATA_DIR)
+        logger.info("config directory: %s" % j.tools.configmanager.path)
 
         # configure prometheus monitoring
         if not kwargs.get('testing', False):

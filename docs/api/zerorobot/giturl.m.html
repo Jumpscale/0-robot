@@ -1096,7 +1096,7 @@ table {
             <span class="k">break</span>
 
     <span class="k">if</span> <span class="ow">not</span> <span class="n">match</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
             <span class="s2">&quot;Url is invalid. Must be in the form of &#39;http(s)://hostname/account/repo&#39;, &#39;git@hostname:account/repo&#39; or &#39;ssh://git@hostname/account/repo&#39; </span><span class="se">\n</span><span class="s2">now:</span><span class="se">\n</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">url</span><span class="p">)</span>
 
     <span class="n">protocol</span><span class="p">,</span> <span class="n">repository_host</span><span class="p">,</span> <span class="n">repository_account</span><span class="p">,</span> <span class="n">repository_name</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">groups</span><span class="p">()</span>
@@ -1203,7 +1203,7 @@ table {
             <span class="k">break</span>
 
     <span class="k">if</span> <span class="ow">not</span> <span class="n">match</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
             <span class="s2">&quot;Url is invalid. Must be in the form of &#39;http(s)://hostname/account/repo&#39;, &#39;git@hostname:account/repo&#39; or &#39;ssh://git@hostname/account/repo&#39; </span><span class="se">\n</span><span class="s2">now:</span><span class="se">\n</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">url</span><span class="p">)</span>
 
     <span class="n">protocol</span><span class="p">,</span> <span class="n">repository_host</span><span class="p">,</span> <span class="n">repository_account</span><span class="p">,</span> <span class="n">repository_name</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">groups</span><span class="p">()</span>

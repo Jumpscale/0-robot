@@ -1100,8 +1100,9 @@ table {
 <span class="n">rom</span> <span class="o">.</span> <span class="kn">import</span> <span class="p">(</span><span class="n">PRIORITY_NORMAL</span><span class="p">,</span> <span class="n">PRIORITY_SYSTEM</span><span class="p">,</span> <span class="n">TASK_STATE_ERROR</span><span class="p">,</span>
               <span class="n">TASK_STATE_NEW</span><span class="p">,</span> <span class="n">TASK_STATE_OK</span><span class="p">,</span> <span class="n">TASK_STATE_RUNNING</span><span class="p">)</span>
 <span class="n">rom</span> <span class="o">.</span><span class="n">storage</span><span class="o">.</span><span class="n">base</span> <span class="kn">import</span> <span class="nn">TaskNotFoundError</span>
-<span class="n">rom</span> <span class="o">.</span><span class="n">storage</span><span class="o">.</span><span class="n">file</span> <span class="kn">import</span> <span class="nn">TaskStorageFile</span>
-<span class="n">rom</span> <span class="o">.</span><span class="n">storage</span><span class="o">.</span><span class="n">redis</span> <span class="kn">import</span> <span class="nn">TaskStorageRedis</span>
+<span class="n">rom</span> <span class="o">.</span><span class="n">storage</span><span class="o">.</span><span class="n">sqlite</span> <span class="kn">import</span> <span class="nn">TaskStorageSqlite</span>
+ <span class="kn">from</span> <span class="nn">.storage.file</span> <span class="kn">import</span> <span class="n">TaskStorageFile</span>
+ <span class="kn">from</span> <span class="nn">.storage.redis</span> <span class="kn">import</span> <span class="n">TaskStorageRedis</span>
 <span class="n">rom</span> <span class="o">.</span><span class="n">task</span> <span class="kn">import</span> <span class="nn">Task</span>
 <span class="n">rom</span> <span class="o">.</span><span class="n">utils</span> <span class="kn">import</span> <span class="nn">_instantiate_task</span>
 <span class="n">rom</span> <span class="n">zerorobot</span><span class="o">.</span><span class="n">prometheus</span><span class="o">.</span><span class="n">robot</span> <span class="kn">import</span> <span class="nn">nr_task_waiting</span>
@@ -1118,7 +1119,8 @@ table {
        <span class="c1"># now we use the filesystem, but we could plug any key-value stor or database behind</span>
        <span class="c1"># check TaskStorageBase to see the interface your storage needs to have</span>
        <span class="c1"># to be used to store tasks</span>
-       <span class="bp">self</span><span class="o">.</span><span class="n">_done</span> <span class="o">=</span> <span class="n">TaskStorageFile</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+       <span class="c1"># self._done = TaskStorageFile(self)</span>
+       <span class="bp">self</span><span class="o">.</span><span class="n">_done</span> <span class="o">=</span> <span class="n">TaskStorageSqlite</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
        <span class="c1"># pointer to current task</span>
        <span class="bp">self</span><span class="o">.</span><span class="n">current</span> <span class="o">=</span> <span class="bp">None</span>
    <span class="k">def</span> <span class="fm">__del__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -1306,7 +1308,8 @@ table {
         <span class="c1"># now we use the filesystem, but we could plug any key-value stor or database behind</span>
         <span class="c1"># check TaskStorageBase to see the interface your storage needs to have</span>
         <span class="c1"># to be used to store tasks</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_done</span> <span class="o">=</span> <span class="n">TaskStorageFile</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="c1"># self._done = TaskStorageFile(self)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_done</span> <span class="o">=</span> <span class="n">TaskStorageSqlite</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
         <span class="c1"># pointer to current task</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">current</span> <span class="o">=</span> <span class="bp">None</span>
 
@@ -1461,7 +1464,8 @@ table {
     <span class="c1"># now we use the filesystem, but we could plug any key-value stor or database behind</span>
     <span class="c1"># check TaskStorageBase to see the interface your storage needs to have</span>
     <span class="c1"># to be used to store tasks</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">_done</span> <span class="o">=</span> <span class="n">TaskStorageFile</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+    <span class="c1"># self._done = TaskStorageFile(self)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_done</span> <span class="o">=</span> <span class="n">TaskStorageSqlite</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
     <span class="c1"># pointer to current task</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">current</span> <span class="o">=</span> <span class="bp">None</span>
 </pre></div>

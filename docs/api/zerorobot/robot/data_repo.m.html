@@ -3,8 +3,8 @@
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 
-    <title>zerorobot.cli.robot API documentation</title>
-    <meta name="description" content="" />
+    <title>zerorobot.robot.data_repo API documentation</title>
+    <meta name="description" content="data_repo module hold the logic of the configuration of the jumpscale configuration repository" />
 
   <link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:400,300' rel='stylesheet' type='text/css'>
   
@@ -1041,6 +1041,13 @@ table {
     <h1>Index</h1>
     <ul id="index">
 
+    <li class="set"><h3><a href="#header-functions">Functions</a></h3>
+      
+  <ul>
+    <li class="mono"><a href="#zerorobot.robot.data_repo.ensure">ensure</a></li>
+  </ul>
+
+    </li>
 
 
     </ul>
@@ -1054,106 +1061,44 @@ table {
 
 
   <header id="section-intro">
-  <h1 class="title"><span class="name">zerorobot.cli.robot</span> module</h1>
+  <h1 class="title"><span class="name">zerorobot.robot.data_repo</span> module</h1>
+  <p>data_repo module hold the logic of the configuration of the jumpscale configuration repository</p>
   
-  
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.cli.robot', this);">Show source &equiv;</a></p>
-  <div id="source-zerorobot.cli.robot" class="source">
-    <div class="codehilite"><pre><span></span><span class="kn">import</span> <span class="nn">sys</span>
-<span class="kn">from</span> <span class="nn">os</span> <span class="kn">import</span> <span class="n">path</span>
-<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.robot.data_repo', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.robot.data_repo" class="source">
+    <div class="codehilite"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">data_repo module hold the logic of the configuration of the jumpscale configuration repository</span>
+<span class="sd">&quot;&quot;&quot;</span>
 
-<span class="kn">import</span> <span class="nn">requests</span>
-
+<span class="kn">from</span> <span class="nn">zerorobot</span> <span class="kn">import</span> <span class="n">giturl</span>
 <span class="kn">from</span> <span class="nn">js9</span> <span class="kn">import</span> <span class="n">j</span>
-
-<span class="kn">import</span> <span class="nn">click</span>
-<span class="kn">from</span> <span class="nn">zerorobot.cli</span> <span class="kn">import</span> <span class="n">utils</span>
+<span class="kn">import</span> <span class="nn">os</span>
 
 
-<span class="k">def</span> <span class="nf">_list</span><span class="p">():</span>
+<span class="k">def</span> <span class="nf">ensure</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    list all instance of 0-robot register in the configmanager</span>
+<span class="sd">    ensure the 0-robot data repository exists</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">j</span><span class="o">.</span><span class="n">clients</span><span class="o">.</span><span class="n">zrobot</span><span class="o">.</span><span class="n">list</span><span class="p">()</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">path</span><span class="p">:</span>
+        <span class="c1"># no path specify, we create one</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">sal</span><span class="o">.</span><span class="n">fs</span><span class="o">.</span><span class="n">joinPaths</span><span class="p">(</span><span class="n">j</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">dirs</span><span class="o">.</span><span class="n">DATADIR</span><span class="p">,</span> <span class="s1">&#39;zrobot&#39;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># try to see of path is a git URL</span>
+            <span class="n">url</span> <span class="o">=</span> <span class="n">path</span>
+            <span class="n">path</span> <span class="o">=</span> <span class="n">giturl</span><span class="o">.</span><span class="n">git_path</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+            <span class="c1"># if the repo is not clone yet, clone it now</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+                <span class="n">path</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">clients</span><span class="o">.</span><span class="n">git</span><span class="o">.</span><span class="n">pullGitRepo</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+            <span class="c1"># path is not an URL, we expect an absolute path</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isabs</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;path value is not valid. Need to be a valid git url or an absolute path on the local filesystem&quot;</span><span class="p">)</span>
 
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
 
-<span class="nd">@click.group</span><span class="p">()</span>
-<span class="k">def</span> <span class="nf">robot</span><span class="p">():</span>
-    <span class="k">pass</span>
-
-
-<span class="nd">@robot.command</span><span class="p">()</span>
-<span class="nd">@click.argument</span><span class="p">(</span><span class="s1">&#39;instance&#39;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
-<span class="nd">@click.argument</span><span class="p">(</span><span class="s1">&#39;addr&#39;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
-<span class="nd">@click.argument</span><span class="p">(</span><span class="s1">&#39;jwt&#39;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
-<span class="k">def</span> <span class="nf">connect</span><span class="p">(</span><span class="n">instance</span><span class="p">,</span> <span class="n">addr</span><span class="p">,</span> <span class="n">jwt</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    configure the zrobot CLI to work against the 0-robot</span>
-
-<span class="sd">    examples:</span>
-
-<span class="sd">    - create a new connection: `zrobot robot connect myRobot http://myrobot.com:6600`</span>
-
-<span class="sd">    - create a new connection to a JWT protected robot: `zrobot robot connect myRobot http://myrobot.com:6600 eyJhbGciOiJFUzM4NCIsInR5cCI6IkpXVCJ9.eyJh......`</span>
-
-<span class="sd">    - connect to an already configured robot: `zrobot robot connect myRobot`</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="c1"># create new config</span>
-    <span class="k">if</span> <span class="n">addr</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
-        <span class="c1"># create new configuration for this instance-addr</span>
-        <span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;url&#39;</span><span class="p">:</span> <span class="n">addr</span><span class="p">}</span>
-        <span class="k">if</span> <span class="n">jwt</span><span class="p">:</span>
-            <span class="n">data</span><span class="p">[</span><span class="s1">&#39;jwt_&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">jwt</span>
-        <span class="c1"># make sure instance is clean</span>
-        <span class="n">j</span><span class="o">.</span><span class="n">clients</span><span class="o">.</span><span class="n">zrobot</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">instance</span><span class="p">)</span>
-        <span class="n">cl</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">clients</span><span class="o">.</span><span class="n">zrobot</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">instance</span><span class="o">=</span><span class="n">instance</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">create</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">interactive</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">die</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
-        <span class="n">cl</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;url&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">addr</span>
-        <span class="n">cl</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
-
-    <span class="c1"># just select existing robot</span>
-    <span class="k">if</span> <span class="n">instance</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">_list</span><span class="p">()</span> <span class="ow">and</span> <span class="n">addr</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
-        <span class="k">print</span><span class="p">(</span><span class="s2">&quot;instance &#39;</span><span class="si">%s</span><span class="s2">&#39; not found. Use &#39;zrobot robot connect instance addr` to configure a new connection to a 0-robot&quot;</span> <span class="o">%</span> <span class="n">instance</span><span class="p">)</span>
-        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
-
-    <span class="n">connected</span><span class="p">,</span> <span class="n">addr</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">test_connection</span><span class="p">(</span><span class="n">instance</span><span class="p">)</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">connected</span><span class="p">:</span>
-        <span class="k">print</span><span class="p">(</span><span class="s2">&quot;service running at </span><span class="si">%s</span><span class="s2"> doesn&#39;t seems to be a valid 0-robot&quot;</span> <span class="o">%</span> <span class="n">addr</span><span class="p">)</span>
-        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
-
-    <span class="n">j</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">stateSet</span><span class="p">(</span><span class="n">utils</span><span class="o">.</span><span class="n">_JS_CONFIG_KEY</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="n">save</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
-    <span class="k">print</span><span class="p">(</span><span class="s2">&quot;Connection to </span><span class="si">%s</span><span class="s2"> saved&quot;</span> <span class="o">%</span> <span class="n">instance</span><span class="p">)</span>
-
-
-<span class="nd">@robot.command</span><span class="p">()</span>
-<span class="k">def</span> <span class="nf">list</span><span class="p">():</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    print all the instance of the 0-robot configured on the system</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">for</span> <span class="n">instance</span> <span class="ow">in</span> <span class="n">_list</span><span class="p">():</span>
-        <span class="n">cl</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">clients</span><span class="o">.</span><span class="n">zrobot</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">instance</span><span class="o">=</span><span class="n">instance</span><span class="p">)</span>
-        <span class="k">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1"> @ </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">instance</span><span class="p">,</span> <span class="n">cl</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;url&#39;</span><span class="p">]))</span>
-
-
-<span class="nd">@robot.command</span><span class="p">()</span>
-<span class="k">def</span> <span class="nf">current</span><span class="p">():</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    print the address of the 0-robot configured</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">instance</span><span class="p">,</span> <span class="n">addr</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">get_instance</span><span class="p">()</span>
-    <span class="k">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1"> @ </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">instance</span><span class="p">,</span> <span class="n">addr</span><span class="p">))</span>
-
-
-<span class="nd">@robot.command</span><span class="p">()</span>
-<span class="nd">@click.argument</span><span class="p">(</span><span class="s1">&#39;instance&#39;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
-<span class="k">def</span> <span class="nf">delete</span><span class="p">(</span><span class="n">instance</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    delete a instance of the 0-robot configuration</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="c1"># just select existing robot</span>
-    <span class="k">if</span> <span class="n">instance</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">_list</span><span class="p">():</span>
-        <span class="k">return</span>
-    <span class="n">j</span><span class="o">.</span><span class="n">clients</span><span class="o">.</span><span class="n">zrobot</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">instance</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">path</span>
 </pre></div>
 
   </div>
@@ -1162,6 +1107,51 @@ table {
 
   <section id="section-items">
 
+    <h2 class="section-title" id="header-functions">Functions</h2>
+      
+  <div class="item">
+    <div class="name def" id="zerorobot.robot.data_repo.ensure">
+    <p>def <span class="ident">ensure</span>(</p><p>path=None)</p>
+    </div>
+    
+
+    
+  
+    <div class="desc"><p>ensure the 0-robot data repository exists</p></div>
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.robot.data_repo.ensure', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.robot.data_repo.ensure" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">ensure</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    ensure the 0-robot data repository exists</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">path</span><span class="p">:</span>
+        <span class="c1"># no path specify, we create one</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">sal</span><span class="o">.</span><span class="n">fs</span><span class="o">.</span><span class="n">joinPaths</span><span class="p">(</span><span class="n">j</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">dirs</span><span class="o">.</span><span class="n">DATADIR</span><span class="p">,</span> <span class="s1">&#39;zrobot&#39;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># try to see of path is a git URL</span>
+            <span class="n">url</span> <span class="o">=</span> <span class="n">path</span>
+            <span class="n">path</span> <span class="o">=</span> <span class="n">giturl</span><span class="o">.</span><span class="n">git_path</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+            <span class="c1"># if the repo is not clone yet, clone it now</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+                <span class="n">path</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">clients</span><span class="o">.</span><span class="n">git</span><span class="o">.</span><span class="n">pullGitRepo</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+            <span class="c1"># path is not an URL, we expect an absolute path</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isabs</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;path value is not valid. Need to be a valid git url or an absolute path on the local filesystem&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">path</span>
+</pre></div>
+
+  </div>
+</div>
+
+  </div>
+  
 
 
   </section>
