@@ -97,6 +97,7 @@ class Robot:
             monitor(app)
 
         # configure authentication middleware
+        jwt_organization = jwt_organization or _read_cmdline().get('BOOT_IMAGE')
         if jwt_organization:
             logger.info("JWT authentication enabled for organization: %s" % jwt_organization)
             authenticate(app, allowed_scopes=['user:memberof:%s' % jwt_organization])
@@ -252,3 +253,19 @@ def _split_hostport(hostport):
     host = hostport[:i]
     port = hostport[i + 1:]
     return host, int(port)
+
+
+def _read_cmdline():
+    """
+    read the kernel parameter passed to the host machine
+    return a dict container the key/value of the arguments
+    """
+    with open('/proc/cmdline') as f:
+        line = f.read()
+
+    args = {}
+    line = line.strip()
+    for kv in line.split(' '):
+        k, v = kv.split('=')
+        args[k] = v
+    return args
