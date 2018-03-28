@@ -1,0 +1,10 @@
+[startup.zrobot]
+name = "bash"
+protected = true #set protected to true to respawn the container if it crashed
+running_delay = -1
+
+
+[startup.zrobot.args]
+script = """
+/usr/local/bin/zrobot server start -T http://github.com/zero-os/0-templates
+"""

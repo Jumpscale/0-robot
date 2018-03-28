@@ -43,8 +43,8 @@ def init(path=None, key=None):
             key = tmp
         else:
             # no key configured, generate a new one
-            pub_key_path = j.tools.prefab.local.system.ssh.keygen(user='root', name=j.data.idgenerator.generateXCharID(8))
-            key = pub_key_path[:-4]
+            key = '/root/.ssh/%s' % j.data.idgenerator.generateXCharID(8)
+            j.sal.ubuntu.sshkeys_generate(path=key)
     else:
         # key is specified, ensure it actually exists
         if not os.path.exists(key):
