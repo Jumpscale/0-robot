@@ -5,7 +5,7 @@ This class is used to provide a local proxy to a remote service for a ZeroRobot.
 When a service or robot ask the creation of a service to another robot, a proxy class is created locally
 so the robot see the service as if it as local to him while in reality the service is managed by another robot.
 """
-
+import urllib
 from requests.exceptions import HTTPError
 
 from js9 import j
@@ -36,6 +36,10 @@ class ServiceProxy():
         # cause data are always only accessible  by the service itself and locally
         self.data = None
         self.task_list = TaskListProxy(self)
+
+    def __repr__(self):
+        # Provide a nice representation in tools like IPython / js9
+        return "robot://%s/%s?%s" % (self._zrobot_client.instance, self.template_uid, urllib.parse.urlencode(dict(name=self.name, guid=self.guid)))
 
     @property
     def state(self):

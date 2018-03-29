@@ -3,6 +3,8 @@
 """
 Auto-generated class for Service
 """
+import urllib
+
 from .ServiceState import ServiceState
 from six import string_types
 
@@ -45,6 +47,10 @@ class Service(object):
         self.template = client_support.set_property('template', data, data_types, False, [], False, True, class_name)
         data_types = [string_types]
         self.version = client_support.set_property('version', data, data_types, False, [], False, True, class_name)
+
+    def __repr__(self):
+        # Provide a nice representation in tools like IPython / js9
+        return "robot://local/%s?%s" % (self.template, urllib.parse.urlencode(dict(name=self.name, guid=self.guid)))
 
     def __str__(self):
         return self.as_json(indent=4)
