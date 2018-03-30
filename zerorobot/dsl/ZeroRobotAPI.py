@@ -133,6 +133,15 @@ class TemplatesMgr:
         """
         return tcol.add_repo(url=url, branch=branch)
 
+    def checkout_repo(self, url, revision='master'):
+        """
+        Checkout a branch/tag/revision of a template repository
+
+        @param url: url of the template repo
+        @param revision: branch, tag or revision to checkout
+        """
+        return tcol.checkout_repo(url, revision)
+
     @property
     def uids(self):
         """

@@ -2,7 +2,7 @@ import os
 import unittest
 
 from zerorobot import template_collection as tcol
-from zerorobot import giturl
+from zerorobot.git import url as giturl
 from zerorobot.template_collection import TemplateNotFoundError
 from zerorobot.template_uid import TemplateUID
 

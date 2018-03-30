@@ -13,3 +13,4 @@ from .AddTaskToListHandler import AddTaskToListHandler
 from .GetTaskHandler import GetTaskHandler
 from .ListTemplatesHandler import ListTemplatesHandler
 from .AddTemplateRepoHandler import AddTemplateRepoHandler
+from .CheckoutVersionTemplateRepoHandler import CheckoutVersionTemplateRepoHandler

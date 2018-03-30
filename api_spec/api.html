@@ -1543,6 +1543,10 @@ Once the templates are available, you can send blueprint with the description of
               <span class="badge badge_post">post <span class="glyphicon glyphicon-lock" title="Authentication required"></span></span>
             </a>
           
+            <a href="#templates_put"><!-- modal shown by hashchange event -->
+              <span class="badge badge_put">put <span class="glyphicon glyphicon-lock" title="Authentication required"></span></span>
+            </a>
+          
         </span>
       </h4>
     </div>
@@ -1566,6 +1570,15 @@ Once the templates are available, you can send blueprint with the description of
               <span class="badge badge_post">post <span class="glyphicon glyphicon-lock" title="Authentication required"></span></span>
               <div class="method_description">
 <p>Clone a template repository and make the templates available to the ZeroRobot</p>
+
+              </div>
+              <div class="clearfix"></div>
+            </div>
+          
+            <div onclick="window.location.href = '#templates_put'" class="list-group-item">
+              <span class="badge badge_put">put <span class="glyphicon glyphicon-lock" title="Authentication required"></span></span>
+              <div class="method_description">
+<p>Checkout a certain branch/tag/revision of a template repository</p>
 
               </div>
               <div class="clearfix"></div>
@@ -2059,7 +2072,7 @@ Need to be under one of these format</p>
     
   
 
-<p>branch of the repository to clone. If not specified, default to master</p>
+<p>branch/tag/revision of the repository to clone. If not specified, default to master</p>
 
 
   
@@ -2324,6 +2337,381 @@ There are different informations extracted from</p>
 
                 
                   <div class="tab-pane" id="templates_post_securedby">
+                    
+                      
+                      <h1>Secured by iyo</h1>
+
+                      
+                        <h3>Headers</h3>
+                        <ul>
+                          
+                            <li>
+  <strong>Authorization</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+<p>JWT given by ItYouOnline
+It needs to contains the "user:memberof:<org>" scope, where <org> is the organization authorized to access the robot.</p>
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                          
+                        </ul>
+                      
+
+                      
+
+                      
+                        <h2>HTTP status code <a href="http://httpstatus.es/401" target="_blank">401</a></h2>
+<p>Bad or expired token. This can happen if the user is revoked or an expired access token. To fix, re-authenticate
+the user.</p>
+
+                        
+
+                        
+
+                      
+                        <h2>HTTP status code <a href="http://httpstatus.es/403" target="_blank">403</a></h2>
+<p>Bad request wrong scope in the JWT. Unfortunately, re-authenticating the user won&#39;t help here.</p>
+
+                        
+
+                        
+
+                      
+
+                    
+                  </div>
+                
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    
+      <div class="modal fade" tabindex="0" id="templates_put">
+        <div class="modal-dialog modal-lg">
+          <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+              <h4 class="modal-title" id="myModalLabel">
+                <span class="badge badge_put">put <span class="glyphicon glyphicon-lock" title="Authentication required"></span></span>
+                <span class="parent"></span>/templates
+              </h4>
+            </div>
+
+            <div class="modal-body">
+              
+                <div class="alert alert-info">
+<p>Checkout a certain branch/tag/revision of a template repository</p>
+
+                </div>
+              
+
+              
+                
+                  
+                    <div class="alert alert-warning">
+                      
+                      <span class="glyphicon glyphicon-lock" title="Authentication required"></span>
+                      Secured by <b>iyo</b>
+                      
+                      
+<p>0-robot support authentication using a JWT containing the "user:memberof:" scope for an IYO organization</p>
+
+                      
+                    </div>
+                  
+                
+              
+
+              <!-- Nav tabs -->
+              <ul class="nav nav-tabs">
+                
+                  <li class="active">
+                    <a href="#templates_put_request" data-toggle="tab">Request</a>
+                  </li>
+                
+
+                
+                  <li>
+                    <a href="#templates_put_response" data-toggle="tab">Response</a>
+                  </li>
+                
+
+                
+                  <li>
+                    <a href="#templates_put_securedby" data-toggle="tab">Security</a>
+                  </li>
+                
+              </ul>
+
+              <!-- Tab panes -->
+              <div class="tab-content">
+                
+                  <div class="tab-pane active" id="templates_put_request">
+                    
+
+                    
+
+                    
+
+                    
+
+                    
+
+                    
+                      <h3>Body</h3>
+                      
+                        <p><strong>Media type</strong>: application/json</p>
+
+                        
+                          
+                            
+                              <p><strong>Type</strong>: object</p>
+                            
+                          
+                        
+
+                        
+
+                        
+
+                        
+                          <strong>Properties</strong>
+                          <ul>
+                            
+                              <li>
+  <strong>url</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+<p>URL of the git repository to clone.
+Need to be under one of these format</p>
+<ul>
+<li>git@github.com:account/repository.git</li>
+<li><a href="https://github.com/account/repository.git">https://github.com/account/repository.git</a></li>
+</ul>
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                            
+                              <li>
+  <strong>branch</strong>:
+
+    
+      <em>(string - default: master)
+      </em>
+    
+  
+
+<p>branch/tag/revision of the repository to clone. If not specified, default to master</p>
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                            
+                          </ul>
+                        
+
+                        
+                        
+                        
+    <p><strong>Example</strong>:</p>
+    <div class="examples">
+        
+            
+            <pre><code>{
+  "url": "https://github.com/account/repository.git",
+  "branch": "master"
+}</code></pre>
+        
+    </div>
+
+                      
+                    
+                  </div>
+                
+
+                
+                  <div class="tab-pane" id="templates_put_response">
+                    
+                      <h2>HTTP status code <a href="http://httpstatus.es/200" target="_blank">200</a></h2>
+<p>Template repository updated successfully</p>
+
+
+                      
+
+                      
+                    
+                      <h2>HTTP status code <a href="http://httpstatus.es/404" target="_blank">404</a></h2>
+<p>Template repository not cloned yet. can&#39;t update to a certain branch/tag/revision</p>
+
+
+                      
+
+                      
+                        <h3>Body</h3>
+                        
+                          <p><strong>Media type</strong>: application/json</p>
+
+                          
+                            
+                              
+                                <p><strong>Type</strong>: object</p>
+                              
+                            
+                          
+
+                          
+
+                          
+
+                          
+                            <strong>Properties</strong>
+                            <ul>
+                              
+                                <li>
+  <strong>code</strong>:
+
+    
+      <em>required (integer)
+      </em>
+    
+  
+
+<p>error code</p>
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                              
+                                <li>
+  <strong>message</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+<p>Human friendly error message</p>
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                              
+                                <li>
+  <strong>stack_trace</strong>:
+
+    
+      <em>(string)
+      </em>
+    
+  
+
+<p>optional stack_trace attached with the error.</p>
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                              
+                            </ul>
+                          
+
+                          
+                          
+                          
+                        
+                      
+                    
+                  </div>
+                
+
+                
+                  <div class="tab-pane" id="templates_put_securedby">
                     
                       
                       <h1>Secured by iyo</h1>

@@ -12,6 +12,7 @@ from zerorobot.service_collection import ServiceConflictError
 from zerorobot.service_proxy import ServiceProxy
 from zerorobot.template_uid import TemplateUID
 from zerorobot.service_collection import ServiceNotFoundError, TooManyResults
+from zerorobot.git.repo import RepoCheckoutError
 
 logger = j.logger.get('zerorobot')
 
@@ -215,6 +216,23 @@ class TemplatesMgr:
         }
         repo, _ = self._client.api.templates.AddTemplateRepo(data)
         return repo
+
+    def checkout_repo(self, url, revision='master'):
+        """
+        Checkout a branch/tag/revision of a template repository
+
+        @param url: url of the template repo
+        @param revision: branch, tag or revision to checkout
+        """
+        data = {
+            "url": url,
+            "branch": revision,
+        }
+        try:
+            self._client.api.templates.CheckoutVersionTemplateRepo(data)
+        except HTTPError as err:
+            e = err.response.json()
+            raise RepoCheckoutError(e['message'], err)
 
     @property
     def uids(self):

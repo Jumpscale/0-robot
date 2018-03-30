@@ -23,3 +23,12 @@ def AddTemplateRepo():
     It is handler for POST /templates
     """
     return handlers.AddTemplateRepoHandler()
+
+
+@templates_api.route('/templates', methods=['PUT'])
+def CheckoutVersionTemplateRepo():
+    """
+    Checkout a certain branch/tag/revision of a template repository
+    It is handler for PUT /templates
+    """
+    return handlers.CheckoutVersionTemplateRepoHandler()

@@ -56,7 +56,7 @@ types:
           - https://github.com/account/repository.git
       branch:
         type: string
-        description: branch of the repository to clone. If not specified, default to master
+        description: branch/tag/revision of the repository to clone. If not specified, default to master
         default: master
         required: false
     example:
@@ -348,6 +348,19 @@ types:
         body:
           description: List of all new templates
           type: Template[]
+  put:
+    displayName: CheckoutVersionTemplateRepo
+    description: Checkout a certain branch/tag/revision of a template repository
+    body:
+      type: TemplateRepository
+    responses:
+      204:
+        description: Template repository updated successfully
+      404:
+        description: Template repository not cloned yet. can't update to a certain branch/tag/revision
+        body:
+          type: Error
+
 /services:
   description: |
     Services are the core of the ZeroRobot. It is the services that hold state, data and execute actions.

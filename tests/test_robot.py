@@ -3,7 +3,7 @@ import unittest
 
 from gevent import monkey
 from zerorobot.robot import Robot
-from zerorobot import giturl
+from zerorobot.git import url as giturl
 from zerorobot import config
 
 # need to patch sockets to make requests async

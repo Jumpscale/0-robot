@@ -2,7 +2,8 @@
 data_repo module hold the logic of the configuration of the jumpscale configuration repository
 """
 
-from zerorobot import auto_pusher, config, giturl
+from zerorobot import auto_pusher, config
+from zerorobot.git import url as giturl
 from js9 import j
 import os
 

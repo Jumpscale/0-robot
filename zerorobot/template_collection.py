@@ -9,9 +9,9 @@ import sys
 
 from js9 import j
 from zerorobot import service_collection as scol
+from zerorobot import git
 from zerorobot.service_collection import ServiceConflictError
 from zerorobot.template_uid import TemplateUID
-from zerorobot import giturl
 
 logger = j.logger.get('zerorobot')
 
@@ -25,7 +25,7 @@ def add_repo(url, branch=None, directory='templates'):
     directory: the path to the directory where the templates are located in the repository
     """
     new_templates = []
-    dir_path = giturl.git_path(url)
+    dir_path = git.url.git_path(url)
 
     if not os.path.exists(dir_path):
         if branch is None:
@@ -88,7 +88,7 @@ def _load_template(url, template_dir):
 
     class_ = eval('module.%s' % class_name)
 
-    _, host, account, repo = giturl.parse(url)
+    _, host, account, repo = git.url.parse(url)
 
     class_.template_uid = TemplateUID.parse("%s/%s/%s/%s/%s" % (host, account, repo, template_name, class_.version))
 
@@ -114,6 +114,21 @@ def instantiate_service(template, name=None, data=None):
 
     scol.add(service)
     return service
+
+
+def checkout_repo(url, revision='master'):
+    dir_path = git.url.git_path(url)
+
+    if not os.path.exists(dir_path):
+        raise TemplateNotFoundError()
+
+    repo = git.repo.Repo(dir_path)
+    repo.fetch()
+
+    repo.repo.checkout(revision)
+    t, _ = repo.branch_or_tag()
+    if t == 'branch':
+        repo.pull()
 
 
 class TemplateNameError(Exception):

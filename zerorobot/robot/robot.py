@@ -11,7 +11,8 @@ from gevent.pywsgi import WSGIServer
 from js9 import j
 from zerorobot import service_collection as scol
 from zerorobot import template_collection as tcol
-from zerorobot import auto_pusher, config, giturl
+from zerorobot import auto_pusher, config
+from zerorobot.git import url as giturl
 from zerorobot.prometheus.flask import monitor
 from zerorobot.server.app import app
 from zerorobot.server.middleware import authenticate

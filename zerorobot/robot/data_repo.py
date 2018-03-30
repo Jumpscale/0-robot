@@ -2,9 +2,10 @@
 data_repo module hold the logic of the configuration of the jumpscale configuration repository
 """
 
-from zerorobot import giturl
-from js9 import j
 import os
+
+from js9 import j
+from zerorobot.git import url as giturl
 
 
 def ensure(path=None):
