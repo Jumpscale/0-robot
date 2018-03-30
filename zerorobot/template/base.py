@@ -76,19 +76,29 @@ class GreenletsMgr:
     def get(self, key):
         return self.gls[key]
 
-    def stop(self, key):
+    def stop(self, key, wait=False, timeout=None):
+        """
+        stop the greenlet identify by key
+        if wait is true, the method blocks until the greenlet has exited
+        you can put a timeout when wait is true, to limit the amount of second to wait
+        """
         try:
             gl = self.get(key)
-            gl.kill()
+            gl.kill(block=wait, timeout=timeout)
             del self.gls[key]
         except KeyError:
             pass
 
-    def stop_all(self, wait=False):
+    def stop_all(self, wait=False, timeout=None):
+        """
+        stop all the greenlets
+        if wait is true, the method blocks until the all greenlet have exited
+        you can put a timeout when wait is true, to limit the amount of second to wait
+        """
         for gl in self.gls.values():
-            gl.kill()
+            gl.kill(block=False)
         if wait:
-            gevent.wait(list(self.gls.values()))
+            gevent.wait(list(self.gls.values()), timeout=timeout)
 
 
 class TemplateBase:
@@ -269,7 +279,7 @@ class TemplateBase:
         """
         self.logger.info("deleting service %s (%s)", self.name, self.guid)
         # stop all recurring action
-        self.gl_mgr.stop_all(wait=True)
+        self.gl_mgr.stop_all(wait=True, timeout=5)
 
         # close ressources of logging handlers
         for h in self.logger.handlers:
