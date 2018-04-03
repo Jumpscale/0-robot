@@ -1,5 +1,6 @@
 import logging
 import os
+import shlex
 import signal
 import time
 
@@ -17,6 +18,7 @@ from zerorobot.prometheus.flask import monitor
 from zerorobot.server.app import app
 from zerorobot.server.middleware import authenticate
 from zerorobot.task import PRIORITY_SYSTEM
+
 from . import config_repo, data_repo
 
 # create logger
@@ -97,7 +99,7 @@ class Robot:
             monitor(app)
 
         # configure authentication middleware
-        jwt_organization = jwt_organization or _read_cmdline().get('BOOT_IMAGE')
+        jwt_organization = jwt_organization or _read_cmdline().get('organization')
         if jwt_organization:
             logger.info("JWT authentication enabled for organization: %s" % jwt_organization)
             authenticate(app, allowed_scopes=['user:memberof:%s' % jwt_organization])
@@ -265,7 +267,8 @@ def _read_cmdline():
 
     args = {}
     line = line.strip()
-    for kv in line.split(' '):
-        k, v = kv.split('=')
-        args[k] = v
+    for kv in shlex.split(line):
+        ss = kv.split('=', 1)
+        if len(ss) == 2:
+            args[ss[0]] = ss[1]
     return args
