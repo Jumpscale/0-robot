@@ -1,7 +1,6 @@
 [startup.zrobot]
 name = "bash"
 protected = true #set protected to true to respawn the container if it crashed
-running_delay = -1
 
 
 [startup.zrobot.args]
