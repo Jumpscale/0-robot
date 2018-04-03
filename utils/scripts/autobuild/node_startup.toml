@@ -1,15 +1,32 @@
-[startup.openport]
+[startup."zrobot-port"]
 name = "nft.open_port"
 after = ["net"]
 
-[startup.openport.args]
+[startup."zrobot-port".args]
 port = 6600
+
+[startup."zrobot-vol"]
+name = "bash"
+running_delay = -1
+
+[startup."zrobot-vol".args]
+script = """
+set -e
+
+ROOT=/var/cache
+
+btrfs subvol create ${ROOT}/zrobot || true
+
+for dir in ssh data config jsconfig; do
+    mkdir -p ${ROOT}/zrobot/${dir}
+done
+"""
 
 [startup.zrobot]
 name = "corex.create-sync"
 tags = ["zrobot"] #container tags
 protected = true #set protected to true to respawn the container if it crashed
-after = ["net", "openport"]
+after = ["zrobot-port", "zrobot-vol"]
 
 [startup.zrobot.args]
 root = "https://hub.gig.tech/gig-autobuilder/zero-os-0-robot-autobuild.flist"
@@ -23,3 +40,9 @@ nics = [{type="default"}]
 env = {LC_ALL="C.UTF-8", LANG="C.UTF-8"}
 organization = "{organization}"
 
+[startup.zrobot.args.mount]
+"/var/cache/zrobot/ssh" = "/root/.ssh"
+"/var/cache/zrobot/data" = "/opt/code/zrobot/zrobot_data"
+"/var/cache/zrobot/config" = "/opt/code/zrobot/config"
+"/var/cache/zrobot/jsconfig" = "/js9host/cfg"
+"/var/run/redis.sock" = "/tmp/redis.sock"
