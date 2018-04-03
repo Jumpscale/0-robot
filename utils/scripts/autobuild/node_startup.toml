@@ -38,7 +38,6 @@ host_network = false
 port = {6600=6600}
 nics = [{type="default"}]
 env = {LC_ALL="C.UTF-8", LANG="C.UTF-8"}
-organization = "{organization}"
 
 [startup.zrobot.args.mount]
 "/var/cache/zrobot/ssh" = "/root/.ssh"
