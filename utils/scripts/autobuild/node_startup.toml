@@ -36,6 +36,8 @@ host_network = false
 port = {6600=6600}
 nics = [{type="default"}]
 
+#mount all zrobot essential directories
+#on persisted cache
 [startup.zrobot.args.mount]
 "/var/cache/zrobot/ssh" = "/root/.ssh"
 "/var/cache/zrobot/data" = "/opt/code/zrobot/zrobot_data"
