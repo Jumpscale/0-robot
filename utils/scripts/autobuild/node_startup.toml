@@ -24,20 +24,17 @@ done
 
 [startup.zrobot]
 name = "corex.create-sync"
-tags = ["zrobot"] #container tags
-protected = true #set protected to true to respawn the container if it crashed
+tags = ["zrobot"]
+protected = true
 after = ["zrobot-port", "zrobot-vol"]
 
 [startup.zrobot.args]
 root = "https://hub.gig.tech/gig-autobuilder/zero-os-0-robot-autobuild.flist"
 name = "zrobot"
-privileged = false # or true depends on your need
+privileged = false
 host_network = false
-# all other container create arguments are supported
-#mounts = ? # probably need something from /var/cache for persistence
 port = {6600=6600}
 nics = [{type="default"}]
-env = {LC_ALL="C.UTF-8", LANG="C.UTF-8"}
 
 [startup.zrobot.args.mount]
 "/var/cache/zrobot/ssh" = "/root/.ssh"
