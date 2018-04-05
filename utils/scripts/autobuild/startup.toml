@@ -8,5 +8,16 @@ script = """
 export LC_ALL=C.UTF-8
 export LANG=C.UTF-8
 
+mkdir -p /opt/code/local/stdorg/config/j.clients.zero_os
+cat > /opt/code/local/stdorg/config/j.clients.zero_os/local.toml << EOF
+db = 0
+host = '127.0.0.1'
+password_ = ''
+port = 6379
+ssl = true
+timeout = 120
+unixsocket = '/tmp/redis.sock'
+EOF
+
 exec /usr/local/bin/zrobot server start -T http://github.com/zero-os/0-templates
 """
