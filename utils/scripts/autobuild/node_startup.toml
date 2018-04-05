@@ -40,7 +40,7 @@ nics = [{type="default"}]
 #on persisted cache
 [startup.zrobot.args.mount]
 "/var/cache/zrobot/ssh" = "/root/.ssh"
-"/var/cache/zrobot/data" = "/opt/code/zrobot/zrobot_data"
-"/var/cache/zrobot/config" = "/opt/code/zrobot/config"
+"/var/cache/zrobot/data" = "/opt/var/data/zrobot/zrobot_data"
+"/var/cache/zrobot/config" = "/opt/code/local/stdorg/config"
 "/var/cache/zrobot/jsconfig" = "/js9host/cfg"
 "/var/run/redis.sock" = "/tmp/redis.sock"
