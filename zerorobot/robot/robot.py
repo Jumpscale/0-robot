@@ -14,6 +14,7 @@ from zerorobot import service_collection as scol
 from zerorobot import template_collection as tcol
 from zerorobot import auto_pusher, config
 from zerorobot.git import url as giturl
+from zerorobot.template_uid import TemplateUID
 from zerorobot.prometheus.flask import monitor
 from zerorobot.server.app import app
 from zerorobot.server.middleware import authenticate
@@ -169,7 +170,17 @@ class Robot:
             if not os.path.exists(info_path):
                 continue
             service_info = j.data.serializer.yaml.load(info_path)
-            tmplClass = tcol.get(service_info['template'])
+
+            try:
+                tmplClass = tcol.get(service_info['template'])
+            except tcol.TemplateNotFoundError:
+                # if the template is not found
+                # try to add the repo using the info of the service template uid
+                tmpl_uid = TemplateUID.parse(service_info['template'])
+                url = "http://%s/%s/%s" % (tmpl_uid.host, tmpl_uid.account, tmpl_uid.repo)
+                tcol.add_repo(url)
+                tmplClass = tcol.get(service_info['template'])
+
             srv = scol.load(tmplClass, srv_dir)
 
         loading_failed = []
