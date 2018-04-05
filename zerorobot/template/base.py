@@ -308,7 +308,7 @@ class TemplateBase:
 
         @param data: is a dict with the new schema data
         """
-        self.data.update(data)
+        pass
 
 
 def _recurring_action(service, action, period):

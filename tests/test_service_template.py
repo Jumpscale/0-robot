@@ -165,7 +165,7 @@ class TestServiceTemplate(unittest.TestCase):
         t.wait()
         assert t.result == {'other': 'xxx'}, "action should be able to use **kwargs"
 
-    def test_update_secure(self):
+    def test_update_secure_not_overwrite(self):
         Node = self.load_template('node')
         srv = tcol.instantiate_service(Node, 'testnode')
         self.assertEqual(srv.data['ip'], '')
@@ -176,10 +176,24 @@ class TestServiceTemplate(unittest.TestCase):
         task = srv.data.update_secure(data={'ip': '127.0.0.1'})
         task.wait()
         self.assertEqual(task.action_name, 'update_data')
-        self.assertEqual(srv.data['ip'], '127.0.0.1')
+        # if the template doesn't overwrite update_data, the data should not be updated
+        self.assertEqual(srv.data['ip'], '')
 
         # should be a noop and not fail if data is None
         srv.data.update_secure(None)
+
+    def test_update_secure_overwrite(self):
+        Node = self.load_template('node_updatedata')
+        srv = tcol.instantiate_service(Node, 'testnode')
+        self.assertEqual(srv.data['ip'], '')
+
+        with self.assertRaises(ValueError, message='should raise value error when trying to update data with a non dict object'):
+            srv.data.update_secure(data='string')
+
+        task = srv.data.update_secure(data={'ip': '127.0.0.1'})
+        task.wait()
+        self.assertEqual(task.action_name, 'update_data')
+        self.assertEqual(srv.data['ip'], '127.0.0.1', 'if the template overwrite update_data, the data should be updated')
 
     def test_recurring(self):
         tmpl = self.load_template('recurring')
