@@ -14,13 +14,11 @@ from zerorobot import service_collection as scol
 from zerorobot import template_collection as tcol
 from zerorobot import auto_pusher, config
 from zerorobot.git import url as giturl
-from zerorobot.template_uid import TemplateUID
 from zerorobot.prometheus.flask import monitor
 from zerorobot.server.app import app
 from zerorobot.server.middleware import authenticate
-from zerorobot.task import PRIORITY_SYSTEM
 
-from . import config_repo, data_repo
+from . import config_repo, data_repo, loader
 
 # create logger
 logger = j.logger.get('zerorobot')
@@ -127,7 +125,9 @@ class Robot:
         logger.info("robot running at %s:%s" % hostport)
 
         # load services from data repo
-        self._load_services()
+        loader.load_services(config.DATA_DIR)
+        # notify services that they can start processing their task list
+        config.SERVICE_LOADED.set()
 
         # only keep executed tasks for 2 hours
         gevent.spawn(_trim_tasks, 7200)
@@ -161,45 +161,6 @@ class Robot:
             # here no more requests are comming in, we can safely save all services
             self._save_services()
 
-    def _load_services(self):
-        if not os.path.exists(config.DATA_DIR):
-            os.makedirs(config.DATA_DIR)
-
-        for srv_dir in j.sal.fs.listDirsInDir(config.DATA_DIR, recursive=True):
-            info_path = os.path.join(srv_dir, 'service.yaml')
-            if not os.path.exists(info_path):
-                continue
-            service_info = j.data.serializer.yaml.load(info_path)
-
-            try:
-                tmplClass = tcol.get(service_info['template'])
-            except tcol.TemplateNotFoundError:
-                # if the template is not found
-                # try to add the repo using the info of the service template uid
-                tmpl_uid = TemplateUID.parse(service_info['template'])
-                url = "http://%s/%s/%s" % (tmpl_uid.host, tmpl_uid.account, tmpl_uid.repo)
-                tcol.add_repo(url)
-                tmplClass = tcol.get(service_info['template'])
-
-            srv = scol.load(tmplClass, srv_dir)
-
-        loading_failed = []
-        for service in scol.list_services():
-            try:
-                service.validate()
-            except Exception as err:
-                logger.error("fail to load %s: %s" % (service.guid, str(err)))
-                # the service is not going to process its task list until it can
-                # execute validate() without problem
-                service.gl_mgr.stop('executor')
-                loading_failed.append(service)
-
-        # notify services that they can start processing their task list
-        config.SERVICE_LOADED.set()
-
-        if len(loading_failed) > 0:
-            gevent.spawn(_try_load_service, loading_failed)
-
     def _save_services(self):
         """
         serialize all the services on disk
@@ -208,28 +169,6 @@ class Robot:
             # stop all the greenlets attached to the services
             service.gl_mgr.stop_all()
             service.save()
-
-
-def _try_load_service(services):
-    """
-    this method tries to execute `validate` method on the services that failed to load
-    when the robot started.
-    Once all failed services are back to normal, this function will exit
-    """
-    size = len(services)
-    while size > 0:
-        for service in services[:]:
-            try:
-                logger.debug("try to load %s again" % service.guid)
-                service.validate()
-                logger.debug("loading succeeded for %s" % service.guid)
-                # validate passed, service is healthy again
-                service.gl_mgr.add('executor', gevent.Greenlet(service._run))
-                services.remove(service)
-            except:
-                logger.debug("loading failed again for %s" % service.guid)
-        gevent.sleep(10)  # fixme: why 10 ? why not?
-        size = len(services)
 
 
 def _trim_tasks(period=7200):  # default 2 hours ago

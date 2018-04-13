@@ -74,9 +74,8 @@ def load(template, base_path):
     service_data = j.data.serializer.yaml.load(os.path.join(base_path, 'data.yaml'))
 
     template_uid = TemplateUID.parse(service_info['template'])
-    if template_uid != template.template_uid:
-        raise BadTemplateError("Trying to load service %s with template %s, while it requires %s"
-                               % (guid, template.template_uid, service_info['template']))
+    if template_uid > template.template_uid:
+        raise BadTemplateError("Trying to load service %s with template %s, while it requires %s or higher" % (guid, template.template_uid, service_info['template']))
 
     if service_info['guid'] != guid:
         raise BadTemplateError("Trying to load service from folder %s, but name of the service is %s"
@@ -99,6 +98,12 @@ def upgrade(service, new_template, force=False):
 
     logger.info("upgrade service %s (%s) to %s", service.name, service.guid, new_template.template_uid)
     service.template_uid = new_template.template_uid
+
+    # if there is a task running for this service, wait for it to finish, before stopping the service
+    current_task = service.task_list.current
+    if current_task is not None:
+        current_task.wait(timeout=300)  # FIXME: fixed timeout, no timeout ?
+
     # stop the services
     service.gl_mgr.stop_all(wait=True)
     service.save()

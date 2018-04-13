@@ -34,15 +34,6 @@ def GetService(service_guid):
     return handlers.GetServiceHandler(service_guid)
 
 
-@services_api.route('/services/<service_guid>', methods=['PUT'])
-def UpgradeService(service_guid):
-    """
-    Upgrade a service from one version to another
-    It is handler for PUT /services/<service_guid>
-    """
-    return handlers.UpgradeServiceHandler(service_guid)
-
-
 @services_api.route('/services/<service_guid>', methods=['DELETE'])
 def DeleteService(service_guid):
     """

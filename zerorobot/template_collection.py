@@ -7,6 +7,8 @@ import importlib.util
 import os
 import sys
 
+from gevent.pool import Pool
+
 from js9 import j
 from zerorobot import service_collection as scol
 from zerorobot import git
@@ -57,6 +59,26 @@ def get(uid):
     if uid not in _templates:
         raise TemplateNotFoundError("template with name %s not found" % str(uid))
     return _templates[uid]
+
+
+def find(host=None, account=None, repo=None, name=None, version=None):
+    """
+    search for a template based on the part of the template UID
+    """
+    match = []
+    for uid, template in _templates.items():
+        if host and uid.host != host:
+            continue
+        if account and uid.account != account:
+            continue
+        if repo and uid.repo != repo:
+            continue
+        if name and uid.name != name:
+            continue
+        if version and uid.version != version:
+            continue
+        match.append(template)
+    return match
 
 
 def list_templates():
@@ -134,10 +156,16 @@ def checkout_repo(url, revision='master'):
     # load the new templates
     logger.info("reload templates")
     updated_templates = add_repo(url)
+
+    # pool of greenlet used to upgrade service concurrently
+    pool = Pool(25)
     for template in updated_templates:
-        for service in scol.find(template_uid=str(template.template_uid)):
-            logger.info("upgrading %s", service)
-            scol.upgrade(service, template, force=True)
+        for service in scol.find(template_host=template.template_uid.host,
+                                 template_account=template.template_uid.account,
+                                 template_repo=template.template_uid.repo,
+                                 template_name=template.template_uid.name):
+            pool.spawn(scol.upgrade, service, template, True)
+    pool.join(raise_error=True)
 
 
 class TemplateNameError(Exception):

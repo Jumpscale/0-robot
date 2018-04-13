@@ -107,18 +107,6 @@ class ServicesMgr:
         except scol.ServiceNotFoundError:
             return self.create(template_uid=template_uid, service_name=service_name, data=data)
 
-    def upgrade(self, service_guid, template_uid):
-        """
-        upgrade the template version of a service
-        can raise ServiceNotFoundError and TemplateNotFound error
-
-        @param service: service guid
-        @param new_template_uid: template uid to be used as new template
-        """
-        new_template = tcol.get(template_uid)
-        service = scol.get_by_guid(service_guid)
-        return scol.upgrade(service, new_template)
-
 
 class TemplatesMgr:
 

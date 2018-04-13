@@ -156,14 +156,6 @@ types:
         tag: db
         state: ok
 
-  ServiceUpgradeRequest:
-    properties:
-      template:
-        type: string
-        description: UID of a template of the new version
-    example:
-      template: github.com/jumpscale/0-robot/node/0.0.2
-
   Action:
     properties:
       name:
@@ -354,7 +346,7 @@ types:
     body:
       type: TemplateRepository
     responses:
-      200:
+      204:
         description: Template repository updated successfully
       404:
         description: Template repository not cloned yet. can't update to a certain branch/tag/revision
@@ -440,20 +432,6 @@ types:
             type: Service
         404:
           description: Service with this guid not found
-          body:
-            type: Error
-    put:
-      displayName: UpgradeService
-      description: Upgrade a service from one version to another
-      body:
-        type: ServiceUpgradeRequest
-      responses:
-        200:
-          description: Service upgraded successfully
-          body:
-            type: Service
-        404:
-          description: Service with this guid not found or template version not found
           body:
             type: Error
     delete:

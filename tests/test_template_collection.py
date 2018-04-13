@@ -169,3 +169,32 @@ class TestTemplateCollection(unittest.TestCase):
             else:
                 with self.assertRaises(RuntimeError):
                     giturl.parse(test['url'])
+
+    def test_find(self):
+        assert tcol.find() == [], "find should return an empty list when there are no templates loaded"
+
+        # load some templates
+        dir_path = os.path.join(os.path.dirname(__file__), 'fixtures/templates/node')
+        tcol._load_template("https://github.com/zero-os/0-robot", dir_path)
+
+        assert tcol.find() != [], "find should not return an empty list when there are some templates loaded"
+        assert len(tcol.find()) == len(tcol.list_templates()), "find without argument should return the full list of loaded templates"
+
+        assert len(tcol.find(host='github.com')) != 0
+        assert len(tcol.find(host='gitlab.com')) == 0
+
+        assert len(tcol.find(account='zero-os')) != 0
+        assert len(tcol.find(account='nonexisting')) == 0
+
+        assert len(tcol.find(repo='0-robot')) != 0
+        assert len(tcol.find(repo='nonexisting')) == 0
+
+        assert len(tcol.find(name='node')) == 1
+        assert len(tcol.find(name='nonexisting')) == 0
+
+        assert len(tcol.find(version='0.0.1')) != 0
+        assert len(tcol.find(version='nonexisting')) == 0
+
+        found = tcol.find(host='github.com', account='zero-os', repo='0-robot', name='node', version='0.0.1')
+        assert len(found) == 1
+        assert str(found[0].template_uid) == 'github.com/zero-os/0-robot/node/0.0.1'

@@ -176,29 +176,6 @@ class ServicesMgr:
         except ServiceNotFoundError:
             return self.create(template_uid=template_uid, service_name=service_name, data=data)
 
-    def upgrade(self, service_guid, new_template_uid):
-        """
-        Upgrade a service to a new version
-
-        @param service: service guid
-        @param new_template_uid: template uid to be used as new template
-        """
-        if isinstance(new_template_uid, str):
-            new_template_uid = TemplateUID.parse(new_template_uid)
-
-        if new_template_uid not in self._robot.templates.uids:
-            raise TemplateNotFoundError("template %s not found" % new_template_uid)
-
-        req = {"template": str(new_template_uid)}
-        try:
-            new_service, resp = self._client.api.services.UpgradeService(data=req, service_guid=service_guid)
-        except HTTPError as err:
-            e = err.response.json()
-            raise ServiceUpgradeError(e['message'], err)
-
-        service = ServiceProxy(new_service.name, new_service.guid, self._client)
-        return service
-
 
 class TemplatesMgr:
 
