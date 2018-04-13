@@ -13,9 +13,11 @@ from zerorobot import template_collection as tcol
 from zerorobot import blueprint
 from zerorobot.service_collection import ServiceConflictError
 from zerorobot.template.base import BadActionArgumentError
-from zerorobot.template_collection import (TemplateNameError,
+from zerorobot.template_collection import (TemplateConflictError,
+                                           TemplateNameError,
                                            TemplateNotFoundError)
 from zerorobot.template_uid import TemplateUID
+
 from .views import task_view
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
@@ -37,7 +39,7 @@ def ExecuteBlueprintHandler():
 
     try:
         actions, services = blueprint.parse(inputs['content'])
-    except blueprint.BadBlueprintFormatError as err:
+    except (blueprint.BadBlueprintFormatError, TemplateConflictError, TemplateNotFoundError) as err:
         return JSON.dumps({'code': 400, 'message': str(err.args[1])}), 400, {"Content-type": 'application/json'}
 
     for service in services:
@@ -45,6 +47,8 @@ def ExecuteBlueprintHandler():
             _instanciate_services(service)
         except TemplateNotFoundError:
             return JSON.dumps({'code': 404, 'message': "template '%s' not found" % service['template']}), 404, {"Content-type": 'application/json'}
+        except (TemplateConflictError, TemplateNotFoundError) as err:
+            return JSON.dumps({'code': 400, 'message': err.args[0]}), 404, {"Content-type": 'application/json'}
 
     tasks_created = []
     for action_item in actions:

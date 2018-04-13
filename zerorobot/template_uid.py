@@ -35,8 +35,6 @@ class TemplateUID:
         parse supports forms:
         complete uid: github.com/account/repository/name/version
         without version: github.com/account/repository/name
-        name and version: name/version
-        just the name: name
         """
         host, account, repo, name, version = None, None, None, None, None
 
@@ -50,10 +48,6 @@ class TemplateUID:
             host, account, repo, name, version = ss
         elif len(ss) == 4:
             host, account, repo, name = ss
-        elif len(ss) == 2:
-            name, version = ss
-        elif len(ss) == 1:
-            name = ss[0]
         else:
             raise ValueError("format of the template uid (%s) not valid" % uid)
 

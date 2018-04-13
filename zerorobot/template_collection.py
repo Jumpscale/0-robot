@@ -48,14 +48,37 @@ def add_repo(url, branch=None, directory='templates'):
 
 
 def get(uid):
-    """
-    @uid: unique identifier for a template.
-    Can be a string with valid format as : 'github.com/account/repository/name/version'
-    or
-    a zerorobot.template_collection.TemplateUID object
+    """Get a template class
+
+    Arguments:
+        uid {string|TemplateUID} -- unique identifier for a template.
+                                    Can be a string with valid format as : 'github.com/account/repository/name/version'
+                                    or a zerorobot.template_collection.TemplateUID object
+                                    or a string which is the name of the template you want
+                                    if 2 templates are loaded that have the same name TemplateConflictError is raised
+
+    Raises:
+        TemplateNotFoundError -- template with specified uid is not found
+        TemplateConflictError -- raise if 2 templates have the same name is raised
+
+    Returns:
+        [TemplateBase] -- return the template class
     """
     if isinstance(uid, str):
-        uid = TemplateUID.parse(uid)
+        try:
+            uid = TemplateUID.parse(uid)
+        except ValueError:
+            # uid is not a full template uid, try with only its name
+            templates = find(name=uid)
+            size = len(templates)
+            if size > 1:
+                raise TemplateConflictError("tried to get template with name %s, but more then one template have this name (%s)",
+                                            uid, ','.join(templates))
+            elif size <= 0:
+                raise TemplateNotFoundError("template with name %s not found" % str(uid))
+            else:
+                return templates[0]
+
     if uid not in _templates:
         raise TemplateNotFoundError("template with name %s not found" % str(uid))
     return _templates[uid]
@@ -176,5 +199,13 @@ class TemplateNotFoundError(KeyError):
     """
     This exception is raised when trying to create a service
     from a template that doesn't exists
+    """
+    pass
+
+
+class TemplateConflictError(Exception):
+    """
+    This exception is raised when trying to get a template with its name
+    and 2 templates have te same name, so we can't decide which one to retrn
     """
     pass

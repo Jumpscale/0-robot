@@ -11,6 +11,7 @@ import yaml
 
 from js9 import j
 from zerorobot.template_uid import TemplateUID
+from zerorobot import template_collection as tcol
 
 
 def parse(content):
@@ -105,33 +106,6 @@ def _parse_service(key, data):
     # TODO: move this into name_validation function
     validate_service_name(name)
     validate_template_uid(template)
-    # if ":" in name:
-    #     raise BadBlueprintFormatError("service names (%s) cannot contain colons (:)" % name)
-    # if ":" in template:
-    #     raise BadBlueprintFormatError("template names (%s) cannot contain colons (:)" % template)
-
-    # TODO: re-enabled when template alias is implemented
-    # if template.find(".") != -1:
-    #     rolefound, _ = template.split(".", 1)
-    # else:
-    #     rolefound = template
-    # if role != "" and role != rolefound:
-    #     self.logger.info(
-    #         "ignore load from blueprint based on role for: %s:%s" % (template, name))
-    #     continue
-
-    # check if we can find template and if not then check if there is a blueprint.  name...
-    # if not self.aysrepo.templateExists(template) and not template.startswith('blueprint.'):
-    #     blueaysname = 'blueprint.%s' % template
-    #     if self.aysrepo.templateExists(blueaysname):
-    #         template = blueaysname
-
-    # if not self.aysrepo.templateExists(template):
-    #     raise j.exceptions.Input(message="Cannot find actor:%s" %
-    #                              template, level=1, source="", tags="", msgpub="")
-    # actor = self.aysrepo.actorGet(template, context=context)
-    # args = {} if item is None else item
-    # await actor.asyncServiceCreate(instance=name, args=args, context=context)
 
     return {
         'template': template,
@@ -154,10 +128,9 @@ def validate_template_uid(uid):
     """
     Validates that template have valid name
     """
-    try:
-        TemplateUID.parse(uid)
-    except ValueError:
-        raise BadBlueprintFormatError("Template uid not valid")
+    # now that we can reference template just with the name,
+    # just return true here, and more validation will happens
+    # later when instantiating services
     return True
 
 

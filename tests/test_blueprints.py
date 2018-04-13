@@ -37,7 +37,7 @@ class TestBlueprintParsing(unittest.TestCase):
             self.assertEqual(action['service'], 'node1')
             self.assertIn(action['action'], ['start', 'monitor'])
 
-        self.assertEqual(len(services), 1)
+        self.assertEqual(len(services), 2)
         self.assertEqual(services[0]['template'], 'github.com/zero-os/0-robot/node/0.0.1')
         self.assertEqual(services[0]['service'], 'node1')
         self.assertDictEqual(services[0]['data'], {'foo': 'bar'})
@@ -75,13 +75,6 @@ class TestBlueprintParsing(unittest.TestCase):
             blueprint.parse(content)
         err = cm.exception
         self.assertEqual(err.args[1], "Service name should be digits or alphanumeric. you passed [node1$bad]")
-
-    def test_bad_template_name(self):
-        content = self.read_bp('bad_template_name.bp')
-        with self.assertRaises(blueprint.BadBlueprintFormatError) as cm:
-            blueprint.parse(content)
-        err = cm.exception
-        self.assertEqual(err.args[1], "Template uid not valid")
 
 
 class TestBlueprintExecution(unittest.TestCase):

@@ -8,21 +8,15 @@ We keep this logic in this repository itself and not jumpscale so we don't sprea
 from requests.exceptions import HTTPError
 
 from js9 import j
-from zerorobot.service_collection import ServiceConflictError
-from zerorobot.service_proxy import ServiceProxy
-from zerorobot.template_uid import TemplateUID
-from zerorobot.service_collection import ServiceNotFoundError, TooManyResults
 from zerorobot.git.repo import RepoCheckoutError
+from zerorobot.service_collection import (ServiceConflictError,
+                                          ServiceNotFoundError, TooManyResults)
+from zerorobot.service_proxy import ServiceProxy
+from zerorobot.template_collection import (TemplateConflictError,
+                                           TemplateNotFoundError)
+from zerorobot.template_uid import TemplateUID
 
 logger = j.logger.get('zerorobot')
-
-
-class TemplateNotFoundError(Exception):
-    """
-    This exception is raised when trying to create a service
-    from a template that doesn't exists
-    """
-    pass
 
 
 class ServiceCreateError(Exception):
@@ -133,12 +127,6 @@ class ServicesMgr:
         @param service_name: name of the service, needs to be unique within the robot instance
         @param data: a dictionnary with the data of the service to create
         """
-        if isinstance(template_uid, str):
-            template_uid = TemplateUID.parse(template_uid)
-
-        if template_uid not in self._robot.templates.uids:
-            raise TemplateNotFoundError("template %s not found" % template_uid)
-
         req = {
             "template": str(template_uid),
             "version": "0.0.1",
@@ -151,13 +139,22 @@ class ServicesMgr:
         try:
             new_service, resp = self._client.api.services.createService(req)
         except HTTPError as err:
+            jsonerr = err.response.json()
+            msg = jsonerr['message']
+            code = jsonerr['code']
             if err.response.status_code == 409:
-                raise ServiceConflictError(err.response.json()['message'], None)
+                if code == 409:
+                    raise ServiceConflictError(msg, None)
+                if code == 4090:
+                    raise TemplateConflictError(msg)
+            elif err.response.status_code == 404:
+                raise TemplateNotFoundError(msg)
+
             e = err.response.json()
             logger.error('fail to create service: %s' % e['message'])
             raise ServiceCreateError(e['message'], err)
 
-        service = ServiceProxy(new_service.name, new_service.guid, self._client)
+        service = self._instantiate(new_service)
         return service
 
     def find_or_create(self, template_uid, service_name, data):

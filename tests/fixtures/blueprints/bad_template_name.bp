@@ -1,3 +1,0 @@
-services:
-  - node$bad__node1:
-      foo: bar

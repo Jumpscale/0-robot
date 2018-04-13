@@ -22,7 +22,7 @@ class TestTemplateCollection(unittest.TestCase):
         with self.assertRaises(Exception, msg='loading non existing template should fail'):
             tcol._load_template("/not/existing/path", file_path)
 
-    def test_get_template(self):
+    def test_get_template_uid(self):
         dir_path = os.path.join(os.path.dirname(__file__), 'fixtures/templates/node')
         tcol._load_template("https://github.com/zero-os/0-robot", dir_path)
         self.assertGreater(len(tcol._templates), 0, 'should have loaded template, actual loaded')
@@ -33,6 +33,19 @@ class TestTemplateCollection(unittest.TestCase):
 
         with self.assertRaises(TemplateNotFoundError, msg="should raise TemplateNotFoundError"):
             tcol.get('github.com/zero-os/0-robot/noexists/0.0.1')
+
+    def test_get_template_name(self):
+        dir_path = os.path.join(os.path.dirname(__file__), 'fixtures/templates/node')
+        tcol._load_template("https://github.com/zero-os/0-robot", dir_path)
+        self.assertGreater(len(tcol._templates), 0, 'should have loaded template, actual loaded')
+
+        template = tcol.get('node')
+        self.assertTrue(template is not None)
+        self.assertEqual(template.template_dir, dir_path)
+        self.assertEqual(str(template.template_uid), 'github.com/zero-os/0-robot/node/0.0.1')
+
+        with self.assertRaises(TemplateNotFoundError, msg="should raise TemplateNotFoundError"):
+            tcol.get('noexists')
 
     def test_list_template(self):
         # valid template
@@ -86,14 +99,12 @@ class TestTemplateCollection(unittest.TestCase):
             },
             {
                 'uid': 'name/0.0.1',
-                'error': False,
-                'expected': ('name', '0.0.1'),
+                'error': True,
                 'name': 'name and 0.0.1',
             },
             {
                 'uid': 'name',
-                'error': False,
-                'expected': ('name',),
+                'error': True,
                 'name': 'just name',
             }
 

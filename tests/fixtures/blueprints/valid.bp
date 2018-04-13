@@ -1,6 +1,8 @@
 services:
   - github.com/zero-os/0-robot/node/0.0.1__node1:
       foo: bar
+  - node__node2:
+      foor: bar
 
 actions:
   - template: github.com/zero-os/0-robot/node/0.0.1

@@ -95,7 +95,7 @@ class TestZRobotAPI(unittest.TestCase):
         for addr in self.instances:
             self.assertIn(addr, self.api.robots.keys())
 
-    def test_service_create(self):
+    def test_service_create_uid(self):
         # make sure we don't have any template loaded in the current process
         tcol._templates = {}
         with self.assertRaises(TemplateNotFoundError, msg='trying to create a service from non handled template should raise '):
@@ -118,6 +118,35 @@ class TestZRobotAPI(unittest.TestCase):
 
         robot = self.api.robots['robot1']
         node = robot.services.create("github.com/zero-os/0-robot/node/0.0.1", 'node3')
+        self.assertEqual(type(node), ServiceProxy, "service create on remote robot should return ServiceProxy")
+        self.assertEqual(len(robot.services.guids), 1)
+        # ensure we can access the remote service from the robot object
+        robot.services.names[node.name]
+        robot.services.guids[node.guid]
+
+    def test_service_create_name(self):
+        # make sure we don't have any template loaded in the current process
+        tcol._templates = {}
+        with self.assertRaises(TemplateNotFoundError, msg='trying to create a service from non handled template should raise '):
+            self.api.services.create("node", 'node1')
+
+        # load template in current process
+        with tempfile.TemporaryDirectory(prefix="robotlocal") as tmpdir:
+            config.DATA_DIR = tmpdir
+            tcol.add_repo('http://github.com/zero-os/0-robot', directory='tests/fixtures/templates')
+            # now that we have some templates loaded, it should create a local service
+            node2 = self.api.services.create("node", 'node2')
+            self.assertTrue(isinstance(node2, TemplateBase))
+
+            # the api should get all services from the local robot only
+            self.assertEqual(len(self.api.services.names), 1)
+            self.assertEqual(len(self.api.services.guids), 1)
+            # make sure remote robot doesn't have service created on them
+            for robot in self.api.robots.values():
+                self.assertEqual(len(robot.services.names), 0)
+
+        robot = self.api.robots['robot1']
+        node = robot.services.create("node", 'node3')
         self.assertEqual(type(node), ServiceProxy, "service create on remote robot should return ServiceProxy")
         self.assertEqual(len(robot.services.guids), 1)
         # ensure we can access the remote service from the robot object
