@@ -1,12 +1,47 @@
 from setuptools import setup, find_packages
+from setuptools.command.install import install as _install
+from setuptools.command.develop import develop as _develop
+import os
+
+
+def _post_install(libname, libpath):
+    from js9 import j
+    # add this plugin to the config
+    c = j.core.state.configGet('plugins', defval={})
+    c[libname] = "%s/github/zero-os/0-robot/JumpScale9Zrobot" % j.dirs.CODEDIR
+    j.core.state.configSet('plugins', c)
+    j.tools.jsloader.generate()
+
+
+class install(_install):
+
+    def run(self):
+        _install.run(self)
+        libname = self.config_vars['dist_name']
+        libpath = os.path.join(os.path.dirname(
+            os.path.abspath(__file__)), libname)
+        self.execute(_post_install, (libname, libpath),
+                     msg="Running post install task")
+
+
+class develop(_develop):
+
+    def run(self):
+        _develop.run(self)
+        libname = self.config_vars['dist_name']
+        libpath = os.path.join(os.path.dirname(
+            os.path.abspath(__file__)), libname)
+        self.execute(_post_install, (libname, libpath),
+                     msg="Running post install task")
+
 
 setup(
     name='ZeroRobot',
     version='0.5.1',
     description='Automation framework for cloud workloads',
     url='https://github.com/Jumpscale/zerorobot',
-    author='GreenItGlobe',
-    author_email='info@gig.tech',
+    author='Christophe de Carvalho',
+    author_email='christophe@gig.tech',
     license='Apache',
     packages=find_packages(),
     include_package_data=True,
@@ -29,5 +64,10 @@ setup(
         'netifaces>=0.10.6',
         'msgpack-python>=0.4.8'
     ],
-    scripts=['cmd/zrobot']
+    scripts=['cmd/zrobot'],
+    cmdclass={
+        'install': install,
+        'develop': develop,
+        'development': develop,
+    }
 )

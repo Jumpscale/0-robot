@@ -1,0 +1,492 @@
+#%RAML 1.0
+title: "ZeroRobot"
+description: API of the ZeroRobot, used for management and communication between ZeroRobots
+version: 0.0.1
+mediaType: application/json
+documentation:
+  - title: Extended documentation
+    content: https://github.com/Jumpscale/0-robot/tree/master/docs
+securedBy: [iyo]
+
+securitySchemes:
+  iyo:
+    type: Pass Through
+    description: 0-robot support authentication using a JWT containing the "user:memberof:" scope for an IYO organization
+    describedBy:
+      headers:
+        Authorization:
+          description: |
+            JWT given by ItYouOnline
+            It needs to contains the "user:memberof:<org>" scope, where <org> is the organization authorized to access the robot.
+          type: string
+      responses:
+        401:
+          description: |
+            Bad or expired token. This can happen if the user is revoked or an expired access token. To fix, re-authenticate
+            the user.
+        403:
+          description: |
+            Bad request wrong scope in the JWT. Unfortunately, re-authenticating the user won't help here.
+
+types:
+  Blueprint:
+    description: |
+      A blueprint is a description of which service you want to create
+      and what action you want to add to a task list.
+    properties:
+      content: object
+    example:
+      content:
+        node__node1:
+          ip: '192.168.1.10'
+          hostname: 'node1'
+        actions:
+          template: node
+          service: node1
+          action: start
+
+  TemplateRepository:
+    properties:
+      url:
+        type: string
+        description: |
+          URL of the git repository to clone.
+          Need to be under one of these format
+          - git@github.com:account/repository.git
+          - https://github.com/account/repository.git
+      branch:
+        type: string
+        description: branch/tag/revision of the repository to clone. If not specified, default to master
+        default: master
+        required: false
+    example:
+      url: https://github.com/account/repository.git
+      branch: master
+
+  Template:
+    properties:
+      uid:
+        type: string
+        description: |
+          This is the unique identifier of a template.
+          A tempate UID is identify by the url fo the git repository from where it comes from.
+          There are different informations extracted from
+          - the host
+          - the account
+          - the repository name
+          - the name of the template itself
+          - a version
+      host:
+        type: string
+      account:
+        type: string
+      repository:
+        type: string
+      name:
+        type: string
+      version:
+        type: string
+    example:
+      uid: github.com/jumpscale/0-robot/node/0.0.1
+      host: github.com
+      account: jumpscale
+      repository: 0-robot
+      name: node
+      version: 0.0.1
+
+
+  ServiceState:
+    properties:
+      category:
+        type: string
+      tag:
+        type: string
+      state:
+        enum: [ ok, error, warning, skipped ]
+    example:
+      category: network
+      tag: local-tcp-443
+      state: ok
+
+  ServiceCreate:
+    properties:
+      template:
+        type: string
+        description: This is UID of a template
+      name:
+        type: string
+        required: false
+      data:
+        type: object
+        description: Instance data used to create the service
+        required: false
+    example:
+      template: github.com/jumpscale/0-robot/node/1.0.1
+      name: vm1
+      data:
+        cpu_nr: 2
+        memory: 1024
+
+  Service:
+    properties:
+      template:
+        type: string
+        description: This is the UID of a template
+      version:
+        type: string
+      guid:
+        type: string
+      name:
+        type: string
+      state:
+        type: ServiceState[]
+    example:
+      guid: 7040fda3-08e1-4109-829c-925a907809f9
+      template: github.com/jumpscale/0-robot/node/0.0.1
+      version: 1.0.1
+      name: node1
+      state:
+      - category: network
+        tag: local-tcp-6379
+        state: ok
+      - category: network
+        tag: local-http-80
+        state: ok
+      - category: data
+        tag: db
+        state: ok
+
+  Action:
+    properties:
+      name:
+        type: string
+      arguments:
+        type: string[]
+        required: false
+    example:
+      name: start
+
+  TaskCreate:
+    properties:
+      action_name:
+        type: string
+      args:
+        type: object
+        required: false
+    example:
+      action_name: start
+      args:
+        foo: bar
+
+  Task:
+    type: TaskCreate
+    description: Type return after a task is added to a task list
+    properties:
+      template_name:
+        type: string
+      service_name:
+        type: string
+      service_guid:
+        type: string
+      guid:
+        type: string
+        description: unique ID of the task
+      state:
+        enum: [ new, ok, running, error ]
+        description: |
+          a task that is waiting to be executed is in state new.
+          a task that being executed is in state running
+          a task that executed successfully is in state ok
+          a task that failed to execute and/or is being retried is in state error.
+      created:
+        type: integer
+        description: timestamp at the time the task was created
+      duration:
+        type: number
+        description: duration of the execution of the task
+        required: false
+      eco:
+        type: Eco
+        description: In case the task failed with an exception, description of the exception
+        required: false
+      result:
+        type: string
+        description: serialized version of the result of the task
+        required: false
+    example:
+      template_name: github.com/account/repository/master/node.zero-os
+      service_name: node1
+      service_guid: 10b0c69f-0f72-4e41-b146-4e10997024f8
+      action_name: start
+      guid: 07f38c46-056b-420d-8964-6efd3f493fe5
+      state: new
+      args:
+        foo: bar
+      created: 1512038654
+
+  Error:
+    properties:
+      code:
+        type: integer
+        description: error code
+      message:
+        type: string
+        description: Human friendly error message
+      stack_trace:
+        type: string
+        description: optional stack_trace attached with the error.
+        required: false
+
+  Eco:
+    description: |
+      Error conditions, is a custom error format that allow to investigate
+      an exceptions. It is used to serialize the error happening during task execution
+    properties:
+      appname:
+        type: string
+      epoch:
+        type: integer
+      errormessagePub:
+        type: string
+      type:
+        type: string
+      state:
+        type: string
+      data:
+        type: object
+        required: false
+      jid:
+        type: integer
+      masterjid:
+        type: integer
+      errormessage:
+        type: string
+      uniquekey:
+        type: string
+      category:
+        type: string
+      exceptionclassname:
+        type: string
+      funcfilename:
+        type: string
+      closetime:
+        type: integer
+      level:
+        type: integer
+      _limit:
+        type: integer
+      lasttime:
+        type: integer
+      code:
+        type: string
+      guid:
+        type: string
+      tags:
+        type: string
+      funclinenr:
+        type: integer
+      _traceback:
+        type: string
+      funcname:
+        type: string
+      pid:
+        type: integer
+      occurrences:
+        type: integer
+
+  ServiceFilter:
+    description: type used in the query parameters of the ListService method
+    properties:
+
+
+/blueprints:
+  description: |
+    A blueprint is a description of which service you want to create
+    and what action you want to add to a task list.
+  post:
+    displayName: ExecuteBlueprint
+    description: Execute a blueprint on the ZeroRobot
+    body:
+      type: Blueprint
+    responses:
+      200:
+        description: |
+          Blueprint executed successfully
+          Which mean all the service have been created and all actions added to the task list
+        body:
+          type: Task[]
+
+/templates:
+  description: |
+    Templates are the source of the services. A service is just an instance of a template.
+    To be able to create services, you need to first make some template available to the ZeroRobot by cloning
+    a git repository that contains template.
+    Once the templates are available, you can send blueprint with the description of which service to create.
+  get:
+    displayName: ListTemplates
+    description: List all the templates available to the ZeroRobot
+    responses:
+      200:
+        body:
+          type: Template[]
+  post:
+    displayName: AddTemplateRepo
+    description: Clone a template repository and make the templates available to the ZeroRobot
+    body:
+      type: TemplateRepository
+    responses:
+      201:
+        description: Template successfully added
+        body:
+          description: List of all new templates
+          type: Template[]
+  put:
+    displayName: CheckoutVersionTemplateRepo
+    description: Checkout a certain branch/tag/revision of a template repository
+    body:
+      type: TemplateRepository
+    responses:
+      204:
+        description: Template repository updated successfully
+      404:
+        description: Template repository not cloned yet. can't update to a certain branch/tag/revision
+        body:
+          type: Error
+
+/services:
+  description: |
+    Services are the core of the ZeroRobot. It is the services that hold state, data and execute actions.
+  get:
+    displayName: listServices
+    description: List all the services known by the ZeroRobot.
+    queryParameters:
+      name:
+        type: string
+        required: false
+        description: Filter on the name of the service
+        example: myservicename
+      template_uid:
+        type: string
+        required: false
+        description: Filter on the complete template UID of the service
+        example: github.com/jumpscale/0-robot/node/0.0.1
+      template_host:
+        type: string
+        required: false
+        description: Filter on the host part of the template UID of the service
+        example: github.com
+      template_account:
+        type: string
+        required: false
+        description: Filter on the account part of the template UID of the service
+        example: jumpscale
+      template_repo:
+        type: string
+        required: false
+        description: Filter on the repository part of the template UID of the service
+        example: 0-robot
+      template_name:
+        type: string
+        required: false
+        description: Filter on the name part of the template UID of the service
+        example: node
+      template_version:
+        type: string
+        required: false
+        description: Filter on the version part of the template UID of the service
+        example: 0.0.1
+
+    responses:
+      200:
+        body:
+          type: Service[]
+  post:
+    displayName: createService
+    description: create a new service
+    body:
+      type: ServiceCreate
+    responses:
+      201:
+        description: Service created successfully
+        body:
+          type: Service
+        headers:
+          Location:
+            description: URL to the created service resource
+      400:
+        description: |
+          Bad request.
+          Could be because the template asked doesn't exist
+          or the request is not properly formatted
+          body:
+            type: Error
+      409:
+        description: Conflict, a service with this name already exists in this ZeroRobot.
+  /{service_guid}:
+    get:
+      displayName: GetService
+      description: Get the detail of a service
+      responses:
+        200:
+          body:
+            type: Service
+        404:
+          description: Service with this guid not found
+          body:
+            type: Error
+    delete:
+      displayName: DeleteService
+      description: Delete a service
+      responses:
+        204:
+          description: Service deleted successfully
+    /actions:
+      get:
+        displayName: ListActions
+        description: List all the possible action a service can do.
+        responses:
+          200:
+            body:
+              type: Action[]
+    /task_list:
+      description: A task list is all the actions that are scheduled for a service
+      get:
+        displayName: getTaskList
+        description: Return all the action in the task list
+        queryParameters:
+          all:
+            description: |
+              If specified, return also the tasks that are done.
+              If not specified, only return the task waiting to be executed
+              type:        bool
+              required:    false
+              default: false
+        responses:
+          200:
+            body:
+              type: Task[]
+      post:
+        displayName: AddTaskToList
+        description: Add a task to the task list
+        body:
+          type: TaskCreate
+        responses:
+          201:
+            description: Task added to the task list successfully
+            body:
+              type: Task
+            headers:
+              Location:
+                description: description URL to the created task resource
+      /{task_guid}:
+        get:
+          displayName: GetTask
+          description: Retrieve the detail of a task
+          responses:
+            200:
+              body:
+                type: Task
+            404:
+              description: Not task found in the task list with this guid
+              body:
+                type: Error
