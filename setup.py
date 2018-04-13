@@ -57,7 +57,7 @@ setup(
         'itsdangerous>=0.24',
         'jsonschema>=2.5.1',
         'six>=1.10.0',
-        'python-jose>=1.3.2',
+        'python-jose>=2.0.1',
         'gevent >= 1.2.2',
         'psutil>=5.4.3',
         'prometheus_client>=0.1.1',

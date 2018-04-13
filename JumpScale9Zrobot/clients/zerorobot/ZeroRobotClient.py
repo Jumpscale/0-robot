@@ -1,3 +1,5 @@
+import time
+
 from js9 import j
 
 from .client import Client
@@ -22,12 +24,24 @@ class ZeroRobotClient(JSConfigClientBase):
         data = data or {}
         super().__init__(instance=instance, data=data, parent=parent, template=_template, ui=ui, interactive=interactive)
         self._api = None
+        self._jwt_expire_timestamp = None
 
     @property
     def api(self):
         """
         regroup all of the method to talk to the ZeroRobot API
         """
+        jwt = self.config.data.get('jwt_')
+        if jwt and not self._jwt_expire_timestamp:
+            self._jwt_expire_timestamp = j.clients.itsyouonline.jwt_expire_timestamp(jwt)
+
+        if self._jwt_expire_timestamp and self._jwt_expire_timestamp - 300 < time.time():
+            jwt = j.clients.itsyouonline.refresh_jwt_token(jwt, validity=3600)
+            self._jwt_expire_timestamp = j.clients.itsyouonline.jwt_expire_timestamp(jwt)
+            self.config.data_set('jwt_', jwt)
+            self.config.save()
+            self._api = None
+
         if self._api is None:
             self._api = Client(base_uri=self.config.data["url"])
             if self.config.data.get('jwt_'):
