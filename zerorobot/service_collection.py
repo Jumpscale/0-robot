@@ -74,7 +74,10 @@ def load(template, base_path):
     service_data = j.data.serializer.yaml.load(os.path.join(base_path, 'data.yaml'))
 
     template_uid = TemplateUID.parse(service_info['template'])
-    if template_uid > template.template_uid:
+    try:
+        if template_uid > template.template_uid:
+            raise BadTemplateError("Trying to load service %s with template %s, while it requires %s or higher" % (guid, template.template_uid, service_info['template']))
+    except ValueError:  # is the two template are not the same, ValueError is raised
         raise BadTemplateError("Trying to load service %s with template %s, while it requires %s or higher" % (guid, template.template_uid, service_info['template']))
 
     if service_info['guid'] != guid:
