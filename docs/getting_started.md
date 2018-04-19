@@ -4,13 +4,22 @@
 Requirements: You need to have [Jumpscale9](https://github.com/jumpscale/home) installed to be able to run the 0-Robot.  
 See the [intallation instruction](https://github.com/Jumpscale/core9#jumpscale-9)
 
+Notes:
+If https://github.com/Jumpscale/core9/issues/226 issue still open, you need to install `psutil` version 5.4.3 or above prior installing `jumpscale/core9 above`
+
 Clone this repository and install the zerorobot:
 
 ```bash
+apt-get install -y libsqlite3-dev
 git clone https://github.com/zero-os/0-robot.git
 cd 0-robot
+mkdir -p /opt/code/github/zero-os/0-robot
+cp -a * /opt/code/github/zero-os/0-robot/
 pip install .
 ```
+
+
+
 ## Start the robot:
 ```
 Usage: zrobot server start [OPTIONS]
