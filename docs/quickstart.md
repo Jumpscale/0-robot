@@ -34,6 +34,7 @@ struct Schema {
 
 - `helloworld.py`
 ```python
+from js9 import j
 from zerorobot.template.base import TemplateBase
 
 
