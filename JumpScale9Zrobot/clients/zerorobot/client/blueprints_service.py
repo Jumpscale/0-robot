@@ -13,6 +13,9 @@ class BlueprintsService:
         Execute a blueprint on the ZeroRobot
         It is method for POST /blueprints
         """
+        if query_params is None:
+            query_params = {}
+
         uri = self.client.base_url + "/blueprints"
         resp = self.client.post(uri, data, headers, query_params, content_type)
         try:

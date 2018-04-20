@@ -2,6 +2,7 @@
 from .Action import Action
 from .Error import Error
 from .Service import Service
+from .ServiceCreated import ServiceCreated
 from .Task import Task
 from .unhandled_api_error import UnhandledAPIError
 from .unmarshall_error import UnmarshallError
@@ -16,6 +17,9 @@ class ServicesService:
         List all the possible action a service can do.
         It is method for GET /services/{service_guid}/actions
         """
+        if query_params is None:
+            query_params = {}
+
         uri = self.client.base_url + "/services/" + service_guid + "/actions"
         resp = self.client.get(uri, None, headers, query_params, content_type)
         try:
@@ -40,6 +44,9 @@ class ServicesService:
         Retrieve the detail of a task
         It is method for GET /services/{service_guid}/task_list/{task_guid}
         """
+        if query_params is None:
+            query_params = {}
+
         uri = self.client.base_url + "/services/" + service_guid + "/task_list/" + task_guid
         resp = self.client.get(uri, None, headers, query_params, content_type)
         try:
@@ -61,6 +68,9 @@ class ServicesService:
         Return all the action in the task list
         It is method for GET /services/{service_guid}/task_list
         """
+        if query_params is None:
+            query_params = {}
+
         uri = self.client.base_url + "/services/" + service_guid + "/task_list"
         resp = self.client.get(uri, None, headers, query_params, content_type)
         try:
@@ -85,6 +95,9 @@ class ServicesService:
         Add a task to the task list
         It is method for POST /services/{service_guid}/task_list
         """
+        if query_params is None:
+            query_params = {}
+
         uri = self.client.base_url + "/services/" + service_guid + "/task_list"
         resp = self.client.post(uri, data, headers, query_params, content_type)
         try:
@@ -106,6 +119,9 @@ class ServicesService:
         Delete a service
         It is method for DELETE /services/{service_guid}
         """
+        if query_params is None:
+            query_params = {}
+
         uri = self.client.base_url + "/services/" + service_guid
         return self.client.delete(uri, None, headers, query_params, content_type)
 
@@ -114,6 +130,9 @@ class ServicesService:
         Get the detail of a service
         It is method for GET /services/{service_guid}
         """
+        if query_params is None:
+            query_params = {}
+
         uri = self.client.base_url + "/services/" + service_guid
         resp = self.client.get(uri, None, headers, query_params, content_type)
         try:
@@ -135,6 +154,9 @@ class ServicesService:
         List all the services known by the ZeroRobot.
         It is method for GET /services
         """
+        if query_params is None:
+            query_params = {}
+
         uri = self.client.base_url + "/services"
         resp = self.client.get(uri, None, headers, query_params, content_type)
         try:
@@ -159,11 +181,14 @@ class ServicesService:
         create a new service
         It is method for POST /services
         """
+        if query_params is None:
+            query_params = {}
+
         uri = self.client.base_url + "/services"
         resp = self.client.post(uri, data, headers, query_params, content_type)
         try:
             if resp.status_code == 201:
-                return Service(resp.json()), resp
+                return ServiceCreated(resp.json()), resp
 
             message = 'unknown status code={}'.format(resp.status_code)
             raise UnhandledAPIError(response=resp, code=resp.status_code,

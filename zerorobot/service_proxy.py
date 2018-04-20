@@ -81,6 +81,9 @@ class ServiceProxy():
 
     def delete(self):
         self._zrobot_client.api.services.DeleteService(self.guid)
+        # clean up zrobot client that could have been created for this proxy
+        if j.clients.zrobot.exists(self.guid):
+            j.clients.zrobot.delete(self.guid)
 
 
 class TaskListProxy:

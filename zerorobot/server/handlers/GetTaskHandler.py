@@ -1,12 +1,15 @@
 # THIS FILE IS SAFE TO EDIT. It will not be overwritten when rerunning go-raml.
 
-import json
+from flask import jsonify, request
 
 from zerorobot import service_collection as scol
 from zerorobot.server.handlers.views import task_view
 from zerorobot.task import TaskNotFoundError
 
+from zerorobot.server import auth
 
+
+@auth.user.login_required
 def GetTaskHandler(task_guid, service_guid):
     '''
     Retrieve the detail of a task
@@ -14,14 +17,12 @@ def GetTaskHandler(task_guid, service_guid):
     '''
     try:
         service = scol.get_by_guid(service_guid)
-    except KeyError:
-        return json.dumps({'code': 404, 'message': "service with guid '%s' not found" % service_guid}), \
-            404, {"Content-type": 'application/json'}
+    except scol.ServiceNotFoundError:
+        return jsonify(code=404, message="service with guid '%s' not found" % service_guid), 404
 
     try:
         task = service.task_list.get_task_by_guid(task_guid)
     except TaskNotFoundError:
-        return json.dumps({'code': 404, 'message': "task with guid '%s' not found" % task_guid}), \
-            404, {"Content-type": 'application/json'}
+        return jsonify(code=404, message="task with guid '%s' not found" % task_guid), 404
 
-    return json.dumps(task_view(task, service)), 200, {"Content-type": 'application/json'}
+    return jsonify(task_view(task, service)), 200

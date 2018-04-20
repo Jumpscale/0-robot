@@ -1,0 +1,35 @@
+{
+	"$schema": "http://json-schema.org/schema#",
+	"type": "object",
+	"properties": {
+		"guid": {
+			"type": "string"
+		},
+		"name": {
+			"type": "string"
+		},
+		"secret": {
+			"type": "string"
+		},
+		"state": {
+			"type": "array",
+			"items": {
+				"$ref": "ServiceState_schema.json"
+			}
+		},
+		"template": {
+			"type": "string"
+		},
+		"version": {
+			"type": "string"
+		}
+	},
+	"required": [
+		"secret",
+		"guid",
+		"name",
+		"state",
+		"template",
+		"version"
+	]
+}

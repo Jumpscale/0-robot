@@ -5,7 +5,10 @@ import json
 from zerorobot import template_collection as tcol
 from zerorobot.server.handlers.views import template_view
 
+from zerorobot.server import auth
 
+
+@auth.admin.login_required
 def ListTemplatesHandler():
     '''
     List all the templates available to the ZeroRobot

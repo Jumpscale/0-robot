@@ -29,6 +29,7 @@ telegram_logger = logging.getLogger('telegram_logger')
 
 stacks = list()
 
+
 class Task:
 
     def __init__(self, func, args):
@@ -38,7 +39,7 @@ class Task:
         @param args: argument to pass to the action when executing
         """
         self.guid = j.data.idgenerator.generateGUID()
-        self.func = func
+        self._func = func
         self.action_name = func.__name__ if func else None
         self._args = args
         self._priority = None
@@ -73,9 +74,9 @@ class Task:
         started = time.time()
         try:
             if self._args is not None:
-                self._result = self.func(**self._args)
+                self._result = self._func(**self._args)
             else:
-                self._result = self.func()
+                self._result = self._func()
             self.state = TASK_STATE_OK
         except:
             self.state = TASK_STATE_ERROR

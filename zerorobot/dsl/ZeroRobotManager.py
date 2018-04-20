@@ -46,7 +46,19 @@ class ServicesMgr:
         self._client = robot._client
 
     def _instantiate(self, data):
-        srv = ServiceProxy(data.name, data.guid, self._client)
+        if data.guid in j.clients.zrobot.list():
+            client = j.clients.zrobot.get(data.guid)
+        elif hasattr(data, 'secret') and data.secret:
+            # create a zrobot client for this service
+            client_data = {
+                'url': self._client.config.data['url'],
+                'secret_': data.secret,  # TODO handle case where secret is not sets
+            }
+            client = j.clients.zrobot.get(data.guid, data=client_data, interactive=False, create=True)
+        else:
+            client = self._client
+
+        srv = ServiceProxy(data.name, data.guid, client)
         srv.template_uid = TemplateUID.parse(data.template)
         return srv
 
@@ -123,9 +135,18 @@ class ServicesMgr:
         """
         Instantiate a service from a template
 
-        @param template_uid: UID of the template to use a base class for the service
-        @param service_name: name of the service, needs to be unique within the robot instance
-        @param data: a dictionnary with the data of the service to create
+        :param template_uid: UID of the template to use a base class for the service
+        :type template_uid: str
+        :param service_name: name of the service, needs to be unique within the robot instance, defaults to None
+        :param service_name: str, optional
+        :param data: a dictionnary with the data of the service to create, defaults to None
+        :param data: dict, optional
+        :raises ServiceConflictError: raised when a service with same name already exists
+        :raises TemplateConflictError: raised when the template uid specified is not specific enough and the robot cannot decide which template to use
+        :raises TemplateNotFoundError: raise when the template specified is not found
+        :raises ServiceCreateError: raise when an error happens during service creation
+        :return: service proxy
+        :rtype: ServiceProxy
         """
         req = {
             "template": str(template_uid),
@@ -154,8 +175,7 @@ class ServicesMgr:
             logger.error('fail to create service: %s' % e['message'])
             raise ServiceCreateError(e['message'], err)
 
-        service = self._instantiate(new_service)
-        return service
+        return self._instantiate(new_service)
 
     def find_or_create(self, template_uid, service_name, data):
         """

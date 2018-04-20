@@ -16,7 +16,7 @@ from zerorobot import auto_pusher, config
 from zerorobot.git import url as giturl
 from zerorobot.prometheus.flask import monitor
 from zerorobot.server.app import app
-from zerorobot.server.middleware import authenticate
+from zerorobot.server import auth
 
 from . import config_repo, data_repo, loader
 
@@ -97,11 +97,11 @@ class Robot:
         if not kwargs.get('testing', False):
             monitor(app)
 
-        # configure authentication middleware
+         # configure authentication middleware
         jwt_organization = jwt_organization or _read_cmdline().get('organization')
         if jwt_organization:
-            logger.info("JWT authentication enabled for organization: %s" % jwt_organization)
-            authenticate(app, allowed_scopes=['user:memberof:%s' % jwt_organization])
+            auth.auth.jwt_organization = jwt_organization
+            logger.info("JWT authentication enabled for organization: %s" % auth.auth.jwt_organization)
 
         self._block = block
 

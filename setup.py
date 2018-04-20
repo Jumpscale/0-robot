@@ -62,7 +62,8 @@ setup(
         'psutil>=5.4.3',
         'prometheus_client>=0.1.1',
         'netifaces>=0.10.6',
-        'msgpack-python>=0.4.8'
+        'msgpack-python>=0.4.8',
+        'Flask-HTTPAuth>=3.2.3'
     ],
     scripts=['cmd/zrobot'],
     cmdclass={

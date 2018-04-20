@@ -4,12 +4,14 @@ import json
 import os
 
 import jsonschema
+from flask import jsonify, request
 from jsonschema import Draft4Validator
 
-from flask import request
 from zerorobot import service_collection as scol
 from zerorobot.server.handlers.views import task_view
 from zerorobot.template.base import ActionNotFoundError, BadActionArgumentError
+
+from zerorobot.server import auth
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
 TaskCreate_schema = json.load(open(dir_path + '/schema/TaskCreate_schema.json'))
@@ -17,6 +19,7 @@ TaskCreate_schema_resolver = jsonschema.RefResolver('file://' + dir_path + '/sch
 TaskCreate_schema_validator = Draft4Validator(TaskCreate_schema, resolver=TaskCreate_schema_resolver)
 
 
+@auth.user.login_required
 def AddTaskToListHandler(service_guid):
     '''
     Add a task to the task list
@@ -26,23 +29,19 @@ def AddTaskToListHandler(service_guid):
     try:
         TaskCreate_schema_validator.validate(inputs)
     except jsonschema.ValidationError as e:
-        print(e)
-        return json.dumps({'code': 400, 'message': str(e)}), 400, {"Content-type": 'application/json'}
+        return jsonify(code=400, message=str(e)), 400
 
     try:
         service = scol.get_by_guid(service_guid)
     except KeyError:
-        return json.dumps({'code': 404, 'message': "service with guid '%s' not found" % service_guid}), \
-            404, {"Content-type": 'application/json'}
+        return jsonify(code=404, message="service with guid '%s' not found" % service_guid), 404
 
     args = inputs.get('args', None)
     try:
         task = service.schedule_action(action=inputs['action_name'], args=args)
     except ActionNotFoundError:
-        return json.dumps({'code': 400, 'message': "action '%s' not found" % inputs['action_name']}), \
-            400, {"Content-type": 'application/json'}
+        return jsonify(code=400, message="action '%s' not found" % inputs['action_name']), 400
     except BadActionArgumentError:
-        return json.dumps({'code': 400, 'message': "the argument passed in the requests, doesn't match the signature of the action"}), \
-            400, {"Content-type": 'application/json'}
+        return jsonify(code=400, message="the argument passed in the requests, doesn't match the signature of the action"), 400
 
-    return json.dumps(task_view(task, service)), 201, {"Content-type": 'application/json'}
+    return jsonify(task_view(task, service)), 201

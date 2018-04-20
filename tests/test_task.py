@@ -27,7 +27,7 @@ class TestTask(unittest.TestCase):
         t = Task(noop, {})
         assert t.guid is not None
         assert t.state == TASK_STATE_NEW
-        assert t.func == noop
+        assert t._func == noop
         assert t.action_name == 'noop'
         assert t.created is not None and t.created < time.time()
 

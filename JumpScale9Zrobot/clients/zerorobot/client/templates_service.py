@@ -14,6 +14,9 @@ class TemplatesService:
         List all the templates available to the ZeroRobot
         It is method for GET /templates
         """
+        if query_params is None:
+            query_params = {}
+
         uri = self.client.base_url + "/templates"
         resp = self.client.get(uri, None, headers, query_params, content_type)
         try:
@@ -38,6 +41,9 @@ class TemplatesService:
         Clone a template repository and make the templates available to the ZeroRobot
         It is method for POST /templates
         """
+        if query_params is None:
+            query_params = {}
+
         uri = self.client.base_url + "/templates"
         resp = self.client.post(uri, data, headers, query_params, content_type)
         try:
@@ -66,15 +72,4 @@ class TemplatesService:
             query_params = {}
 
         uri = self.client.base_url + "/templates"
-        resp = self.client.put(uri, data, headers, query_params, content_type)
-        try:
-
-            message = 'unknown status code={}'.format(resp.status_code)
-            raise UnhandledAPIError(response=resp, code=resp.status_code,
-                                    message=message)
-        except ValueError as msg:
-            raise UnmarshallError(resp, msg)
-        except UnhandledAPIError as uae:
-            raise uae
-        except Exception as e:
-            raise UnmarshallError(resp, e.message)
+        return self.client.put(uri, data, headers, query_params, content_type)

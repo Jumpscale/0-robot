@@ -6,6 +6,13 @@ generate: generate-server generate-apidoc
 generate-server:
 	go-raml server -l python --kind flask --dir zerorobot/server --ramlfile api_spec/main.raml --no-main
 	raml2html -p api_spec/main.raml > api_spec/api.html
+	sed -i "s/import handlers/from . import handlers/g" zerorobot/server/templates_api.py
+	sed -i "s/import handlers/from . import handlers/g" zerorobot/server/services_api.py
+	sed -i "s/import handlers/from . import handlers/g" zerorobot/server/blueprints_api.py
+
+generate-client:
+	cp api_spec/main.raml JumpScale9Zrobot/clients/zerorobot/api_spec/main.raml
+	go-raml client --language python --dir JumpScale9Zrobot/clients/zerorobot/client --ramlfile api_spec/main.raml --kind requests --python-unmarshall-response
 
 generate-apidoc:
 	if ! pip show pdoc > /dev/null; then pip install pdoc; fi

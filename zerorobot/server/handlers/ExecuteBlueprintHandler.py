@@ -4,9 +4,9 @@ import json as JSON
 import os
 
 import jsonschema
+from flask import request
 from jsonschema import Draft4Validator
 
-from flask import request
 from js9 import j
 from zerorobot import service_collection as scol
 from zerorobot import template_collection as tcol
@@ -18,6 +18,7 @@ from zerorobot.template_collection import (TemplateConflictError,
                                            TemplateNotFoundError)
 from zerorobot.template_uid import TemplateUID
 
+from zerorobot.server import auth
 from .views import task_view
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
@@ -26,6 +27,8 @@ Blueprint_schema_resolver = jsonschema.RefResolver('file://' + dir_path + '/sche
 Blueprint_schema_validator = Draft4Validator(Blueprint_schema, resolver=Blueprint_schema_resolver)
 
 
+
+@auth.admin.login_required
 def ExecuteBlueprintHandler():
     '''
     Execute a blueprint on the ZeroRobot

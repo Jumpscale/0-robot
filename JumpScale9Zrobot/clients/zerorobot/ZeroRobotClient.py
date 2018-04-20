@@ -10,6 +10,7 @@ JSConfigClientBase = j.tools.configmanager.base_class_config
 _template = """
 url = "http://localhost:6600"
 jwt_ = ""
+secret_ = ""
 """
 
 
@@ -33,7 +34,11 @@ class ZeroRobotClient(JSConfigClientBase):
         """
         jwt = self.config.data.get('jwt_')
         if jwt and not self._jwt_expire_timestamp:
-            self._jwt_expire_timestamp = j.clients.itsyouonline.jwt_expire_timestamp(jwt)
+            try:
+                self._jwt_expire_timestamp = j.clients.itsyouonline.jwt_expire_timestamp(jwt)
+            except KeyError:
+                # case when jwt does not have expiration time
+                pass
 
         if self._jwt_expire_timestamp and self._jwt_expire_timestamp - 300 < time.time():
             jwt = j.clients.itsyouonline.refresh_jwt_token(jwt, validity=3600)
@@ -47,4 +52,7 @@ class ZeroRobotClient(JSConfigClientBase):
             if self.config.data.get('jwt_'):
                 header = 'Bearer %s' % self.config.data['jwt_']
                 self._api.security_schemes.passthrough_client_iyo.set_authorization_header(header)
+            if self.config.data.get('secret_'):
+                header = 'ZrobotAuth %s' % self.config.data['secret_']
+                self._api.security_schemes.passthrough_client_zrobot.set_authorization_header(header)
         return self._api

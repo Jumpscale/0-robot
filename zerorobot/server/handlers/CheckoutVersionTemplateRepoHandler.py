@@ -9,6 +9,7 @@ from jsonschema import Draft4Validator
 from flask import jsonify, request
 from zerorobot import template_collection as tcol
 from zerorobot.git import repo, url
+from zerorobot.server import auth
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
 TemplateRepository_schema = JSON.load(open(dir_path + '/schema/TemplateRepository_schema.json'))
@@ -18,8 +19,8 @@ TemplateRepository_schema_validator = Draft4Validator(
     TemplateRepository_schema, resolver=TemplateRepository_schema_resolver)
 
 
+@auth.admin.login_required
 def CheckoutVersionTemplateRepoHandler():
-
     inputs = request.get_json()
 
     try:

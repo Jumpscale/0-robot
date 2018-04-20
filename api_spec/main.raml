@@ -28,6 +28,25 @@ securitySchemes:
           description: |
             Bad request wrong scope in the JWT. Unfortunately, re-authenticating the user won't help here.
 
+  zrobot:
+    type: Pass Through
+    description: |
+      Service can only be managed by their creator, methods decorated with this scheme need to provice a secret in the http headers
+      this secret is returned by the robot when creating service. It proof that the client trying to managed the service is actually the client
+      that created it.
+    describedBy:
+      headers:
+        Authorization:
+          description: Ssecret returned by the robot when creating service.
+          type: string
+      responses:
+        401:
+          description: |
+            Bad or expired token.
+        403:
+          description: |
+            Bad request wrong scope in the JWT.
+
 types:
   Blueprint:
     description: |
@@ -155,6 +174,14 @@ types:
       - category: data
         tag: db
         state: ok
+
+  ServiceCreated:
+    type: Service
+    properties:
+      secret:
+        type: string
+        description: secret to use to managed the created services
+        required: True
 
   Action:
     properties:
@@ -409,7 +436,7 @@ types:
       201:
         description: Service created successfully
         body:
-          type: Service
+          type: ServiceCreated
         headers:
           Location:
             description: URL to the created service resource
@@ -442,6 +469,7 @@ types:
           description: Service deleted successfully
     /actions:
       get:
+        securedBy: [zrobot]
         displayName: ListActions
         description: List all the possible action a service can do.
         responses:
@@ -451,6 +479,7 @@ types:
     /task_list:
       description: A task list is all the actions that are scheduled for a service
       get:
+        securedBy: [zrobot]
         displayName: getTaskList
         description: Return all the action in the task list
         queryParameters:
@@ -466,6 +495,7 @@ types:
             body:
               type: Task[]
       post:
+        securedBy: [zrobot]
         displayName: AddTaskToList
         description: Add a task to the task list
         body:
@@ -480,6 +510,7 @@ types:
                 description: description URL to the created task resource
       /{task_guid}:
         get:
+          securedBy: [zrobot]
           displayName: GetTask
           description: Retrieve the detail of a task
           responses:

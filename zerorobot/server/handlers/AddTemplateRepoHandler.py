@@ -4,12 +4,14 @@ import json
 import os
 
 import jsonschema
+from flask import request
 from jsonschema import Draft4Validator
 
-from flask import request
 from zerorobot import template_collection as tcol
 from zerorobot.server.handlers.views import template_view
 from zerorobot.service_collection import ServiceConflictError
+
+from zerorobot.server import auth
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
 TemplateRepository_schema = json.load(open(dir_path + '/schema/TemplateRepository_schema.json'))
@@ -19,6 +21,7 @@ TemplateRepository_schema_validator = Draft4Validator(
     TemplateRepository_schema, resolver=TemplateRepository_schema_resolver)
 
 
+@auth.admin.login_required
 def AddTemplateRepoHandler():
     '''
     Clone a template repository and make the templates available to the ZeroRobot

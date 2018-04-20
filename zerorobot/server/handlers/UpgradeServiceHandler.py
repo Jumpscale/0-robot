@@ -5,13 +5,15 @@ import os
 
 import gevent
 import jsonschema
+from flask import jsonify, request
 from jsonschema import Draft4Validator
 
 import zerorobot.service_collection as scol
 import zerorobot.template_collection as tcol
-from flask import jsonify, request
 from zerorobot.server.handlers.views import service_view
 from zerorobot.template_uid import TemplateUID
+
+from zerorobot.server import auth
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
 ServiceUpgradeRequest_schema = json.load(open(dir_path + '/schema/ServiceUpgradeRequest_schema.json'))
@@ -22,6 +24,7 @@ ServiceUpgradeRequest_schema_validator = Draft4Validator(
     resolver=ServiceUpgradeRequest_schema_resolver)
 
 
+@auth.admin.login_required
 def UpgradeServiceHandler(service_guid):
 
     inputs = request.get_json()
