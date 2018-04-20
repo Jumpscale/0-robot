@@ -1,10 +1,9 @@
 # 0-Robot
 
-**master**   
+**master:**   
 [![Build Status](https://travis-ci.org/zero-os/0-robot.svg?branch=master)](https://travis-ci.org/zero-os/0-robot)
-[![codecov](https://codecov.io/gh/zero-os/0-robot/branch/master/graph/badge.svg)](https://codecov.io/gh/zero-os/0-robot)
-
-**development**  
+[![codecov](https://codecov.io/gh/zero-os/0-robot/branch/master/graph/badge.svg)](https://codecov.io/gh/zero-os/0-robot)  
+**development:**  
 [![Build Status](https://travis-ci.org/zero-os/0-robot.svg?branch=development)](https://travis-ci.org/zero-os/0-robot)
 [![codecov](https://codecov.io/gh/zero-os/0-robot/branch/development/graph/badge.svg)](https://codecov.io/gh/zero-os/0-robot)
 
