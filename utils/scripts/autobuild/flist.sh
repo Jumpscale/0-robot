@@ -45,7 +45,6 @@ popd
 cp -r /0-robot /opt/code/github/zero-os
 # install 0-robot
 pushd /opt/code/github/zero-os/0-robot
-pip3 install -r requirements.txt
 pip3 install -e .
 popd
 

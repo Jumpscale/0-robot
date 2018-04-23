@@ -8,7 +8,6 @@ python:
 
 install:
   - pip3 install codecov pytest pytest-cov
-  - pip3 install -r requirements.txt
   - ./utils/scripts/jumpscale_install.sh
   - ./utils/scripts/travis_install.sh
 

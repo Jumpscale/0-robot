@@ -18,7 +18,6 @@ def _install_zrobot(prefab, branch):
     path = prefab.tools.git.pullRepo("https://github.com/Jumpscale/0-robot.git")
     cmds = (
         "cd %s; git checkout %s" % (path, branch),
-        "cd %s; pip install -r requirements.txt" % path,
         "cd %s; pip install ." % path,
     )
     for cmd in cmds:
@@ -48,7 +47,7 @@ def build_docker(tag, jsbranch, zrbranch, push):
     finally:
         container.stop()
         container.remove()
-    container = j.sal.docker.client.containers.create("jumpscale/0-robot-tmp", 
+    container = j.sal.docker.client.containers.create("jumpscale/0-robot-tmp",
                                                       command="/usr/bin/python3 /opt/code/github/jumpscale/0-robot/utils/scripts/packages/dockerentrypoint.py")
     container.commit("jumpscale/0-robot", tag)
     container.remove()
