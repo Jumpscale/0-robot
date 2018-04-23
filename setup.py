@@ -49,7 +49,7 @@ setup(
         'JumpScale9',
         'JumpScale9Lib',
         'gevent>=1.2.2',
-        'Flask>=0.10.1',
+        'Flask>=0.12.2',
         'Flask-Inputs>=0.2.0',
         'Jinja2>=2.8',
         'MarkupSafe>=0.23',
