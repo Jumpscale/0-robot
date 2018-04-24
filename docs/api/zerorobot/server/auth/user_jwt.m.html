@@ -3,8 +3,8 @@
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 
-    <title>zerorobot.robot.data_repo API documentation</title>
-    <meta name="description" content="data_repo module hold the logic of the configuration of the jumpscale configuration repository" />
+    <title>zerorobot.server.auth.user_jwt API documentation</title>
+    <meta name="description" content="" />
 
   <link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:400,300' rel='stylesheet' type='text/css'>
   
@@ -1044,11 +1044,21 @@ table {
     <li class="set"><h3><a href="#header-functions">Functions</a></h3>
       
   <ul>
-    <li class="mono"><a href="#zerorobot.robot.data_repo.ensure">ensure</a></li>
+    <li class="mono"><a href="#zerorobot.server.auth.user_jwt.create">create</a></li>
+    <li class="mono"><a href="#zerorobot.server.auth.user_jwt.decode">decode</a></li>
+    <li class="mono"><a href="#zerorobot.server.auth.user_jwt.verify">verify</a></li>
   </ul>
 
     </li>
 
+    <li class="set"><h3><a href="#header-classes">Classes</a></h3>
+      <ul>
+        <li class="mono">
+        <span class="class_name"><a href="#zerorobot.server.auth.user_jwt.SigningKeyNotFoundError">SigningKeyNotFoundError</a></span>
+        
+        </li>
+      </ul>
+    </li>
 
     </ul>
   </div>
@@ -1061,45 +1071,72 @@ table {
 
 
   <header id="section-intro">
-  <h1 class="title"><span class="name">zerorobot.robot.data_repo</span> module</h1>
-  <p>data_repo module hold the logic of the configuration of the jumpscale configuration repository</p>
+  <h1 class="title"><span class="name">zerorobot.server.auth.user_jwt</span> module</h1>
   
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.robot.data_repo', this);">Show source &equiv;</a></p>
-  <div id="source-zerorobot.robot.data_repo" class="source">
-    <div class="codehilite"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">data_repo module hold the logic of the configuration of the jumpscale configuration repository</span>
-<span class="sd">&quot;&quot;&quot;</span>
-
+  
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.server.auth.user_jwt', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.server.auth.user_jwt" class="source">
+    <div class="codehilite"><pre><span></span><span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">wraps</span>
 <span class="kn">import</span> <span class="nn">os</span>
 
+<span class="kn">from</span> <span class="nn">jose</span> <span class="kn">import</span> <span class="n">jwt</span>
 <span class="kn">from</span> <span class="nn">js9</span> <span class="kn">import</span> <span class="n">j</span>
-<span class="kn">from</span> <span class="nn">zerorobot.git</span> <span class="kn">import</span> <span class="n">url</span> <span class="k">as</span> <span class="n">giturl</span>
+
+<span class="n">_token_prefix</span> <span class="o">=</span> <span class="s2">&quot;Bearer &quot;</span>
 
 
-<span class="k">def</span> <span class="nf">ensure</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    ensure the 0-robot data repository exists</span>
+<span class="k">def</span> <span class="nf">create</span><span class="p">(</span><span class="n">claims</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;create a JWT with the claims pass as argument</span>
+
+<span class="sd">    Arguments:</span>
+<span class="sd">        claims {dict} -- dict of claims to include in the JWT</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">path</span><span class="p">:</span>
-        <span class="c1"># no path specify, we create one</span>
-        <span class="n">path</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">sal</span><span class="o">.</span><span class="n">fs</span><span class="o">.</span><span class="n">joinPaths</span><span class="p">(</span><span class="n">j</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">dirs</span><span class="o">.</span><span class="n">DATADIR</span><span class="p">,</span> <span class="s1">&#39;zrobot&#39;</span><span class="p">)</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="c1"># try to see of path is a git URL</span>
-            <span class="n">url</span> <span class="o">=</span> <span class="n">path</span>
-            <span class="n">path</span> <span class="o">=</span> <span class="n">giturl</span><span class="o">.</span><span class="n">git_path</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
-            <span class="c1"># if the repo is not clone yet, clone it now</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
-                <span class="n">path</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">clients</span><span class="o">.</span><span class="n">git</span><span class="o">.</span><span class="n">pullGitRepo</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
-        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
-            <span class="c1"># path is not an URL, we expect an absolute path</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isabs</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;path value is not valid. Need to be a valid git url or an absolute path on the local filesystem&quot;</span><span class="p">)</span>
+    <span class="n">key</span> <span class="o">=</span> <span class="n">_get_key</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">jwt</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">claims</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">algorithm</span><span class="o">=</span><span class="s1">&#39;HS256&#39;</span><span class="p">)</span>
 
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
-        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
 
-    <span class="k">return</span> <span class="n">path</span>
+<span class="k">def</span> <span class="nf">decode</span><span class="p">(</span><span class="n">token</span><span class="p">):</span>
+    <span class="n">key</span> <span class="o">=</span> <span class="n">_get_key</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">jwt</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">token</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">algorithms</span><span class="o">=</span><span class="s1">&#39;HS256&#39;</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">verify</span><span class="p">(</span><span class="n">service_guid</span><span class="p">,</span> <span class="n">token</span><span class="p">):</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">token</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">False</span>
+
+    <span class="n">expected</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;service_guid&#39;</span><span class="p">:</span> <span class="n">service_guid</span><span class="p">}</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">claims</span> <span class="o">=</span> <span class="n">decode</span><span class="p">(</span><span class="n">token</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">claims</span> <span class="o">==</span> <span class="n">expected</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">True</span>
+    <span class="k">except</span><span class="p">:</span>
+        <span class="k">pass</span>  <span class="c1"># return False</span>
+    <span class="k">return</span> <span class="bp">False</span>
+
+
+<span class="k">def</span> <span class="nf">_get_key</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;return the signing key to create JWT</span>
+<span class="sd">    the key is the one used by the config manager of JumpScale</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        SigningKeyNotFoundError -- [raised if signin key is not found]</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        str -- the signing key</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">key_name</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">config_js</span><span class="p">[</span><span class="s1">&#39;myconfig&#39;</span><span class="p">][</span><span class="s1">&#39;sshkeyname&#39;</span><span class="p">]</span>
+    <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">SigningKeyNotFoundError</span><span class="p">()</span>
+
+    <span class="n">key_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">expanduser</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;~/.ssh&#39;</span><span class="p">,</span> <span class="n">key_name</span><span class="p">))</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">key_path</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="n">SigningKeyNotFoundError</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">j</span><span class="o">.</span><span class="n">sal</span><span class="o">.</span><span class="n">fs</span><span class="o">.</span><span class="n">fileGetContents</span><span class="p">(</span><span class="n">key_path</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">SigningKeyNotFoundError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="k">pass</span>
 </pre></div>
 
   </div>
@@ -1111,41 +1148,80 @@ table {
     <h2 class="section-title" id="header-functions">Functions</h2>
       
   <div class="item">
-    <div class="name def" id="zerorobot.robot.data_repo.ensure">
-    <p>def <span class="ident">ensure</span>(</p><p>path=None)</p>
+    <div class="name def" id="zerorobot.server.auth.user_jwt.create">
+    <p>def <span class="ident">create</span>(</p><p>claims)</p>
     </div>
     
 
     
   
-    <div class="desc"><p>ensure the 0-robot data repository exists</p></div>
+    <div class="desc"><p>create a JWT with the claims pass as argument</p>
+<p>Arguments:
+    claims {dict} -- dict of claims to include in the JWT</p></div>
   <div class="source_cont">
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.robot.data_repo.ensure', this);">Show source &equiv;</a></p>
-  <div id="source-zerorobot.robot.data_repo.ensure" class="source">
-    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">ensure</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    ensure the 0-robot data repository exists</span>
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.server.auth.user_jwt.create', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.server.auth.user_jwt.create" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">create</span><span class="p">(</span><span class="n">claims</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;create a JWT with the claims pass as argument</span>
+
+<span class="sd">    Arguments:</span>
+<span class="sd">        claims {dict} -- dict of claims to include in the JWT</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">path</span><span class="p">:</span>
-        <span class="c1"># no path specify, we create one</span>
-        <span class="n">path</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">sal</span><span class="o">.</span><span class="n">fs</span><span class="o">.</span><span class="n">joinPaths</span><span class="p">(</span><span class="n">j</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">dirs</span><span class="o">.</span><span class="n">DATADIR</span><span class="p">,</span> <span class="s1">&#39;zrobot&#39;</span><span class="p">)</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="c1"># try to see of path is a git URL</span>
-            <span class="n">url</span> <span class="o">=</span> <span class="n">path</span>
-            <span class="n">path</span> <span class="o">=</span> <span class="n">giturl</span><span class="o">.</span><span class="n">git_path</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
-            <span class="c1"># if the repo is not clone yet, clone it now</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
-                <span class="n">path</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">clients</span><span class="o">.</span><span class="n">git</span><span class="o">.</span><span class="n">pullGitRepo</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
-        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
-            <span class="c1"># path is not an URL, we expect an absolute path</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isabs</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;path value is not valid. Need to be a valid git url or an absolute path on the local filesystem&quot;</span><span class="p">)</span>
+    <span class="n">key</span> <span class="o">=</span> <span class="n">_get_key</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">jwt</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">claims</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">algorithm</span><span class="o">=</span><span class="s1">&#39;HS256&#39;</span><span class="p">)</span>
+</pre></div>
 
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
-        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+  </div>
+</div>
 
-    <span class="k">return</span> <span class="n">path</span>
+  </div>
+  
+      
+  <div class="item">
+    <div class="name def" id="zerorobot.server.auth.user_jwt.decode">
+    <p>def <span class="ident">decode</span>(</p><p>token)</p>
+    </div>
+    
+
+    
+  
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.server.auth.user_jwt.decode', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.server.auth.user_jwt.decode" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">decode</span><span class="p">(</span><span class="n">token</span><span class="p">):</span>
+    <span class="n">key</span> <span class="o">=</span> <span class="n">_get_key</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">jwt</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">token</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">algorithms</span><span class="o">=</span><span class="s1">&#39;HS256&#39;</span><span class="p">)</span>
+</pre></div>
+
+  </div>
+</div>
+
+  </div>
+  
+      
+  <div class="item">
+    <div class="name def" id="zerorobot.server.auth.user_jwt.verify">
+    <p>def <span class="ident">verify</span>(</p><p>service_guid, token)</p>
+    </div>
+    
+
+    
+  
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.server.auth.user_jwt.verify', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.server.auth.user_jwt.verify" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">verify</span><span class="p">(</span><span class="n">service_guid</span><span class="p">,</span> <span class="n">token</span><span class="p">):</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">token</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">False</span>
+
+    <span class="n">expected</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;service_guid&#39;</span><span class="p">:</span> <span class="n">service_guid</span><span class="p">}</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">claims</span> <span class="o">=</span> <span class="n">decode</span><span class="p">(</span><span class="n">token</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">claims</span> <span class="o">==</span> <span class="n">expected</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">True</span>
+    <span class="k">except</span><span class="p">:</span>
+        <span class="k">pass</span>  <span class="c1"># return False</span>
+    <span class="k">return</span> <span class="bp">False</span>
 </pre></div>
 
   </div>
@@ -1154,6 +1230,45 @@ table {
   </div>
   
 
+    <h2 class="section-title" id="header-classes">Classes</h2>
+      
+      <div class="item">
+      <p id="zerorobot.server.auth.user_jwt.SigningKeyNotFoundError" class="name">class <span class="ident">SigningKeyNotFoundError</span></p>
+      
+  
+    <div class="desc"><p>Common base class for all non-exit exceptions.</p></div>
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.server.auth.user_jwt.SigningKeyNotFoundError', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.server.auth.user_jwt.SigningKeyNotFoundError" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">SigningKeyNotFoundError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="k">pass</span>
+</pre></div>
+
+  </div>
+</div>
+
+
+      <div class="class">
+          <h3>Ancestors (in MRO)</h3>
+          <ul class="class_list">
+          <li><a href="#zerorobot.server.auth.user_jwt.SigningKeyNotFoundError">SigningKeyNotFoundError</a></li>
+          <li>builtins.Exception</li>
+          <li>builtins.BaseException</li>
+          <li>builtins.object</li>
+          </ul>
+          <h3>Class variables</h3>
+            <div class="item">
+            <p id="zerorobot.server.auth.user_jwt.SigningKeyNotFoundError.args" class="name">var <span class="ident">args</span></p>
+            
+
+            
+  
+  <div class="source_cont">
+</div>
+
+            </div>
+      </div>
+      </div>
 
   </section>
 

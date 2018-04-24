@@ -52,6 +52,10 @@ Options:
                                 data repository
   --organization TEXT           if specified, enable JWT authentication for
                                 each request.
+  --disable-ssl                 if specified, the robot server won't
+                                automatically enable ssl. Use this only if you
+                                run the robot behind a proxy that provides you
+                                with ssl
   --help                        Show this message and exit.
 
 ```

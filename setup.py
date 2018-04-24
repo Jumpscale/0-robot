@@ -63,7 +63,8 @@ setup(
         'prometheus_client>=0.1.1',
         'netifaces>=0.10.6',
         'msgpack-python>=0.4.8',
-        'Flask-HTTPAuth>=3.2.3'
+        'Flask-HTTPAuth>=3.2.3',
+        'pyOpenSSL>=17.5.0',
     ],
     scripts=['cmd/zrobot'],
     cmdclass={

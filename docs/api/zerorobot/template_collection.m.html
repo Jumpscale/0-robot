@@ -1053,6 +1053,8 @@ table {
       
   <ul>
     <li class="mono"><a href="#zerorobot.template_collection.add_repo">add_repo</a></li>
+    <li class="mono"><a href="#zerorobot.template_collection.checkout_repo">checkout_repo</a></li>
+    <li class="mono"><a href="#zerorobot.template_collection.find">find</a></li>
     <li class="mono"><a href="#zerorobot.template_collection.get">get</a></li>
     <li class="mono"><a href="#zerorobot.template_collection.instantiate_service">instantiate_service</a></li>
     <li class="mono"><a href="#zerorobot.template_collection.list_templates">list_templates</a></li>
@@ -1062,6 +1064,10 @@ table {
 
     <li class="set"><h3><a href="#header-classes">Classes</a></h3>
       <ul>
+        <li class="mono">
+        <span class="class_name"><a href="#zerorobot.template_collection.TemplateConflictError">TemplateConflictError</a></span>
+        
+        </li>
         <li class="mono">
         <span class="class_name"><a href="#zerorobot.template_collection.TemplateNameError">TemplateNameError</a></span>
         
@@ -1099,11 +1105,13 @@ other services and class need to use this module method to load/access the templ
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">sys</span>
 
+<span class="kn">from</span> <span class="nn">gevent.pool</span> <span class="kn">import</span> <span class="n">Pool</span>
+
 <span class="kn">from</span> <span class="nn">js9</span> <span class="kn">import</span> <span class="n">j</span>
 <span class="kn">from</span> <span class="nn">zerorobot</span> <span class="kn">import</span> <span class="n">service_collection</span> <span class="k">as</span> <span class="n">scol</span>
+<span class="kn">from</span> <span class="nn">zerorobot</span> <span class="kn">import</span> <span class="n">git</span>
 <span class="kn">from</span> <span class="nn">zerorobot.service_collection</span> <span class="kn">import</span> <span class="n">ServiceConflictError</span>
 <span class="kn">from</span> <span class="nn">zerorobot.template_uid</span> <span class="kn">import</span> <span class="n">TemplateUID</span>
-<span class="kn">from</span> <span class="nn">zerorobot</span> <span class="kn">import</span> <span class="n">giturl</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;zerorobot&#39;</span><span class="p">)</span>
 
@@ -1117,7 +1125,7 @@ other services and class need to use this module method to load/access the templ
 <span class="sd">    directory: the path to the directory where the templates are located in the repository</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">new_templates</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="n">dir_path</span> <span class="o">=</span> <span class="n">giturl</span><span class="o">.</span><span class="n">git_path</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+    <span class="n">dir_path</span> <span class="o">=</span> <span class="n">git</span><span class="o">.</span><span class="n">url</span><span class="o">.</span><span class="n">git_path</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">dir_path</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">branch</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
@@ -1138,17 +1146,60 @@ other services and class need to use this module method to load/access the templ
 
 
 <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="n">uid</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    @uid: unique identifier for a template.</span>
-<span class="sd">    Can be a string with valid format as : &#39;github.com/account/repository/name/version&#39;</span>
-<span class="sd">    or</span>
-<span class="sd">    a zerorobot.template_collection.TemplateUID object</span>
+    <span class="sd">&quot;&quot;&quot;Get a template class</span>
+
+<span class="sd">    Arguments:</span>
+<span class="sd">        uid {string|TemplateUID} -- unique identifier for a template.</span>
+<span class="sd">                                    Can be a string with valid format as : &#39;github.com/account/repository/name/version&#39;</span>
+<span class="sd">                                    or a zerorobot.template_collection.TemplateUID object</span>
+<span class="sd">                                    or a string which is the name of the template you want</span>
+<span class="sd">                                    if 2 templates are loaded that have the same name TemplateConflictError is raised</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        TemplateNotFoundError -- template with specified uid is not found</span>
+<span class="sd">        TemplateConflictError -- raise if 2 templates have the same name is raised</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        [TemplateBase] -- return the template class</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">uid</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-        <span class="n">uid</span> <span class="o">=</span> <span class="n">TemplateUID</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">uid</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">uid</span> <span class="o">=</span> <span class="n">TemplateUID</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">uid</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+            <span class="c1"># uid is not a full template uid, try with only its name</span>
+            <span class="n">templates</span> <span class="o">=</span> <span class="n">find</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">uid</span><span class="p">)</span>
+            <span class="n">size</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">templates</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">size</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">TemplateConflictError</span><span class="p">(</span><span class="s2">&quot;tried to get template with name </span><span class="si">%s</span><span class="s2">, but more then one template have this name (</span><span class="si">%s</span><span class="s2">)&quot;</span><span class="p">,</span>
+                                            <span class="n">uid</span><span class="p">,</span> <span class="s1">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">templates</span><span class="p">))</span>
+            <span class="k">elif</span> <span class="n">size</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">TemplateNotFoundError</span><span class="p">(</span><span class="s2">&quot;template with name </span><span class="si">%s</span><span class="s2"> not found&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">uid</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">templates</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
     <span class="k">if</span> <span class="n">uid</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">_templates</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">TemplateNotFoundError</span><span class="p">(</span><span class="s2">&quot;template with name </span><span class="si">%s</span><span class="s2"> not found&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">uid</span><span class="p">))</span>
     <span class="k">return</span> <span class="n">_templates</span><span class="p">[</span><span class="n">uid</span><span class="p">]</span>
+
+
+<span class="k">def</span> <span class="nf">find</span><span class="p">(</span><span class="n">host</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">account</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">repo</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">version</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    search for a template based on the part of the template UID</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">match</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">uid</span><span class="p">,</span> <span class="n">template</span> <span class="ow">in</span> <span class="n">_templates</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">host</span> <span class="ow">and</span> <span class="n">uid</span><span class="o">.</span><span class="n">host</span> <span class="o">!=</span> <span class="n">host</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="k">if</span> <span class="n">account</span> <span class="ow">and</span> <span class="n">uid</span><span class="o">.</span><span class="n">account</span> <span class="o">!=</span> <span class="n">account</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="k">if</span> <span class="n">repo</span> <span class="ow">and</span> <span class="n">uid</span><span class="o">.</span><span class="n">repo</span> <span class="o">!=</span> <span class="n">repo</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="ow">and</span> <span class="n">uid</span><span class="o">.</span><span class="n">name</span> <span class="o">!=</span> <span class="n">name</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="k">if</span> <span class="n">version</span> <span class="ow">and</span> <span class="n">uid</span><span class="o">.</span><span class="n">version</span> <span class="o">!=</span> <span class="n">version</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="n">match</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">template</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">match</span>
 
 
 <span class="k">def</span> <span class="nf">list_templates</span><span class="p">():</span>
@@ -1180,7 +1231,7 @@ other services and class need to use this module method to load/access the templ
 
     <span class="n">class_</span> <span class="o">=</span> <span class="nb">eval</span><span class="p">(</span><span class="s1">&#39;module.</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">class_name</span><span class="p">)</span>
 
-    <span class="n">_</span><span class="p">,</span> <span class="n">host</span><span class="p">,</span> <span class="n">account</span><span class="p">,</span> <span class="n">repo</span> <span class="o">=</span> <span class="n">giturl</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+    <span class="n">_</span><span class="p">,</span> <span class="n">host</span><span class="p">,</span> <span class="n">account</span><span class="p">,</span> <span class="n">repo</span> <span class="o">=</span> <span class="n">git</span><span class="o">.</span><span class="n">url</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
 
     <span class="n">class_</span><span class="o">.</span><span class="n">template_uid</span> <span class="o">=</span> <span class="n">TemplateUID</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">/</span><span class="si">%s</span><span class="s2">/</span><span class="si">%s</span><span class="s2">/</span><span class="si">%s</span><span class="s2">/</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">host</span><span class="p">,</span> <span class="n">account</span><span class="p">,</span> <span class="n">repo</span><span class="p">,</span> <span class="n">template_name</span><span class="p">,</span> <span class="n">class_</span><span class="o">.</span><span class="n">version</span><span class="p">))</span>
 
@@ -1208,6 +1259,36 @@ other services and class need to use this module method to load/access the templ
     <span class="k">return</span> <span class="n">service</span>
 
 
+<span class="k">def</span> <span class="nf">checkout_repo</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">revision</span><span class="o">=</span><span class="s1">&#39;master&#39;</span><span class="p">):</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;checkout </span><span class="si">%s</span><span class="s2"> for repo </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">revision</span><span class="p">,</span> <span class="n">url</span><span class="p">)</span>
+    <span class="n">dir_path</span> <span class="o">=</span> <span class="n">git</span><span class="o">.</span><span class="n">url</span><span class="o">.</span><span class="n">git_path</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">dir_path</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="n">TemplateNotFoundError</span><span class="p">()</span>
+
+    <span class="n">repo</span> <span class="o">=</span> <span class="n">git</span><span class="o">.</span><span class="n">repo</span><span class="o">.</span><span class="n">Repo</span><span class="p">(</span><span class="n">dir_path</span><span class="p">)</span>
+    <span class="n">repo</span><span class="o">.</span><span class="n">fetch</span><span class="p">()</span>
+
+    <span class="n">repo</span><span class="o">.</span><span class="n">repo</span><span class="o">.</span><span class="n">checkout</span><span class="p">(</span><span class="n">revision</span><span class="p">)</span>
+    <span class="n">t</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">repo</span><span class="o">.</span><span class="n">branch_or_tag</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">t</span> <span class="o">==</span> <span class="s1">&#39;branch&#39;</span><span class="p">:</span>
+        <span class="n">repo</span><span class="o">.</span><span class="n">pull</span><span class="p">()</span>
+
+    <span class="c1"># load the new templates</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;reload templates&quot;</span><span class="p">)</span>
+    <span class="n">updated_templates</span> <span class="o">=</span> <span class="n">add_repo</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+
+    <span class="c1"># pool of greenlet used to upgrade service concurrently</span>
+    <span class="n">pool</span> <span class="o">=</span> <span class="n">Pool</span><span class="p">(</span><span class="mi">25</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">template</span> <span class="ow">in</span> <span class="n">updated_templates</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">service</span> <span class="ow">in</span> <span class="n">scol</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">template_host</span><span class="o">=</span><span class="n">template</span><span class="o">.</span><span class="n">template_uid</span><span class="o">.</span><span class="n">host</span><span class="p">,</span>
+                                 <span class="n">template_account</span><span class="o">=</span><span class="n">template</span><span class="o">.</span><span class="n">template_uid</span><span class="o">.</span><span class="n">account</span><span class="p">,</span>
+                                 <span class="n">template_repo</span><span class="o">=</span><span class="n">template</span><span class="o">.</span><span class="n">template_uid</span><span class="o">.</span><span class="n">repo</span><span class="p">,</span>
+                                 <span class="n">template_name</span><span class="o">=</span><span class="n">template</span><span class="o">.</span><span class="n">template_uid</span><span class="o">.</span><span class="n">name</span><span class="p">):</span>
+            <span class="n">pool</span><span class="o">.</span><span class="n">spawn</span><span class="p">(</span><span class="n">scol</span><span class="o">.</span><span class="n">upgrade</span><span class="p">,</span> <span class="n">service</span><span class="p">,</span> <span class="n">template</span><span class="p">,</span> <span class="bp">True</span><span class="p">)</span>
+    <span class="n">pool</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">raise_error</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+
 <span class="k">class</span> <span class="nc">TemplateNameError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
     <span class="k">pass</span>
 
@@ -1216,6 +1297,14 @@ other services and class need to use this module method to load/access the templ
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    This exception is raised when trying to create a service</span>
 <span class="sd">    from a template that doesn&#39;t exists</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">pass</span>
+
+
+<span class="k">class</span> <span class="nc">TemplateConflictError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This exception is raised when trying to get a template with its name</span>
+<span class="sd">    and 2 templates have te same name, so we can&#39;t decide which one to retrn</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">pass</span>
 </pre></div>
@@ -1258,7 +1347,7 @@ directory: the path to the directory where the templates are located in the repo
 <span class="sd">    directory: the path to the directory where the templates are located in the repository</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">new_templates</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="n">dir_path</span> <span class="o">=</span> <span class="n">giturl</span><span class="o">.</span><span class="n">git_path</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+    <span class="n">dir_path</span> <span class="o">=</span> <span class="n">git</span><span class="o">.</span><span class="n">url</span><span class="o">.</span><span class="n">git_path</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">dir_path</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">branch</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
@@ -1285,6 +1374,91 @@ directory: the path to the directory where the templates are located in the repo
   
       
   <div class="item">
+    <div class="name def" id="zerorobot.template_collection.checkout_repo">
+    <p>def <span class="ident">checkout_repo</span>(</p><p>url, revision=&#39;master&#39;)</p>
+    </div>
+    
+
+    
+  
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.template_collection.checkout_repo', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.template_collection.checkout_repo" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">checkout_repo</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">revision</span><span class="o">=</span><span class="s1">&#39;master&#39;</span><span class="p">):</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;checkout </span><span class="si">%s</span><span class="s2"> for repo </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">revision</span><span class="p">,</span> <span class="n">url</span><span class="p">)</span>
+    <span class="n">dir_path</span> <span class="o">=</span> <span class="n">git</span><span class="o">.</span><span class="n">url</span><span class="o">.</span><span class="n">git_path</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">dir_path</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="n">TemplateNotFoundError</span><span class="p">()</span>
+
+    <span class="n">repo</span> <span class="o">=</span> <span class="n">git</span><span class="o">.</span><span class="n">repo</span><span class="o">.</span><span class="n">Repo</span><span class="p">(</span><span class="n">dir_path</span><span class="p">)</span>
+    <span class="n">repo</span><span class="o">.</span><span class="n">fetch</span><span class="p">()</span>
+
+    <span class="n">repo</span><span class="o">.</span><span class="n">repo</span><span class="o">.</span><span class="n">checkout</span><span class="p">(</span><span class="n">revision</span><span class="p">)</span>
+    <span class="n">t</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">repo</span><span class="o">.</span><span class="n">branch_or_tag</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">t</span> <span class="o">==</span> <span class="s1">&#39;branch&#39;</span><span class="p">:</span>
+        <span class="n">repo</span><span class="o">.</span><span class="n">pull</span><span class="p">()</span>
+
+    <span class="c1"># load the new templates</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;reload templates&quot;</span><span class="p">)</span>
+    <span class="n">updated_templates</span> <span class="o">=</span> <span class="n">add_repo</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+
+    <span class="c1"># pool of greenlet used to upgrade service concurrently</span>
+    <span class="n">pool</span> <span class="o">=</span> <span class="n">Pool</span><span class="p">(</span><span class="mi">25</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">template</span> <span class="ow">in</span> <span class="n">updated_templates</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">service</span> <span class="ow">in</span> <span class="n">scol</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">template_host</span><span class="o">=</span><span class="n">template</span><span class="o">.</span><span class="n">template_uid</span><span class="o">.</span><span class="n">host</span><span class="p">,</span>
+                                 <span class="n">template_account</span><span class="o">=</span><span class="n">template</span><span class="o">.</span><span class="n">template_uid</span><span class="o">.</span><span class="n">account</span><span class="p">,</span>
+                                 <span class="n">template_repo</span><span class="o">=</span><span class="n">template</span><span class="o">.</span><span class="n">template_uid</span><span class="o">.</span><span class="n">repo</span><span class="p">,</span>
+                                 <span class="n">template_name</span><span class="o">=</span><span class="n">template</span><span class="o">.</span><span class="n">template_uid</span><span class="o">.</span><span class="n">name</span><span class="p">):</span>
+            <span class="n">pool</span><span class="o">.</span><span class="n">spawn</span><span class="p">(</span><span class="n">scol</span><span class="o">.</span><span class="n">upgrade</span><span class="p">,</span> <span class="n">service</span><span class="p">,</span> <span class="n">template</span><span class="p">,</span> <span class="bp">True</span><span class="p">)</span>
+    <span class="n">pool</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">raise_error</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+</pre></div>
+
+  </div>
+</div>
+
+  </div>
+  
+      
+  <div class="item">
+    <div class="name def" id="zerorobot.template_collection.find">
+    <p>def <span class="ident">find</span>(</p><p>host=None, account=None, repo=None, name=None, version=None)</p>
+    </div>
+    
+
+    
+  
+    <div class="desc"><p>search for a template based on the part of the template UID</p></div>
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.template_collection.find', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.template_collection.find" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">find</span><span class="p">(</span><span class="n">host</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">account</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">repo</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">version</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    search for a template based on the part of the template UID</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">match</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">uid</span><span class="p">,</span> <span class="n">template</span> <span class="ow">in</span> <span class="n">_templates</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">host</span> <span class="ow">and</span> <span class="n">uid</span><span class="o">.</span><span class="n">host</span> <span class="o">!=</span> <span class="n">host</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="k">if</span> <span class="n">account</span> <span class="ow">and</span> <span class="n">uid</span><span class="o">.</span><span class="n">account</span> <span class="o">!=</span> <span class="n">account</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="k">if</span> <span class="n">repo</span> <span class="ow">and</span> <span class="n">uid</span><span class="o">.</span><span class="n">repo</span> <span class="o">!=</span> <span class="n">repo</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="ow">and</span> <span class="n">uid</span><span class="o">.</span><span class="n">name</span> <span class="o">!=</span> <span class="n">name</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="k">if</span> <span class="n">version</span> <span class="ow">and</span> <span class="n">uid</span><span class="o">.</span><span class="n">version</span> <span class="o">!=</span> <span class="n">version</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="n">match</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">template</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">match</span>
+</pre></div>
+
+  </div>
+</div>
+
+  </div>
+  
+      
+  <div class="item">
     <div class="name def" id="zerorobot.template_collection.get">
     <p>def <span class="ident">get</span>(</p><p>uid)</p>
     </div>
@@ -1292,22 +1466,53 @@ directory: the path to the directory where the templates are located in the repo
 
     
   
-    <div class="desc"><p>@uid: unique identifier for a template.
-Can be a string with valid format as : 'github.com/account/repository/name/version'
-or
-a zerorobot.template_collection.TemplateUID object</p></div>
+    <div class="desc"><p>Get a template class</p>
+<p>Arguments:
+    uid {string|TemplateUID} -- unique identifier for a template.
+                                Can be a string with valid format as : 'github.com/account/repository/name/version'
+                                or a zerorobot.template_collection.TemplateUID object
+                                or a string which is the name of the template you want
+                                if 2 templates are loaded that have the same name TemplateConflictError is raised</p>
+<p>Raises:
+    TemplateNotFoundError -- template with specified uid is not found
+    TemplateConflictError -- raise if 2 templates have the same name is raised</p>
+<p>Returns:
+    [TemplateBase] -- return the template class</p></div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.template_collection.get', this);">Show source &equiv;</a></p>
   <div id="source-zerorobot.template_collection.get" class="source">
     <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="n">uid</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    @uid: unique identifier for a template.</span>
-<span class="sd">    Can be a string with valid format as : &#39;github.com/account/repository/name/version&#39;</span>
-<span class="sd">    or</span>
-<span class="sd">    a zerorobot.template_collection.TemplateUID object</span>
+    <span class="sd">&quot;&quot;&quot;Get a template class</span>
+
+<span class="sd">    Arguments:</span>
+<span class="sd">        uid {string|TemplateUID} -- unique identifier for a template.</span>
+<span class="sd">                                    Can be a string with valid format as : &#39;github.com/account/repository/name/version&#39;</span>
+<span class="sd">                                    or a zerorobot.template_collection.TemplateUID object</span>
+<span class="sd">                                    or a string which is the name of the template you want</span>
+<span class="sd">                                    if 2 templates are loaded that have the same name TemplateConflictError is raised</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        TemplateNotFoundError -- template with specified uid is not found</span>
+<span class="sd">        TemplateConflictError -- raise if 2 templates have the same name is raised</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        [TemplateBase] -- return the template class</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">uid</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-        <span class="n">uid</span> <span class="o">=</span> <span class="n">TemplateUID</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">uid</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">uid</span> <span class="o">=</span> <span class="n">TemplateUID</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">uid</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+            <span class="c1"># uid is not a full template uid, try with only its name</span>
+            <span class="n">templates</span> <span class="o">=</span> <span class="n">find</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">uid</span><span class="p">)</span>
+            <span class="n">size</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">templates</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">size</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">TemplateConflictError</span><span class="p">(</span><span class="s2">&quot;tried to get template with name </span><span class="si">%s</span><span class="s2">, but more then one template have this name (</span><span class="si">%s</span><span class="s2">)&quot;</span><span class="p">,</span>
+                                            <span class="n">uid</span><span class="p">,</span> <span class="s1">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">templates</span><span class="p">))</span>
+            <span class="k">elif</span> <span class="n">size</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">TemplateNotFoundError</span><span class="p">(</span><span class="s2">&quot;template with name </span><span class="si">%s</span><span class="s2"> not found&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">uid</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">templates</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
     <span class="k">if</span> <span class="n">uid</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">_templates</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">TemplateNotFoundError</span><span class="p">(</span><span class="s2">&quot;template with name </span><span class="si">%s</span><span class="s2"> not found&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">uid</span><span class="p">))</span>
     <span class="k">return</span> <span class="n">_templates</span><span class="p">[</span><span class="n">uid</span><span class="p">]</span>
@@ -1376,6 +1581,49 @@ a zerorobot.template_collection.TemplateUID object</p></div>
   
 
     <h2 class="section-title" id="header-classes">Classes</h2>
+      
+      <div class="item">
+      <p id="zerorobot.template_collection.TemplateConflictError" class="name">class <span class="ident">TemplateConflictError</span></p>
+      
+  
+    <div class="desc"><p>This exception is raised when trying to get a template with its name
+and 2 templates have te same name, so we can't decide which one to retrn</p></div>
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.template_collection.TemplateConflictError', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.template_collection.TemplateConflictError" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">TemplateConflictError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This exception is raised when trying to get a template with its name</span>
+<span class="sd">    and 2 templates have te same name, so we can&#39;t decide which one to retrn</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">pass</span>
+</pre></div>
+
+  </div>
+</div>
+
+
+      <div class="class">
+          <h3>Ancestors (in MRO)</h3>
+          <ul class="class_list">
+          <li><a href="#zerorobot.template_collection.TemplateConflictError">TemplateConflictError</a></li>
+          <li>builtins.Exception</li>
+          <li>builtins.BaseException</li>
+          <li>builtins.object</li>
+          </ul>
+          <h3>Class variables</h3>
+            <div class="item">
+            <p id="zerorobot.template_collection.TemplateConflictError.args" class="name">var <span class="ident">args</span></p>
+            
+
+            
+  
+  <div class="source_cont">
+</div>
+
+            </div>
+      </div>
+      </div>
       
       <div class="item">
       <p id="zerorobot.template_collection.TemplateNameError" class="name">class <span class="ident">TemplateNameError</span></p>

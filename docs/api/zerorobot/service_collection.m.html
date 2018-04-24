@@ -1184,9 +1184,11 @@ other services and class need to use this module method to create, access, list 
     <span class="n">service_data</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">serializer</span><span class="o">.</span><span class="n">yaml</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">base_path</span><span class="p">,</span> <span class="s1">&#39;data.yaml&#39;</span><span class="p">))</span>
 
     <span class="n">template_uid</span> <span class="o">=</span> <span class="n">TemplateUID</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">service_info</span><span class="p">[</span><span class="s1">&#39;template&#39;</span><span class="p">])</span>
-    <span class="k">if</span> <span class="n">template_uid</span> <span class="o">!=</span> <span class="n">template</span><span class="o">.</span><span class="n">template_uid</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="n">BadTemplateError</span><span class="p">(</span><span class="s2">&quot;Trying to load service </span><span class="si">%s</span><span class="s2"> with template </span><span class="si">%s</span><span class="s2">, while it requires </span><span class="si">%s</span><span class="s2">&quot;</span>
-                               <span class="o">%</span> <span class="p">(</span><span class="n">guid</span><span class="p">,</span> <span class="n">template</span><span class="o">.</span><span class="n">template_uid</span><span class="p">,</span> <span class="n">service_info</span><span class="p">[</span><span class="s1">&#39;template&#39;</span><span class="p">]))</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">template_uid</span> <span class="o">&gt;</span> <span class="n">template</span><span class="o">.</span><span class="n">template_uid</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">BadTemplateError</span><span class="p">(</span><span class="s2">&quot;Trying to load service </span><span class="si">%s</span><span class="s2"> with template </span><span class="si">%s</span><span class="s2">, while it requires </span><span class="si">%s</span><span class="s2"> or higher&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">guid</span><span class="p">,</span> <span class="n">template</span><span class="o">.</span><span class="n">template_uid</span><span class="p">,</span> <span class="n">service_info</span><span class="p">[</span><span class="s1">&#39;template&#39;</span><span class="p">]))</span>
+    <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>  <span class="c1"># is the two template are not the same, ValueError is raised</span>
+        <span class="k">raise</span> <span class="n">BadTemplateError</span><span class="p">(</span><span class="s2">&quot;Trying to load service </span><span class="si">%s</span><span class="s2"> with template </span><span class="si">%s</span><span class="s2">, while it requires </span><span class="si">%s</span><span class="s2"> or higher&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">guid</span><span class="p">,</span> <span class="n">template</span><span class="o">.</span><span class="n">template_uid</span><span class="p">,</span> <span class="n">service_info</span><span class="p">[</span><span class="s1">&#39;template&#39;</span><span class="p">]))</span>
 
     <span class="k">if</span> <span class="n">service_info</span><span class="p">[</span><span class="s1">&#39;guid&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="n">guid</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">BadTemplateError</span><span class="p">(</span><span class="s2">&quot;Trying to load service from folder </span><span class="si">%s</span><span class="s2">, but name of the service is </span><span class="si">%s</span><span class="s2">&quot;</span>
@@ -1202,13 +1204,19 @@ other services and class need to use this module method to create, access, list 
     <span class="k">return</span> <span class="n">srv</span>
 
 
-<span class="k">def</span> <span class="nf">upgrade</span><span class="p">(</span><span class="n">service</span><span class="p">,</span> <span class="n">new_template</span><span class="p">):</span>
-    <span class="k">if</span> <span class="n">service</span><span class="o">.</span><span class="n">template_uid</span> <span class="o">==</span> <span class="n">new_template</span><span class="o">.</span><span class="n">template_uid</span><span class="p">:</span>
+<span class="k">def</span> <span class="nf">upgrade</span><span class="p">(</span><span class="n">service</span><span class="p">,</span> <span class="n">new_template</span><span class="p">,</span> <span class="n">force</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">force</span> <span class="ow">and</span> <span class="n">service</span><span class="o">.</span><span class="n">template_uid</span> <span class="o">==</span> <span class="n">new_template</span><span class="o">.</span><span class="n">template_uid</span><span class="p">:</span>
         <span class="c1"># nothing to do</span>
         <span class="k">return</span> <span class="n">service</span>
 
     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;upgrade service </span><span class="si">%s</span><span class="s2"> (</span><span class="si">%s</span><span class="s2">) to </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">service</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">service</span><span class="o">.</span><span class="n">guid</span><span class="p">,</span> <span class="n">new_template</span><span class="o">.</span><span class="n">template_uid</span><span class="p">)</span>
     <span class="n">service</span><span class="o">.</span><span class="n">template_uid</span> <span class="o">=</span> <span class="n">new_template</span><span class="o">.</span><span class="n">template_uid</span>
+
+    <span class="c1"># if there is a task running for this service, wait for it to finish, before stopping the service</span>
+    <span class="n">current_task</span> <span class="o">=</span> <span class="n">service</span><span class="o">.</span><span class="n">task_list</span><span class="o">.</span><span class="n">current</span>
+    <span class="k">if</span> <span class="n">current_task</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">current_task</span><span class="o">.</span><span class="n">wait</span><span class="p">(</span><span class="n">timeout</span><span class="o">=</span><span class="mi">300</span><span class="p">)</span>  <span class="c1"># FIXME: fixed timeout, no timeout ?</span>
+
     <span class="c1"># stop the services</span>
     <span class="n">service</span><span class="o">.</span><span class="n">gl_mgr</span><span class="o">.</span><span class="n">stop_all</span><span class="p">(</span><span class="n">wait</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
     <span class="n">service</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
@@ -1486,9 +1494,11 @@ other services and class need to use this module method to create, access, list 
     <span class="n">service_data</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">serializer</span><span class="o">.</span><span class="n">yaml</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">base_path</span><span class="p">,</span> <span class="s1">&#39;data.yaml&#39;</span><span class="p">))</span>
 
     <span class="n">template_uid</span> <span class="o">=</span> <span class="n">TemplateUID</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">service_info</span><span class="p">[</span><span class="s1">&#39;template&#39;</span><span class="p">])</span>
-    <span class="k">if</span> <span class="n">template_uid</span> <span class="o">!=</span> <span class="n">template</span><span class="o">.</span><span class="n">template_uid</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="n">BadTemplateError</span><span class="p">(</span><span class="s2">&quot;Trying to load service </span><span class="si">%s</span><span class="s2"> with template </span><span class="si">%s</span><span class="s2">, while it requires </span><span class="si">%s</span><span class="s2">&quot;</span>
-                               <span class="o">%</span> <span class="p">(</span><span class="n">guid</span><span class="p">,</span> <span class="n">template</span><span class="o">.</span><span class="n">template_uid</span><span class="p">,</span> <span class="n">service_info</span><span class="p">[</span><span class="s1">&#39;template&#39;</span><span class="p">]))</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">template_uid</span> <span class="o">&gt;</span> <span class="n">template</span><span class="o">.</span><span class="n">template_uid</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">BadTemplateError</span><span class="p">(</span><span class="s2">&quot;Trying to load service </span><span class="si">%s</span><span class="s2"> with template </span><span class="si">%s</span><span class="s2">, while it requires </span><span class="si">%s</span><span class="s2"> or higher&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">guid</span><span class="p">,</span> <span class="n">template</span><span class="o">.</span><span class="n">template_uid</span><span class="p">,</span> <span class="n">service_info</span><span class="p">[</span><span class="s1">&#39;template&#39;</span><span class="p">]))</span>
+    <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>  <span class="c1"># is the two template are not the same, ValueError is raised</span>
+        <span class="k">raise</span> <span class="n">BadTemplateError</span><span class="p">(</span><span class="s2">&quot;Trying to load service </span><span class="si">%s</span><span class="s2"> with template </span><span class="si">%s</span><span class="s2">, while it requires </span><span class="si">%s</span><span class="s2"> or higher&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">guid</span><span class="p">,</span> <span class="n">template</span><span class="o">.</span><span class="n">template_uid</span><span class="p">,</span> <span class="n">service_info</span><span class="p">[</span><span class="s1">&#39;template&#39;</span><span class="p">]))</span>
 
     <span class="k">if</span> <span class="n">service_info</span><span class="p">[</span><span class="s1">&#39;guid&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="n">guid</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">BadTemplateError</span><span class="p">(</span><span class="s2">&quot;Trying to load service from folder </span><span class="si">%s</span><span class="s2">, but name of the service is </span><span class="si">%s</span><span class="s2">&quot;</span>
@@ -1512,7 +1522,7 @@ other services and class need to use this module method to create, access, list 
       
   <div class="item">
     <div class="name def" id="zerorobot.service_collection.upgrade">
-    <p>def <span class="ident">upgrade</span>(</p><p>service, new_template)</p>
+    <p>def <span class="ident">upgrade</span>(</p><p>service, new_template, force=False)</p>
     </div>
     
 
@@ -1521,13 +1531,19 @@ other services and class need to use this module method to create, access, list 
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.service_collection.upgrade', this);">Show source &equiv;</a></p>
   <div id="source-zerorobot.service_collection.upgrade" class="source">
-    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">upgrade</span><span class="p">(</span><span class="n">service</span><span class="p">,</span> <span class="n">new_template</span><span class="p">):</span>
-    <span class="k">if</span> <span class="n">service</span><span class="o">.</span><span class="n">template_uid</span> <span class="o">==</span> <span class="n">new_template</span><span class="o">.</span><span class="n">template_uid</span><span class="p">:</span>
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">upgrade</span><span class="p">(</span><span class="n">service</span><span class="p">,</span> <span class="n">new_template</span><span class="p">,</span> <span class="n">force</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">force</span> <span class="ow">and</span> <span class="n">service</span><span class="o">.</span><span class="n">template_uid</span> <span class="o">==</span> <span class="n">new_template</span><span class="o">.</span><span class="n">template_uid</span><span class="p">:</span>
         <span class="c1"># nothing to do</span>
         <span class="k">return</span> <span class="n">service</span>
 
     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;upgrade service </span><span class="si">%s</span><span class="s2"> (</span><span class="si">%s</span><span class="s2">) to </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">service</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">service</span><span class="o">.</span><span class="n">guid</span><span class="p">,</span> <span class="n">new_template</span><span class="o">.</span><span class="n">template_uid</span><span class="p">)</span>
     <span class="n">service</span><span class="o">.</span><span class="n">template_uid</span> <span class="o">=</span> <span class="n">new_template</span><span class="o">.</span><span class="n">template_uid</span>
+
+    <span class="c1"># if there is a task running for this service, wait for it to finish, before stopping the service</span>
+    <span class="n">current_task</span> <span class="o">=</span> <span class="n">service</span><span class="o">.</span><span class="n">task_list</span><span class="o">.</span><span class="n">current</span>
+    <span class="k">if</span> <span class="n">current_task</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">current_task</span><span class="o">.</span><span class="n">wait</span><span class="p">(</span><span class="n">timeout</span><span class="o">=</span><span class="mi">300</span><span class="p">)</span>  <span class="c1"># FIXME: fixed timeout, no timeout ?</span>
+
     <span class="c1"># stop the services</span>
     <span class="n">service</span><span class="o">.</span><span class="n">gl_mgr</span><span class="o">.</span><span class="n">stop_all</span><span class="p">(</span><span class="n">wait</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
     <span class="n">service</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>

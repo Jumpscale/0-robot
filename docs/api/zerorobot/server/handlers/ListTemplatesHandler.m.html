@@ -1073,7 +1073,10 @@ table {
 <span class="kn">from</span> <span class="nn">zerorobot</span> <span class="kn">import</span> <span class="n">template_collection</span> <span class="k">as</span> <span class="n">tcol</span>
 <span class="kn">from</span> <span class="nn">zerorobot.server.handlers.views</span> <span class="kn">import</span> <span class="n">template_view</span>
 
+<span class="kn">from</span> <span class="nn">zerorobot.server</span> <span class="kn">import</span> <span class="n">auth</span>
 
+
+<span class="nd">@auth.admin.login_required</span>
 <span class="k">def</span> <span class="nf">ListTemplatesHandler</span><span class="p">():</span>
     <span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    List all the templates available to the ZeroRobot</span>
@@ -1093,7 +1096,7 @@ table {
       
   <div class="item">
     <div class="name def" id="zerorobot.server.handlers.ListTemplatesHandler.ListTemplatesHandler">
-    <p>def <span class="ident">ListTemplatesHandler</span>(</p><p>)</p>
+    <p>def <span class="ident">ListTemplatesHandler</span>(</p><p>*args, **kwargs)</p>
     </div>
     
 
@@ -1104,7 +1107,8 @@ It is handler for GET /templates</p></div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.server.handlers.ListTemplatesHandler.ListTemplatesHandler', this);">Show source &equiv;</a></p>
   <div id="source-zerorobot.server.handlers.ListTemplatesHandler.ListTemplatesHandler" class="source">
-    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">ListTemplatesHandler</span><span class="p">():</span>
+    <div class="codehilite"><pre><span></span><span class="nd">@auth.admin.login_required</span>
+<span class="k">def</span> <span class="nf">ListTemplatesHandler</span><span class="p">():</span>
     <span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    List all the templates available to the ZeroRobot</span>
 <span class="sd">    It is handler for GET /templates</span>

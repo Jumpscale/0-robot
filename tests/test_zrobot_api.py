@@ -30,16 +30,16 @@ class TestZRobotAPI(unittest.TestCase):
     def _start_robot(self, id, with_tmpl=False):
         def new(id, with_tmpl):
             robot = Robot()
-            config.DATA_DIR = tempfile.mkdtemp(prefix="robot%s" % id)
+            robot.set_data_repo(j.sal.fs.getTmpDirPath())
             if with_tmpl:
                 robot.add_template_repo('http://github.com/zero-os/0-robot', directory='tests/fixtures/templates')
 
             listen = "localhost:660%d" % int(id)
-            addr = "http://%s" % listen
+            addr = "https://%s" % listen
             robot.start(listen=listen, testing=True)
             # return robot
 
-        addr = "http://localhost:660%d" % int(id)
+        addr = "https://localhost:660%d" % int(id)
         p = Process(target=new, args=(id, with_tmpl))
         p.start()
         return p, addr

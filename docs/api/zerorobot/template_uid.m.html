@@ -1111,8 +1111,6 @@ table {
 <span class="sd">        parse supports forms:</span>
 <span class="sd">        complete uid: github.com/account/repository/name/version</span>
 <span class="sd">        without version: github.com/account/repository/name</span>
-<span class="sd">        name and version: name/version</span>
-<span class="sd">        just the name: name</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">host</span><span class="p">,</span> <span class="n">account</span><span class="p">,</span> <span class="n">repo</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">version</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="bp">None</span>
 
@@ -1126,10 +1124,6 @@ table {
             <span class="n">host</span><span class="p">,</span> <span class="n">account</span><span class="p">,</span> <span class="n">repo</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">version</span> <span class="o">=</span> <span class="n">ss</span>
         <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">ss</span><span class="p">)</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
             <span class="n">host</span><span class="p">,</span> <span class="n">account</span><span class="p">,</span> <span class="n">repo</span><span class="p">,</span> <span class="n">name</span> <span class="o">=</span> <span class="n">ss</span>
-        <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">ss</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
-            <span class="n">name</span><span class="p">,</span> <span class="n">version</span> <span class="o">=</span> <span class="n">ss</span>
-        <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">ss</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="n">name</span> <span class="o">=</span> <span class="n">ss</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;format of the template uid (</span><span class="si">%s</span><span class="s2">) not valid&quot;</span> <span class="o">%</span> <span class="n">uid</span><span class="p">)</span>
 
@@ -1231,8 +1225,6 @@ table {
 <span class="sd">        parse supports forms:</span>
 <span class="sd">        complete uid: github.com/account/repository/name/version</span>
 <span class="sd">        without version: github.com/account/repository/name</span>
-<span class="sd">        name and version: name/version</span>
-<span class="sd">        just the name: name</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">host</span><span class="p">,</span> <span class="n">account</span><span class="p">,</span> <span class="n">repo</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">version</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="bp">None</span>
 
@@ -1246,10 +1238,6 @@ table {
             <span class="n">host</span><span class="p">,</span> <span class="n">account</span><span class="p">,</span> <span class="n">repo</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">version</span> <span class="o">=</span> <span class="n">ss</span>
         <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">ss</span><span class="p">)</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
             <span class="n">host</span><span class="p">,</span> <span class="n">account</span><span class="p">,</span> <span class="n">repo</span><span class="p">,</span> <span class="n">name</span> <span class="o">=</span> <span class="n">ss</span>
-        <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">ss</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
-            <span class="n">name</span><span class="p">,</span> <span class="n">version</span> <span class="o">=</span> <span class="n">ss</span>
-        <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">ss</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="n">name</span> <span class="o">=</span> <span class="n">ss</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;format of the template uid (</span><span class="si">%s</span><span class="s2">) not valid&quot;</span> <span class="o">%</span> <span class="n">uid</span><span class="p">)</span>
 
@@ -1441,9 +1429,7 @@ template name: name
 version: version</p>
 <p>parse supports forms:
 complete uid: github.com/account/repository/name/version
-without version: github.com/account/repository/name
-name and version: name/version
-just the name: name</p></div>
+without version: github.com/account/repository/name</p></div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.template_uid.TemplateUID.parse', this);">Show source &equiv;</a></p>
   <div id="source-zerorobot.template_uid.TemplateUID.parse" class="source">
@@ -1467,8 +1453,6 @@ just the name: name</p></div>
 <span class="sd">    parse supports forms:</span>
 <span class="sd">    complete uid: github.com/account/repository/name/version</span>
 <span class="sd">    without version: github.com/account/repository/name</span>
-<span class="sd">    name and version: name/version</span>
-<span class="sd">    just the name: name</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">host</span><span class="p">,</span> <span class="n">account</span><span class="p">,</span> <span class="n">repo</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">version</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="bp">None</span>
     <span class="n">parsed</span> <span class="o">=</span> <span class="n">urlparse</span><span class="p">(</span><span class="n">uid</span><span class="p">)</span>
@@ -1479,10 +1463,6 @@ just the name: name</p></div>
         <span class="n">host</span><span class="p">,</span> <span class="n">account</span><span class="p">,</span> <span class="n">repo</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">version</span> <span class="o">=</span> <span class="n">ss</span>
     <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">ss</span><span class="p">)</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
         <span class="n">host</span><span class="p">,</span> <span class="n">account</span><span class="p">,</span> <span class="n">repo</span><span class="p">,</span> <span class="n">name</span> <span class="o">=</span> <span class="n">ss</span>
-    <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">ss</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
-        <span class="n">name</span><span class="p">,</span> <span class="n">version</span> <span class="o">=</span> <span class="n">ss</span>
-    <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">ss</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-        <span class="n">name</span> <span class="o">=</span> <span class="n">ss</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;format of the template uid (</span><span class="si">%s</span><span class="s2">) not valid&quot;</span> <span class="o">%</span> <span class="n">uid</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">_name_regex</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>

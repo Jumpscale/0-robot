@@ -1,5 +1,7 @@
 import time
 
+import urllib3
+
 from js9 import j
 
 from .client import Client
@@ -49,6 +51,11 @@ class ZeroRobotClient(JSConfigClientBase):
 
         if self._api is None:
             self._api = Client(base_uri=self.config.data["url"])
+
+            # remove this as soon as the SSL certificate issue of 0-robot is solved
+            self._api.services.client.session.verify = False
+            urllib3.disable_warnings()
+
             if self.config.data.get('jwt_'):
                 header = 'Bearer %s' % self.config.data['jwt_']
                 self._api.security_schemes.passthrough_client_iyo.set_authorization_header(header)

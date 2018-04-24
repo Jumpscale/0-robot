@@ -34,7 +34,8 @@ def server():
 @click.option('--auto-push', help='enable automatically commit and pushing of data repository', is_flag=True, default=False)
 @click.option('--auto-push-interval', help='interval in minutes of automatic pushing of data repository', required=False, default=60)
 @click.option('--organization', help='if specified, enable JWT authentication for each request.', required=False)
-def start(listen, data_repo, template_repo, config_repo, config_key, debug, telegram_bot_token, telegram_chat_id, auto_push, auto_push_interval, organization):
+@click.option('--disable-ssl', help="if specified, the robot server won't automatically enable ssl. Use this only if you run the robot behind a proxy that provides you with ssl", is_flag=True, default=False)
+def start(listen, data_repo, template_repo, config_repo, config_key, debug, telegram_bot_token, telegram_chat_id, auto_push, auto_push_interval, organization, disable_ssl):
     """
     start the 0-robot daemon.
     this will start the REST API on address and port specified by --listen and block
@@ -65,4 +66,4 @@ def start(listen, data_repo, template_repo, config_repo, config_key, debug, tele
     robot.set_data_repo(data_repo)
     robot.set_config_repo(config_repo, config_key)
 
-    robot.start(listen=listen, auto_push=auto_push, auto_push_interval=auto_push_interval, jwt_organization=organization)
+    robot.start(listen=listen, auto_push=auto_push, auto_push_interval=auto_push_interval, jwt_organization=organization, disable_ssl=disable_ssl)
