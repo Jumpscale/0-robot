@@ -8,7 +8,7 @@ JSConfigClientBase = j.tools.configmanager.base_class_config
 
 
 _template = """
-url = "http://localhost:6600"
+url = "https://localhost:6600"
 jwt_ = ""
 secret_ = ""
 """
