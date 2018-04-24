@@ -1071,10 +1071,14 @@ table {
 <span class="kn">import</span> <span class="nn">json</span>
 
 <span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">request</span>
+
 <span class="kn">from</span> <span class="nn">zerorobot</span> <span class="kn">import</span> <span class="n">service_collection</span> <span class="k">as</span> <span class="n">scol</span>
 <span class="kn">from</span> <span class="nn">zerorobot.server.handlers.views</span> <span class="kn">import</span> <span class="n">service_view</span>
 
+<span class="kn">from</span> <span class="nn">zerorobot.server</span> <span class="kn">import</span> <span class="n">auth</span>
 
+
+<span class="nd">@auth.multi.login_required</span>
 <span class="k">def</span> <span class="nf">GetServiceHandler</span><span class="p">(</span><span class="n">service_guid</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Get the detail of a service</span>
@@ -1099,7 +1103,7 @@ table {
       
   <div class="item">
     <div class="name def" id="zerorobot.server.handlers.GetServiceHandler.GetServiceHandler">
-    <p>def <span class="ident">GetServiceHandler</span>(</p><p>service_guid)</p>
+    <p>def <span class="ident">GetServiceHandler</span>(</p><p>*args, **kwargs)</p>
     </div>
     
 
@@ -1110,7 +1114,8 @@ It is handler for GET /services/<service_guid></p></div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.server.handlers.GetServiceHandler.GetServiceHandler', this);">Show source &equiv;</a></p>
   <div id="source-zerorobot.server.handlers.GetServiceHandler.GetServiceHandler" class="source">
-    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">GetServiceHandler</span><span class="p">(</span><span class="n">service_guid</span><span class="p">):</span>
+    <div class="codehilite"><pre><span></span><span class="nd">@auth.multi.login_required</span>
+<span class="k">def</span> <span class="nf">GetServiceHandler</span><span class="p">(</span><span class="n">service_guid</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Get the detail of a service</span>
 <span class="sd">    It is handler for GET /services/&lt;service_guid&gt;</span>

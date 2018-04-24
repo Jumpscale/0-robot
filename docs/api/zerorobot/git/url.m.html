@@ -3,7 +3,7 @@
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 
-    <title>zerorobot.giturl API documentation</title>
+    <title>zerorobot.git.url API documentation</title>
     <meta name="description" content="this module contains utility to parse git URL" />
 
   <link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:400,300' rel='stylesheet' type='text/css'>
@@ -1044,9 +1044,9 @@ table {
     <li class="set"><h3><a href="#header-functions">Functions</a></h3>
       
   <ul>
-    <li class="mono"><a href="#zerorobot.giturl.git_path">git_path</a></li>
-    <li class="mono"><a href="#zerorobot.giturl.parse">parse</a></li>
-    <li class="mono"><a href="#zerorobot.giturl.parse_template_repo_url">parse_template_repo_url</a></li>
+    <li class="mono"><a href="#zerorobot.git.url.git_path">git_path</a></li>
+    <li class="mono"><a href="#zerorobot.git.url.parse">parse</a></li>
+    <li class="mono"><a href="#zerorobot.git.url.parse_template_repo_url">parse_template_repo_url</a></li>
   </ul>
 
     </li>
@@ -1063,11 +1063,11 @@ table {
 
 
   <header id="section-intro">
-  <h1 class="title"><span class="name">zerorobot.giturl</span> module</h1>
+  <h1 class="title"><span class="name">zerorobot.git.url</span> module</h1>
   <p>this module contains utility to parse git URL</p>
   
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.giturl', this);">Show source &equiv;</a></p>
-  <div id="source-zerorobot.giturl" class="source">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.git.url', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.git.url" class="source">
     <div class="codehilite"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">this module contains utility to parse git URL</span>
 <span class="sd">&quot;&quot;&quot;</span>
@@ -1147,7 +1147,7 @@ table {
     <h2 class="section-title" id="header-functions">Functions</h2>
       
   <div class="item">
-    <div class="name def" id="zerorobot.giturl.git_path">
+    <div class="name def" id="zerorobot.git.url.git_path">
     <p>def <span class="ident">git_path</span>(</p><p>url)</p>
     </div>
     
@@ -1156,8 +1156,8 @@ table {
   
     <div class="desc"><p>return the location on the filesystem where a git repo would be cloned</p></div>
   <div class="source_cont">
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.giturl.git_path', this);">Show source &equiv;</a></p>
-  <div id="source-zerorobot.giturl.git_path" class="source">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.git.url.git_path', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.git.url.git_path" class="source">
     <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">git_path</span><span class="p">(</span><span class="n">url</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    return the location on the filesystem where a git repo would be cloned</span>
@@ -1180,7 +1180,7 @@ table {
   
       
   <div class="item">
-    <div class="name def" id="zerorobot.giturl.parse">
+    <div class="name def" id="zerorobot.git.url.parse">
     <p>def <span class="ident">parse</span>(</p><p>url)</p>
     </div>
     
@@ -1189,8 +1189,8 @@ table {
   
     <div class="desc"><p>return (protocol, repository_host, repository_account, repository_name)</p></div>
   <div class="source_cont">
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.giturl.parse', this);">Show source &equiv;</a></p>
-  <div id="source-zerorobot.giturl.parse" class="source">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.git.url.parse', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.git.url.parse" class="source">
     <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">parse</span><span class="p">(</span><span class="n">url</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    return (protocol, repository_host, repository_account, repository_name)</span>
@@ -1219,7 +1219,7 @@ table {
   
       
   <div class="item">
-    <div class="name def" id="zerorobot.giturl.parse_template_repo_url">
+    <div class="name def" id="zerorobot.git.url.parse_template_repo_url">
     <p>def <span class="ident">parse_template_repo_url</span>(</p><p>url)</p>
     </div>
     
@@ -1227,8 +1227,8 @@ table {
     
   
   <div class="source_cont">
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.giturl.parse_template_repo_url', this);">Show source &equiv;</a></p>
-  <div id="source-zerorobot.giturl.parse_template_repo_url" class="source">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.git.url.parse_template_repo_url', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.git.url.parse_template_repo_url" class="source">
     <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">parse_template_repo_url</span><span class="p">(</span><span class="n">url</span><span class="p">):</span>
     <span class="n">branch</span> <span class="o">=</span> <span class="bp">None</span>
 

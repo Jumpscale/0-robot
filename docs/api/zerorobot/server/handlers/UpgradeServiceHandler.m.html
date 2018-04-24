@@ -1083,13 +1083,15 @@ table {
 
 <span class="kn">import</span> <span class="nn">gevent</span>
 <span class="kn">import</span> <span class="nn">jsonschema</span>
+<span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">jsonify</span><span class="p">,</span> <span class="n">request</span>
 <span class="kn">from</span> <span class="nn">jsonschema</span> <span class="kn">import</span> <span class="n">Draft4Validator</span>
 
 <span class="kn">import</span> <span class="nn">zerorobot.service_collection</span> <span class="kn">as</span> <span class="nn">scol</span>
 <span class="kn">import</span> <span class="nn">zerorobot.template_collection</span> <span class="kn">as</span> <span class="nn">tcol</span>
-<span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">jsonify</span><span class="p">,</span> <span class="n">request</span>
 <span class="kn">from</span> <span class="nn">zerorobot.server.handlers.views</span> <span class="kn">import</span> <span class="n">service_view</span>
 <span class="kn">from</span> <span class="nn">zerorobot.template_uid</span> <span class="kn">import</span> <span class="n">TemplateUID</span>
+
+<span class="kn">from</span> <span class="nn">zerorobot.server</span> <span class="kn">import</span> <span class="n">auth</span>
 
 <span class="n">dir_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">realpath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">))</span>
 <span class="n">ServiceUpgradeRequest_schema</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="n">dir_path</span> <span class="o">+</span> <span class="s1">&#39;/schema/ServiceUpgradeRequest_schema.json&#39;</span><span class="p">))</span>
@@ -1100,6 +1102,7 @@ table {
     <span class="n">resolver</span><span class="o">=</span><span class="n">ServiceUpgradeRequest_schema_resolver</span><span class="p">)</span>
 
 
+<span class="nd">@auth.admin.login_required</span>
 <span class="k">def</span> <span class="nf">UpgradeServiceHandler</span><span class="p">(</span><span class="n">service_guid</span><span class="p">):</span>
 
     <span class="n">inputs</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">get_json</span><span class="p">()</span>
@@ -1169,7 +1172,7 @@ table {
       
   <div class="item">
     <div class="name def" id="zerorobot.server.handlers.UpgradeServiceHandler.UpgradeServiceHandler">
-    <p>def <span class="ident">UpgradeServiceHandler</span>(</p><p>service_guid)</p>
+    <p>def <span class="ident">UpgradeServiceHandler</span>(</p><p>*args, **kwargs)</p>
     </div>
     
 
@@ -1178,7 +1181,8 @@ table {
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.server.handlers.UpgradeServiceHandler.UpgradeServiceHandler', this);">Show source &equiv;</a></p>
   <div id="source-zerorobot.server.handlers.UpgradeServiceHandler.UpgradeServiceHandler" class="source">
-    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">UpgradeServiceHandler</span><span class="p">(</span><span class="n">service_guid</span><span class="p">):</span>
+    <div class="codehilite"><pre><span></span><span class="nd">@auth.admin.login_required</span>
+<span class="k">def</span> <span class="nf">UpgradeServiceHandler</span><span class="p">(</span><span class="n">service_guid</span><span class="p">):</span>
 
     <span class="n">inputs</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">get_json</span><span class="p">()</span>
 

@@ -1097,6 +1097,7 @@ table {
 
 <span class="kn">from</span> <span class="nn">js9</span> <span class="kn">import</span> <span class="n">j</span>
 <span class="kn">from</span> <span class="nn">zerorobot.template_uid</span> <span class="kn">import</span> <span class="n">TemplateUID</span>
+<span class="kn">from</span> <span class="nn">zerorobot</span> <span class="kn">import</span> <span class="n">template_collection</span> <span class="k">as</span> <span class="n">tcol</span>
 
 
 <span class="k">def</span> <span class="nf">parse</span><span class="p">(</span><span class="n">content</span><span class="p">):</span>
@@ -1191,33 +1192,6 @@ table {
     <span class="c1"># TODO: move this into name_validation function</span>
     <span class="n">validate_service_name</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
     <span class="n">validate_template_uid</span><span class="p">(</span><span class="n">template</span><span class="p">)</span>
-    <span class="c1"># if &quot;:&quot; in name:</span>
-    <span class="c1">#     raise BadBlueprintFormatError(&quot;service names (%s) cannot contain colons (:)&quot; % name)</span>
-    <span class="c1"># if &quot;:&quot; in template:</span>
-    <span class="c1">#     raise BadBlueprintFormatError(&quot;template names (%s) cannot contain colons (:)&quot; % template)</span>
-
-    <span class="c1"># TODO: re-enabled when template alias is implemented</span>
-    <span class="c1"># if template.find(&quot;.&quot;) != -1:</span>
-    <span class="c1">#     rolefound, _ = template.split(&quot;.&quot;, 1)</span>
-    <span class="c1"># else:</span>
-    <span class="c1">#     rolefound = template</span>
-    <span class="c1"># if role != &quot;&quot; and role != rolefound:</span>
-    <span class="c1">#     self.logger.info(</span>
-    <span class="c1">#         &quot;ignore load from blueprint based on role for: %s:%s&quot; % (template, name))</span>
-    <span class="c1">#     continue</span>
-
-    <span class="c1"># check if we can find template and if not then check if there is a blueprint.  name...</span>
-    <span class="c1"># if not self.aysrepo.templateExists(template) and not template.startswith(&#39;blueprint.&#39;):</span>
-    <span class="c1">#     blueaysname = &#39;blueprint.%s&#39; % template</span>
-    <span class="c1">#     if self.aysrepo.templateExists(blueaysname):</span>
-    <span class="c1">#         template = blueaysname</span>
-
-    <span class="c1"># if not self.aysrepo.templateExists(template):</span>
-    <span class="c1">#     raise j.exceptions.Input(message=&quot;Cannot find actor:%s&quot; %</span>
-    <span class="c1">#                              template, level=1, source=&quot;&quot;, tags=&quot;&quot;, msgpub=&quot;&quot;)</span>
-    <span class="c1"># actor = self.aysrepo.actorGet(template, context=context)</span>
-    <span class="c1"># args = {} if item is None else item</span>
-    <span class="c1"># await actor.asyncServiceCreate(instance=name, args=args, context=context)</span>
 
     <span class="k">return</span> <span class="p">{</span>
         <span class="s1">&#39;template&#39;</span><span class="p">:</span> <span class="n">template</span><span class="p">,</span>
@@ -1240,10 +1214,9 @@ table {
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Validates that template have valid name</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">try</span><span class="p">:</span>
-        <span class="n">TemplateUID</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">uid</span><span class="p">)</span>
-    <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="n">BadBlueprintFormatError</span><span class="p">(</span><span class="s2">&quot;Template uid not valid&quot;</span><span class="p">)</span>
+    <span class="c1"># now that we can reference template just with the name,</span>
+    <span class="c1"># just return true here, and more validation will happens</span>
+    <span class="c1"># later when instantiating services</span>
     <span class="k">return</span> <span class="bp">True</span>
 
 
@@ -1393,10 +1366,9 @@ return a tuple containing these blocks: (actions, services)</p></div>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Validates that template have valid name</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">try</span><span class="p">:</span>
-        <span class="n">TemplateUID</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">uid</span><span class="p">)</span>
-    <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="n">BadBlueprintFormatError</span><span class="p">(</span><span class="s2">&quot;Template uid not valid&quot;</span><span class="p">)</span>
+    <span class="c1"># now that we can reference template just with the name,</span>
+    <span class="c1"># just return true here, and more validation will happens</span>
+    <span class="c1"># later when instantiating services</span>
     <span class="k">return</span> <span class="bp">True</span>
 </pre></div>
 

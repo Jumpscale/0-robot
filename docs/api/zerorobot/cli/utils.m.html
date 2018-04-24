@@ -1080,7 +1080,7 @@ table {
    <span class="n">cl</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">clients</span><span class="o">.</span><span class="n">zrobot</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">instance</span><span class="p">)</span>
    <span class="n">addr</span> <span class="o">=</span> <span class="n">cl</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;url&#39;</span><span class="p">]</span>
    <span class="k">try</span><span class="p">:</span>
-       <span class="n">resp</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="n">addr</span><span class="p">)</span>
+       <span class="n">_</span><span class="p">,</span> <span class="n">resp</span> <span class="o">=</span> <span class="n">cl</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">services</span><span class="o">.</span><span class="n">listServices</span><span class="p">()</span>
        <span class="k">return</span> <span class="n">resp</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">200</span><span class="p">,</span> <span class="n">addr</span>
    <span class="k">except</span> <span class="n">requests</span><span class="o">.</span><span class="n">exceptions</span><span class="o">.</span><span class="n">ConnectionError</span><span class="p">:</span>
        <span class="k">return</span> <span class="bp">False</span><span class="p">,</span> <span class="n">addr</span>
@@ -1215,7 +1215,7 @@ table {
     <span class="n">cl</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">clients</span><span class="o">.</span><span class="n">zrobot</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">instance</span><span class="p">)</span>
     <span class="n">addr</span> <span class="o">=</span> <span class="n">cl</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;url&#39;</span><span class="p">]</span>
     <span class="k">try</span><span class="p">:</span>
-        <span class="n">resp</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="n">addr</span><span class="p">)</span>
+        <span class="n">_</span><span class="p">,</span> <span class="n">resp</span> <span class="o">=</span> <span class="n">cl</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">services</span><span class="o">.</span><span class="n">listServices</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">resp</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">200</span><span class="p">,</span> <span class="n">addr</span>
     <span class="k">except</span> <span class="n">requests</span><span class="o">.</span><span class="n">exceptions</span><span class="o">.</span><span class="n">ConnectionError</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">False</span><span class="p">,</span> <span class="n">addr</span>

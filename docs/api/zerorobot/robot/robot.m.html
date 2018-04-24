@@ -1043,7 +1043,6 @@ table {
     <li class="set"><h3><a href="#header-variables">Module variables</a></h3>
       
   <ul>
-    <li class="mono"><a href="#zerorobot.robot.robot.PRIORITY_SYSTEM">PRIORITY_SYSTEM</a></li>
     <li class="mono"><a href="#zerorobot.robot.robot.logger">logger</a></li>
   </ul>
 
@@ -1087,6 +1086,7 @@ table {
   <div id="source-zerorobot.robot.robot" class="source">
     <div class="codehilite"><pre><span></span><span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">shlex</span>
 <span class="kn">import</span> <span class="nn">signal</span>
 <span class="kn">import</span> <span class="nn">time</span>
 
@@ -1098,12 +1098,14 @@ table {
 <span class="kn">from</span> <span class="nn">js9</span> <span class="kn">import</span> <span class="n">j</span>
 <span class="kn">from</span> <span class="nn">zerorobot</span> <span class="kn">import</span> <span class="n">service_collection</span> <span class="k">as</span> <span class="n">scol</span>
 <span class="kn">from</span> <span class="nn">zerorobot</span> <span class="kn">import</span> <span class="n">template_collection</span> <span class="k">as</span> <span class="n">tcol</span>
-<span class="kn">from</span> <span class="nn">zerorobot</span> <span class="kn">import</span> <span class="n">auto_pusher</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">giturl</span>
+<span class="kn">from</span> <span class="nn">zerorobot</span> <span class="kn">import</span> <span class="n">auto_pusher</span><span class="p">,</span> <span class="n">config</span>
+<span class="kn">from</span> <span class="nn">zerorobot.git</span> <span class="kn">import</span> <span class="n">url</span> <span class="k">as</span> <span class="n">giturl</span>
 <span class="kn">from</span> <span class="nn">zerorobot.prometheus.flask</span> <span class="kn">import</span> <span class="n">monitor</span>
 <span class="kn">from</span> <span class="nn">zerorobot.server.app</span> <span class="kn">import</span> <span class="n">app</span>
-<span class="kn">from</span> <span class="nn">zerorobot.server.middleware</span> <span class="kn">import</span> <span class="n">authenticate</span>
-<span class="kn">from</span> <span class="nn">zerorobot.task</span> <span class="kn">import</span> <span class="n">PRIORITY_SYSTEM</span>
-<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">config_repo</span><span class="p">,</span> <span class="n">data_repo</span>
+<span class="kn">from</span> <span class="nn">zerorobot.server</span> <span class="kn">import</span> <span class="n">auth</span>
+
+<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">config_repo</span><span class="p">,</span> <span class="n">data_repo</span><span class="p">,</span> <span class="n">loader</span>
+<span class="kn">from</span> <span class="nn">.ssl</span> <span class="kn">import</span> <span class="n">create_self_signed_cert</span>
 
 <span class="c1"># create logger</span>
 <span class="n">logger</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;zerorobot&#39;</span><span class="p">)</span>
@@ -1137,14 +1139,15 @@ table {
 <span class="sd">        Set the data repository used to serialize services state.</span>
 
 <span class="sd">        @param path: can be a git URL or a absolute path or None</span>
-<span class="sd">            if git url: clone the repository locally, and use it as configuration repo</span>
-<span class="sd">            if absolute path: make sure the directory exist and use it as configuration repo</span>
-<span class="sd">            if None: automatically create a configuration repository in `{j.dirs.DATADIR}/zrobot`</span>
+<span class="sd">            if git url: clone the repository locally, and use it as data repo</span>
+<span class="sd">            if absolute path: make sure the directory exist and use it as data repo</span>
+<span class="sd">            if None: automatically create a data repository in `{j.dirs.DATADIR}/zrobot`</span>
 
 <span class="sd">        It can be the same of one of the template repository used.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">location</span> <span class="o">=</span> <span class="n">data_repo</span><span class="o">.</span><span class="n">ensure</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
         <span class="n">config</span><span class="o">.</span><span class="n">DATA_DIR</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">sal</span><span class="o">.</span><span class="n">fs</span><span class="o">.</span><span class="n">joinPaths</span><span class="p">(</span><span class="n">location</span><span class="p">,</span> <span class="s1">&#39;zrobot_data&#39;</span><span class="p">)</span>
+        <span class="n">j</span><span class="o">.</span><span class="n">sal</span><span class="o">.</span><span class="n">fs</span><span class="o">.</span><span class="n">createDir</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">DATA_DIR</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">data_repo_url</span> <span class="o">=</span> <span class="n">url</span>
 
     <span class="k">def</span> <span class="nf">add_template_repo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">directory</span><span class="o">=</span><span class="s1">&#39;templates&#39;</span><span class="p">):</span>
@@ -1164,7 +1167,7 @@ table {
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">config_repo</span><span class="o">.</span><span class="n">init</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">start</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">listen</span><span class="o">=</span><span class="s2">&quot;:6600&quot;</span><span class="p">,</span> <span class="n">log_level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">,</span> <span class="n">block</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">auto_push</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">auto_push_interval</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">start</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">listen</span><span class="o">=</span><span class="s2">&quot;:6600&quot;</span><span class="p">,</span> <span class="n">log_level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">,</span> <span class="n">block</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">auto_push</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">auto_push_interval</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span> <span class="n">jwt_organization</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">disable_ssl</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        start the rest web server</span>
 <span class="sd">        load the services from the local git repository</span>
@@ -1182,10 +1185,11 @@ table {
         <span class="k">if</span> <span class="ow">not</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;testing&#39;</span><span class="p">,</span> <span class="bp">False</span><span class="p">):</span>
             <span class="n">monitor</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>
 
-        <span class="c1"># configure authentication middleware</span>
+         <span class="c1"># configure authentication middleware</span>
+        <span class="n">jwt_organization</span> <span class="o">=</span> <span class="n">jwt_organization</span> <span class="ow">or</span> <span class="n">_read_cmdline</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;organization&#39;</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">jwt_organization</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;JWT authentication enabled for organization: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">jwt_organization</span><span class="p">)</span>
-            <span class="n">authenticate</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="n">allowed_scopes</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;user:memberof:</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">jwt_organization</span><span class="p">])</span>
+            <span class="n">auth</span><span class="o">.</span><span class="n">auth</span><span class="o">.</span><span class="n">jwt_organization</span> <span class="o">=</span> <span class="n">jwt_organization</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;JWT authentication enabled for organization: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">auth</span><span class="o">.</span><span class="n">auth</span><span class="o">.</span><span class="n">jwt_organization</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_block</span> <span class="o">=</span> <span class="n">block</span>
 
@@ -1200,16 +1204,25 @@ table {
             <span class="n">repo_dir</span> <span class="o">=</span> <span class="n">giturl</span><span class="o">.</span><span class="n">git_path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_repo_url</span><span class="p">)</span>
             <span class="n">auto_pusher</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">interval</span><span class="o">=</span><span class="n">auto_push_interval</span><span class="p">,</span> <span class="n">repo_dir</span><span class="o">=</span><span class="n">repo_dir</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">)</span>
 
+        <span class="c1"># ensure ssl certificate exists</span>
+        <span class="k">if</span> <span class="n">disable_ssl</span> <span class="ow">is</span> <span class="bp">False</span><span class="p">:</span>
+            <span class="n">certfile</span><span class="p">,</span> <span class="n">keyfile</span> <span class="o">=</span> <span class="n">create_self_signed_cert</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">DATA_DIR</span><span class="p">)</span>
+
         <span class="c1"># using a pool allow to kill the request when stopping the server</span>
         <span class="n">pool</span> <span class="o">=</span> <span class="n">Pool</span><span class="p">(</span><span class="bp">None</span><span class="p">)</span>
         <span class="n">hostport</span> <span class="o">=</span> <span class="n">_split_hostport</span><span class="p">(</span><span class="n">listen</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_http</span> <span class="o">=</span> <span class="n">WSGIServer</span><span class="p">(</span><span class="n">hostport</span><span class="p">,</span> <span class="n">app</span><span class="p">,</span> <span class="n">spawn</span><span class="o">=</span><span class="n">pool</span><span class="p">,</span> <span class="n">log</span><span class="o">=</span><span class="n">logger</span><span class="p">,</span> <span class="n">error_log</span><span class="o">=</span><span class="n">logger</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">disable_ssl</span> <span class="ow">is</span> <span class="bp">False</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_http</span> <span class="o">=</span> <span class="n">WSGIServer</span><span class="p">(</span><span class="n">hostport</span><span class="p">,</span> <span class="n">app</span><span class="p">,</span> <span class="n">spawn</span><span class="o">=</span><span class="n">pool</span><span class="p">,</span> <span class="n">log</span><span class="o">=</span><span class="n">logger</span><span class="p">,</span> <span class="n">error_log</span><span class="o">=</span><span class="n">logger</span><span class="p">,</span> <span class="n">keyfile</span><span class="o">=</span><span class="n">keyfile</span><span class="p">,</span> <span class="n">certfile</span><span class="o">=</span><span class="n">certfile</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_http</span> <span class="o">=</span> <span class="n">WSGIServer</span><span class="p">(</span><span class="n">hostport</span><span class="p">,</span> <span class="n">app</span><span class="p">,</span> <span class="n">spawn</span><span class="o">=</span><span class="n">pool</span><span class="p">,</span> <span class="n">log</span><span class="o">=</span><span class="n">logger</span><span class="p">,</span> <span class="n">error_log</span><span class="o">=</span><span class="n">logger</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_http</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
 
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;robot running at </span><span class="si">%s</span><span class="s2">:</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">hostport</span><span class="p">)</span>
 
         <span class="c1"># load services from data repo</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_load_services</span><span class="p">()</span>
+        <span class="n">loader</span><span class="o">.</span><span class="n">load_services</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">DATA_DIR</span><span class="p">)</span>
+        <span class="c1"># notify services that they can start processing their task list</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">SERVICE_LOADED</span><span class="o">.</span><span class="n">set</span><span class="p">()</span>
 
         <span class="c1"># only keep executed tasks for 2 hours</span>
         <span class="n">gevent</span><span class="o">.</span><span class="n">spawn</span><span class="p">(</span><span class="n">_trim_tasks</span><span class="p">,</span> <span class="mi">7200</span><span class="p">)</span>
@@ -1243,35 +1256,6 @@ table {
             <span class="c1"># here no more requests are comming in, we can safely save all services</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_save_services</span><span class="p">()</span>
 
-    <span class="k">def</span> <span class="nf">_load_services</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">DATA_DIR</span><span class="p">):</span>
-            <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">DATA_DIR</span><span class="p">)</span>
-
-        <span class="k">for</span> <span class="n">srv_dir</span> <span class="ow">in</span> <span class="n">j</span><span class="o">.</span><span class="n">sal</span><span class="o">.</span><span class="n">fs</span><span class="o">.</span><span class="n">listDirsInDir</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">DATA_DIR</span><span class="p">,</span> <span class="n">recursive</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
-            <span class="n">info_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">srv_dir</span><span class="p">,</span> <span class="s1">&#39;service.yaml&#39;</span><span class="p">)</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">info_path</span><span class="p">):</span>
-                <span class="k">continue</span>
-            <span class="n">service_info</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">serializer</span><span class="o">.</span><span class="n">yaml</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">info_path</span><span class="p">)</span>
-            <span class="n">tmplClass</span> <span class="o">=</span> <span class="n">tcol</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">service_info</span><span class="p">[</span><span class="s1">&#39;template&#39;</span><span class="p">])</span>
-            <span class="n">srv</span> <span class="o">=</span> <span class="n">scol</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">tmplClass</span><span class="p">,</span> <span class="n">srv_dir</span><span class="p">)</span>
-
-        <span class="n">loading_failed</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">service</span> <span class="ow">in</span> <span class="n">scol</span><span class="o">.</span><span class="n">list_services</span><span class="p">():</span>
-            <span class="k">try</span><span class="p">:</span>
-                <span class="n">service</span><span class="o">.</span><span class="n">validate</span><span class="p">()</span>
-            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;fail to load </span><span class="si">%s</span><span class="s2">: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">service</span><span class="o">.</span><span class="n">guid</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">err</span><span class="p">)))</span>
-                <span class="c1"># the service is not going to process its task list until it can</span>
-                <span class="c1"># execute validate() without problem</span>
-                <span class="n">service</span><span class="o">.</span><span class="n">gl_mgr</span><span class="o">.</span><span class="n">stop</span><span class="p">(</span><span class="s1">&#39;executor&#39;</span><span class="p">)</span>
-                <span class="n">loading_failed</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">service</span><span class="p">)</span>
-
-        <span class="c1"># notify services that they can start processing their task list</span>
-        <span class="n">config</span><span class="o">.</span><span class="n">SERVICE_LOADED</span><span class="o">.</span><span class="n">set</span><span class="p">()</span>
-
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">loading_failed</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="n">gevent</span><span class="o">.</span><span class="n">spawn</span><span class="p">(</span><span class="n">_try_load_service</span><span class="p">,</span> <span class="n">loading_failed</span><span class="p">)</span>
-
     <span class="k">def</span> <span class="nf">_save_services</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        serialize all the services on disk</span>
@@ -1280,28 +1264,6 @@ table {
             <span class="c1"># stop all the greenlets attached to the services</span>
             <span class="n">service</span><span class="o">.</span><span class="n">gl_mgr</span><span class="o">.</span><span class="n">stop_all</span><span class="p">()</span>
             <span class="n">service</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
-
-
-<span class="k">def</span> <span class="nf">_try_load_service</span><span class="p">(</span><span class="n">services</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    this method tries to execute `validate` method on the services that failed to load</span>
-<span class="sd">    when the robot started.</span>
-<span class="sd">    Once all failed services are back to normal, this function will exit</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">size</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">services</span><span class="p">)</span>
-    <span class="k">while</span> <span class="n">size</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="k">for</span> <span class="n">service</span> <span class="ow">in</span> <span class="n">services</span><span class="p">[:]:</span>
-            <span class="k">try</span><span class="p">:</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;try to load </span><span class="si">%s</span><span class="s2"> again&quot;</span> <span class="o">%</span> <span class="n">service</span><span class="o">.</span><span class="n">guid</span><span class="p">)</span>
-                <span class="n">service</span><span class="o">.</span><span class="n">validate</span><span class="p">()</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;loading succeeded for </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">service</span><span class="o">.</span><span class="n">guid</span><span class="p">)</span>
-                <span class="c1"># validate passed, service is healthy again</span>
-                <span class="n">service</span><span class="o">.</span><span class="n">gl_mgr</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s1">&#39;executor&#39;</span><span class="p">,</span> <span class="n">gevent</span><span class="o">.</span><span class="n">Greenlet</span><span class="p">(</span><span class="n">service</span><span class="o">.</span><span class="n">_run</span><span class="p">))</span>
-                <span class="n">services</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">service</span><span class="p">)</span>
-            <span class="k">except</span><span class="p">:</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;loading failed again for </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">service</span><span class="o">.</span><span class="n">guid</span><span class="p">)</span>
-        <span class="n">gevent</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>  <span class="c1"># fixme: why 10 ? why not?</span>
-        <span class="n">size</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">services</span><span class="p">)</span>
 
 
 <span class="k">def</span> <span class="nf">_trim_tasks</span><span class="p">(</span><span class="n">period</span><span class="o">=</span><span class="mi">7200</span><span class="p">):</span>  <span class="c1"># default 2 hours ago</span>
@@ -1338,6 +1300,23 @@ table {
     <span class="n">host</span> <span class="o">=</span> <span class="n">hostport</span><span class="p">[:</span><span class="n">i</span><span class="p">]</span>
     <span class="n">port</span> <span class="o">=</span> <span class="n">hostport</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">:]</span>
     <span class="k">return</span> <span class="n">host</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">port</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_read_cmdline</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    read the kernel parameter passed to the host machine</span>
+<span class="sd">    return a dict container the key/value of the arguments</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;/proc/cmdline&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">line</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+
+    <span class="n">args</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">line</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">kv</span> <span class="ow">in</span> <span class="n">shlex</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">line</span><span class="p">):</span>
+        <span class="n">ss</span> <span class="o">=</span> <span class="n">kv</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;=&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ss</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="n">args</span><span class="p">[</span><span class="n">ss</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">=</span> <span class="n">ss</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">args</span>
 </pre></div>
 
   </div>
@@ -1346,14 +1325,6 @@ table {
 
   <section id="section-items">
     <h2 class="section-title" id="header-variables">Module variables</h2>
-      <div class="item">
-      <p id="zerorobot.robot.robot.PRIORITY_SYSTEM" class="name">var <span class="ident">PRIORITY_SYSTEM</span></p>
-      
-  
-  <div class="source_cont">
-</div>
-
-      </div>
       <div class="item">
       <p id="zerorobot.robot.robot.logger" class="name">var <span class="ident">logger</span></p>
       
@@ -1406,14 +1377,15 @@ It is responsible to:
 <span class="sd">        Set the data repository used to serialize services state.</span>
 
 <span class="sd">        @param path: can be a git URL or a absolute path or None</span>
-<span class="sd">            if git url: clone the repository locally, and use it as configuration repo</span>
-<span class="sd">            if absolute path: make sure the directory exist and use it as configuration repo</span>
-<span class="sd">            if None: automatically create a configuration repository in `{j.dirs.DATADIR}/zrobot`</span>
+<span class="sd">            if git url: clone the repository locally, and use it as data repo</span>
+<span class="sd">            if absolute path: make sure the directory exist and use it as data repo</span>
+<span class="sd">            if None: automatically create a data repository in `{j.dirs.DATADIR}/zrobot`</span>
 
 <span class="sd">        It can be the same of one of the template repository used.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">location</span> <span class="o">=</span> <span class="n">data_repo</span><span class="o">.</span><span class="n">ensure</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
         <span class="n">config</span><span class="o">.</span><span class="n">DATA_DIR</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">sal</span><span class="o">.</span><span class="n">fs</span><span class="o">.</span><span class="n">joinPaths</span><span class="p">(</span><span class="n">location</span><span class="p">,</span> <span class="s1">&#39;zrobot_data&#39;</span><span class="p">)</span>
+        <span class="n">j</span><span class="o">.</span><span class="n">sal</span><span class="o">.</span><span class="n">fs</span><span class="o">.</span><span class="n">createDir</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">DATA_DIR</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">data_repo_url</span> <span class="o">=</span> <span class="n">url</span>
 
     <span class="k">def</span> <span class="nf">add_template_repo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">directory</span><span class="o">=</span><span class="s1">&#39;templates&#39;</span><span class="p">):</span>
@@ -1433,7 +1405,7 @@ It is responsible to:
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">config_repo</span><span class="o">.</span><span class="n">init</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">start</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">listen</span><span class="o">=</span><span class="s2">&quot;:6600&quot;</span><span class="p">,</span> <span class="n">log_level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">,</span> <span class="n">block</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">auto_push</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">auto_push_interval</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">start</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">listen</span><span class="o">=</span><span class="s2">&quot;:6600&quot;</span><span class="p">,</span> <span class="n">log_level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">,</span> <span class="n">block</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">auto_push</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">auto_push_interval</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span> <span class="n">jwt_organization</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">disable_ssl</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        start the rest web server</span>
 <span class="sd">        load the services from the local git repository</span>
@@ -1451,10 +1423,11 @@ It is responsible to:
         <span class="k">if</span> <span class="ow">not</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;testing&#39;</span><span class="p">,</span> <span class="bp">False</span><span class="p">):</span>
             <span class="n">monitor</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>
 
-        <span class="c1"># configure authentication middleware</span>
+         <span class="c1"># configure authentication middleware</span>
+        <span class="n">jwt_organization</span> <span class="o">=</span> <span class="n">jwt_organization</span> <span class="ow">or</span> <span class="n">_read_cmdline</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;organization&#39;</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">jwt_organization</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;JWT authentication enabled for organization: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">jwt_organization</span><span class="p">)</span>
-            <span class="n">authenticate</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="n">allowed_scopes</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;user:memberof:</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">jwt_organization</span><span class="p">])</span>
+            <span class="n">auth</span><span class="o">.</span><span class="n">auth</span><span class="o">.</span><span class="n">jwt_organization</span> <span class="o">=</span> <span class="n">jwt_organization</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;JWT authentication enabled for organization: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">auth</span><span class="o">.</span><span class="n">auth</span><span class="o">.</span><span class="n">jwt_organization</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_block</span> <span class="o">=</span> <span class="n">block</span>
 
@@ -1469,16 +1442,25 @@ It is responsible to:
             <span class="n">repo_dir</span> <span class="o">=</span> <span class="n">giturl</span><span class="o">.</span><span class="n">git_path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_repo_url</span><span class="p">)</span>
             <span class="n">auto_pusher</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">interval</span><span class="o">=</span><span class="n">auto_push_interval</span><span class="p">,</span> <span class="n">repo_dir</span><span class="o">=</span><span class="n">repo_dir</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">)</span>
 
+        <span class="c1"># ensure ssl certificate exists</span>
+        <span class="k">if</span> <span class="n">disable_ssl</span> <span class="ow">is</span> <span class="bp">False</span><span class="p">:</span>
+            <span class="n">certfile</span><span class="p">,</span> <span class="n">keyfile</span> <span class="o">=</span> <span class="n">create_self_signed_cert</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">DATA_DIR</span><span class="p">)</span>
+
         <span class="c1"># using a pool allow to kill the request when stopping the server</span>
         <span class="n">pool</span> <span class="o">=</span> <span class="n">Pool</span><span class="p">(</span><span class="bp">None</span><span class="p">)</span>
         <span class="n">hostport</span> <span class="o">=</span> <span class="n">_split_hostport</span><span class="p">(</span><span class="n">listen</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_http</span> <span class="o">=</span> <span class="n">WSGIServer</span><span class="p">(</span><span class="n">hostport</span><span class="p">,</span> <span class="n">app</span><span class="p">,</span> <span class="n">spawn</span><span class="o">=</span><span class="n">pool</span><span class="p">,</span> <span class="n">log</span><span class="o">=</span><span class="n">logger</span><span class="p">,</span> <span class="n">error_log</span><span class="o">=</span><span class="n">logger</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">disable_ssl</span> <span class="ow">is</span> <span class="bp">False</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_http</span> <span class="o">=</span> <span class="n">WSGIServer</span><span class="p">(</span><span class="n">hostport</span><span class="p">,</span> <span class="n">app</span><span class="p">,</span> <span class="n">spawn</span><span class="o">=</span><span class="n">pool</span><span class="p">,</span> <span class="n">log</span><span class="o">=</span><span class="n">logger</span><span class="p">,</span> <span class="n">error_log</span><span class="o">=</span><span class="n">logger</span><span class="p">,</span> <span class="n">keyfile</span><span class="o">=</span><span class="n">keyfile</span><span class="p">,</span> <span class="n">certfile</span><span class="o">=</span><span class="n">certfile</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_http</span> <span class="o">=</span> <span class="n">WSGIServer</span><span class="p">(</span><span class="n">hostport</span><span class="p">,</span> <span class="n">app</span><span class="p">,</span> <span class="n">spawn</span><span class="o">=</span><span class="n">pool</span><span class="p">,</span> <span class="n">log</span><span class="o">=</span><span class="n">logger</span><span class="p">,</span> <span class="n">error_log</span><span class="o">=</span><span class="n">logger</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_http</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
 
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;robot running at </span><span class="si">%s</span><span class="s2">:</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">hostport</span><span class="p">)</span>
 
         <span class="c1"># load services from data repo</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_load_services</span><span class="p">()</span>
+        <span class="n">loader</span><span class="o">.</span><span class="n">load_services</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">DATA_DIR</span><span class="p">)</span>
+        <span class="c1"># notify services that they can start processing their task list</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">SERVICE_LOADED</span><span class="o">.</span><span class="n">set</span><span class="p">()</span>
 
         <span class="c1"># only keep executed tasks for 2 hours</span>
         <span class="n">gevent</span><span class="o">.</span><span class="n">spawn</span><span class="p">(</span><span class="n">_trim_tasks</span><span class="p">,</span> <span class="mi">7200</span><span class="p">)</span>
@@ -1511,35 +1493,6 @@ It is responsible to:
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_block</span> <span class="ow">is</span> <span class="bp">False</span><span class="p">:</span>
             <span class="c1"># here no more requests are comming in, we can safely save all services</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_save_services</span><span class="p">()</span>
-
-    <span class="k">def</span> <span class="nf">_load_services</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">DATA_DIR</span><span class="p">):</span>
-            <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">DATA_DIR</span><span class="p">)</span>
-
-        <span class="k">for</span> <span class="n">srv_dir</span> <span class="ow">in</span> <span class="n">j</span><span class="o">.</span><span class="n">sal</span><span class="o">.</span><span class="n">fs</span><span class="o">.</span><span class="n">listDirsInDir</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">DATA_DIR</span><span class="p">,</span> <span class="n">recursive</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
-            <span class="n">info_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">srv_dir</span><span class="p">,</span> <span class="s1">&#39;service.yaml&#39;</span><span class="p">)</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">info_path</span><span class="p">):</span>
-                <span class="k">continue</span>
-            <span class="n">service_info</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">serializer</span><span class="o">.</span><span class="n">yaml</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">info_path</span><span class="p">)</span>
-            <span class="n">tmplClass</span> <span class="o">=</span> <span class="n">tcol</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">service_info</span><span class="p">[</span><span class="s1">&#39;template&#39;</span><span class="p">])</span>
-            <span class="n">srv</span> <span class="o">=</span> <span class="n">scol</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">tmplClass</span><span class="p">,</span> <span class="n">srv_dir</span><span class="p">)</span>
-
-        <span class="n">loading_failed</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">service</span> <span class="ow">in</span> <span class="n">scol</span><span class="o">.</span><span class="n">list_services</span><span class="p">():</span>
-            <span class="k">try</span><span class="p">:</span>
-                <span class="n">service</span><span class="o">.</span><span class="n">validate</span><span class="p">()</span>
-            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;fail to load </span><span class="si">%s</span><span class="s2">: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">service</span><span class="o">.</span><span class="n">guid</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">err</span><span class="p">)))</span>
-                <span class="c1"># the service is not going to process its task list until it can</span>
-                <span class="c1"># execute validate() without problem</span>
-                <span class="n">service</span><span class="o">.</span><span class="n">gl_mgr</span><span class="o">.</span><span class="n">stop</span><span class="p">(</span><span class="s1">&#39;executor&#39;</span><span class="p">)</span>
-                <span class="n">loading_failed</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">service</span><span class="p">)</span>
-
-        <span class="c1"># notify services that they can start processing their task list</span>
-        <span class="n">config</span><span class="o">.</span><span class="n">SERVICE_LOADED</span><span class="o">.</span><span class="n">set</span><span class="p">()</span>
-
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">loading_failed</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="n">gevent</span><span class="o">.</span><span class="n">spawn</span><span class="p">(</span><span class="n">_try_load_service</span><span class="p">,</span> <span class="n">loading_failed</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_save_services</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -1659,9 +1612,9 @@ if key is None, a key is automatically generated</p></div>
   
     <div class="desc"><p>Set the data repository used to serialize services state.</p>
 <p>@param path: can be a git URL or a absolute path or None
-    if git url: clone the repository locally, and use it as configuration repo
-    if absolute path: make sure the directory exist and use it as configuration repo
-    if None: automatically create a configuration repository in <code>{j.dirs.DATADIR}/zrobot</code></p>
+    if git url: clone the repository locally, and use it as data repo
+    if absolute path: make sure the directory exist and use it as data repo
+    if None: automatically create a data repository in <code>{j.dirs.DATADIR}/zrobot</code></p>
 <p>It can be the same of one of the template repository used.</p></div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.robot.robot.Robot.set_data_repo', this);">Show source &equiv;</a></p>
@@ -1670,13 +1623,14 @@ if key is None, a key is automatically generated</p></div>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Set the data repository used to serialize services state.</span>
 <span class="sd">    @param path: can be a git URL or a absolute path or None</span>
-<span class="sd">        if git url: clone the repository locally, and use it as configuration repo</span>
-<span class="sd">        if absolute path: make sure the directory exist and use it as configuration repo</span>
-<span class="sd">        if None: automatically create a configuration repository in `{j.dirs.DATADIR}/zrobot`</span>
+<span class="sd">        if git url: clone the repository locally, and use it as data repo</span>
+<span class="sd">        if absolute path: make sure the directory exist and use it as data repo</span>
+<span class="sd">        if None: automatically create a data repository in `{j.dirs.DATADIR}/zrobot`</span>
 <span class="sd">    It can be the same of one of the template repository used.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">location</span> <span class="o">=</span> <span class="n">data_repo</span><span class="o">.</span><span class="n">ensure</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
     <span class="n">config</span><span class="o">.</span><span class="n">DATA_DIR</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">sal</span><span class="o">.</span><span class="n">fs</span><span class="o">.</span><span class="n">joinPaths</span><span class="p">(</span><span class="n">location</span><span class="p">,</span> <span class="s1">&#39;zrobot_data&#39;</span><span class="p">)</span>
+    <span class="n">j</span><span class="o">.</span><span class="n">sal</span><span class="o">.</span><span class="n">fs</span><span class="o">.</span><span class="n">createDir</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">DATA_DIR</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">data_repo_url</span> <span class="o">=</span> <span class="n">url</span>
 </pre></div>
 
@@ -1688,7 +1642,7 @@ if key is None, a key is automatically generated</p></div>
             
   <div class="item">
     <div class="name def" id="zerorobot.robot.robot.Robot.start">
-    <p>def <span class="ident">start</span>(</p><p>self, listen=&#39;:6600&#39;, log_level=10, block=True, auto_push=False, auto_push_interval=60, **kwargs)</p>
+    <p>def <span class="ident">start</span>(</p><p>self, listen=&#39;:6600&#39;, log_level=10, block=True, auto_push=False, auto_push_interval=60, jwt_organization=None, disable_ssl=False, **kwargs)</p>
     </div>
     
 
@@ -1699,7 +1653,7 @@ load the services from the local git repository</p></div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.robot.robot.Robot.start', this);">Show source &equiv;</a></p>
   <div id="source-zerorobot.robot.robot.Robot.start" class="source">
-    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">start</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">listen</span><span class="o">=</span><span class="s2">&quot;:6600&quot;</span><span class="p">,</span> <span class="n">log_level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">,</span> <span class="n">block</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">auto_push</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">auto_push_interval</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">start</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">listen</span><span class="o">=</span><span class="s2">&quot;:6600&quot;</span><span class="p">,</span> <span class="n">log_level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">,</span> <span class="n">block</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">auto_push</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">auto_push_interval</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span> <span class="n">jwt_organization</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">disable_ssl</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    start the rest web server</span>
 <span class="sd">    load the services from the local git repository</span>
@@ -1713,10 +1667,11 @@ load the services from the local git repository</p></div>
     <span class="c1"># configure prometheus monitoring</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;testing&#39;</span><span class="p">,</span> <span class="bp">False</span><span class="p">):</span>
         <span class="n">monitor</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>
-    <span class="c1"># configure authentication middleware</span>
+     <span class="c1"># configure authentication middleware</span>
+    <span class="n">jwt_organization</span> <span class="o">=</span> <span class="n">jwt_organization</span> <span class="ow">or</span> <span class="n">_read_cmdline</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;organization&#39;</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">jwt_organization</span><span class="p">:</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;JWT authentication enabled for organization: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">jwt_organization</span><span class="p">)</span>
-        <span class="n">authenticate</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="n">allowed_scopes</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;user:memberof:</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">jwt_organization</span><span class="p">])</span>
+        <span class="n">auth</span><span class="o">.</span><span class="n">auth</span><span class="o">.</span><span class="n">jwt_organization</span> <span class="o">=</span> <span class="n">jwt_organization</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;JWT authentication enabled for organization: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">auth</span><span class="o">.</span><span class="n">auth</span><span class="o">.</span><span class="n">jwt_organization</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_block</span> <span class="o">=</span> <span class="n">block</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_sig_handler</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">gevent</span><span class="o">.</span><span class="n">signal</span><span class="p">(</span><span class="n">signal</span><span class="o">.</span><span class="n">SIGINT</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">stop</span><span class="p">))</span>
     <span class="c1"># configure logger</span>
@@ -1726,14 +1681,22 @@ load the services from the local git repository</p></div>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;auto push of data repo enabled&quot;</span><span class="p">)</span>
         <span class="n">repo_dir</span> <span class="o">=</span> <span class="n">giturl</span><span class="o">.</span><span class="n">git_path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_repo_url</span><span class="p">)</span>
         <span class="n">auto_pusher</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">interval</span><span class="o">=</span><span class="n">auto_push_interval</span><span class="p">,</span> <span class="n">repo_dir</span><span class="o">=</span><span class="n">repo_dir</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">)</span>
+    <span class="c1"># ensure ssl certificate exists</span>
+    <span class="k">if</span> <span class="n">disable_ssl</span> <span class="ow">is</span> <span class="bp">False</span><span class="p">:</span>
+        <span class="n">certfile</span><span class="p">,</span> <span class="n">keyfile</span> <span class="o">=</span> <span class="n">create_self_signed_cert</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">DATA_DIR</span><span class="p">)</span>
     <span class="c1"># using a pool allow to kill the request when stopping the server</span>
     <span class="n">pool</span> <span class="o">=</span> <span class="n">Pool</span><span class="p">(</span><span class="bp">None</span><span class="p">)</span>
     <span class="n">hostport</span> <span class="o">=</span> <span class="n">_split_hostport</span><span class="p">(</span><span class="n">listen</span><span class="p">)</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">_http</span> <span class="o">=</span> <span class="n">WSGIServer</span><span class="p">(</span><span class="n">hostport</span><span class="p">,</span> <span class="n">app</span><span class="p">,</span> <span class="n">spawn</span><span class="o">=</span><span class="n">pool</span><span class="p">,</span> <span class="n">log</span><span class="o">=</span><span class="n">logger</span><span class="p">,</span> <span class="n">error_log</span><span class="o">=</span><span class="n">logger</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">disable_ssl</span> <span class="ow">is</span> <span class="bp">False</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_http</span> <span class="o">=</span> <span class="n">WSGIServer</span><span class="p">(</span><span class="n">hostport</span><span class="p">,</span> <span class="n">app</span><span class="p">,</span> <span class="n">spawn</span><span class="o">=</span><span class="n">pool</span><span class="p">,</span> <span class="n">log</span><span class="o">=</span><span class="n">logger</span><span class="p">,</span> <span class="n">error_log</span><span class="o">=</span><span class="n">logger</span><span class="p">,</span> <span class="n">keyfile</span><span class="o">=</span><span class="n">keyfile</span><span class="p">,</span> <span class="n">certfile</span><span class="o">=</span><span class="n">certfile</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_http</span> <span class="o">=</span> <span class="n">WSGIServer</span><span class="p">(</span><span class="n">hostport</span><span class="p">,</span> <span class="n">app</span><span class="p">,</span> <span class="n">spawn</span><span class="o">=</span><span class="n">pool</span><span class="p">,</span> <span class="n">log</span><span class="o">=</span><span class="n">logger</span><span class="p">,</span> <span class="n">error_log</span><span class="o">=</span><span class="n">logger</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_http</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;robot running at </span><span class="si">%s</span><span class="s2">:</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">hostport</span><span class="p">)</span>
     <span class="c1"># load services from data repo</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">_load_services</span><span class="p">()</span>
+    <span class="n">loader</span><span class="o">.</span><span class="n">load_services</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">DATA_DIR</span><span class="p">)</span>
+    <span class="c1"># notify services that they can start processing their task list</span>
+    <span class="n">config</span><span class="o">.</span><span class="n">SERVICE_LOADED</span><span class="o">.</span><span class="n">set</span><span class="p">()</span>
     <span class="c1"># only keep executed tasks for 2 hours</span>
     <span class="n">gevent</span><span class="o">.</span><span class="n">spawn</span><span class="p">(</span><span class="n">_trim_tasks</span><span class="p">,</span> <span class="mi">7200</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">block</span><span class="p">:</span>

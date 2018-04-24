@@ -1082,12 +1082,14 @@ table {
 <span class="kn">import</span> <span class="nn">os</span>
 
 <span class="kn">import</span> <span class="nn">jsonschema</span>
+<span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">jsonify</span><span class="p">,</span> <span class="n">request</span>
 <span class="kn">from</span> <span class="nn">jsonschema</span> <span class="kn">import</span> <span class="n">Draft4Validator</span>
 
-<span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">request</span>
 <span class="kn">from</span> <span class="nn">zerorobot</span> <span class="kn">import</span> <span class="n">service_collection</span> <span class="k">as</span> <span class="n">scol</span>
 <span class="kn">from</span> <span class="nn">zerorobot.server.handlers.views</span> <span class="kn">import</span> <span class="n">task_view</span>
 <span class="kn">from</span> <span class="nn">zerorobot.template.base</span> <span class="kn">import</span> <span class="n">ActionNotFoundError</span><span class="p">,</span> <span class="n">BadActionArgumentError</span>
+
+<span class="kn">from</span> <span class="nn">zerorobot.server</span> <span class="kn">import</span> <span class="n">auth</span>
 
 <span class="n">dir_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">realpath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">))</span>
 <span class="n">TaskCreate_schema</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="n">dir_path</span> <span class="o">+</span> <span class="s1">&#39;/schema/TaskCreate_schema.json&#39;</span><span class="p">))</span>
@@ -1095,6 +1097,7 @@ table {
 <span class="n">TaskCreate_schema_validator</span> <span class="o">=</span> <span class="n">Draft4Validator</span><span class="p">(</span><span class="n">TaskCreate_schema</span><span class="p">,</span> <span class="n">resolver</span><span class="o">=</span><span class="n">TaskCreate_schema_resolver</span><span class="p">)</span>
 
 
+<span class="nd">@auth.user.login_required</span>
 <span class="k">def</span> <span class="nf">AddTaskToListHandler</span><span class="p">(</span><span class="n">service_guid</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Add a task to the task list</span>
@@ -1104,26 +1107,22 @@ table {
     <span class="k">try</span><span class="p">:</span>
         <span class="n">TaskCreate_schema_validator</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">inputs</span><span class="p">)</span>
     <span class="k">except</span> <span class="n">jsonschema</span><span class="o">.</span><span class="n">ValidationError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-        <span class="k">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">({</span><span class="s1">&#39;code&#39;</span><span class="p">:</span> <span class="mi">400</span><span class="p">,</span> <span class="s1">&#39;message&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)}),</span> <span class="mi">400</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;Content-type&quot;</span><span class="p">:</span> <span class="s1">&#39;application/json&#39;</span><span class="p">}</span>
+        <span class="k">return</span> <span class="n">jsonify</span><span class="p">(</span><span class="n">code</span><span class="o">=</span><span class="mi">400</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)),</span> <span class="mi">400</span>
 
     <span class="k">try</span><span class="p">:</span>
         <span class="n">service</span> <span class="o">=</span> <span class="n">scol</span><span class="o">.</span><span class="n">get_by_guid</span><span class="p">(</span><span class="n">service_guid</span><span class="p">)</span>
     <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">({</span><span class="s1">&#39;code&#39;</span><span class="p">:</span> <span class="mi">404</span><span class="p">,</span> <span class="s1">&#39;message&#39;</span><span class="p">:</span> <span class="s2">&quot;service with guid &#39;</span><span class="si">%s</span><span class="s2">&#39; not found&quot;</span> <span class="o">%</span> <span class="n">service_guid</span><span class="p">}),</span> \
-            <span class="mi">404</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;Content-type&quot;</span><span class="p">:</span> <span class="s1">&#39;application/json&#39;</span><span class="p">}</span>
+        <span class="k">return</span> <span class="n">jsonify</span><span class="p">(</span><span class="n">code</span><span class="o">=</span><span class="mi">404</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="s2">&quot;service with guid &#39;</span><span class="si">%s</span><span class="s2">&#39; not found&quot;</span> <span class="o">%</span> <span class="n">service_guid</span><span class="p">),</span> <span class="mi">404</span>
 
     <span class="n">args</span> <span class="o">=</span> <span class="n">inputs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;args&#39;</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="n">task</span> <span class="o">=</span> <span class="n">service</span><span class="o">.</span><span class="n">schedule_action</span><span class="p">(</span><span class="n">action</span><span class="o">=</span><span class="n">inputs</span><span class="p">[</span><span class="s1">&#39;action_name&#39;</span><span class="p">],</span> <span class="n">args</span><span class="o">=</span><span class="n">args</span><span class="p">)</span>
     <span class="k">except</span> <span class="n">ActionNotFoundError</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">({</span><span class="s1">&#39;code&#39;</span><span class="p">:</span> <span class="mi">400</span><span class="p">,</span> <span class="s1">&#39;message&#39;</span><span class="p">:</span> <span class="s2">&quot;action &#39;</span><span class="si">%s</span><span class="s2">&#39; not found&quot;</span> <span class="o">%</span> <span class="n">inputs</span><span class="p">[</span><span class="s1">&#39;action_name&#39;</span><span class="p">]}),</span> \
-            <span class="mi">400</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;Content-type&quot;</span><span class="p">:</span> <span class="s1">&#39;application/json&#39;</span><span class="p">}</span>
+        <span class="k">return</span> <span class="n">jsonify</span><span class="p">(</span><span class="n">code</span><span class="o">=</span><span class="mi">400</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="s2">&quot;action &#39;</span><span class="si">%s</span><span class="s2">&#39; not found&quot;</span> <span class="o">%</span> <span class="n">inputs</span><span class="p">[</span><span class="s1">&#39;action_name&#39;</span><span class="p">]),</span> <span class="mi">400</span>
     <span class="k">except</span> <span class="n">BadActionArgumentError</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">({</span><span class="s1">&#39;code&#39;</span><span class="p">:</span> <span class="mi">400</span><span class="p">,</span> <span class="s1">&#39;message&#39;</span><span class="p">:</span> <span class="s2">&quot;the argument passed in the requests, doesn&#39;t match the signature of the action&quot;</span><span class="p">}),</span> \
-            <span class="mi">400</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;Content-type&quot;</span><span class="p">:</span> <span class="s1">&#39;application/json&#39;</span><span class="p">}</span>
+        <span class="k">return</span> <span class="n">jsonify</span><span class="p">(</span><span class="n">code</span><span class="o">=</span><span class="mi">400</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="s2">&quot;the argument passed in the requests, doesn&#39;t match the signature of the action&quot;</span><span class="p">),</span> <span class="mi">400</span>
 
-    <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">task_view</span><span class="p">(</span><span class="n">task</span><span class="p">,</span> <span class="n">service</span><span class="p">)),</span> <span class="mi">201</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;Content-type&quot;</span><span class="p">:</span> <span class="s1">&#39;application/json&#39;</span><span class="p">}</span>
+    <span class="k">return</span> <span class="n">jsonify</span><span class="p">(</span><span class="n">task_view</span><span class="p">(</span><span class="n">task</span><span class="p">,</span> <span class="n">service</span><span class="p">)),</span> <span class="mi">201</span>
 </pre></div>
 
   </div>
@@ -1169,7 +1168,7 @@ table {
       
   <div class="item">
     <div class="name def" id="zerorobot.server.handlers.AddTaskToListHandler.AddTaskToListHandler">
-    <p>def <span class="ident">AddTaskToListHandler</span>(</p><p>service_guid)</p>
+    <p>def <span class="ident">AddTaskToListHandler</span>(</p><p>*args, **kwargs)</p>
     </div>
     
 
@@ -1180,7 +1179,8 @@ It is handler for POST /services/<service_guid>/task_list</p></div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.server.handlers.AddTaskToListHandler.AddTaskToListHandler', this);">Show source &equiv;</a></p>
   <div id="source-zerorobot.server.handlers.AddTaskToListHandler.AddTaskToListHandler" class="source">
-    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">AddTaskToListHandler</span><span class="p">(</span><span class="n">service_guid</span><span class="p">):</span>
+    <div class="codehilite"><pre><span></span><span class="nd">@auth.user.login_required</span>
+<span class="k">def</span> <span class="nf">AddTaskToListHandler</span><span class="p">(</span><span class="n">service_guid</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Add a task to the task list</span>
 <span class="sd">    It is handler for POST /services/&lt;service_guid&gt;/task_list</span>
@@ -1189,26 +1189,22 @@ It is handler for POST /services/<service_guid>/task_list</p></div>
     <span class="k">try</span><span class="p">:</span>
         <span class="n">TaskCreate_schema_validator</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">inputs</span><span class="p">)</span>
     <span class="k">except</span> <span class="n">jsonschema</span><span class="o">.</span><span class="n">ValidationError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-        <span class="k">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">({</span><span class="s1">&#39;code&#39;</span><span class="p">:</span> <span class="mi">400</span><span class="p">,</span> <span class="s1">&#39;message&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)}),</span> <span class="mi">400</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;Content-type&quot;</span><span class="p">:</span> <span class="s1">&#39;application/json&#39;</span><span class="p">}</span>
+        <span class="k">return</span> <span class="n">jsonify</span><span class="p">(</span><span class="n">code</span><span class="o">=</span><span class="mi">400</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)),</span> <span class="mi">400</span>
 
     <span class="k">try</span><span class="p">:</span>
         <span class="n">service</span> <span class="o">=</span> <span class="n">scol</span><span class="o">.</span><span class="n">get_by_guid</span><span class="p">(</span><span class="n">service_guid</span><span class="p">)</span>
     <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">({</span><span class="s1">&#39;code&#39;</span><span class="p">:</span> <span class="mi">404</span><span class="p">,</span> <span class="s1">&#39;message&#39;</span><span class="p">:</span> <span class="s2">&quot;service with guid &#39;</span><span class="si">%s</span><span class="s2">&#39; not found&quot;</span> <span class="o">%</span> <span class="n">service_guid</span><span class="p">}),</span> \
-            <span class="mi">404</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;Content-type&quot;</span><span class="p">:</span> <span class="s1">&#39;application/json&#39;</span><span class="p">}</span>
+        <span class="k">return</span> <span class="n">jsonify</span><span class="p">(</span><span class="n">code</span><span class="o">=</span><span class="mi">404</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="s2">&quot;service with guid &#39;</span><span class="si">%s</span><span class="s2">&#39; not found&quot;</span> <span class="o">%</span> <span class="n">service_guid</span><span class="p">),</span> <span class="mi">404</span>
 
     <span class="n">args</span> <span class="o">=</span> <span class="n">inputs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;args&#39;</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="n">task</span> <span class="o">=</span> <span class="n">service</span><span class="o">.</span><span class="n">schedule_action</span><span class="p">(</span><span class="n">action</span><span class="o">=</span><span class="n">inputs</span><span class="p">[</span><span class="s1">&#39;action_name&#39;</span><span class="p">],</span> <span class="n">args</span><span class="o">=</span><span class="n">args</span><span class="p">)</span>
     <span class="k">except</span> <span class="n">ActionNotFoundError</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">({</span><span class="s1">&#39;code&#39;</span><span class="p">:</span> <span class="mi">400</span><span class="p">,</span> <span class="s1">&#39;message&#39;</span><span class="p">:</span> <span class="s2">&quot;action &#39;</span><span class="si">%s</span><span class="s2">&#39; not found&quot;</span> <span class="o">%</span> <span class="n">inputs</span><span class="p">[</span><span class="s1">&#39;action_name&#39;</span><span class="p">]}),</span> \
-            <span class="mi">400</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;Content-type&quot;</span><span class="p">:</span> <span class="s1">&#39;application/json&#39;</span><span class="p">}</span>
+        <span class="k">return</span> <span class="n">jsonify</span><span class="p">(</span><span class="n">code</span><span class="o">=</span><span class="mi">400</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="s2">&quot;action &#39;</span><span class="si">%s</span><span class="s2">&#39; not found&quot;</span> <span class="o">%</span> <span class="n">inputs</span><span class="p">[</span><span class="s1">&#39;action_name&#39;</span><span class="p">]),</span> <span class="mi">400</span>
     <span class="k">except</span> <span class="n">BadActionArgumentError</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">({</span><span class="s1">&#39;code&#39;</span><span class="p">:</span> <span class="mi">400</span><span class="p">,</span> <span class="s1">&#39;message&#39;</span><span class="p">:</span> <span class="s2">&quot;the argument passed in the requests, doesn&#39;t match the signature of the action&quot;</span><span class="p">}),</span> \
-            <span class="mi">400</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;Content-type&quot;</span><span class="p">:</span> <span class="s1">&#39;application/json&#39;</span><span class="p">}</span>
+        <span class="k">return</span> <span class="n">jsonify</span><span class="p">(</span><span class="n">code</span><span class="o">=</span><span class="mi">400</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="s2">&quot;the argument passed in the requests, doesn&#39;t match the signature of the action&quot;</span><span class="p">),</span> <span class="mi">400</span>
 
-    <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">task_view</span><span class="p">(</span><span class="n">task</span><span class="p">,</span> <span class="n">service</span><span class="p">)),</span> <span class="mi">201</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;Content-type&quot;</span><span class="p">:</span> <span class="s1">&#39;application/json&#39;</span><span class="p">}</span>
+    <span class="k">return</span> <span class="n">jsonify</span><span class="p">(</span><span class="n">task_view</span><span class="p">(</span><span class="n">task</span><span class="p">,</span> <span class="n">service</span><span class="p">)),</span> <span class="mi">201</span>
 </pre></div>
 
   </div>

@@ -3,8 +3,8 @@
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 
-    <title>zerorobot.robot.data_repo API documentation</title>
-    <meta name="description" content="data_repo module hold the logic of the configuration of the jumpscale configuration repository" />
+    <title>zerorobot.server.handlers.CheckoutVersionTemplateRepoHandler API documentation</title>
+    <meta name="description" content="" />
 
   <link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:400,300' rel='stylesheet' type='text/css'>
   
@@ -1040,11 +1040,21 @@ table {
   <div id="sidebar">
     <h1>Index</h1>
     <ul id="index">
+    <li class="set"><h3><a href="#header-variables">Module variables</a></h3>
+      
+  <ul>
+    <li class="mono"><a href="#zerorobot.server.handlers.CheckoutVersionTemplateRepoHandler.TemplateRepository_schema">TemplateRepository_schema</a></li>
+    <li class="mono"><a href="#zerorobot.server.handlers.CheckoutVersionTemplateRepoHandler.TemplateRepository_schema_resolver">TemplateRepository_schema_resolver</a></li>
+    <li class="mono"><a href="#zerorobot.server.handlers.CheckoutVersionTemplateRepoHandler.TemplateRepository_schema_validator">TemplateRepository_schema_validator</a></li>
+    <li class="mono"><a href="#zerorobot.server.handlers.CheckoutVersionTemplateRepoHandler.dir_path">dir_path</a></li>
+  </ul>
+
+    </li>
 
     <li class="set"><h3><a href="#header-functions">Functions</a></h3>
       
   <ul>
-    <li class="mono"><a href="#zerorobot.robot.data_repo.ensure">ensure</a></li>
+    <li class="mono"><a href="#zerorobot.server.handlers.CheckoutVersionTemplateRepoHandler.CheckoutVersionTemplateRepoHandler">CheckoutVersionTemplateRepoHandler</a></li>
   </ul>
 
     </li>
@@ -1061,45 +1071,44 @@ table {
 
 
   <header id="section-intro">
-  <h1 class="title"><span class="name">zerorobot.robot.data_repo</span> module</h1>
-  <p>data_repo module hold the logic of the configuration of the jumpscale configuration repository</p>
+  <h1 class="title"><span class="name">zerorobot.server.handlers.CheckoutVersionTemplateRepoHandler</span> module</h1>
   
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.robot.data_repo', this);">Show source &equiv;</a></p>
-  <div id="source-zerorobot.robot.data_repo" class="source">
-    <div class="codehilite"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">data_repo module hold the logic of the configuration of the jumpscale configuration repository</span>
-<span class="sd">&quot;&quot;&quot;</span>
+  
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.server.handlers.CheckoutVersionTemplateRepoHandler', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.server.handlers.CheckoutVersionTemplateRepoHandler" class="source">
+    <div class="codehilite"><pre><span></span><span class="c1"># THIS FILE IS SAFE TO EDIT. It will not be overwritten when rerunning go-raml.</span>
 
+<span class="kn">import</span> <span class="nn">json</span> <span class="kn">as</span> <span class="nn">JSON</span>
 <span class="kn">import</span> <span class="nn">os</span>
 
-<span class="kn">from</span> <span class="nn">js9</span> <span class="kn">import</span> <span class="n">j</span>
-<span class="kn">from</span> <span class="nn">zerorobot.git</span> <span class="kn">import</span> <span class="n">url</span> <span class="k">as</span> <span class="n">giturl</span>
+<span class="kn">import</span> <span class="nn">jsonschema</span>
+<span class="kn">from</span> <span class="nn">jsonschema</span> <span class="kn">import</span> <span class="n">Draft4Validator</span>
+
+<span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">jsonify</span><span class="p">,</span> <span class="n">request</span>
+<span class="kn">from</span> <span class="nn">zerorobot</span> <span class="kn">import</span> <span class="n">template_collection</span> <span class="k">as</span> <span class="n">tcol</span>
+<span class="kn">from</span> <span class="nn">zerorobot.git</span> <span class="kn">import</span> <span class="n">repo</span><span class="p">,</span> <span class="n">url</span>
+<span class="kn">from</span> <span class="nn">zerorobot.server</span> <span class="kn">import</span> <span class="n">auth</span>
+
+<span class="n">dir_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">realpath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">))</span>
+<span class="n">TemplateRepository_schema</span> <span class="o">=</span> <span class="n">JSON</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="n">dir_path</span> <span class="o">+</span> <span class="s1">&#39;/schema/TemplateRepository_schema.json&#39;</span><span class="p">))</span>
+<span class="n">TemplateRepository_schema_resolver</span> <span class="o">=</span> <span class="n">jsonschema</span><span class="o">.</span><span class="n">RefResolver</span><span class="p">(</span>
+    <span class="s1">&#39;file://&#39;</span> <span class="o">+</span> <span class="n">dir_path</span> <span class="o">+</span> <span class="s1">&#39;/schema/&#39;</span><span class="p">,</span> <span class="n">TemplateRepository_schema</span><span class="p">)</span>
+<span class="n">TemplateRepository_schema_validator</span> <span class="o">=</span> <span class="n">Draft4Validator</span><span class="p">(</span>
+    <span class="n">TemplateRepository_schema</span><span class="p">,</span> <span class="n">resolver</span><span class="o">=</span><span class="n">TemplateRepository_schema_resolver</span><span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">ensure</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    ensure the 0-robot data repository exists</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">path</span><span class="p">:</span>
-        <span class="c1"># no path specify, we create one</span>
-        <span class="n">path</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">sal</span><span class="o">.</span><span class="n">fs</span><span class="o">.</span><span class="n">joinPaths</span><span class="p">(</span><span class="n">j</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">dirs</span><span class="o">.</span><span class="n">DATADIR</span><span class="p">,</span> <span class="s1">&#39;zrobot&#39;</span><span class="p">)</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="c1"># try to see of path is a git URL</span>
-            <span class="n">url</span> <span class="o">=</span> <span class="n">path</span>
-            <span class="n">path</span> <span class="o">=</span> <span class="n">giturl</span><span class="o">.</span><span class="n">git_path</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
-            <span class="c1"># if the repo is not clone yet, clone it now</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
-                <span class="n">path</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">clients</span><span class="o">.</span><span class="n">git</span><span class="o">.</span><span class="n">pullGitRepo</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
-        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
-            <span class="c1"># path is not an URL, we expect an absolute path</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isabs</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;path value is not valid. Need to be a valid git url or an absolute path on the local filesystem&quot;</span><span class="p">)</span>
+<span class="nd">@auth.admin.login_required</span>
+<span class="k">def</span> <span class="nf">CheckoutVersionTemplateRepoHandler</span><span class="p">():</span>
+    <span class="n">inputs</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">get_json</span><span class="p">()</span>
 
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
-        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">TemplateRepository_schema_validator</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">inputs</span><span class="p">)</span>
+    <span class="k">except</span> <span class="n">jsonschema</span><span class="o">.</span><span class="n">ValidationError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">jsonify</span><span class="p">(</span><span class="n">errors</span><span class="o">=</span><span class="s2">&quot;bad request body&quot;</span><span class="p">),</span> <span class="mi">400</span>
 
-    <span class="k">return</span> <span class="n">path</span>
+    <span class="n">tcol</span><span class="o">.</span><span class="n">checkout_repo</span><span class="p">(</span><span class="n">inputs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;url&#39;</span><span class="p">),</span> <span class="n">inputs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;branch&#39;</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="mi">204</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;Content-type&quot;</span><span class="p">:</span> <span class="s1">&#39;application/json&#39;</span><span class="p">}</span>
 </pre></div>
 
   </div>
@@ -1107,45 +1116,65 @@ table {
   </header>
 
   <section id="section-items">
+    <h2 class="section-title" id="header-variables">Module variables</h2>
+      <div class="item">
+      <p id="zerorobot.server.handlers.CheckoutVersionTemplateRepoHandler.TemplateRepository_schema" class="name">var <span class="ident">TemplateRepository_schema</span></p>
+      
+  
+  <div class="source_cont">
+</div>
+
+      </div>
+      <div class="item">
+      <p id="zerorobot.server.handlers.CheckoutVersionTemplateRepoHandler.TemplateRepository_schema_resolver" class="name">var <span class="ident">TemplateRepository_schema_resolver</span></p>
+      
+  
+  <div class="source_cont">
+</div>
+
+      </div>
+      <div class="item">
+      <p id="zerorobot.server.handlers.CheckoutVersionTemplateRepoHandler.TemplateRepository_schema_validator" class="name">var <span class="ident">TemplateRepository_schema_validator</span></p>
+      
+  
+  <div class="source_cont">
+</div>
+
+      </div>
+      <div class="item">
+      <p id="zerorobot.server.handlers.CheckoutVersionTemplateRepoHandler.dir_path" class="name">var <span class="ident">dir_path</span></p>
+      
+  
+  <div class="source_cont">
+</div>
+
+      </div>
 
     <h2 class="section-title" id="header-functions">Functions</h2>
       
   <div class="item">
-    <div class="name def" id="zerorobot.robot.data_repo.ensure">
-    <p>def <span class="ident">ensure</span>(</p><p>path=None)</p>
+    <div class="name def" id="zerorobot.server.handlers.CheckoutVersionTemplateRepoHandler.CheckoutVersionTemplateRepoHandler">
+    <p>def <span class="ident">CheckoutVersionTemplateRepoHandler</span>(</p><p>*args, **kwargs)</p>
     </div>
     
 
     
   
-    <div class="desc"><p>ensure the 0-robot data repository exists</p></div>
   <div class="source_cont">
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.robot.data_repo.ensure', this);">Show source &equiv;</a></p>
-  <div id="source-zerorobot.robot.data_repo.ensure" class="source">
-    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">ensure</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    ensure the 0-robot data repository exists</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">path</span><span class="p">:</span>
-        <span class="c1"># no path specify, we create one</span>
-        <span class="n">path</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">sal</span><span class="o">.</span><span class="n">fs</span><span class="o">.</span><span class="n">joinPaths</span><span class="p">(</span><span class="n">j</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">dirs</span><span class="o">.</span><span class="n">DATADIR</span><span class="p">,</span> <span class="s1">&#39;zrobot&#39;</span><span class="p">)</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="c1"># try to see of path is a git URL</span>
-            <span class="n">url</span> <span class="o">=</span> <span class="n">path</span>
-            <span class="n">path</span> <span class="o">=</span> <span class="n">giturl</span><span class="o">.</span><span class="n">git_path</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
-            <span class="c1"># if the repo is not clone yet, clone it now</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
-                <span class="n">path</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">clients</span><span class="o">.</span><span class="n">git</span><span class="o">.</span><span class="n">pullGitRepo</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
-        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
-            <span class="c1"># path is not an URL, we expect an absolute path</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isabs</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;path value is not valid. Need to be a valid git url or an absolute path on the local filesystem&quot;</span><span class="p">)</span>
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.server.handlers.CheckoutVersionTemplateRepoHandler.CheckoutVersionTemplateRepoHandler', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.server.handlers.CheckoutVersionTemplateRepoHandler.CheckoutVersionTemplateRepoHandler" class="source">
+    <div class="codehilite"><pre><span></span><span class="nd">@auth.admin.login_required</span>
+<span class="k">def</span> <span class="nf">CheckoutVersionTemplateRepoHandler</span><span class="p">():</span>
+    <span class="n">inputs</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">get_json</span><span class="p">()</span>
 
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
-        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">TemplateRepository_schema_validator</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">inputs</span><span class="p">)</span>
+    <span class="k">except</span> <span class="n">jsonschema</span><span class="o">.</span><span class="n">ValidationError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">jsonify</span><span class="p">(</span><span class="n">errors</span><span class="o">=</span><span class="s2">&quot;bad request body&quot;</span><span class="p">),</span> <span class="mi">400</span>
 
-    <span class="k">return</span> <span class="n">path</span>
+    <span class="n">tcol</span><span class="o">.</span><span class="n">checkout_repo</span><span class="p">(</span><span class="n">inputs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;url&#39;</span><span class="p">),</span> <span class="n">inputs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;branch&#39;</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="mi">204</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;Content-type&quot;</span><span class="p">:</span> <span class="s1">&#39;application/json&#39;</span><span class="p">}</span>
 </pre></div>
 
   </div>

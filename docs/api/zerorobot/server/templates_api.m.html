@@ -1052,6 +1052,7 @@ table {
       
   <ul>
     <li class="mono"><a href="#zerorobot.server.templates_api.AddTemplateRepo">AddTemplateRepo</a></li>
+    <li class="mono"><a href="#zerorobot.server.templates_api.CheckoutVersionTemplateRepo">CheckoutVersionTemplateRepo</a></li>
     <li class="mono"><a href="#zerorobot.server.templates_api.ListTemplates">ListTemplates</a></li>
   </ul>
 
@@ -1099,6 +1100,15 @@ table {
 <span class="sd">    It is handler for POST /templates</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">handlers</span><span class="o">.</span><span class="n">AddTemplateRepoHandler</span><span class="p">()</span>
+
+
+<span class="nd">@templates_api.route</span><span class="p">(</span><span class="s1">&#39;/templates&#39;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;PUT&#39;</span><span class="p">])</span>
+<span class="k">def</span> <span class="nf">CheckoutVersionTemplateRepo</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Checkout a certain branch/tag/revision of a template repository</span>
+<span class="sd">    It is handler for PUT /templates</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">handlers</span><span class="o">.</span><span class="n">CheckoutVersionTemplateRepoHandler</span><span class="p">()</span>
 </pre></div>
 
   </div>
@@ -1138,6 +1148,34 @@ It is handler for POST /templates</p></div>
 <span class="sd">    It is handler for POST /templates</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">handlers</span><span class="o">.</span><span class="n">AddTemplateRepoHandler</span><span class="p">()</span>
+</pre></div>
+
+  </div>
+</div>
+
+  </div>
+  
+      
+  <div class="item">
+    <div class="name def" id="zerorobot.server.templates_api.CheckoutVersionTemplateRepo">
+    <p>def <span class="ident">CheckoutVersionTemplateRepo</span>(</p><p>)</p>
+    </div>
+    
+
+    
+  
+    <div class="desc"><p>Checkout a certain branch/tag/revision of a template repository
+It is handler for PUT /templates</p></div>
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.server.templates_api.CheckoutVersionTemplateRepo', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.server.templates_api.CheckoutVersionTemplateRepo" class="source">
+    <div class="codehilite"><pre><span></span><span class="nd">@templates_api.route</span><span class="p">(</span><span class="s1">&#39;/templates&#39;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;PUT&#39;</span><span class="p">])</span>
+<span class="k">def</span> <span class="nf">CheckoutVersionTemplateRepo</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Checkout a certain branch/tag/revision of a template repository</span>
+<span class="sd">    It is handler for PUT /templates</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">handlers</span><span class="o">.</span><span class="n">CheckoutVersionTemplateRepoHandler</span><span class="p">()</span>
 </pre></div>
 
   </div>

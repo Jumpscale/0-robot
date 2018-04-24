@@ -1077,7 +1077,8 @@ table {
 <span class="sd">data_repo module hold the logic of the configuration of the jumpscale configuration repository</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="kn">from</span> <span class="nn">zerorobot</span> <span class="kn">import</span> <span class="n">auto_pusher</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">giturl</span>
+<span class="kn">from</span> <span class="nn">zerorobot</span> <span class="kn">import</span> <span class="n">auto_pusher</span><span class="p">,</span> <span class="n">config</span>
+<span class="kn">from</span> <span class="nn">zerorobot.git</span> <span class="kn">import</span> <span class="n">url</span> <span class="k">as</span> <span class="n">giturl</span>
 <span class="kn">from</span> <span class="nn">js9</span> <span class="kn">import</span> <span class="n">j</span>
 <span class="kn">import</span> <span class="nn">os</span>
 
@@ -1118,8 +1119,8 @@ table {
             <span class="n">key</span> <span class="o">=</span> <span class="n">tmp</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="c1"># no key configured, generate a new one</span>
-            <span class="n">pub_key_path</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">tools</span><span class="o">.</span><span class="n">prefab</span><span class="o">.</span><span class="n">local</span><span class="o">.</span><span class="n">system</span><span class="o">.</span><span class="n">ssh</span><span class="o">.</span><span class="n">keygen</span><span class="p">(</span><span class="n">user</span><span class="o">=</span><span class="s1">&#39;root&#39;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">j</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">idgenerator</span><span class="o">.</span><span class="n">generateXCharID</span><span class="p">(</span><span class="mi">8</span><span class="p">))</span>
-            <span class="n">key</span> <span class="o">=</span> <span class="n">pub_key_path</span><span class="p">[:</span><span class="o">-</span><span class="mi">4</span><span class="p">]</span>
+            <span class="n">key</span> <span class="o">=</span> <span class="s1">&#39;/root/.ssh/</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">j</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">idgenerator</span><span class="o">.</span><span class="n">generateXCharID</span><span class="p">(</span><span class="mi">8</span><span class="p">)</span>
+            <span class="n">j</span><span class="o">.</span><span class="n">sal</span><span class="o">.</span><span class="n">ubuntu</span><span class="o">.</span><span class="n">sshkeys_generate</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="n">key</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="c1"># key is specified, ensure it actually exists</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">key</span><span class="p">):</span>
@@ -1146,9 +1147,10 @@ table {
     <span class="n">myconfig</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">config_js</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;myconfig&#39;</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">myconfig</span><span class="p">:</span>
         <span class="n">key_name</span> <span class="o">=</span> <span class="n">myconfig</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;sshkeyname&#39;</span><span class="p">)</span>
-        <span class="n">key_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;/root/.ssh&#39;</span><span class="p">,</span> <span class="n">key_name</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">key_path</span><span class="p">):</span>
-            <span class="n">key</span> <span class="o">=</span> <span class="n">key_path</span>
+        <span class="k">if</span> <span class="n">key_name</span><span class="p">:</span>
+            <span class="n">key_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;/root/.ssh&#39;</span><span class="p">,</span> <span class="n">key_name</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">key_path</span><span class="p">):</span>
+                <span class="n">key</span> <span class="o">=</span> <span class="n">key_path</span>
     <span class="k">return</span> <span class="n">key</span>
 </pre></div>
 
@@ -1215,8 +1217,8 @@ table {
             <span class="n">key</span> <span class="o">=</span> <span class="n">tmp</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="c1"># no key configured, generate a new one</span>
-            <span class="n">pub_key_path</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">tools</span><span class="o">.</span><span class="n">prefab</span><span class="o">.</span><span class="n">local</span><span class="o">.</span><span class="n">system</span><span class="o">.</span><span class="n">ssh</span><span class="o">.</span><span class="n">keygen</span><span class="p">(</span><span class="n">user</span><span class="o">=</span><span class="s1">&#39;root&#39;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">j</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">idgenerator</span><span class="o">.</span><span class="n">generateXCharID</span><span class="p">(</span><span class="mi">8</span><span class="p">))</span>
-            <span class="n">key</span> <span class="o">=</span> <span class="n">pub_key_path</span><span class="p">[:</span><span class="o">-</span><span class="mi">4</span><span class="p">]</span>
+            <span class="n">key</span> <span class="o">=</span> <span class="s1">&#39;/root/.ssh/</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">j</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">idgenerator</span><span class="o">.</span><span class="n">generateXCharID</span><span class="p">(</span><span class="mi">8</span><span class="p">)</span>
+            <span class="n">j</span><span class="o">.</span><span class="n">sal</span><span class="o">.</span><span class="n">ubuntu</span><span class="o">.</span><span class="n">sshkeys_generate</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="n">key</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="c1"># key is specified, ensure it actually exists</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">key</span><span class="p">):</span>
