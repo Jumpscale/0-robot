@@ -21,3 +21,7 @@ A service can map to something physical, like a server or an network card, or it
     - [Services](docs/services/README.md)
 ## API documentation
 See https://zero-os.github.io/0-robot/api/zerorobot/index.html
+
+
+## Migration
+If you update from 0.5.x to >=0.6.x, check the migration documentation: [0.5_to_0.6.md](docs/migrations/0.5_to_0.6.md)
