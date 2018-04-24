@@ -19,6 +19,7 @@ from zerorobot.server.app import app
 from zerorobot.server import auth
 
 from . import config_repo, data_repo, loader
+from .ssl import create_self_signed_cert
 
 # create logger
 logger = j.logger.get('zerorobot')
@@ -52,14 +53,15 @@ class Robot:
         Set the data repository used to serialize services state.
 
         @param path: can be a git URL or a absolute path or None
-            if git url: clone the repository locally, and use it as configuration repo
-            if absolute path: make sure the directory exist and use it as configuration repo
-            if None: automatically create a configuration repository in `{j.dirs.DATADIR}/zrobot`
+            if git url: clone the repository locally, and use it as data repo
+            if absolute path: make sure the directory exist and use it as data repo
+            if None: automatically create a data repository in `{j.dirs.DATADIR}/zrobot`
 
         It can be the same of one of the template repository used.
         """
         location = data_repo.ensure(url)
         config.DATA_DIR = j.sal.fs.joinPaths(location, 'zrobot_data')
+        j.sal.fs.createDir(config.DATA_DIR)
         self.data_repo_url = url
 
     def add_template_repo(self, url, directory='templates'):
@@ -79,7 +81,7 @@ class Robot:
         """
         config_repo.init(path, key)
 
-    def start(self, listen=":6600", log_level=logging.DEBUG, block=True, auto_push=False, auto_push_interval=60, jwt_organization=None, **kwargs):
+    def start(self, listen=":6600", log_level=logging.DEBUG, block=True, auto_push=False, auto_push_interval=60, jwt_organization=None, disable_ssl=False, **kwargs):
         """
         start the rest web server
         load the services from the local git repository
@@ -116,10 +118,17 @@ class Robot:
             repo_dir = giturl.git_path(self.data_repo_url)
             auto_pusher.run(interval=auto_push_interval, repo_dir=repo_dir, logger=logger)
 
+        # ensure ssl certificate exists
+        if disable_ssl is False:
+            certfile, keyfile = create_self_signed_cert(config.DATA_DIR)
+
         # using a pool allow to kill the request when stopping the server
         pool = Pool(None)
         hostport = _split_hostport(listen)
-        self._http = WSGIServer(hostport, app, spawn=pool, log=logger, error_log=logger)
+        if disable_ssl is False:
+            self._http = WSGIServer(hostport, app, spawn=pool, log=logger, error_log=logger, keyfile=keyfile, certfile=certfile)
+        else:
+            self._http = WSGIServer(hostport, app, spawn=pool, log=logger, error_log=logger)
         self._http.start()
 
         logger.info("robot running at %s:%s" % hostport)

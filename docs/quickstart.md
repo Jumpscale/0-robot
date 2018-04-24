@@ -94,48 +94,41 @@ class Helloworld(TemplateBase):
 
 Make sure your robot is running with the helloworld template ([check the getting started guide](getting_started.md)) and connect to the robot
 ```
-/tmp/proj# zrobot robot connect main http://localhost:6000
-[Tue30 10:35] - ConfigManager.py    :107 :j                              - INFO     - found jsconfig dir in: /opt/code/config_test
+/tmp/proj# zrobot robot connect main https://localhost:6000
 Connection to main saved
 
 ```
 
 ## Creating instance of the service and scheduling actions using the DSL
 
-using zerorobot dsl to easily interact with the robot
+using 0-robot DSL to easily interact with the robot
 
 1- Create ZeroRobotAPI Manager
-```
-In [54]: from zerorobot.dsl import ZeroRobotAPI
-
-In [55]: api = ZeroRobotAPI.ZeroRobotAPI()
-
-In [56]: robot = api.robots['main']
+```python
+robot = j.clients.zrobot.robots['main']
 ```
 2- Create instance of the helloworld template
-```
-In [58]: service = robot.services.create("github.com/jumpscale/0-robot/helloworld/0.0.1", "firstservice")
-Out[58]: <zerorobot.service_proxy.ServiceProxy at 0x7f71f7c392b0>
-
+```python
+service = robot.services.create("github.com/jumpscale/0-robot/helloworld/0.0.1", "firstservice")
+<zerorobot.service_proxy.ServiceProxy at 0x7f71f7c392b0>
 ```
 
 you can use services.names dict to retrieve service by itsname
-```
-In [61]: robot.services.names
-Out[61]: 
+```python
+robot.services.names
+ 
 {'firstservice': <zerorobot.service_proxy.ServiceProxy at 0x7f71f7c5a470>,
  'hi1': <zerorobot.service_proxy.ServiceProxy at 0x7f71f7c39358>,
  'hi2': <zerorobot.service_proxy.ServiceProxy at 0x7f71f7c5a240>}
 
 
 
-In [63]: service = robot.services.names['firstservice']
+service = robot.services.names['firstservice']
 ```
 
 Now let's ask the service to execute its specific task `echo_to_temp`
-```
-In [64]: service.schedule_action("echo_to_temp")
-
+```python
+service.schedule_action("echo_to_temp")
 ```
 
 and if you check `/tmp/msg.robot` file you should see
@@ -163,9 +156,8 @@ actions:
 * Execute the blueprint
 `zrobot blueprint execute hello.yaml`
 
-```
+```shell
 /tmp/proj/blueprints# zrobot blueprint execute hello.yaml 
-[Tue30 10:51] - ConfigManager.py    :107 :j                              - INFO     - found jsconfig dir in: /opt/code/config_test
 blueprint executed
 
 ```

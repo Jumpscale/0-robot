@@ -21,13 +21,11 @@ monkey.patch_all(subprocess=False)
 class TestZRobotClient(unittest.TestCase):
 
     def setUp(self):
-        j.clients.zrobot.get('test', {'url': 'http://localhost:6600'})
+        j.clients.zrobot.get('test', {'url': 'https://localhost:6600'})
         self.cl = ZeroRobotManager('test')
         self.robot = Robot()
-        self.robot.set_data_repo('http://github.com/zero-os/0-robot')
+        self.robot.set_data_repo(j.sal.fs.getTmpDirPath())
         self.robot.add_template_repo('http://github.com/zero-os/0-robot', directory='tests/fixtures/templates')
-        if os.path.exists(config.DATA_DIR):
-            shutil.rmtree(config.DATA_DIR)
         # make sure we don't have any service loaded
         scol.drop_all()
         self.robot.start(listen='127.0.0.1:6600', block=False, testing=True)
