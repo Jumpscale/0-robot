@@ -19,6 +19,7 @@ securitySchemes:
             JWT given by ItYouOnline
             It needs to contains the "user:memberof:<org>" scope, where <org> is the organization authorized to access the robot.
           type: string
+          example: "Bearer <token>
       responses:
         401:
           description: |
@@ -36,9 +37,10 @@ securitySchemes:
       that created it.
     describedBy:
       headers:
-        Authorization:
-          description: Ssecret returned by the robot when creating service.
+        Zrobot:
+          description: Secret returned by the robot when creating service.
           type: string
+          example: "Bearer <token>
       responses:
         401:
           description: |

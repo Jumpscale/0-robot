@@ -1,13 +1,16 @@
+from gevent import monkey
+# need to patch sockets to make requests async
+monkey.patch_all(subprocess=False)
+
+import os
 import tempfile
 import unittest
 
-from gevent import monkey
+from js9 import j
+
 from zerorobot.robot import Robot
 from zerorobot.git import url as giturl
 from zerorobot import config
-
-# need to patch sockets to make requests async
-monkey.patch_all(subprocess=False)
 
 
 class TestRobot(unittest.TestCase):
@@ -17,10 +20,10 @@ class TestRobot(unittest.TestCase):
 
     def test_add_data_repo(self):
         robot = Robot()
-        url = 'https://github.com/zero-os/0-robot'
-        robot.set_data_repo(url)
-        self.assertEqual(config.DATA_DIR, '/opt/code/github/zero-os/0-robot/zrobot_data')
-        self.assertEqual(robot.data_repo_url, url)
+        dir_path = j.sal.fs.getTmpDirPath()
+        robot.set_data_repo(dir_path)
+        self.assertEqual(config.DATA_DIR, os.path.join(dir_path, 'zrobot_data'))
+        self.assertEqual(robot.data_repo_url, dir_path)
 
     def test_data_dir_required(self):
         robot = Robot()

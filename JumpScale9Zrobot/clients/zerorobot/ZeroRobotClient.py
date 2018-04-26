@@ -10,7 +10,7 @@ JSConfigClientBase = j.tools.configmanager.base_class_config
 _template = """
 url = "http://localhost:6600"
 jwt_ = ""
-secret_ = ""
+secrets_ = []
 """
 
 
@@ -52,7 +52,7 @@ class ZeroRobotClient(JSConfigClientBase):
             if self.config.data.get('jwt_'):
                 header = 'Bearer %s' % self.config.data['jwt_']
                 self._api.security_schemes.passthrough_client_iyo.set_authorization_header(header)
-            if self.config.data.get('secret_'):
-                header = 'ZrobotAuth %s' % self.config.data['secret_']
+            if self.config.data.get('secrets_'):
+                header = 'Bearer %s' % ' '.join(self.config.data['secrets_'])
                 self._api.security_schemes.passthrough_client_zrobot.set_authorization_header(header)
         return self._api

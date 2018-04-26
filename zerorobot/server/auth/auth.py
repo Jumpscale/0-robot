@@ -1,12 +1,12 @@
 from functools import wraps
 
 from flask import jsonify, request
-from flask_httpauth import HTTPTokenAuth, MultiAuth
 from jose import jwt
 from js9 import j
 from zerorobot import service_collection as scol
 
 from . import user_jwt
+from .flask_httpauth import HTTPTokenAuth, MultiAuth
 
 logger = j.logger.get('zrobot')
 
@@ -17,8 +17,8 @@ MHYwEAYHKoZIzj0CAQYFK4EEACIDYgAES5X8XrfKdx9gYayFITc89wad4usrk0n2
 -----END PUBLIC KEY-----"""
 jwt_organization = None  # to be set at startup by robot class
 
-admin = HTTPTokenAuth('Bearer')
-user = HTTPTokenAuth('ZrobotAuth')
+admin = HTTPTokenAuth('Bearer', header='Authorization')
+user = HTTPTokenAuth('Bearer',  header='Zrobot')
 multi = MultiAuth(user, admin)
 
 
@@ -46,9 +46,13 @@ def _verify_admin_token(token):
 
 
 @user.verify_token
-def _verify_user_token(token):
+def _verify_user_token(tokens):
     service_guid = request.view_args.get('service_guid')
     if not service_guid:
         return False
 
-    return user_jwt.verify(service_guid, token)
+    for token in tokens.split(' '):
+        if user_jwt.verify(service_guid, token):
+            return True
+
+    return False

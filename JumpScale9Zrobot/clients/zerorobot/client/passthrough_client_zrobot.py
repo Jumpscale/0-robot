@@ -7,4 +7,4 @@ class PassThroughClientZrobot:
 
     def set_authorization_header(self, val):
         """" Set header Authorization to '<val>'"""
-        return self._http_client.set_header('Authorization', val)
+        return self._http_client.set_header('Zrobot', val)

@@ -26,7 +26,7 @@ class TestServiceProxy(unittest.TestCase):
         j.clients.zrobot.get('test', {'url': 'http://localhost:6600'})
         self.cl = ZeroRobotManager('test')
         self.robot = Robot()
-        self.robot.set_data_repo('http://github.com/zero-os/0-robot')
+        self.robot.set_data_repo(j.sal.fs.getTmpDirPath())
         self.robot.add_template_repo('http://github.com/zero-os/0-robot', directory='tests/fixtures/templates')
         if os.path.exists(config.DATA_DIR):
             shutil.rmtree(config.DATA_DIR)
@@ -112,7 +112,6 @@ class TestServiceProxy(unittest.TestCase):
 
     def test_delete(self):
         proxy, service = self._create_proxy()
-
         proxy.delete()
         with self.assertRaises(KeyError, msg='deleting a proxy, should delete the real service'):
             scol.get_by_guid(proxy.guid)

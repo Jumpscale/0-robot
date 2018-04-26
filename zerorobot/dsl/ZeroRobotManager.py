@@ -46,19 +46,16 @@ class ServicesMgr:
         self._client = robot._client
 
     def _instantiate(self, data):
-        if data.guid in j.clients.zrobot.list():
-            client = j.clients.zrobot.get(data.guid)
-        elif hasattr(data, 'secret') and data.secret:
-            # create a zrobot client for this service
-            client_data = {
-                'url': self._client.config.data['url'],
-                'secret_': data.secret,  # TODO handle case where secret is not sets
-            }
-            client = j.clients.zrobot.get(data.guid, data=client_data, interactive=False, create=True)
-        else:
-            client = self._client
 
-        srv = ServiceProxy(data.name, data.guid, client)
+        if hasattr(data, 'secret') and data.secret:
+            if data.secret not in self._client.config.data['secrets_']:
+                secrets = self._client.config.data['secrets_']
+                secrets.append(data.secret)
+                self._client.config.save()
+            # force re-creation of the connection with new secret added in the Authorization header
+            self._client._api = None
+
+        srv = ServiceProxy(data.name, data.guid, self._client)
         srv.template_uid = TemplateUID.parse(data.template)
         return srv
 

@@ -24,7 +24,7 @@ class TestZRobotClient(unittest.TestCase):
         j.clients.zrobot.get('test', {'url': 'http://localhost:6600'})
         self.cl = ZeroRobotManager('test')
         self.robot = Robot()
-        self.robot.set_data_repo('http://github.com/zero-os/0-robot')
+        self.robot.set_data_repo(j.sal.fs.getTmpDirPath())
         self.robot.add_template_repo('http://github.com/zero-os/0-robot', directory='tests/fixtures/templates')
         if os.path.exists(config.DATA_DIR):
             shutil.rmtree(config.DATA_DIR)

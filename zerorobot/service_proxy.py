@@ -5,9 +5,12 @@ This class is used to provide a local proxy to a remote service for a ZeroRobot.
 When a service or robot ask the creation of a service to another robot, a proxy class is created locally
 so the robot see the service as if it as local to him while in reality the service is managed by another robot.
 """
+
 import urllib
+
 from requests.exceptions import HTTPError
 
+from jose import jwt
 from js9 import j
 from zerorobot.task import (TASK_STATE_ERROR, TASK_STATE_NEW, TASK_STATE_OK,
                             TASK_STATE_RUNNING, Task, TaskNotFoundError)
@@ -71,19 +74,23 @@ class ServiceProxy():
         }
         if args:
             req["args"] = args
-        try:
-            task, _ = self._zrobot_client.api.services.AddTaskToList(req, service_guid=self.guid)
-        except HTTPError as err:
-            print(str(err.response.json()))
-            raise err
+        task, _ = self._zrobot_client.api.services.AddTaskToList(req, service_guid=self.guid)
 
         return _task_proxy_from_api(task, self)
 
     def delete(self):
         self._zrobot_client.api.services.DeleteService(self.guid)
-        # clean up zrobot client that could have been created for this proxy
-        if j.clients.zrobot.exists(self.guid):
-            j.clients.zrobot.delete(self.guid)
+        # clean up secret from zrobot client
+        for secret in list(self._zrobot_client.config.data['secrets_']):
+            try:
+                claims = jwt.get_unverified_claims(secret)
+            except:
+                continue
+            else:
+                if claims.get('service_guid') == self.guid:
+                    self._zrobot_client.config.data['secrets_'].remove(secret)
+                    self._zrobot_client.config.save()
+                    return
 
 
 class TaskListProxy:

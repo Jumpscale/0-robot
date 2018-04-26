@@ -21,5 +21,25 @@ def listServicesHandler():
         if val:
             kwargs[x] = val
 
-    services = [service_view(s) for s in scol.find(**kwargs)]
+    allowed_services = extract_guid_from_headers(request.headers)
+    services = [service_view(s) for s in scol.find(**kwargs) if s.guid in allowed_services]
     return json.dumps(services), 200, {"Content-type": 'application/json'}
+
+
+def extract_guid_from_headers(headers):
+    if 'Zrobot' not in request.headers:
+        return []
+
+    services_guids = []
+    ss = headers['Zrobot'].split(None, 1)
+    if len(ss) != 2:
+        return []
+
+    tokens = ss[1]
+    for token in tokens.split(' '):
+        claims = auth.user_jwt.decode(token)
+        guid = claims.get('service_guid')
+        if guid:
+            services_guids.append(guid)
+
+    return services_guids
