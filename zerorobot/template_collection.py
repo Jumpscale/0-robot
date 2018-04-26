@@ -72,8 +72,8 @@ def get(uid):
             templates = find(name=uid)
             size = len(templates)
             if size > 1:
-                raise TemplateConflictError("tried to get template with name %s, but more then one template have this name (%s)",
-                                            uid, ','.join(templates))
+                raise TemplateConflictError("tried to get template with name %s, but more then one template have this name (%s)" %
+                                            (uid, ', '.join([str(t.template_uid) for t in templates])))
             elif size <= 0:
                 raise TemplateNotFoundError("template with name %s not found" % str(uid))
             else:

@@ -47,6 +47,15 @@ class TestTemplateCollection(unittest.TestCase):
         with self.assertRaises(TemplateNotFoundError, msg="should raise TemplateNotFoundError"):
             tcol.get('noexists')
 
+    def test_get_template_name_conflict(self):
+        dir_path = os.path.join(os.path.dirname(__file__), 'fixtures/templates/node')
+        tcol._load_template("https://github.com/zero-os/0-robot", dir_path)
+        dir_path = os.path.join(os.path.dirname(__file__), 'fixtures/templates_2/node')
+        tcol._load_template("https://github.com/zero-os/0-robot", dir_path)
+        self.assertEqual(len(tcol._templates), 2, 'should have loaded 2 templates')
+        with self.assertRaises(tcol.TemplateConflictError) as err:
+            tmpl = tcol.get('node')
+
     def test_list_template(self):
         # valid template
         file_path = os.path.join(os.path.dirname(__file__), 'fixtures/templates/node')
