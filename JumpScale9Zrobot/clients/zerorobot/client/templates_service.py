@@ -72,4 +72,15 @@ class TemplatesService:
             query_params = {}
 
         uri = self.client.base_url + "/templates"
-        return self.client.put(uri, data, headers, query_params, content_type)
+        resp = self.client.put(uri, data, headers, query_params, content_type)
+        try:
+
+            message = 'unknown status code={}'.format(resp.status_code)
+            raise UnhandledAPIError(response=resp, code=resp.status_code,
+                                    message=message)
+        except ValueError as msg:
+            raise UnmarshallError(resp, msg)
+        except UnhandledAPIError as uae:
+            raise uae
+        except Exception as e:
+            raise UnmarshallError(resp, e.message)

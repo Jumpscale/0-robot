@@ -1,0 +1,22 @@
+{
+	"$schema": "http://json-schema.org/schema#",
+	"type": "object",
+	"properties": {
+		"services": {
+			"type": "array",
+			"items": {
+				"$ref": "ServiceCreated_schema.json"
+			}
+		},
+		"tasks": {
+			"type": "array",
+			"items": {
+				"$ref": "Task_schema.json"
+			}
+		}
+	},
+	"required": [
+		"services",
+		"tasks"
+	]
+}

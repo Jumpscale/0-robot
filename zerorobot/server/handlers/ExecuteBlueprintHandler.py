@@ -4,7 +4,7 @@ import json as JSON
 import os
 
 import jsonschema
-from flask import request
+from flask import request, jsonify
 from jsonschema import Draft4Validator
 
 from js9 import j
@@ -19,13 +19,12 @@ from zerorobot.template_collection import (TemplateConflictError,
 from zerorobot.template_uid import TemplateUID
 
 from zerorobot.server import auth
-from .views import task_view
+from .views import task_view, service_view
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
 Blueprint_schema = JSON.load(open(dir_path + '/schema/Blueprint_schema.json'))
 Blueprint_schema_resolver = jsonschema.RefResolver('file://' + dir_path + '/schema/', Blueprint_schema)
 Blueprint_schema_validator = Draft4Validator(Blueprint_schema, resolver=Blueprint_schema_resolver)
-
 
 
 @auth.admin.login_required
@@ -38,20 +37,32 @@ def ExecuteBlueprintHandler():
     try:
         Blueprint_schema_validator.validate(inputs)
     except jsonschema.ValidationError as err:
-        return JSON.dumps({'code': 400, 'message': str(err)}), 400, {"Content-type": 'application/json'}
+        return jsonify(code=400, message=str(err)), 400
 
     try:
         actions, services = blueprint.parse(inputs['content'])
     except (blueprint.BadBlueprintFormatError, TemplateConflictError, TemplateNotFoundError) as err:
-        return JSON.dumps({'code': 400, 'message': str(err.args[1])}), 400, {"Content-type": 'application/json'}
+        return jsonify(code=400, message=str(err.args[1])), 400
 
+    services_created = []
     for service in services:
         try:
-            _instanciate_services(service)
+            service = _instanciate_services(service)
+            if service:
+                # add secret to new created service
+                view = service_view(service)
+                try:
+                    view['secret'] = auth.user_jwt.create({'service_guid': service.guid})
+                    services_created.append(view)
+                except auth.user_jwt.SigningKeyNotFoundError as err:
+                    return jsonify(code=500, message='error creating user secret: no signing key available'), 500
+                except Exception as err:
+                    return jsonify(code=500, message='error creating user secret: %s' % str(err)), 500
+
         except TemplateNotFoundError:
-            return JSON.dumps({'code': 404, 'message': "template '%s' not found" % service['template']}), 404, {"Content-type": 'application/json'}
-        except (TemplateConflictError, TemplateNotFoundError) as err:
-            return JSON.dumps({'code': 400, 'message': err.args[0]}), 404, {"Content-type": 'application/json'}
+            return jsonify(code=404, message="template '%s' not found" % service['template']), 404
+        except TemplateConflictError as err:
+            return jsonify(code=400, message=err.args[0]), 404
 
     tasks_created = []
     for action_item in actions:
@@ -59,18 +70,19 @@ def ExecuteBlueprintHandler():
             tasks_created.extend(_schedule_action(action_item))
         except BadActionArgumentError as err:
             err_msg = "bad action argument for action %s: %s" % (action_item['action'], str(err))
-            return JSON.dumps({'code': 400, 'message': err_msg}), 400, {"Content-type": 'application/json'}
+            return jsonify(code=400, message=err_msg), 400
 
-    response = []
+    response = {'tasks': [], 'services': services_created}
     for task, service in tasks_created:
-        response.append(task_view(task, service))
+        response['tasks'].append(task_view(task, service))
 
-    return JSON.dumps(response), 200, {"Content-type": 'application/json'}
+    return jsonify(response), 200
 
 
 def _instanciate_services(service_descr):
     try:
         srv = tcol.instantiate_service(service_descr['template'], service_descr['service'], service_descr.get('data', None))
+        return srv
     except ServiceConflictError as err:
         if err.service is None:
             raise j.exceptions.RuntimeError("should have the conflicting service in the exception")

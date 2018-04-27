@@ -36,8 +36,8 @@ securitySchemes:
       that created it.
     describedBy:
       headers:
-        Authorization:
-          description: Ssecret returned by the robot when creating service.
+        Zrobot:
+          description: Secret returned by the robot when creating service.
           type: string
       responses:
         401:
@@ -63,6 +63,14 @@ types:
           template: node
           service: node1
           action: start
+
+  BlueprintResult:
+    description: type returned after the execution of a blueprint. It contains a list of created services and task scheduled
+    properties:
+      tasks:
+        type: Task[]
+      services:
+        type: ServiceCreated[]
 
   TemplateRepository:
     properties:
@@ -341,7 +349,7 @@ types:
           Blueprint executed successfully
           Which mean all the service have been created and all actions added to the task list
         body:
-          type: Task[]
+          type: BlueprintResult
 
 /templates:
   description: |

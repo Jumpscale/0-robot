@@ -2,6 +2,7 @@
 
 from .Action import Action
 from .Blueprint import Blueprint
+from .BlueprintResult import BlueprintResult
 from .Eco import Eco
 from .EnumServiceStateState import EnumServiceStateState
 from .EnumTaskState import EnumTaskState

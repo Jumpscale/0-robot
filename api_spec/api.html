@@ -431,7 +431,7 @@ Which mean all the service have been created and all actions added to the task l
                           
                             
                               
-                                <p><strong>Type</strong>: array of Task</p>
+                                <p><strong>Type</strong>: object</p>
                               
                             
                           
@@ -439,17 +439,36 @@ Which mean all the service have been created and all actions added to the task l
                           
 
                           
-                            
 
-                            
-                              <p><strong>Items</strong>: Task</p>
-
+                          
+                            <strong>Properties</strong>
+                            <ul>
                               
-                                <div class="items">
-                                  
-                                    <ul>
-                                      
-                                        <li>
+                                <li>
+  <strong>tasks</strong>:
+
+    
+      <em>required (array of Task)
+      </em>
+    
+  
+
+
+
+  
+
+  
+    
+
+    
+      <p><strong>Items</strong>: Task</p>
+
+      
+        <div class="items">
+          
+            <ul>
+              
+                <li>
   <strong>action_name</strong>:
 
     
@@ -474,8 +493,8 @@ Which mean all the service have been created and all actions added to the task l
 
 </li>
 
-                                      
-                                        <li>
+              
+                <li>
   <strong>args</strong>:
 
     
@@ -504,8 +523,8 @@ Which mean all the service have been created and all actions added to the task l
 
 </li>
 
-                                      
-                                        <li>
+              
+                <li>
   <strong>template_name</strong>:
 
     
@@ -530,8 +549,8 @@ Which mean all the service have been created and all actions added to the task l
 
 </li>
 
-                                      
-                                        <li>
+              
+                <li>
   <strong>service_name</strong>:
 
     
@@ -556,8 +575,8 @@ Which mean all the service have been created and all actions added to the task l
 
 </li>
 
-                                      
-                                        <li>
+              
+                <li>
   <strong>service_guid</strong>:
 
     
@@ -582,8 +601,8 @@ Which mean all the service have been created and all actions added to the task l
 
 </li>
 
-                                      
-                                        <li>
+              
+                <li>
   <strong>guid</strong>:
 
     
@@ -609,8 +628,8 @@ Which mean all the service have been created and all actions added to the task l
 
 </li>
 
-                                      
-                                        <li>
+              
+                <li>
   <strong>state</strong>:
 
     
@@ -639,8 +658,8 @@ a task that failed to execute and/or is being retried is in state error.</p>
 
 </li>
 
-                                      
-                                        <li>
+              
+                <li>
   <strong>created</strong>:
 
     
@@ -666,8 +685,8 @@ a task that failed to execute and/or is being retried is in state error.</p>
 
 </li>
 
-                                      
-                                        <li>
+              
+                <li>
   <strong>duration</strong>:
 
     
@@ -693,8 +712,8 @@ a task that failed to execute and/or is being retried is in state error.</p>
 
 </li>
 
-                                      
-                                        <li>
+              
+                <li>
   <strong>eco</strong>:
 
     
@@ -1378,8 +1397,8 @@ a task that failed to execute and/or is being retried is in state error.</p>
 
 </li>
 
-                                      
-                                        <li>
+              
+                <li>
   <strong>result</strong>:
 
     
@@ -1405,18 +1424,393 @@ a task that failed to execute and/or is being retried is in state error.</p>
 
 </li>
 
-                                      
-                                    </ul>
-                                  
+              
+            </ul>
+          
 
-                                  
-                                  
-                                  
-                                </div>
+          
+          
+          
+    <p><strong>Example</strong>:</p>
+    <div class="examples">
+        
+            
+            <pre><code>{
+  "template_name": "github.com/account/repository/master/node.zero-os",
+  "service_name": "node1",
+  "service_guid": "10b0c69f-0f72-4e41-b146-4e10997024f8",
+  "action_name": "start",
+  "guid": "07f38c46-056b-420d-8964-6efd3f493fe5",
+  "state": "new",
+  "args": {
+    "foo": "bar"
+  },
+  "created": 1512038654
+}</code></pre>
+        
+    </div>
+
+        </div>
+      
+    
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
                               
-                            
-                          
+                                <li>
+  <strong>services</strong>:
 
+    
+      <em>required (array of ServiceCreated)
+      </em>
+    
+  
+
+
+
+  
+
+  
+    
+
+    
+      <p><strong>Items</strong>: ServiceCreated</p>
+
+      
+        <div class="items">
+          
+            <ul>
+              
+                <li>
+  <strong>template</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+<p>This is the UID of a template</p>
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+              
+                <li>
+  <strong>version</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+              
+                <li>
+  <strong>guid</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+              
+                <li>
+  <strong>name</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+              
+                <li>
+  <strong>state</strong>:
+
+    
+      <em>required (array of ServiceState)
+      </em>
+    
+  
+
+
+
+  
+
+  
+    
+
+    
+      <p><strong>Items</strong>: ServiceState</p>
+
+      
+        <div class="items">
+          
+            <ul>
+              
+                <li>
+  <strong>category</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+              
+                <li>
+  <strong>tag</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+              
+                <li>
+  <strong>state</strong>:
+
+    
+      <em>required (one of ok, error, warning, skipped)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+              
+            </ul>
+          
+
+          
+          
+          
+    <p><strong>Example</strong>:</p>
+    <div class="examples">
+        
+            
+            <pre><code>{
+  "category": "network",
+  "tag": "local-tcp-443",
+  "state": "ok"
+}</code></pre>
+        
+    </div>
+
+        </div>
+      
+    
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+              
+                <li>
+  <strong>secret</strong>:
+
+    
+      <em>(string)
+      </em>
+    
+  
+
+<p>secret to use to managed the created services</p>
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+              
+            </ul>
+          
+
+          
+          
+          
+    <p><strong>Example</strong>:</p>
+    <div class="examples">
+        
+            
+            <pre><code>{
+  "guid": "7040fda3-08e1-4109-829c-925a907809f9",
+  "template": "github.com/jumpscale/0-robot/node/0.0.1",
+  "version": "1.0.1",
+  "name": "node1",
+  "state": [
+    {
+      "category": "network",
+      "tag": "local-tcp-6379",
+      "state": "ok"
+    },
+    {
+      "category": "network",
+      "tag": "local-http-80",
+      "state": "ok"
+    },
+    {
+      "category": "data",
+      "tag": "db",
+      "state": "ok"
+    }
+  ]
+}</code></pre>
+        
+    </div>
+
+        </div>
+      
+    
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                              
+                            </ul>
                           
 
                           
@@ -5136,10 +5530,12 @@ the user.</p>
                     <div class="alert alert-warning">
                       
                       <span class="glyphicon glyphicon-lock" title="Authentication required"></span>
-                      Secured by <b>iyo</b>
+                      Secured by <b>zrobot</b>
                       
                       
-<p>0-robot support authentication using a JWT containing the "user:memberof:" scope for an IYO organization</p>
+<p>Service can only be managed by their creator, methods decorated with this scheme need to provice a secret in the http headers
+this secret is returned by the robot when creating service. It proof that the client trying to managed the service is actually the client
+that created it.</p>
 
                       
                     </div>
@@ -5329,14 +5725,14 @@ the user.</p>
                   <div class="tab-pane" id="services__service_guid__actions_get_securedby">
                     
                       
-                      <h1>Secured by iyo</h1>
+                      <h1>Secured by zrobot</h1>
 
                       
                         <h3>Headers</h3>
                         <ul>
                           
                             <li>
-  <strong>Authorization</strong>:
+  <strong>Zrobot</strong>:
 
     
       <em>required (string)
@@ -5344,8 +5740,7 @@ the user.</p>
     
   
 
-<p>JWT given by ItYouOnline
-It needs to contains the "user:memberof:<org>" scope, where <org> is the organization authorized to access the robot.</p>
+<p>Secret returned by the robot when creating service.</p>
 
 
   
@@ -5370,8 +5765,7 @@ It needs to contains the "user:memberof:<org>" scope, where <org> is the organiz
 
                       
                         <h2>HTTP status code <a href="http://httpstatus.es/401" target="_blank">401</a></h2>
-<p>Bad or expired token. This can happen if the user is revoked or an expired access token. To fix, re-authenticate
-the user.</p>
+<p>Bad or expired token.</p>
 
                         
 
@@ -5379,7 +5773,7 @@ the user.</p>
 
                       
                         <h2>HTTP status code <a href="http://httpstatus.es/403" target="_blank">403</a></h2>
-<p>Bad request wrong scope in the JWT. Unfortunately, re-authenticating the user won&#39;t help here.</p>
+<p>Bad request wrong scope in the JWT.</p>
 
                         
 
@@ -5485,10 +5879,12 @@ the user.</p>
                     <div class="alert alert-warning">
                       
                       <span class="glyphicon glyphicon-lock" title="Authentication required"></span>
-                      Secured by <b>iyo</b>
+                      Secured by <b>zrobot</b>
                       
                       
-<p>0-robot support authentication using a JWT containing the "user:memberof:" scope for an IYO organization</p>
+<p>Service can only be managed by their creator, methods decorated with this scheme need to provice a secret in the http headers
+this secret is returned by the robot when creating service. It proof that the client trying to managed the service is actually the client
+that created it.</p>
 
                       
                     </div>
@@ -6619,14 +7015,14 @@ a task that failed to execute and/or is being retried is in state error.</p>
                   <div class="tab-pane" id="services__service_guid__task_list_get_securedby">
                     
                       
-                      <h1>Secured by iyo</h1>
+                      <h1>Secured by zrobot</h1>
 
                       
                         <h3>Headers</h3>
                         <ul>
                           
                             <li>
-  <strong>Authorization</strong>:
+  <strong>Zrobot</strong>:
 
     
       <em>required (string)
@@ -6634,8 +7030,7 @@ a task that failed to execute and/or is being retried is in state error.</p>
     
   
 
-<p>JWT given by ItYouOnline
-It needs to contains the "user:memberof:<org>" scope, where <org> is the organization authorized to access the robot.</p>
+<p>Secret returned by the robot when creating service.</p>
 
 
   
@@ -6660,8 +7055,7 @@ It needs to contains the "user:memberof:<org>" scope, where <org> is the organiz
 
                       
                         <h2>HTTP status code <a href="http://httpstatus.es/401" target="_blank">401</a></h2>
-<p>Bad or expired token. This can happen if the user is revoked or an expired access token. To fix, re-authenticate
-the user.</p>
+<p>Bad or expired token.</p>
 
                         
 
@@ -6669,7 +7063,7 @@ the user.</p>
 
                       
                         <h2>HTTP status code <a href="http://httpstatus.es/403" target="_blank">403</a></h2>
-<p>Bad request wrong scope in the JWT. Unfortunately, re-authenticating the user won&#39;t help here.</p>
+<p>Bad request wrong scope in the JWT.</p>
 
                         
 
@@ -6711,10 +7105,12 @@ the user.</p>
                     <div class="alert alert-warning">
                       
                       <span class="glyphicon glyphicon-lock" title="Authentication required"></span>
-                      Secured by <b>iyo</b>
+                      Secured by <b>zrobot</b>
                       
                       
-<p>0-robot support authentication using a JWT containing the "user:memberof:" scope for an IYO organization</p>
+<p>Service can only be managed by their creator, methods decorated with this scheme need to provice a secret in the http headers
+this secret is returned by the robot when creating service. It proof that the client trying to managed the service is actually the client
+that created it.</p>
 
                       
                     </div>
@@ -7943,14 +8339,14 @@ a task that failed to execute and/or is being retried is in state error.</p>
                   <div class="tab-pane" id="services__service_guid__task_list_post_securedby">
                     
                       
-                      <h1>Secured by iyo</h1>
+                      <h1>Secured by zrobot</h1>
 
                       
                         <h3>Headers</h3>
                         <ul>
                           
                             <li>
-  <strong>Authorization</strong>:
+  <strong>Zrobot</strong>:
 
     
       <em>required (string)
@@ -7958,8 +8354,7 @@ a task that failed to execute and/or is being retried is in state error.</p>
     
   
 
-<p>JWT given by ItYouOnline
-It needs to contains the "user:memberof:<org>" scope, where <org> is the organization authorized to access the robot.</p>
+<p>Secret returned by the robot when creating service.</p>
 
 
   
@@ -7984,8 +8379,7 @@ It needs to contains the "user:memberof:<org>" scope, where <org> is the organiz
 
                       
                         <h2>HTTP status code <a href="http://httpstatus.es/401" target="_blank">401</a></h2>
-<p>Bad or expired token. This can happen if the user is revoked or an expired access token. To fix, re-authenticate
-the user.</p>
+<p>Bad or expired token.</p>
 
                         
 
@@ -7993,7 +8387,7 @@ the user.</p>
 
                       
                         <h2>HTTP status code <a href="http://httpstatus.es/403" target="_blank">403</a></h2>
-<p>Bad request wrong scope in the JWT. Unfortunately, re-authenticating the user won&#39;t help here.</p>
+<p>Bad request wrong scope in the JWT.</p>
 
                         
 
@@ -8079,10 +8473,12 @@ the user.</p>
                     <div class="alert alert-warning">
                       
                       <span class="glyphicon glyphicon-lock" title="Authentication required"></span>
-                      Secured by <b>iyo</b>
+                      Secured by <b>zrobot</b>
                       
                       
-<p>0-robot support authentication using a JWT containing the "user:memberof:" scope for an IYO organization</p>
+<p>Service can only be managed by their creator, methods decorated with this scheme need to provice a secret in the http headers
+this secret is returned by the robot when creating service. It proof that the client trying to managed the service is actually the client
+that created it.</p>
 
                       
                     </div>
@@ -9324,14 +9720,14 @@ a task that failed to execute and/or is being retried is in state error.</p>
                   <div class="tab-pane" id="services__service_guid__task_list__task_guid__get_securedby">
                     
                       
-                      <h1>Secured by iyo</h1>
+                      <h1>Secured by zrobot</h1>
 
                       
                         <h3>Headers</h3>
                         <ul>
                           
                             <li>
-  <strong>Authorization</strong>:
+  <strong>Zrobot</strong>:
 
     
       <em>required (string)
@@ -9339,8 +9735,7 @@ a task that failed to execute and/or is being retried is in state error.</p>
     
   
 
-<p>JWT given by ItYouOnline
-It needs to contains the "user:memberof:<org>" scope, where <org> is the organization authorized to access the robot.</p>
+<p>Secret returned by the robot when creating service.</p>
 
 
   
@@ -9365,8 +9760,7 @@ It needs to contains the "user:memberof:<org>" scope, where <org> is the organiz
 
                       
                         <h2>HTTP status code <a href="http://httpstatus.es/401" target="_blank">401</a></h2>
-<p>Bad or expired token. This can happen if the user is revoked or an expired access token. To fix, re-authenticate
-the user.</p>
+<p>Bad or expired token.</p>
 
                         
 
@@ -9374,7 +9768,7 @@ the user.</p>
 
                       
                         <h2>HTTP status code <a href="http://httpstatus.es/403" target="_blank">403</a></h2>
-<p>Bad request wrong scope in the JWT. Unfortunately, re-authenticating the user won&#39;t help here.</p>
+<p>Bad request wrong scope in the JWT.</p>
 
                         
 

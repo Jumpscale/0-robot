@@ -29,10 +29,22 @@ def execute(blueprint):
     data = {'content': content}
 
     try:
-        tasks, _ = client.api.blueprints.ExecuteBlueprint(data)
+        response, _ = client.api.blueprints.ExecuteBlueprint(data)
+
+        # save secret of the service inside config manager
+        for service in response.services:
+            if service.secret not in client.config.data['secrets_']:
+                secrets = client.config.data['secrets_']
+                secrets.append(service.secret)
+        # force re-creation of the connection with new secret added in the Authorization header
+        client.config.save()
+        client._api = None
+
         print("blueprint executed")
-        print("list of tasks created with this blueprint:")
-        print_tasks(tasks)
+        print('list of services created:')
+        print_services(response.services)
+        print("list of tasks created:")
+        print_tasks(response.tasks)
     except HTTPError as err:
         msg = err.response.json()['message']
         print("error during execution of the blueprint: %s" % msg)
@@ -49,3 +61,12 @@ def print_tasks(tasks):
             'task uid': task.guid,
         })
     print(j.data.serializer.yaml.dumps(to_print))
+
+
+def print_services(services):
+    for service in services:
+        print("{template} - {guid} - {name}".format(
+            guid=service.guid,
+            name=service.name,
+            template=service.template
+        ))

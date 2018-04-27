@@ -19,7 +19,6 @@ securitySchemes:
             JWT given by ItYouOnline
             It needs to contains the "user:memberof:<org>" scope, where <org> is the organization authorized to access the robot.
           type: string
-          example: "Bearer <token>
       responses:
         401:
           description: |
@@ -40,7 +39,6 @@ securitySchemes:
         Zrobot:
           description: Secret returned by the robot when creating service.
           type: string
-          example: "Bearer <token>
       responses:
         401:
           description: |
@@ -65,6 +63,14 @@ types:
           template: node
           service: node1
           action: start
+
+  BlueprintResult:
+    description: type returned after the execution of a blueprint. It contains a list of created services and task scheduled
+    properties:
+      tasks:
+        type: Task[]
+      services:
+        type: ServiceCreated[]
 
   TemplateRepository:
     properties:
@@ -343,7 +349,7 @@ types:
           Blueprint executed successfully
           Which mean all the service have been created and all actions added to the task list
         body:
-          type: Task[]
+          type: BlueprintResult
 
 /templates:
   description: |

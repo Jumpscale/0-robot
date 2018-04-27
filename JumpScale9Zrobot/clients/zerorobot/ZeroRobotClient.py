@@ -54,5 +54,5 @@ class ZeroRobotClient(JSConfigClientBase):
                 self._api.security_schemes.passthrough_client_iyo.set_authorization_header(header)
             if self.config.data.get('secrets_'):
                 header = 'Bearer %s' % ' '.join(self.config.data['secrets_'])
-                self._api.security_schemes.passthrough_client_zrobot.set_authorization_header(header)
+                self._api.security_schemes.passthrough_client_zrobot.set_zrobot_header(header)
         return self._api
