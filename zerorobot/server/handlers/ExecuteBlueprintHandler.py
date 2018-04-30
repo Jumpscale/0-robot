@@ -64,6 +64,13 @@ def ExecuteBlueprintHandler():
         except TemplateConflictError as err:
             return jsonify(code=400, message=err.args[0]), 404
 
+    services_2b_schedules = _find_services_to_be_scheduled(actions)
+    allowed_services = _extract_user_secrets(request)
+    not_allowed = set(services_2b_schedules) - set(allowed_services)
+    if not_allowed:
+        error_msg = "you are trying to schedule action on some services on which you don't have rights."
+        return jsonify(code=401, message=error_msg), 401
+
     tasks_created = []
     for action_item in actions:
         try:
@@ -90,6 +97,40 @@ def _instanciate_services(service_descr):
         # with the new data from the blueprint
         data = service_descr.get('data', {}) or {}
         err.service.data.update_secure(data)
+
+
+def _find_services_to_be_scheduled(actions):
+    services_guids = []
+
+    for action_item in actions:
+        template_uid = None
+        template = action_item.get("template")
+        if template:
+            template_uid = TemplateUID.parse(template)
+
+        service = action_item.get("service")
+
+        candidates = []
+
+        kwargs = {'name': service}
+        if template_uid:
+            kwargs.update({
+                'template_host': template_uid.host,
+                'template_account': template_uid.account,
+                'template_repo': template_uid.repo,
+                'template_name': template_uid.name,
+                'template_version': template_uid.version,
+            })
+        # filter out None value
+        kwargs = {k: v for k, v in kwargs.items() if v is not None}
+
+        if len(kwargs) > 0:
+            candidates = scol.find(**kwargs)
+        else:
+            candidates = scol.list_services()
+
+        services_guids.extend([s.guid for s in candidates])
+    return services_guids
 
 
 def _schedule_action(action_item):
@@ -128,3 +169,25 @@ def _schedule_action(action_item):
         t = service.schedule_action(action, args=args)
         tasks.append((t, service))
     return tasks
+
+
+def _extract_user_secrets(request):
+    if 'Zrobot' not in request.headers:
+        return []
+
+    ss = request.headers['Zrobot'].split(None, 1)
+    if len(ss) != 2:
+        return []
+
+    auth_type = ss[0]
+    tokens = ss[1]
+    if auth_type != 'Bearer' or not tokens:
+        return []
+
+    services_guids = []
+    for token in tokens.split(' '):
+        claims = auth.user_jwt.decode(token)
+        guid = claims.get('service_guid')
+        if guid:
+            services_guids.append(guid)
+    return services_guids

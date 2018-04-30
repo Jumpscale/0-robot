@@ -35,7 +35,11 @@ def extract_guid_from_headers(headers):
     if len(ss) != 2:
         return []
 
+    auth_type = ss[0]
     tokens = ss[1]
+    if auth_type != 'Bearer' or not tokens:
+        return []
+
     for token in tokens.split(' '):
         claims = auth.user_jwt.decode(token)
         guid = claims.get('service_guid')
