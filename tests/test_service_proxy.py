@@ -73,7 +73,8 @@ class TestServiceProxy(unittest.TestCase):
         task.wait()
 
         try:
-            self.assertEqual(len(proxy.task_list.list_tasks(all=True)), 1, "task create on service should be visible from the proxy")
+            all_tasks_guid = [t.guid for t in proxy.task_list.list_tasks(True)]
+            self.assertIn(task.guid, all_tasks_guid, "task create on service should be visible from the proxy")
         except Exception as err:
             jsonerr = err.response.json()
             print(jsonerr)
@@ -115,3 +116,11 @@ class TestServiceProxy(unittest.TestCase):
         proxy.delete()
         with self.assertRaises(KeyError, msg='deleting a proxy, should delete the real service'):
             scol.get_by_guid(proxy.guid)
+
+    def test_task_result(self):
+        proxy, service = self._create_proxy()
+
+        for ret_val in [False, '', None]:
+            task = proxy.schedule_action('test_return', args={'return_val': ret_val})
+            task.wait()
+            assert task.result == ret_val

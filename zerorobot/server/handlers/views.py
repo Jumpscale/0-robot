@@ -25,6 +25,14 @@ def state_view(state):
 
 
 def task_view(task, service):
+    eco = None
+    result = None
+
+    if task.eco is not None:
+        eco = json.loads(task.eco.json)
+    if task.result is not None:
+        result = json.dumps(task.result)
+
     return {
         'template_name': service.template_name,
         'service_name': service.name,
@@ -34,8 +42,8 @@ def task_view(task, service):
         'guid': task.guid,
         'created': task.created,
         'duration': task.duration,
-        'eco': json.loads(task.eco.json) if task.eco else None,
-        'result': json.dumps(task.result) if task.result else None
+        'eco': eco,
+        'result': result
     }
 
 
