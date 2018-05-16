@@ -9,3 +9,6 @@ coverage:
     - zerorobot/server/blueprints_api.py
     - zerorobot/server/templates_api.py
     - zerorobot/server/services_api.py
+    - JumpScale9Zrobot/clients/zerorobot/client
+    - test_*.py
+    - tests/**
