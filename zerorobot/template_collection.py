@@ -126,16 +126,14 @@ def _load_template(url, template_dir):
     spec = importlib.util.spec_from_file_location(template_name, class_path)
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
-    sys.modules[module.__name__] = module
 
-    if class_name not in module.__dict__:
-        raise TemplateNameError("template %s should contain a class called %s" % (template_name, class_name))
-
-    class_ = eval('module.%s' % class_name)
+    class_ = getattr(module, class_name)
 
     _, host, account, repo = git.url.parse(url)
 
     class_.template_uid = TemplateUID.parse("%s/%s/%s/%s/%s" % (host, account, repo, template_name, class_.version))
+
+    sys.modules[str(class_.template_uid)] = module
 
     class_.template_dir = template_dir
     _templates[class_.template_uid] = class_

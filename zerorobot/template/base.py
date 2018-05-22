@@ -8,6 +8,7 @@ import inspect
 import logging
 import os
 import shutil
+import sys
 import time
 from logging.handlers import RotatingFileHandler
 from uuid import uuid4
@@ -116,7 +117,7 @@ class TemplateBase:
     template_dir = None
 
     def __init__(self, name=None, guid=None, data=None):
-        self.template_dir = os.path.dirname(inspect.getsourcefile(self.__class__))
+        self.template_dir = os.path.dirname(sys.modules.get(str(self.template_uid)).__file__)
         self.guid = guid or str(uuid4())
         self.name = name or self.guid
         # location on the filesystem where to store the service
