@@ -73,7 +73,7 @@ def _is_key_configured():
     if myconfig:
         key_name = myconfig.get('sshkeyname')
         if key_name:
-            key_path = os.path.join('/root/.ssh', key_name)
+            key_path = os.path.join('%s/.ssh' % j.dirs.HOMEDIR, key_name)
             if os.path.exists(key_path):
                 key = key_path
     return key
