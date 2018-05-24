@@ -33,12 +33,13 @@ def server():
 @click.option('--telegram-chat-id', help='Chat id to push template action failures', required=False)
 @click.option('--auto-push', help='enable automatically commit and pushing of data repository', is_flag=True, default=False)
 @click.option('--auto-push-interval', help='interval in minutes of automatic pushing of data repository', required=False, default=60)
-@click.option('--organization', help='if specified, enable JWT authentication for each request.', required=False)
+@click.option('--admin-organization', help='if specified, use this organization to protect the admin API endpoint.', required=False)
+@click.option('--user-organization', help='if specified, use this organization to protect the user API endpoint.', required=False)
 @click.option('--mode', help='mode of 0-robot', type=click.Choice(['node']), required=False)
 def start(listen, data_repo, template_repo, config_repo, config_key, debug,
           telegram_bot_token, telegram_chat_id,
           auto_push, auto_push_interval,
-          organization, mode):
+          admin_organization, user_organization, mode):
     """
     start the 0-robot daemon.
     this will start the REST API on address and port specified by --listen and block
@@ -69,4 +70,9 @@ def start(listen, data_repo, template_repo, config_repo, config_key, debug,
     robot.set_data_repo(data_repo)
     robot.set_config_repo(config_repo, config_key)
 
-    robot.start(listen=listen, auto_push=auto_push, auto_push_interval=auto_push_interval, jwt_organization=organization, mode=mode)
+    robot.start(listen=listen,
+                auto_push=auto_push,
+                auto_push_interval=auto_push_interval,
+                admin_organization=admin_organization,
+                user_organization=user_organization,
+                mode=mode)

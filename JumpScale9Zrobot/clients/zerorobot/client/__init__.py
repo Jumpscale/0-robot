@@ -21,8 +21,9 @@ from .blueprints_service import BlueprintsService
 from .services_service import ServicesService
 from .templates_service import TemplatesService
 
-from .passthrough_client_iyo import PassThroughClientIyo
-from .passthrough_client_zrobot import PassThroughClientZrobot
+from .passthrough_client_admin import PassThroughClientAdmin
+from .passthrough_client_user import PassThroughClientUser
+from .passthrough_client_service import PassThroughClientService
 from .http_client import HTTPClient
 
 
@@ -38,5 +39,6 @@ class Client:
 
 class Security:
     def __init__(self, http_client):
-        self.passthrough_client_iyo = PassThroughClientIyo(http_client)
-        self.passthrough_client_zrobot = PassThroughClientZrobot(http_client)
+        self.passthrough_client_admin = PassThroughClientAdmin(http_client)
+        self.passthrough_client_user = PassThroughClientUser(http_client)
+        self.passthrough_client_service = PassThroughClientService(http_client)

@@ -19,7 +19,7 @@ TaskCreate_schema_resolver = jsonschema.RefResolver('file://' + dir_path + '/sch
 TaskCreate_schema_validator = Draft4Validator(TaskCreate_schema, resolver=TaskCreate_schema_resolver)
 
 
-@auth.user.login_required
+@auth.service.login_required
 def AddTaskToListHandler(service_guid):
     '''
     Add a task to the task list

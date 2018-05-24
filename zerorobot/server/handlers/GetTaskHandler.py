@@ -9,7 +9,7 @@ from zerorobot.task import TaskNotFoundError
 from zerorobot.server import auth
 
 
-@auth.user.login_required
+@auth.service.login_required
 def GetTaskHandler(task_guid, service_guid):
     '''
     Retrieve the detail of a task

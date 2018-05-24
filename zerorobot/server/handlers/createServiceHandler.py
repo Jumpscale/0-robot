@@ -22,7 +22,7 @@ ServiceCreate_schema_resolver = jsonschema.RefResolver('file://' + dir_path + '/
 ServiceCreate_schema_validator = Draft4Validator(ServiceCreate_schema, resolver=ServiceCreate_schema_resolver)
 
 
-@auth.admin.login_required
+@auth.admin_user.login_required
 def createServiceHandler():
     '''
     create a new service

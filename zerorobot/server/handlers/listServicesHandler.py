@@ -9,7 +9,7 @@ from zerorobot.server.handlers.views import service_view
 from zerorobot.server import auth
 
 
-@auth.admin.login_required
+@auth.all.login_required
 def listServicesHandler():
     '''
     List all the services known by the ZeroRobot.
@@ -27,11 +27,11 @@ def listServicesHandler():
 
 
 def extract_guid_from_headers(headers):
-    if 'Zrobot' not in request.headers:
+    if 'ZrobotSecret' not in request.headers:
         return []
 
     services_guids = []
-    ss = headers['Zrobot'].split(None, 1)
+    ss = headers['ZrobotSecret'].split(None, 1)
     if len(ss) != 2:
         return []
 

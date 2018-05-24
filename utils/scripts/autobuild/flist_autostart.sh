@@ -49,6 +49,7 @@ cp -r /0-robot /opt/code/github/zero-os
 pushd /opt/code/github/zero-os/0-robot
 pip3 install -e .
 cp utils/scripts/autobuild/startup.toml /.startup.toml
+cp utils/scripts/autobuild/startup.py /.startup.py
 popd
 
 tar -cpzf "/tmp/archives/0-robot-autostart.tar.gz" --exclude tmp --exclude dev --exclude sys --exclude proc  /

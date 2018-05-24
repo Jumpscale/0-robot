@@ -1,5 +1,5 @@
 from functools import wraps
-from flask import request, make_response
+from flask import request, make_response, jsonify
 from werkzeug.datastructures import Authorization
 
 
@@ -16,7 +16,7 @@ class HTTPAuth(object):
             return None
 
         def default_auth_error():
-            return "Unauthorized Access"
+            return jsonify(message="Unauthorized Access", code=401), 401
 
         self.get_password(default_get_password)
         self.error_handler(default_auth_error)

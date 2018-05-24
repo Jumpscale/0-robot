@@ -27,7 +27,7 @@ Blueprint_schema_resolver = jsonschema.RefResolver('file://' + dir_path + '/sche
 Blueprint_schema_validator = Draft4Validator(Blueprint_schema, resolver=Blueprint_schema_resolver)
 
 
-@auth.admin.login_required
+@auth.admin_user.login_required
 def ExecuteBlueprintHandler():
     '''
     Execute a blueprint on the ZeroRobot
@@ -172,10 +172,10 @@ def _schedule_action(action_item):
 
 
 def _extract_user_secrets(request):
-    if 'Zrobot' not in request.headers:
+    if 'ZrobotSecret' not in request.headers:
         return []
 
-    ss = request.headers['Zrobot'].split(None, 1)
+    ss = request.headers['ZrobotSecret'].split(None, 1)
     if len(ss) != 2:
         return []
 

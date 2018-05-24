@@ -9,15 +9,37 @@ documentation:
 securedBy: [iyo]
 
 securitySchemes:
-  iyo:
+  admin:
     type: Pass Through
-    description: 0-robot support authentication using a JWT containing the "user:memberof:" scope for an IYO organization
+    description: |
+      Some endpoint of the API are restricted for the admin of the 0-robot
+      These endpoints are related to the management of the templates that the 0-robot can use
+      Since allowing new template is actually bringing some new code in the robot, we can only allow this to be done by an admin
     describedBy:
       headers:
-        Authorization:
+        ZrobotAdmin:
           description: |
             JWT given by ItYouOnline
-            It needs to contains the "user:memberof:<org>" scope, where <org> is the organization authorized to access the robot.
+            It needs to contains the "user:memberof:<org>" scope, where <org> is the organization authorized to access the admin endpoint of the robot.
+          type: string
+      responses:
+        401:
+          description: |
+            Bad or expired token. This can happen if the user is revoked or an expired access token. To fix, re-authenticate
+            the user.
+        403:
+          description: |
+            Bad request wrong scope in the JWT. Unfortunately, re-authenticating the user won't help here.
+  user:
+    type: Pass Through
+    description: |
+      Optionally, the API can be restricted to a user that is authenticated with an ItYouOnline JWT token.
+    describedBy:
+      headers:
+        ZrobotUser:
+          description: |
+            JWT given by ItYouOnline
+            It needs to contains the "user:memberof:<org>" scope, where <org> is the organization authorized to access the user endpoint of the robot.
           type: string
       responses:
         401:
@@ -28,15 +50,15 @@ securitySchemes:
           description: |
             Bad request wrong scope in the JWT. Unfortunately, re-authenticating the user won't help here.
 
-  zrobot:
+  service:
     type: Pass Through
     description: |
-      Service can only be managed by their creator, methods decorated with this scheme need to provice a secret in the http headers
+      Service can only be managed by their creator, methods decorated with this scheme need to provide a secret in the http headers
       this secret is returned by the robot when creating service. It proof that the client trying to managed the service is actually the client
       that created it.
     describedBy:
       headers:
-        Zrobot:
+        ZrobotSecret:
           description: Secret returned by the robot when creating service.
           type: string
       responses:

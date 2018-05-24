@@ -7,7 +7,7 @@ from zerorobot import service_collection as scol
 from zerorobot.server import auth
 
 
-@auth.user.login_required
+@auth.service.login_required
 def ListActionsHandler(service_guid):
     '''
     List all the possible action a service can do.

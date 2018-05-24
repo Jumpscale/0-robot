@@ -5,7 +5,7 @@ from zerorobot import service_collection as scol
 from zerorobot.server import auth
 
 
-@auth.multi.login_required
+@auth.admin_user.login_required
 def DeleteServiceHandler(service_guid):
     '''
     Delete a service

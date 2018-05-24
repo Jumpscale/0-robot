@@ -79,7 +79,16 @@ class Robot:
         """
         config_repo.init(path, key)
 
-    def start(self, listen=":6600", log_level=logging.DEBUG, block=True, auto_push=False, auto_push_interval=60, jwt_organization=None, mode=None, **kwargs):
+    def start(self,
+              listen=":6600",
+              log_level=logging.DEBUG,
+              block=True,
+              auto_push=False,
+              auto_push_interval=60,
+              admin_organization=None,
+              user_organization=None,
+              mode=None,
+              **kwargs):
         """
         start the rest web server
         load the services from the local git repository
@@ -98,10 +107,7 @@ class Robot:
             monitor(app)
 
          # configure authentication middleware
-        jwt_organization = jwt_organization or _read_cmdline().get('organization')
-        if jwt_organization:
-            auth.auth.jwt_organization = jwt_organization
-            logger.info("JWT authentication enabled for organization: %s" % auth.auth.jwt_organization)
+        _configure_authentication(admin_organization, user_organization)
 
         self._block = block
 
@@ -232,18 +238,10 @@ def _split_hostport(hostport):
     return host, int(port)
 
 
-def _read_cmdline():
-    """
-    read the kernel parameter passed to the host machine
-    return a dict container the key/value of the arguments
-    """
-    with open('/proc/cmdline') as f:
-        line = f.read()
-
-    args = {}
-    line = line.strip()
-    for kv in shlex.split(line):
-        ss = kv.split('=', 1)
-        if len(ss) == 2:
-            args[ss[0]] = ss[1]
-    return args
+def _configure_authentication(admin_organization, user_organization):
+    if admin_organization:
+        auth.auth.admin_organization = admin_organization
+        logger.info("admin JWT authentication enabled for organization: %s" % auth.auth.admin_organization)
+    if user_organization:
+        auth.auth.user_organization = user_organization
+        logger.info("user JWT authentication enabled for organization: %s" % auth.auth.user_organization)

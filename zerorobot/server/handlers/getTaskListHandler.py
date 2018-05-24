@@ -7,7 +7,7 @@ from zerorobot.server import auth
 from zerorobot.server.handlers.views import task_view
 
 
-@auth.user.login_required
+@auth.service.login_required
 def getTaskListHandler(service_guid):
     '''
     Return all the action in the task list
