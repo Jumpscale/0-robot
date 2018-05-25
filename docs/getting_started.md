@@ -47,10 +47,12 @@ Options:
                                 data repository
   --auto-push-interval INTEGER  interval in minutes of automatic pushing of
                                 data repository
-  --organization TEXT           if specified, enable JWT authentication for
-                                each request.
+  --admin-organization TEXT     if specified, use this organization to protect
+                                the admin API endpoint.
+  --user-organization TEXT      if specified, use this organization to protect
+                                the user API endpoint.
+  --mode [node]                 mode of 0-robot
   --help                        Show this message and exit.
-
 ```
 Options details:
 
