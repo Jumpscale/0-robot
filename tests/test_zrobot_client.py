@@ -66,4 +66,4 @@ class TestZRobotClient(unittest.TestCase):
         data = {'ip': '127.0.0.1'}
         node = self.cl.services.create('github.com/zero-os/0-robot/node/0.0.1', data=data)
         self.assertEqual(type(node), ServiceProxy, 'service type should be ServiceProxy')
-        self.assertEqual(node.name, node.guid, "service name should be egal to service guid when created without name")
+        self.assertEqual(node.name, node.guid, "service name should be equal to service guid when created without name")

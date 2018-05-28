@@ -169,6 +169,11 @@ types:
         type: object
         description: Instance data used to create the service
         required: false
+      public:
+        type: boolean
+        description: if set to true, this service will be public and anyone can schedule action on it, not only the user that created it.
+        default: false
+        required: false
     example:
       template: github.com/jumpscale/0-robot/node/1.0.1
       name: vm1
@@ -189,11 +194,14 @@ types:
         type: string
       state:
         type: ServiceState[]
+      public:
+        type: boolean
     example:
       guid: 7040fda3-08e1-4109-829c-925a907809f9
       template: github.com/jumpscale/0-robot/node/0.0.1
       version: 1.0.1
       name: node1
+      public: false
       state:
       - category: network
         tag: local-tcp-6379

@@ -9,7 +9,7 @@ from jsonschema import Draft4Validator
 
 from zerorobot import template_collection as tcol
 from zerorobot.server.handlers.views import service_view
-from zerorobot.service_collection import ServiceConflictError
+from zerorobot import service_collection as scol
 from zerorobot.template_collection import (TemplateConflictError,
                                            TemplateNotFoundError)
 
@@ -46,7 +46,7 @@ def createServiceHandler():
 
     try:
         service = tcol.instantiate_service(TemplateClass, inputs.get('name'), inputs.get('data', {}))
-    except ServiceConflictError:
+    except scol.ServiceConflictError:
         service = None
         return jsonify(code=409, message="a service with name '%s' already exists" % inputs['name']), 409
     except Exception as err:
@@ -60,5 +60,8 @@ def createServiceHandler():
         return jsonify(code=500, message='error creating user secret: no signing key available'), 500
     except Exception as err:
         return jsonify(code=500, message='error creating user secret: %s' % str(err)), 500
+
+    if inputs.get('public') is True:
+        scol.set_service_public(service.guid)
 
     return jsonify(output), 201

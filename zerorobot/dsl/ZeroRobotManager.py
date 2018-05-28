@@ -1,8 +1,5 @@
 """
 This module contains a wrapper of the go-raml generated client for ZeroRobot.
-
-Jumpscale provie a factory that return a instance of the class defined in this module
-We keep this logic in this repository itself and not jumpscale so we don't spread the code over multiple repositories.
 """
 
 from requests.exceptions import HTTPError
@@ -128,7 +125,7 @@ class ServicesMgr:
             raise ServiceNotFoundError()
         return results[0]
 
-    def create(self, template_uid, service_name=None, data=None):
+    def create(self, template_uid, service_name=None, data=None, public=False):
         """
         Instantiate a service from a template
 
@@ -138,6 +135,8 @@ class ServicesMgr:
         :param service_name: str, optional
         :param data: a dictionnary with the data of the service to create, defaults to None
         :param data: dict, optional
+        :param public: is set to true, the service will be public, so anyone can schedule action on it, defaults to False
+        :type public: bool, optional
         :raises ServiceConflictError: raised when a service with same name already exists
         :raises TemplateConflictError: raised when the template uid specified is not specific enough and the robot cannot decide which template to use
         :raises TemplateNotFoundError: raise when the template specified is not found
@@ -148,6 +147,7 @@ class ServicesMgr:
         req = {
             "template": str(template_uid),
             "version": "0.0.1",
+            "public": public,
         }
         if service_name:
             req["name"] = service_name
@@ -174,16 +174,26 @@ class ServicesMgr:
 
         return self._instantiate(new_service)
 
-    def find_or_create(self, template_uid, service_name, data):
+    def find_or_create(self, template_uid, service_name, data, public=False):
         """
         Helper method that first check if a service exists and if not then creates it
         if the service is found, it is returned
         if the service is not found, it is created using the data passed then returned
 
-        @param template_uid: UID of the template of the service
-        @param service: the name of the service.
-        @param data: a dictionnary with the data of the service if and only if the service is created
-                    so if the service already exists, the data argument is not used
+        ::param template_uid: UID of the template to use a base class for the service
+        :type template_uid: str
+        :param service_name: name of the service, needs to be unique within the robot instance, defaults to None
+        :param service_name: str, optional
+        :param data: a dictionnary with the data of the service to create, defaults to None
+        :param data: dict, optional
+        :param public: is set to true, the service will be public, so anyone can schedule action on it, defaults to False
+        :raises ServiceConflictError: raised when a service with same name already exists
+        :raises TemplateConflictError: raised when the template uid specified is not specific enough and the robot cannot decide which template to use
+        :raises TemplateNotFoundError: raise when the template specified is not found
+        :raises ServiceCreateError: raise when an error happens during service creation
+        :type public: bool, optional
+        :return: service proxy
+        :rtype: ServiceProxy
         """
         # allow to use just the name of the template instead of the full uid
         if template_uid.find('/') == -1:
@@ -195,7 +205,7 @@ class ServicesMgr:
         try:
             return self.get(template_uid=template_uid, name=service_name)
         except ServiceNotFoundError:
-            return self.create(template_uid=template_uid, service_name=service_name, data=data)
+            return self.create(template_uid=template_uid, service_name=service_name, data=data, public=public)
 
 
 class TemplatesMgr:

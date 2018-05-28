@@ -50,6 +50,24 @@ def list_services():
     return list(_guid_index.values())
 
 
+def is_service_public(guid):
+    """
+    determine if a service is public or not
+
+    :param service: guid of the service
+    :type service: str
+    :return: true is service is public, false otherwise
+    :rtype: boolean
+    """
+    service = get_by_guid(guid)
+    return getattr(service, '_public', False) is True
+
+
+def set_service_public(guid):
+    service = get_by_guid(guid)
+    service._public = True
+
+
 def delete(service):
     if service.guid in _guid_index:
         del _guid_index[service.guid]
@@ -85,6 +103,7 @@ def load(template, base_path):
                                % (base_path, service_info['name']))
 
     srv = template(name=service_info['name'], guid=service_info['guid'], data=service_data)
+    srv._public = service_info.get('public', False)
 
     srv.state.load(os.path.join(base_path, 'state.yaml'))
     srv.data.load(os.path.join(base_path, 'data.yaml'))

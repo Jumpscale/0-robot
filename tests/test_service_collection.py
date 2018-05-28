@@ -10,6 +10,7 @@ class FakeService:
         self.name = name
         self.guid = guid
         self.template_uid = TemplateUID.parse('github.com/zero-os/0-robot/fakeservice/0.0.1')
+        self._public = False
 
 
 class FakeService2:
@@ -75,3 +76,10 @@ class TestServiceCollection(unittest.TestCase):
         guids = [s1.guid, s2.guid]
         for s in results:
             self.assertIn(s.guid, guids)
+
+    def test_set_service_public(self):
+        s1 = FakeService('111', 's1')
+        scol.add(s1)
+        assert scol.is_service_public(s1.guid) == False
+        scol.set_service_public(s1.guid)
+        assert scol.is_service_public(s1.guid) == True

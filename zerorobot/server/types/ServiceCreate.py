@@ -18,6 +18,7 @@ class ServiceCreate(object):
         """
         :type data: dict
         :type name: string_types
+        :type public: bool
         :type template: string_types
         :rtype: ServiceCreate
         """
@@ -36,6 +37,8 @@ class ServiceCreate(object):
         self.data = client_support.set_property('data', data, data_types, False, [], False, False, class_name)
         data_types = [string_types]
         self.name = client_support.set_property('name', data, data_types, False, [], False, False, class_name)
+        data_types = [bool]
+        self.public = client_support.set_property('public', data, data_types, False, [], False, False, class_name)
         data_types = [string_types]
         self.template = client_support.set_property('template', data, data_types, False, [], False, True, class_name)
 

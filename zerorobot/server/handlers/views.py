@@ -1,3 +1,4 @@
+from zerorobot import service_collection as scol
 import json
 
 
@@ -9,6 +10,7 @@ def service_view(service):
         "guid": service.guid,
         "state": state_view(service.state),
         "actions": [],
+        "public": scol.is_service_public(service.guid)
     }
 
 

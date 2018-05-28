@@ -40,10 +40,10 @@ class TestServiceProxy(unittest.TestCase):
             shutil.rmtree(config.DATA_DIR)
         j.clients.zrobot.delete('test')
 
-    def _create_proxy(self):
+    def _create_proxy(self, public=False):
         template = 'github.com/zero-os/0-robot/node/0.0.1'
         name = 'node1'
-        proxy = self.cl.services.create(template, name)
+        proxy = self.cl.services.create(template, name, public=public)
         service = scol.get_by_guid(proxy.guid)
         return (proxy, service)
 
@@ -72,13 +72,8 @@ class TestServiceProxy(unittest.TestCase):
         task = service.schedule_action('start')
         task.wait()
 
-        try:
-            all_tasks_guid = [t.guid for t in proxy.task_list.list_tasks(True)]
-            self.assertIn(task.guid, all_tasks_guid, "task create on service should be visible from the proxy")
-        except Exception as err:
-            jsonerr = err.response.json()
-            print(jsonerr)
-            raise err
+        all_tasks_guid = [t.guid for t in proxy.task_list.list_tasks(True)]
+        self.assertIn(task.guid, all_tasks_guid, "task create on service should be visible from the proxy")
 
         proxy_task = proxy.task_list.get_task_by_guid(task.guid)
         self.assertEqual(proxy_task.state, task.state, "state of a task should be reflect on the proxy task")
@@ -124,3 +119,15 @@ class TestServiceProxy(unittest.TestCase):
             task = proxy.schedule_action('test_return', args={'return_val': ret_val})
             task.wait()
             assert task.result == ret_val
+
+    def test_service_public(self):
+        proxy, service = self._create_proxy(public=True)
+        guids = list(self.cl.services.guids.keys())
+        assert service.guid in guids
+
+        self.cl._client.config.data_set('secrets_', [])
+        self.cl._client._api = None  # force reload after we remove the secrets
+
+        guids = list(self.cl.services.guids.keys())
+        assert service.guid in guids, "service should still be visible for client that doe not have the secret of the service"
+        assert proxy.actions != []

@@ -285,11 +285,8 @@ and what action you want to add to a task list.</p>
                     <div class="alert alert-warning">
                       
                       <span class="glyphicon glyphicon-lock" title="Authentication required"></span>
-                      Secured by <b>iyo</b>
+                      Secured by <b></b>
                       
-                      
-<p>0-robot support authentication using a JWT containing the "user:memberof:" scope for an IYO organization</p>
-
                       
                     </div>
                   
@@ -1732,6 +1729,32 @@ a task that failed to execute and/or is being retried is in state error.</p>
 
               
                 <li>
+  <strong>public</strong>:
+
+    
+      <em>required (boolean)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+              
+                <li>
   <strong>secret</strong>:
 
     
@@ -1773,6 +1796,7 @@ a task that failed to execute and/or is being retried is in state error.</p>
   "template": "github.com/jumpscale/0-robot/node/0.0.1",
   "version": "1.0.1",
   "name": "node1",
+  "public": false,
   "state": [
     {
       "category": "network",
@@ -1826,61 +1850,11 @@ a task that failed to execute and/or is being retried is in state error.</p>
                   <div class="tab-pane" id="blueprints_post_securedby">
                     
                       
-                      <h1>Secured by iyo</h1>
-
-                      
-                        <h3>Headers</h3>
-                        <ul>
-                          
-                            <li>
-  <strong>Authorization</strong>:
-
-    
-      <em>required (string)
-      </em>
-    
-  
-
-<p>JWT given by ItYouOnline
-It needs to contains the "user:memberof:<org>" scope, where <org> is the organization authorized to access the robot.</p>
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-                          
-                        </ul>
-                      
+                      <h1>Secured by </h1>
 
                       
 
                       
-                        <h2>HTTP status code <a href="http://httpstatus.es/401" target="_blank">401</a></h2>
-<p>Bad or expired token. This can happen if the user is revoked or an expired access token. To fix, re-authenticate
-the user.</p>
-
-                        
-
-                        
-
-                      
-                        <h2>HTTP status code <a href="http://httpstatus.es/403" target="_blank">403</a></h2>
-<p>Bad request wrong scope in the JWT. Unfortunately, re-authenticating the user won&#39;t help here.</p>
-
-                        
-
-                        
 
                       
 
@@ -2008,11 +1982,8 @@ Once the templates are available, you can send blueprint with the description of
                     <div class="alert alert-warning">
                       
                       <span class="glyphicon glyphicon-lock" title="Authentication required"></span>
-                      Secured by <b>iyo</b>
+                      Secured by <b></b>
                       
-                      
-<p>0-robot support authentication using a JWT containing the "user:memberof:" scope for an IYO organization</p>
-
                       
                     </div>
                   
@@ -2266,61 +2237,11 @@ There are different informations extracted from</p>
                   <div class="tab-pane" id="templates_get_securedby">
                     
                       
-                      <h1>Secured by iyo</h1>
-
-                      
-                        <h3>Headers</h3>
-                        <ul>
-                          
-                            <li>
-  <strong>Authorization</strong>:
-
-    
-      <em>required (string)
-      </em>
-    
-  
-
-<p>JWT given by ItYouOnline
-It needs to contains the "user:memberof:<org>" scope, where <org> is the organization authorized to access the robot.</p>
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-                          
-                        </ul>
-                      
+                      <h1>Secured by </h1>
 
                       
 
                       
-                        <h2>HTTP status code <a href="http://httpstatus.es/401" target="_blank">401</a></h2>
-<p>Bad or expired token. This can happen if the user is revoked or an expired access token. To fix, re-authenticate
-the user.</p>
-
-                        
-
-                        
-
-                      
-                        <h2>HTTP status code <a href="http://httpstatus.es/403" target="_blank">403</a></h2>
-<p>Bad request wrong scope in the JWT. Unfortunately, re-authenticating the user won&#39;t help here.</p>
-
-                        
-
-                        
 
                       
 
@@ -2358,11 +2279,8 @@ the user.</p>
                     <div class="alert alert-warning">
                       
                       <span class="glyphicon glyphicon-lock" title="Authentication required"></span>
-                      Secured by <b>iyo</b>
+                      Secured by <b></b>
                       
-                      
-<p>0-robot support authentication using a JWT containing the "user:memberof:" scope for an IYO organization</p>
-
                       
                     </div>
                   
@@ -2733,61 +2651,11 @@ There are different informations extracted from</p>
                   <div class="tab-pane" id="templates_post_securedby">
                     
                       
-                      <h1>Secured by iyo</h1>
-
-                      
-                        <h3>Headers</h3>
-                        <ul>
-                          
-                            <li>
-  <strong>Authorization</strong>:
-
-    
-      <em>required (string)
-      </em>
-    
-  
-
-<p>JWT given by ItYouOnline
-It needs to contains the "user:memberof:<org>" scope, where <org> is the organization authorized to access the robot.</p>
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-                          
-                        </ul>
-                      
+                      <h1>Secured by </h1>
 
                       
 
                       
-                        <h2>HTTP status code <a href="http://httpstatus.es/401" target="_blank">401</a></h2>
-<p>Bad or expired token. This can happen if the user is revoked or an expired access token. To fix, re-authenticate
-the user.</p>
-
-                        
-
-                        
-
-                      
-                        <h2>HTTP status code <a href="http://httpstatus.es/403" target="_blank">403</a></h2>
-<p>Bad request wrong scope in the JWT. Unfortunately, re-authenticating the user won&#39;t help here.</p>
-
-                        
-
-                        
 
                       
 
@@ -2825,11 +2693,8 @@ the user.</p>
                     <div class="alert alert-warning">
                       
                       <span class="glyphicon glyphicon-lock" title="Authentication required"></span>
-                      Secured by <b>iyo</b>
+                      Secured by <b></b>
                       
-                      
-<p>0-robot support authentication using a JWT containing the "user:memberof:" scope for an IYO organization</p>
-
                       
                     </div>
                   
@@ -3108,61 +2973,11 @@ Need to be under one of these format</p>
                   <div class="tab-pane" id="templates_put_securedby">
                     
                       
-                      <h1>Secured by iyo</h1>
-
-                      
-                        <h3>Headers</h3>
-                        <ul>
-                          
-                            <li>
-  <strong>Authorization</strong>:
-
-    
-      <em>required (string)
-      </em>
-    
-  
-
-<p>JWT given by ItYouOnline
-It needs to contains the "user:memberof:<org>" scope, where <org> is the organization authorized to access the robot.</p>
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-                          
-                        </ul>
-                      
+                      <h1>Secured by </h1>
 
                       
 
                       
-                        <h2>HTTP status code <a href="http://httpstatus.es/401" target="_blank">401</a></h2>
-<p>Bad or expired token. This can happen if the user is revoked or an expired access token. To fix, re-authenticate
-the user.</p>
-
-                        
-
-                        
-
-                      
-                        <h2>HTTP status code <a href="http://httpstatus.es/403" target="_blank">403</a></h2>
-<p>Bad request wrong scope in the JWT. Unfortunately, re-authenticating the user won&#39;t help here.</p>
-
-                        
-
-                        
 
                       
 
@@ -3274,11 +3089,8 @@ the user.</p>
                     <div class="alert alert-warning">
                       
                       <span class="glyphicon glyphicon-lock" title="Authentication required"></span>
-                      Secured by <b>iyo</b>
+                      Secured by <b></b>
                       
-                      
-<p>0-robot support authentication using a JWT containing the "user:memberof:" scope for an IYO organization</p>
-
                       
                     </div>
                   
@@ -3849,6 +3661,32 @@ the user.</p>
 </li>
 
                                       
+                                        <li>
+  <strong>public</strong>:
+
+    
+      <em>required (boolean)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                                      
                                     </ul>
                                   
 
@@ -3875,61 +3713,11 @@ the user.</p>
                   <div class="tab-pane" id="services_get_securedby">
                     
                       
-                      <h1>Secured by iyo</h1>
-
-                      
-                        <h3>Headers</h3>
-                        <ul>
-                          
-                            <li>
-  <strong>Authorization</strong>:
-
-    
-      <em>required (string)
-      </em>
-    
-  
-
-<p>JWT given by ItYouOnline
-It needs to contains the "user:memberof:<org>" scope, where <org> is the organization authorized to access the robot.</p>
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-                          
-                        </ul>
-                      
+                      <h1>Secured by </h1>
 
                       
 
                       
-                        <h2>HTTP status code <a href="http://httpstatus.es/401" target="_blank">401</a></h2>
-<p>Bad or expired token. This can happen if the user is revoked or an expired access token. To fix, re-authenticate
-the user.</p>
-
-                        
-
-                        
-
-                      
-                        <h2>HTTP status code <a href="http://httpstatus.es/403" target="_blank">403</a></h2>
-<p>Bad request wrong scope in the JWT. Unfortunately, re-authenticating the user won&#39;t help here.</p>
-
-                        
-
-                        
 
                       
 
@@ -3967,11 +3755,8 @@ the user.</p>
                     <div class="alert alert-warning">
                       
                       <span class="glyphicon glyphicon-lock" title="Authentication required"></span>
-                      Secured by <b>iyo</b>
+                      Secured by <b></b>
                       
-                      
-<p>0-robot support authentication using a JWT containing the "user:memberof:" scope for an IYO organization</p>
-
                       
                     </div>
                   
@@ -4107,6 +3892,33 @@ the user.</p>
     <ul>
       
     </ul>
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                            
+                              <li>
+  <strong>public</strong>:
+
+    
+      <em>(boolean - default: false)
+      </em>
+    
+  
+
+<p>if set to true, this service will be public and anyone can schedule action on it, not only the user that created it.</p>
+
+
+  
+
+  
+
   
 
   
@@ -4448,6 +4260,32 @@ the user.</p>
 
                               
                                 <li>
+  <strong>public</strong>:
+
+    
+      <em>required (boolean)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                              
+                                <li>
   <strong>secret</strong>:
 
     
@@ -4489,6 +4327,7 @@ the user.</p>
   "template": "github.com/jumpscale/0-robot/node/0.0.1",
   "version": "1.0.1",
   "name": "node1",
+  "public": false,
   "state": [
     {
       "category": "network",
@@ -4540,61 +4379,11 @@ body:
                   <div class="tab-pane" id="services_post_securedby">
                     
                       
-                      <h1>Secured by iyo</h1>
-
-                      
-                        <h3>Headers</h3>
-                        <ul>
-                          
-                            <li>
-  <strong>Authorization</strong>:
-
-    
-      <em>required (string)
-      </em>
-    
-  
-
-<p>JWT given by ItYouOnline
-It needs to contains the "user:memberof:<org>" scope, where <org> is the organization authorized to access the robot.</p>
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-                          
-                        </ul>
-                      
+                      <h1>Secured by </h1>
 
                       
 
                       
-                        <h2>HTTP status code <a href="http://httpstatus.es/401" target="_blank">401</a></h2>
-<p>Bad or expired token. This can happen if the user is revoked or an expired access token. To fix, re-authenticate
-the user.</p>
-
-                        
-
-                        
-
-                      
-                        <h2>HTTP status code <a href="http://httpstatus.es/403" target="_blank">403</a></h2>
-<p>Bad request wrong scope in the JWT. Unfortunately, re-authenticating the user won&#39;t help here.</p>
-
-                        
-
-                        
 
                       
 
@@ -4689,11 +4478,8 @@ the user.</p>
                     <div class="alert alert-warning">
                       
                       <span class="glyphicon glyphicon-lock" title="Authentication required"></span>
-                      Secured by <b>iyo</b>
+                      Secured by <b></b>
                       
-                      
-<p>0-robot support authentication using a JWT containing the "user:memberof:" scope for an IYO organization</p>
-
                       
                     </div>
                   
@@ -5040,6 +4826,32 @@ the user.</p>
 </li>
 
                               
+                                <li>
+  <strong>public</strong>:
+
+    
+      <em>required (boolean)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                              
                             </ul>
                           
 
@@ -5055,6 +4867,7 @@ the user.</p>
   "template": "github.com/jumpscale/0-robot/node/0.0.1",
   "version": "1.0.1",
   "name": "node1",
+  "public": false,
   "state": [
     {
       "category": "network",
@@ -5203,61 +5016,11 @@ the user.</p>
                   <div class="tab-pane" id="services__service_guid__get_securedby">
                     
                       
-                      <h1>Secured by iyo</h1>
-
-                      
-                        <h3>Headers</h3>
-                        <ul>
-                          
-                            <li>
-  <strong>Authorization</strong>:
-
-    
-      <em>required (string)
-      </em>
-    
-  
-
-<p>JWT given by ItYouOnline
-It needs to contains the "user:memberof:<org>" scope, where <org> is the organization authorized to access the robot.</p>
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-                          
-                        </ul>
-                      
+                      <h1>Secured by </h1>
 
                       
 
                       
-                        <h2>HTTP status code <a href="http://httpstatus.es/401" target="_blank">401</a></h2>
-<p>Bad or expired token. This can happen if the user is revoked or an expired access token. To fix, re-authenticate
-the user.</p>
-
-                        
-
-                        
-
-                      
-                        <h2>HTTP status code <a href="http://httpstatus.es/403" target="_blank">403</a></h2>
-<p>Bad request wrong scope in the JWT. Unfortunately, re-authenticating the user won&#39;t help here.</p>
-
-                        
-
-                        
 
                       
 
@@ -5295,11 +5058,8 @@ the user.</p>
                     <div class="alert alert-warning">
                       
                       <span class="glyphicon glyphicon-lock" title="Authentication required"></span>
-                      Secured by <b>iyo</b>
+                      Secured by <b></b>
                       
-                      
-<p>0-robot support authentication using a JWT containing the "user:memberof:" scope for an IYO organization</p>
-
                       
                     </div>
                   
@@ -5394,61 +5154,11 @@ the user.</p>
                   <div class="tab-pane" id="services__service_guid__delete_securedby">
                     
                       
-                      <h1>Secured by iyo</h1>
-
-                      
-                        <h3>Headers</h3>
-                        <ul>
-                          
-                            <li>
-  <strong>Authorization</strong>:
-
-    
-      <em>required (string)
-      </em>
-    
-  
-
-<p>JWT given by ItYouOnline
-It needs to contains the "user:memberof:<org>" scope, where <org> is the organization authorized to access the robot.</p>
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-                          
-                        </ul>
-                      
+                      <h1>Secured by </h1>
 
                       
 
                       
-                        <h2>HTTP status code <a href="http://httpstatus.es/401" target="_blank">401</a></h2>
-<p>Bad or expired token. This can happen if the user is revoked or an expired access token. To fix, re-authenticate
-the user.</p>
-
-                        
-
-                        
-
-                      
-                        <h2>HTTP status code <a href="http://httpstatus.es/403" target="_blank">403</a></h2>
-<p>Bad request wrong scope in the JWT. Unfortunately, re-authenticating the user won&#39;t help here.</p>
-
-                        
-
-                        
 
                       
 
@@ -5530,13 +5240,8 @@ the user.</p>
                     <div class="alert alert-warning">
                       
                       <span class="glyphicon glyphicon-lock" title="Authentication required"></span>
-                      Secured by <b>zrobot</b>
+                      Secured by <b></b>
                       
-                      
-<p>Service can only be managed by their creator, methods decorated with this scheme need to provice a secret in the http headers
-this secret is returned by the robot when creating service. It proof that the client trying to managed the service is actually the client
-that created it.</p>
-
                       
                     </div>
                   
@@ -5725,59 +5430,11 @@ that created it.</p>
                   <div class="tab-pane" id="services__service_guid__actions_get_securedby">
                     
                       
-                      <h1>Secured by zrobot</h1>
-
-                      
-                        <h3>Headers</h3>
-                        <ul>
-                          
-                            <li>
-  <strong>Zrobot</strong>:
-
-    
-      <em>required (string)
-      </em>
-    
-  
-
-<p>Secret returned by the robot when creating service.</p>
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-                          
-                        </ul>
-                      
+                      <h1>Secured by </h1>
 
                       
 
                       
-                        <h2>HTTP status code <a href="http://httpstatus.es/401" target="_blank">401</a></h2>
-<p>Bad or expired token.</p>
-
-                        
-
-                        
-
-                      
-                        <h2>HTTP status code <a href="http://httpstatus.es/403" target="_blank">403</a></h2>
-<p>Bad request wrong scope in the JWT.</p>
-
-                        
-
-                        
 
                       
 
@@ -5879,13 +5536,8 @@ that created it.</p>
                     <div class="alert alert-warning">
                       
                       <span class="glyphicon glyphicon-lock" title="Authentication required"></span>
-                      Secured by <b>zrobot</b>
+                      Secured by <b></b>
                       
-                      
-<p>Service can only be managed by their creator, methods decorated with this scheme need to provice a secret in the http headers
-this secret is returned by the robot when creating service. It proof that the client trying to managed the service is actually the client
-that created it.</p>
-
                       
                     </div>
                   
@@ -7015,59 +6667,11 @@ a task that failed to execute and/or is being retried is in state error.</p>
                   <div class="tab-pane" id="services__service_guid__task_list_get_securedby">
                     
                       
-                      <h1>Secured by zrobot</h1>
-
-                      
-                        <h3>Headers</h3>
-                        <ul>
-                          
-                            <li>
-  <strong>Zrobot</strong>:
-
-    
-      <em>required (string)
-      </em>
-    
-  
-
-<p>Secret returned by the robot when creating service.</p>
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-                          
-                        </ul>
-                      
+                      <h1>Secured by </h1>
 
                       
 
                       
-                        <h2>HTTP status code <a href="http://httpstatus.es/401" target="_blank">401</a></h2>
-<p>Bad or expired token.</p>
-
-                        
-
-                        
-
-                      
-                        <h2>HTTP status code <a href="http://httpstatus.es/403" target="_blank">403</a></h2>
-<p>Bad request wrong scope in the JWT.</p>
-
-                        
-
-                        
 
                       
 
@@ -7105,13 +6709,8 @@ a task that failed to execute and/or is being retried is in state error.</p>
                     <div class="alert alert-warning">
                       
                       <span class="glyphicon glyphicon-lock" title="Authentication required"></span>
-                      Secured by <b>zrobot</b>
+                      Secured by <b></b>
                       
-                      
-<p>Service can only be managed by their creator, methods decorated with this scheme need to provice a secret in the http headers
-this secret is returned by the robot when creating service. It proof that the client trying to managed the service is actually the client
-that created it.</p>
-
                       
                     </div>
                   
@@ -8339,59 +7938,11 @@ a task that failed to execute and/or is being retried is in state error.</p>
                   <div class="tab-pane" id="services__service_guid__task_list_post_securedby">
                     
                       
-                      <h1>Secured by zrobot</h1>
-
-                      
-                        <h3>Headers</h3>
-                        <ul>
-                          
-                            <li>
-  <strong>Zrobot</strong>:
-
-    
-      <em>required (string)
-      </em>
-    
-  
-
-<p>Secret returned by the robot when creating service.</p>
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-                          
-                        </ul>
-                      
+                      <h1>Secured by </h1>
 
                       
 
                       
-                        <h2>HTTP status code <a href="http://httpstatus.es/401" target="_blank">401</a></h2>
-<p>Bad or expired token.</p>
-
-                        
-
-                        
-
-                      
-                        <h2>HTTP status code <a href="http://httpstatus.es/403" target="_blank">403</a></h2>
-<p>Bad request wrong scope in the JWT.</p>
-
-                        
-
-                        
 
                       
 
@@ -8473,13 +8024,8 @@ a task that failed to execute and/or is being retried is in state error.</p>
                     <div class="alert alert-warning">
                       
                       <span class="glyphicon glyphicon-lock" title="Authentication required"></span>
-                      Secured by <b>zrobot</b>
+                      Secured by <b></b>
                       
-                      
-<p>Service can only be managed by their creator, methods decorated with this scheme need to provice a secret in the http headers
-this secret is returned by the robot when creating service. It proof that the client trying to managed the service is actually the client
-that created it.</p>
-
                       
                     </div>
                   
@@ -9720,59 +9266,11 @@ a task that failed to execute and/or is being retried is in state error.</p>
                   <div class="tab-pane" id="services__service_guid__task_list__task_guid__get_securedby">
                     
                       
-                      <h1>Secured by zrobot</h1>
-
-                      
-                        <h3>Headers</h3>
-                        <ul>
-                          
-                            <li>
-  <strong>Zrobot</strong>:
-
-    
-      <em>required (string)
-      </em>
-    
-  
-
-<p>Secret returned by the robot when creating service.</p>
-
-
-  
-
-  
-
-  
-
-  
-  
-  
-
-  
-
-</li>
-
-                          
-                        </ul>
-                      
+                      <h1>Secured by </h1>
 
                       
 
                       
-                        <h2>HTTP status code <a href="http://httpstatus.es/401" target="_blank">401</a></h2>
-<p>Bad or expired token.</p>
-
-                        
-
-                        
-
-                      
-                        <h2>HTTP status code <a href="http://httpstatus.es/403" target="_blank">403</a></h2>
-<p>Bad request wrong scope in the JWT.</p>
-
-                        
-
-                        
 
                       
 

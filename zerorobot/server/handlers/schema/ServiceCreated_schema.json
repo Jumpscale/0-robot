@@ -8,6 +8,9 @@
 		"name": {
 			"type": "string"
 		},
+		"public": {
+			"type": "boolean"
+		},
 		"secret": {
 			"type": "string"
 		},
@@ -28,6 +31,7 @@
 		"secret",
 		"guid",
 		"name",
+		"public",
 		"state",
 		"template",
 		"version"

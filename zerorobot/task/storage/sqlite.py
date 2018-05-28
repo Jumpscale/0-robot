@@ -32,13 +32,20 @@ class TaskStorageSqlite(TaskStorageBase):
     """
 
     def __init__(self, task_list):
+        self._opened = False
+
         self.service = task_list.service
         db_path = os.path.join(self.service._path, 'tasks.db')
         if not os.path.exists(self.service._path):
             os.makedirs(self.service._path)
         conn = sqlite3.connect(db_path)
+        self._opened = True
         self._cursor = conn.cursor()
         self._create_table()
+
+    @property
+    def is_open(self):
+        return self._opened
 
     def _create_table(self):
         self._cursor.execute(_create_table_stmt)
@@ -110,9 +117,11 @@ class TaskStorageSqlite(TaskStorageBase):
         """
         gracefully close storage
         """
-        conn = self._cursor.connection
-        self._cursor.close()
-        conn.close()
+        if self.is_open:
+            conn = self._cursor.connection
+            self._cursor.close()
+            conn.close()
+            self._opened = False
 
     def delete_until(self, to_timestap):
         self._cursor.execute(_delete_task_stmt, (to_timestap,))

@@ -8,6 +8,9 @@
 		"name": {
 			"type": "string"
 		},
+		"public": {
+			"type": "boolean"
+		},
 		"state": {
 			"type": "array",
 			"items": {
@@ -24,6 +27,7 @@
 	"required": [
 		"guid",
 		"name",
+		"public",
 		"state",
 		"template",
 		"version"

@@ -120,6 +120,7 @@ class TemplateBase:
         self.template_dir = os.path.dirname(sys.modules.get(str(self.template_uid)).__file__)
         self.guid = guid or str(uuid4())
         self.name = name or self.guid
+        self._public = False
         # location on the filesystem where to store the service
         self._path = os.path.join(
             config.DATA_DIR,
@@ -174,6 +175,7 @@ class TemplateBase:
             'version': self.version,
             'name': self.name,
             'guid': self.guid,
+            'public': self._public,
         })
         self.state.save(os.path.join(self._path, 'state.yaml'))
         self.data.save(os.path.join(self._path, 'data.yaml'))

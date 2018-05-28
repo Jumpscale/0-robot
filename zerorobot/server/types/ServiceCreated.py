@@ -19,6 +19,7 @@ class ServiceCreated(object):
         """
         :type guid: string_types
         :type name: string_types
+        :type public: bool
         :type secret: string_types
         :type state: list[ServiceState]
         :type template: string_types
@@ -40,6 +41,8 @@ class ServiceCreated(object):
         self.guid = client_support.set_property('guid', data, data_types, False, [], False, True, class_name)
         data_types = [string_types]
         self.name = client_support.set_property('name', data, data_types, False, [], False, True, class_name)
+        data_types = [bool]
+        self.public = client_support.set_property('public', data, data_types, False, [], False, True, class_name)
         data_types = [string_types]
         self.secret = client_support.set_property('secret', data, data_types, False, [], False, True, class_name)
         data_types = [ServiceState]

@@ -75,37 +75,50 @@ class ServicesMgr:
             raise scol.ServiceNotFoundError()
         return results[0]
 
-    def create(self, template_uid, service_name=None, data=None):
+    def create(self, template_uid, service_name=None, data=None, public=False):
         """
         Instantiate a service from a template on the local 0-robot
 
-        If this methos is used from a service action, it first check if we can create the service in the local robot.
-        If not, it raises TemplateNotFound error
-
-        @param template_uid: UID of the template to use a base class for the service
-        @param service_name: name of the service, needs to be unique within the robot instance
-        @param data: a dictionnary with the data of the service to create
-        @return: A Service object
+        :param template_uid: UID of the template to use a base class for the service
+        :type template_uid: str
+        :param service_name: name of the service, needs to be unique within the robot instance. If not specified a name is genrated, defaults to None
+        :type service_name: str, optional
+        :param data: data of the service to create, defaults to None
+        :type data: dict
+        :param public: is set to true, the service will be public, so anyone can schedule action on it, defaults to False
+        :type public: bool, optional
+        :return: the service created
+        :rtype: Service object of the type of the template
         """
         # we can create a service locally, the local robot has the template
         template = tcol.get(template_uid)
-        return tcol.instantiate_service(template, service_name, data)
+        service = tcol.instantiate_service(template, service_name, data)
+        if public:
+            scol.set_service_public(service)
+        return service
 
-    def find_or_create(self, template_uid, service_name, data):
+    def find_or_create(self, template_uid, service_name, data, public=False):
         """
         Helper method that first check if a service exists and if not then creates it
         if the service is found, it is returned
         if the service is not found, it is created using the data passed then returned
 
-        @param template_uid: UID of the template of the service
-        @param service: the name of the service.
-        @param data: a dictionnary with the data of the service if and only if the service is created
-                    so if the service already exists, the data argument is not used
+        :param template_uid: UID of the template to use a base class for the service
+        :type template_uid: str
+        :param service_name: name of the service, needs to be unique within the robot instance. If not specified a name is genrated, defaults to None
+        :type service_name: str, optional
+        :param data: a dictionnary with the data of the service if and only if the service is created
+                     so if the service already exists, the data argument is not used, defaults to None
+        :type data: dict
+        :param public: is set to true, the service will be public, so anyone can schedule action on it, defaults to False
+        :type public: bool, optional
+        :return: the service created
+        :rtype: Service object of the type of the template
         """
         try:
             return self.get(template_uid=template_uid, name=service_name)
         except scol.ServiceNotFoundError:
-            return self.create(template_uid=template_uid, service_name=service_name, data=data)
+            return self.create(template_uid=template_uid, service_name=service_name, data=data, public=public)
 
 
 class TemplatesMgr:
@@ -225,6 +238,7 @@ class ConfigMgr():
     def delete(self, instance):
         """
         deletes a config
+
         @param instance: instance name
         """
         if instance not in self.list():

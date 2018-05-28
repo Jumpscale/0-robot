@@ -70,4 +70,10 @@ def _verify_secret_token(tokens):
         if user_jwt.verify(service_guid, token):
             return True
 
+    try:
+        if scol.is_service_public(service_guid):
+            return True
+    except scol.ServiceNotFoundError:
+        return False
+
     return False

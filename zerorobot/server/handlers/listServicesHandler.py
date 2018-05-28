@@ -22,7 +22,7 @@ def listServicesHandler():
             kwargs[x] = val
 
     allowed_services = extract_guid_from_headers(request.headers)
-    services = [service_view(s) for s in scol.find(**kwargs) if s.guid in allowed_services]
+    services = [service_view(s) for s in scol.find(**kwargs) if s.guid in allowed_services or scol.is_service_public(s.guid) is True]
     return json.dumps(services), 200, {"Content-type": 'application/json'}
 
 

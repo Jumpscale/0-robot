@@ -19,6 +19,7 @@ class Service(object):
         """
         :type guid: string_types
         :type name: string_types
+        :type public: bool
         :type state: list[ServiceState]
         :type template: string_types
         :type version: string_types
@@ -39,6 +40,8 @@ class Service(object):
         self.guid = client_support.set_property('guid', data, data_types, False, [], False, True, class_name)
         data_types = [string_types]
         self.name = client_support.set_property('name', data, data_types, False, [], False, True, class_name)
+        data_types = [bool]
+        self.public = client_support.set_property('public', data, data_types, False, [], False, True, class_name)
         data_types = [ServiceState]
         self.state = client_support.set_property('state', data, data_types, False, [], True, True, class_name)
         data_types = [string_types]
