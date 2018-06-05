@@ -44,25 +44,9 @@ def ExecuteBlueprintHandler():
     except (blueprint.BadBlueprintFormatError, TemplateConflictError, TemplateNotFoundError) as err:
         return jsonify(code=400, message=str(err.args[1])), 400
 
-    services_created = []
-    for service in services:
-        try:
-            service = _instanciate_services(service)
-            if service:
-                # add secret to new created service
-                view = service_view(service)
-                try:
-                    view['secret'] = auth.user_jwt.create({'service_guid': service.guid})
-                    services_created.append(view)
-                except auth.user_jwt.SigningKeyNotFoundError as err:
-                    return jsonify(code=500, message='error creating user secret: no signing key available'), 500
-                except Exception as err:
-                    return jsonify(code=500, message='error creating user secret: %s' % str(err)), 500
-
-        except TemplateNotFoundError:
-            return jsonify(code=404, message="template '%s' not found" % service['template']), 404
-        except TemplateConflictError as err:
-            return jsonify(code=400, message=err.args[0]), 404
+    services_created, err_code, err_msg = instantiate_services(services)
+    if err_code or err_msg:
+        return jsonify(code=err_code, msg=err_msg), err_code
 
     services_2b_schedules = _find_services_to_be_scheduled(actions)
     allowed_services = _extract_user_secrets(request) + [s['guid'] for s in services_created]
@@ -86,7 +70,52 @@ def ExecuteBlueprintHandler():
     return jsonify(response), 200
 
 
-def _instanciate_services(service_descr):
+def instantiate_services(services):
+    services_created = []
+    err_msg = None
+    err_code = None
+
+    for service in services:
+        try:
+            service = _instantiate_service(service)
+            if service:
+                # add secret to new created service
+                view = service_view(service)
+                try:
+                    view['secret'] = auth.user_jwt.create({'service_guid': service.guid})
+                    services_created.append(view)
+                except auth.user_jwt.SigningKeyNotFoundError as err:
+                    err_code = 500
+                    err_msg = 'error creating user secret: no signing key available'
+                    break
+                except Exception as err:
+                    err_code = 500
+                    err_msg = 'error creating user secret: %s' % str(err)
+                    break
+
+        except TemplateNotFoundError:
+            err_code = 404
+            err_msg = "template '%s' not found" % service['template']
+            break
+        except TemplateConflictError as err:
+            err_code = 400
+            err_msg = err.args[0]
+            break
+        except:
+            err_code = 500
+            err_msg = 'unexpected error'
+            break
+
+    if err_code or err_msg:
+        # means we had an error during the creation of services
+        # clean up all created service in this blueprint
+        for service in services_created:
+            scol.get_by_guid(service['guid']).delete()
+
+    return services_created, err_code, err_msg
+
+
+def _instantiate_service(service_descr):
     try:
         srv = tcol.instantiate_service(service_descr['template'], service_descr['service'], service_descr.get('data', None))
         return srv

@@ -6,7 +6,7 @@ import unittest
 from zerorobot import service_collection as scol
 from zerorobot import template_collection as tcol
 from zerorobot import blueprint, config
-from zerorobot.server.handlers.ExecuteBlueprintHandler import (_instanciate_services,
+from zerorobot.server.handlers.ExecuteBlueprintHandler import (instantiate_services,
                                                                _schedule_action)
 
 
@@ -83,7 +83,7 @@ class TestBlueprintExecution(unittest.TestCase):
         tcol.add_repo("https://github.com/zero-os/0-robot", directory='tests/fixtures/templates')
         scol.drop_all()
 
-    def test_instanciate_service(self):
+    def test_instantiate_service(self):
         services = [
             {
                 'template': 'github.com/zero-os/0-robot/node/0.0.1',
@@ -95,14 +95,15 @@ class TestBlueprintExecution(unittest.TestCase):
             },
         ]
 
-        for service in services:
-            _instanciate_services(service)
+        service_created, err_code, err_msg = instantiate_services(services)
+        assert err_code is None
+        assert err_msg is None
 
         self.assertEqual(len(scol.list_services()), 2)
         self.assertEqual(len(scol.find(template_uid='github.com/zero-os/0-robot/node/0.0.1')), 1)
         self.assertEqual(len(scol.find(template_uid='github.com/zero-os/0-robot/vm/0.0.1')), 1)
 
-    def test_instanciate_service_duplicate(self):
+    def test_instantiate_service_duplicate(self):
         services = [
             {
                 'template': 'github.com/zero-os/0-robot/node/0.0.1',
@@ -114,11 +115,33 @@ class TestBlueprintExecution(unittest.TestCase):
             },
         ]
 
-        for service in services:
-            _instanciate_services(service)
+        service_created, err_code, err_msg = instantiate_services(services)
+        assert err_code is None
+        assert err_msg is None
 
         self.assertEqual(len(scol.list_services()), 1)
         self.assertEqual(len(scol.find(template_uid='github.com/zero-os/0-robot/node/0.0.1')), 1)
+
+    def test_instantiate_service_error(self):
+        services = [
+            {
+                'template': 'github.com/zero-os/0-robot/node/0.0.1',
+                'service': 'node1',
+                'data': {},
+            },
+            {
+                'template': 'github.com/zero-os/0-robot/validate/0.0.1',
+                'service': 'name',
+                'data': {},
+            },
+        ]
+
+        service_created, err_code, err_msg = instantiate_services(services)
+        assert err_code is not None
+        assert err_msg is not None
+        assert len(service_created) == 1
+
+        assert len(scol.list_services()) == 0, "service created during a failed blueprint, should be deleted"
 
     def test_schedule_actions(self):
         services = [
@@ -132,8 +155,9 @@ class TestBlueprintExecution(unittest.TestCase):
             },
         ]
 
-        for service in services:
-            _instanciate_services(service)
+        service_created, err_code, err_msg = instantiate_services(services)
+        assert err_code is None
+        assert err_msg is None
 
         actions = [
             {
@@ -164,8 +188,9 @@ class TestBlueprintExecution(unittest.TestCase):
             },
         ]
 
-        for service in services:
-            _instanciate_services(service)
+        service_created, err_code, err_msg = instantiate_services(services)
+        assert err_code is None
+        assert err_msg is None
 
         actions = [
             {
@@ -195,8 +220,9 @@ class TestBlueprintExecution(unittest.TestCase):
             },
         ]
 
-        for service in services:
-            _instanciate_services(service)
+        service_created, err_code, err_msg = instantiate_services(services)
+        assert err_code is None
+        assert err_msg is None
 
         actions = [{
             'service': 'node1',
@@ -224,8 +250,9 @@ class TestBlueprintExecution(unittest.TestCase):
             },
         ]
 
-        for service in services:
-            _instanciate_services(service)
+        service_created, err_code, err_msg = instantiate_services(services)
+        assert err_code is None
+        assert err_msg is None
 
         actions = [{
             'action': 'start'
