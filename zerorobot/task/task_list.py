@@ -3,9 +3,11 @@ import json
 import os
 
 import gevent
+from gevent.lock import Semaphore
 from gevent.queue import PriorityQueue
 
 from js9 import j
+from zerorobot.prometheus.robot import nr_task_waiting
 
 from . import (PRIORITY_NORMAL, PRIORITY_SYSTEM, TASK_STATE_ERROR,
                TASK_STATE_NEW, TASK_STATE_OK, TASK_STATE_RUNNING)
@@ -15,7 +17,6 @@ from .storage.sqlite import TaskStorageSqlite
 # from .storage.redis import TaskStorageRedis
 from .task import Task
 from .utils import _instantiate_task
-from zerorobot.prometheus.robot import nr_task_waiting
 
 
 class TaskList:
@@ -36,7 +37,18 @@ class TaskList:
         # self._done = TaskStorageFile(self)
         self._done = TaskStorageSqlite(self)
         # pointer to current task
-        self.current = None
+        self._current = None
+        self._current_mu = Semaphore()
+
+    @property
+    def current(self):
+        with self._current_mu:
+            return self._current
+
+    @current.setter
+    def current(self, value):
+        with self._current_mu:
+            self._current = value
 
     def __del__(self):
         if self._done:
@@ -75,6 +87,17 @@ class TaskList:
         return True if the task list is empty, False otherwise
         """
         return self._queue.empty()
+
+    def clear(self):
+        """
+        clear emtpy the task list from all its tasks
+        """
+
+        try:
+            while not self.empty():
+                self._queue.get_nowait()
+        except gevent.queue.Empty:
+            return
 
     def list_tasks(self, all=False):
         """

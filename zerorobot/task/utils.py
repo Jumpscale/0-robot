@@ -20,3 +20,28 @@ def _instantiate_task(task, service):
     t._created = task.get('created')
     t._duration = task.get('duration')
     return t
+
+
+def wait_all(tasks, timeout=60, die=False):
+    """
+    helper method to wait for a list of tasks
+
+    :param tasks: iterable that contains zerorobot.task.Task objects
+    :type tasks: iterable
+    :param timeout: timeout per task, defaults to 60
+    :param timeout: int, optional
+    :param die: if True, raise any exception that was raise in the tasks, defaults to False
+    :param die: bool, optional
+    :raises TypeError: raised if the iterable does not contains only zerorobot.task.Task
+    :return: a list of all the result from the tasks
+    :rtype: list
+    """
+    results = []
+    for task in iter(tasks):
+        if not isinstance(task, Task):
+            raise TypeError("element of tasks should be an instance of zerorobot.task.Task")
+        try:
+            results.append(task.wait(timeout=timeout, die=die).result)
+        except TimeoutError:
+            continue
+    return results

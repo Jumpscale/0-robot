@@ -1,3 +1,7 @@
+from gevent import monkey
+# need to patch sockets to make requests async
+monkey.patch_all(subprocess=False)
+
 import glob
 import os
 import tempfile
@@ -200,3 +204,18 @@ class TestServiceTemplate(unittest.TestCase):
         srv = tmpl('foo')
         gl = srv.gl_mgr.get('recurring_monitor')
         self.assertTrue(gl.started)
+
+    def test_cleanup_actions(self):
+        Tmpl = self.load_template('cleanup')
+        srv = tcol.instantiate_service(Tmpl)
+        check_file = srv.data['output']
+
+        try:
+            srv.delete()
+            check_file_content = j.sal.fs.readFile(check_file)
+            ss = check_file_content.splitlines()
+            assert len(ss) == 2
+            assert ss[0] == 'cleanup1'
+            assert ss[1] == 'cleanup2'
+        finally:
+            j.sal.fs.remove(check_file)

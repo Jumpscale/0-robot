@@ -22,6 +22,7 @@ from zerorobot.dsl.ZeroRobotAPI import ZeroRobotAPI
 from zerorobot.prometheus.robot import task_latency
 from zerorobot.task import (PRIORITY_NORMAL, PRIORITY_SYSTEM, TASK_STATE_ERROR,
                             Task, TaskList)
+from zerorobot.task.utils import wait_all
 from zerorobot.template.data import ServiceData
 from zerorobot.template.state import ServiceState
 
@@ -139,6 +140,8 @@ class TemplateBase:
             self.data.update(data)
         self.state = ServiceState()
         self.task_list = TaskList(self)
+
+        self._delete_callback = []
 
         # start the greenlets of this service
         self.gl_mgr = GreenletsMgr()
@@ -272,7 +275,7 @@ class TemplateBase:
         gl = gevent.Greenlet(_recurring_action, self, action, period)
         self.gl_mgr.add("recurring_" + action, gl)
 
-    def delete(self):
+    def delete(self, wait=False, timeout=60, die=False):
         """
         Delete the service.
 
@@ -281,7 +284,26 @@ class TemplateBase:
         e.g: super().delete()
         """
         self.logger.info("deleting service %s (%s)", self.name, self.guid)
-        # stop all recurring action
+
+        # empty the task list
+        self.task_list.clear()
+
+        # wait for the current task to finish if there is any
+        if self.task_list.current and wait:
+            self.task_list.current.wait(timeout=timeout)
+
+        if not self.task_list.empty():
+            logger.warning("service %s stop processing its task list, while some task remains in the queue")
+
+        # schedule and wait for all the cleanup actions
+        delete_tasks = []
+        for action in self._delete_callback:
+            # action()
+            task = self.schedule_action(action)
+            delete_tasks.append(task)
+        wait_all(delete_tasks, timeout=30, die=False)
+
+        # stop all recurring action and processing of task list
         self.gl_mgr.stop_all(wait=True, timeout=5)
 
         # close ressources of logging handlers
@@ -312,6 +334,34 @@ class TemplateBase:
         @param data: is a dict with the new schema data
         """
         pass
+
+    def add_delete_callback(self, action):
+        """
+        register an action to be executed before the service is deleted
+
+        when the 'delete' method of the service will be called, all the actions
+        registered with this method will be executed before the service is deleted
+
+        Use this when you have some cleanup/uninstall actions
+
+        :param action: the action to be executed before delete
+        :type action: method
+        :raises ActionNotFoundError: raised when the action passed in not present on the service or if action is not a method
+        """
+        action_name = None
+        if isinstance(action, str):
+            if not hasattr(self, action):
+                raise ActionNotFoundError("service %s doesn't have action %s" % (self.name, action))
+
+            method = getattr(self, action)
+            if not callable(method):
+                raise ActionNotFoundError("%s is not a function" % action)
+            action_name = action
+        elif inspect.ismethod(action):
+            action_name = action.__func__.__name__
+
+        if action_name not in self._delete_callback:
+            self._delete_callback.append(action_name)
 
 
 def _recurring_action(service, action, period):

@@ -172,3 +172,27 @@ def _process_stream(self, jobid, cb):
 The result of scheduling `test_stream` will start a `top` process on the ZeroOs node and the output of the process will be streamed back into the couroutine and printed to the logs of 0-robot.
 
 It's important to use the Greenlet manager when you start coroutine cause 0-robot make sure that we don't leak any coroutine when deleting or updating the services.
+
+## Automatically call an action before a service is deleted
+In most cases, your service will have an uninstall action. This is used to cleanup the system and make sure that your service doesn't leave behind once it is deleted. 
+
+This is a bit cumbersome, cause you force you user to first call uninstall before deleting a service. If the user forgot to do that, you will end up with some left over on your system, an no more service that know how to clean up it. To solve this problem, you can bind some action to the delete method of a service. Which means, in your template, you can define one or more action, that will be scheduled and executed just before the service is deleted. This ensure that every time you delete a service, it will always call the required cleanup action before.
+
+Here how to configure this feature in your templates:
+
+```python
+from zerorobot.template.base import TemplateBase
+
+class Node(TemplateBase):
+
+    version = '0.0.1'
+    template_name = "node"
+
+    def __init__(self, name=None, guid=None, data=None):
+        super().__init__(name=name, guid=guid, data=data)
+        self.add_delete_callback(self.uninstall) # here we define the action to bind
+
+    def uninstall(self):
+        # do the required cleanup here
+        # ...
+```
