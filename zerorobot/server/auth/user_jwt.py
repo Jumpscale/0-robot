@@ -48,14 +48,13 @@ def _get_key():
     Returns:
         str -- the signing key
     """
-    try:
-        key_name = j.core.state.config_js['myconfig']['sshkeyname']
-    except KeyError:
+    if j.tools.configmanager.keyname is None or j.tools.configmanager.keyname == '':
         raise SigningKeyNotFoundError('no key configured')
 
-    key_path = os.path.expanduser(os.path.join('~/.ssh', key_name))
+    key_path = os.path.expanduser(os.path.join('~/.ssh', j.tools.configmanager.keyname))
     if not os.path.exists(key_path):
         raise SigningKeyNotFoundError('key not found')
+
     return j.sal.fs.fileGetContents(key_path)
 
 

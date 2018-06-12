@@ -68,12 +68,11 @@ def _is_path_configure():
 
 def _is_key_configured():
     # try to detect if jumpscale has a key configured
-    key = None
-    myconfig = j.core.state.config_js.get('myconfig')
-    if myconfig:
-        key_name = myconfig.get('sshkeyname')
-        if key_name:
-            key_path = os.path.expanduser(os.path.join('~/.ssh', key_name))
-            if os.path.exists(key_path):
-                key = key_path
-    return key
+    if j.tools.configmanager.keyname is None or j.tools.configmanager.keyname == '':
+        return None
+
+    key_path = os.path.expanduser(os.path.join('~/.ssh', j.tools.configmanager.keyname))
+    if os.path.exists(key_path):
+        return key_path
+
+    return None

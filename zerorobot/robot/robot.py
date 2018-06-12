@@ -101,6 +101,7 @@ class Robot:
 
         logger.info("data directory: %s" % config.DATA_DIR)
         logger.info("config directory: %s" % j.tools.configmanager.path)
+        logger.info("sshkey used: %s" % os.path.expanduser(os.path.join('~/.ssh', j.tools.configmanager.keyname)))
 
         # configure prometheus monitoring
         if not kwargs.get('testing', False):
