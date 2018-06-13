@@ -24,6 +24,11 @@ name = "zrobot"
 privileged = false
 host_network = false
 
+[startup.zrobot.args.env]
+HOME = "/root"
+LC_ALL = "C.UTF-8"
+LANG = "C.UTF-8"
+
 [[startup.zrobot.args.nics]]
 type = "default"
 

@@ -5,10 +5,6 @@ protected = true #set protected to true to respawn the container if it crashed
 
 [startup.zrobot.args]
 script = """
-export LC_ALL=C.UTF-8
-export LANG=C.UTF-8
-export HOME=/root
-
 # workaround for https://github.com/zero-os/0-robot/issues/193
 touch /lib/x86_64-linux-gnu/libtinfo.so.5.9
 
