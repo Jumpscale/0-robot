@@ -29,7 +29,7 @@ done
 pushd /opt/code/github/jumpscale
 
 # cloning source code
-for target in core9 lib9; do
+for target in core9 lib9 prefab9; do
     git clone https://github.com/jumpscale/${target}
     pushd ${target}
     git checkout $BRANCH
@@ -37,7 +37,7 @@ for target in core9 lib9; do
 done
 
 # installing core and plugins
-for target in core9 lib9; do
+for target in core9 lib9 prefab9; do
     pushd ${target}
     pip3 install -e .
     popd
