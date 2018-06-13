@@ -19,10 +19,15 @@ protected = true
 after = ["zrobot-vol"]
 
 [startup.zrobot.args]
-root = "https://hub.gig.tech/gig-autobuilder/zero-os-0-robot-autostart-development.flist"
+root = "https://hub.gig.tech/gig-official-apps/zero-os-0-robot-autostart-latest.flist"
 name = "zrobot"
 privileged = false
 host_network = false
+
+[startup.zrobot.args.env]
+HOME = "/root"
+LC_ALL = "C.UTF-8"
+LANG = "C.UTF-8"
 
 [[startup.zrobot.args.nics]]
 type = "default"
@@ -31,7 +36,7 @@ type = "default"
 "6600"=6600
 
 [startup.zrobot.args."zerotier|port"]
-"zt0:6600"=6600
+"zt*:6600"=6600
 
 #mount all zrobot essential directories
 #on persisted cache
