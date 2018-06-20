@@ -7,6 +7,33 @@ from . import handlers
 robot_api = Blueprint('robot_api', __name__)
 
 
+@robot_api.route('/robot/webhooks', methods=['GET'])
+def ListWebHooks():
+    """
+    List all configured web hooks
+    It is handler for GET /robot/webhooks
+    """
+    return handlers.ListWebHooksHandler()
+
+
+@robot_api.route('/robot/webhooks', methods=['POST'])
+def AddWebHook():
+    """
+    Add a new web hook configuration
+    It is handler for POST /robot/webhooks
+    """
+    return handlers.AddWebHookHandler()
+
+
+@robot_api.route('/robot/webhooks/<id>', methods=['DELETE'])
+def DeleteWebHook(id):
+    """
+    delete a web hook configuration
+    It is handler for DELETE /robot/webhooks/<id>
+    """
+    return handlers.DeleteWebHookHandler(id)
+
+
 @robot_api.route('/robot/info', methods=['GET'])
 def GetRobotInfo():
     """

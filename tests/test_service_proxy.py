@@ -1,5 +1,5 @@
-from gevent import monkey
 # need to patch sockets to make requests async
+from gevent import monkey
 monkey.patch_all(subprocess=False)
 
 import os
@@ -7,12 +7,14 @@ import shutil
 import unittest
 import uuid
 
+
 from js9 import j
 from JumpScale9.errorhandling.ErrorConditionObject import ErrorConditionObject
 from zerorobot import service_collection as scol
 from zerorobot import template_collection as tcol
+from zerorobot import config
 from zerorobot.dsl.ZeroRobotManager import ZeroRobotManager
-from zerorobot.robot import Robot, config
+from zerorobot.robot import Robot
 from zerorobot.service_proxy import ServiceProxy
 from zerorobot.task.task import TASK_STATE_ERROR, TASK_STATE_OK
 

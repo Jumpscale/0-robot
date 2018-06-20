@@ -17,9 +17,10 @@ import gevent
 
 from js9 import j
 from zerorobot import service_collection as scol
+from zerorobot import webhooks
 from zerorobot.dsl.ZeroRobotAPI import ZeroRobotAPI
 from zerorobot.prometheus.robot import task_latency
-from zerorobot.robot import config
+from zerorobot import config
 from zerorobot.task import (PRIORITY_NORMAL, PRIORITY_SYSTEM, TASK_STATE_ERROR,
                             Task, TaskList)
 from zerorobot.task.utils import wait_all
@@ -197,6 +198,7 @@ class TemplateBase:
         while True:
             try:
                 task = self.task_list.get()
+                task.service = self
                 try:
                     task.execute()
                 finally:
@@ -389,6 +391,26 @@ def _recurring_action(service, action, period):
             elapsed = int(time.time()) - task.created
         except gevent.GreenletExit:
             break
+
+
+def _send_eco_webhooks(service, task):
+    if task.eco is None:
+        return
+
+    wh_mgr = webhooks.get()
+
+    # TODO: send concurrently from a pool of greenlet
+    data = {
+        'service': service.guid,
+        'action_name': task.action_name,
+        'args': task.args,
+    }
+    for url in wh_mgr.list():
+        try:
+            requests.post(url, json=data)
+            logger.debug("eco web hook sent to %s" % url)
+        except Exception as err:
+            logger.warning('fail to send web hook to %s' % url)
 
 
 _LOGGER_FORMAT = '%(asctime)s - %(pathname)s:%(lineno)d - %(levelname)s - %(message)s'

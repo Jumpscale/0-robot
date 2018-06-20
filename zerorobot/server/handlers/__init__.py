@@ -2,6 +2,9 @@
 
 
 from .ExecuteBlueprintHandler import ExecuteBlueprintHandler
+from .ListWebHooksHandler import ListWebHooksHandler
+from .AddWebHookHandler import AddWebHookHandler
+from .DeleteWebHookHandler import DeleteWebHookHandler
 from .GetRobotInfoHandler import GetRobotInfoHandler
 from .GetMetricsHandler import GetMetricsHandler
 from .listServicesHandler import listServicesHandler

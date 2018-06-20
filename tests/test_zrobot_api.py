@@ -12,7 +12,8 @@ from js9 import j
 from zerorobot import service_collection as scol
 from zerorobot import template_collection as tcol
 from zerorobot.dsl.ZeroRobotAPI import TemplateNotFoundError, ZeroRobotAPI
-from zerorobot.robot import Robot, config
+from zerorobot import config
+from zerorobot.robot import Robot
 from zerorobot.service_proxy import ServiceProxy
 from zerorobot.template.base import TemplateBase
 

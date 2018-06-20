@@ -6,7 +6,7 @@ import unittest
 from zerorobot import service_collection as scol
 from zerorobot import template_collection as tcol
 from zerorobot import blueprint
-from zerorobot.robot import config
+from zerorobot import config
 from zerorobot.server.handlers.ExecuteBlueprintHandler import (_schedule_action,
                                                                instantiate_services)
 

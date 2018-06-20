@@ -4,7 +4,7 @@ import tempfile
 import unittest
 
 from zerorobot import service_collection as scol
-from zerorobot.robot import config
+from zerorobot import config
 from zerorobot.task import (PRIORITY_NORMAL, PRIORITY_SYSTEM, Task, TaskList,
                             TaskNotFoundError)
 from zerorobot.template_collection import _load_template

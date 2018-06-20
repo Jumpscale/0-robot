@@ -7,7 +7,7 @@ import unittest
 import gevent
 
 from js9 import j
-from zerorobot.robot import config
+from zerorobot import config
 from zerorobot.template.decorator import profile, retry, timeout
 from zerorobot.template_collection import _load_template
 

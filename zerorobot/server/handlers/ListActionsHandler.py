@@ -13,7 +13,6 @@ def ListActionsHandler(service_guid):
     List all the possible action a service can do.
     It is handler for GET /services/<service_guid>/actions
     '''
-
     try:
         service = scol.get_by_guid(service_guid)
     except KeyError:
@@ -30,7 +29,7 @@ def get_actions_list(obj):
     extract the method name that the service has that are not the
     method comming from the template base
     """
-    skip = ['load', 'save', 'schedule_action', 'recurring_action', 'validate']
+    skip = ['load', 'save', 'schedule_action', 'recurring_action', 'validate', 'add_delete_callback']
     actions = []
     for name in dir(obj):
         if name in skip or name.startswith('_'):

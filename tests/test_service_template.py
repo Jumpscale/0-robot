@@ -12,7 +12,7 @@ import unittest
 from js9 import j
 from zerorobot import service_collection as scol
 from zerorobot import template_collection as tcol
-from zerorobot.robot import config
+from zerorobot import config
 from zerorobot.service_collection import BadTemplateError
 from zerorobot.template.base import (ActionNotFoundError,
                                      BadActionArgumentError, TemplateBase)

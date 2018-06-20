@@ -7,6 +7,7 @@ from .Eco import Eco
 from .EnumRobotInfoType import EnumRobotInfoType
 from .EnumServiceStateState import EnumServiceStateState
 from .EnumTaskState import EnumTaskState
+from .EnumWebHookKind import EnumWebHookKind
 from .Error import Error
 from .Metrics import Metrics
 from .Metricscpu import Metricscpu
@@ -23,6 +24,7 @@ from .Task import Task
 from .TaskCreate import TaskCreate
 from .Template import Template
 from .TemplateRepository import TemplateRepository
+from .WebHook import WebHook
 
 from .blueprints_service import BlueprintsService
 from .robot_service import RobotService
