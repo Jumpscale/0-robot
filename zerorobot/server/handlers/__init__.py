@@ -3,6 +3,7 @@
 
 from .ExecuteBlueprintHandler import ExecuteBlueprintHandler
 from .GetRobotInfoHandler import GetRobotInfoHandler
+from .GetMetricsHandler import GetMetricsHandler
 from .listServicesHandler import listServicesHandler
 from .createServiceHandler import createServiceHandler
 from .GetServiceHandler import GetServiceHandler

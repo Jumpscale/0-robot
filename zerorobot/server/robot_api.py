@@ -13,3 +13,11 @@ def GetRobotInfo():
     It is handler for GET /robot/info
     """
     return handlers.GetRobotInfoHandler()
+
+
+@robot_api.route('/robot/metrics', methods=['GET'])
+def GetMetrics():
+    """
+    It is handler for GET /robot/metrics
+    """
+    return handlers.GetMetricsHandler()

@@ -382,6 +382,31 @@ types:
       type:
         enum: [ node, digitalme ]
 
+  Metrics:
+    description: simple metrics of the robot
+    properties:
+      cpu:
+        type: object
+        properties:
+          user: number
+          nice: number
+          system: number
+          idle: number
+          iowait: number
+          irq: number
+          softirq: number
+      memory:
+        type: object
+        properties:
+          total: number
+          active: number
+          free: number
+          cached: number
+          swap_total: number
+          swap_free: number
+      nr_services:
+        type: integer
+
 /robot:
   description: This endpoint expose different information about the robot health and status
   /info:
@@ -391,6 +416,13 @@ types:
         200:
           body:
             type: RobotInfo
+  /metrics:
+    get:
+      displayName: GetMetrics
+      responses:
+        200:
+          body:
+            type: Metrics
 
 
 /blueprints:

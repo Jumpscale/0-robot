@@ -8,6 +8,9 @@ from .EnumRobotInfoType import EnumRobotInfoType
 from .EnumServiceStateState import EnumServiceStateState
 from .EnumTaskState import EnumTaskState
 from .Error import Error
+from .Metrics import Metrics
+from .Metricscpu import Metricscpu
+from .Metricsmemory import Metricsmemory
 from .Repository import Repository
 from .RobotInfo import RobotInfo
 from .RobotInforepositories import RobotInforepositories

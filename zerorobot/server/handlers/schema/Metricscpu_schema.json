@@ -1,0 +1,36 @@
+{
+	"$schema": "http://json-schema.org/schema#",
+	"type": "object",
+	"properties": {
+		"idle": {
+			"type": "number"
+		},
+		"iowait": {
+			"type": "number"
+		},
+		"irq": {
+			"type": "number"
+		},
+		"nice": {
+			"type": "number"
+		},
+		"softirq": {
+			"type": "number"
+		},
+		"system": {
+			"type": "number"
+		},
+		"user": {
+			"type": "number"
+		}
+	},
+	"required": [
+		"idle",
+		"iowait",
+		"irq",
+		"nice",
+		"softirq",
+		"system",
+		"user"
+	]
+}

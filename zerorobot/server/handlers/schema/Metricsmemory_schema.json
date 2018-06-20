@@ -1,0 +1,32 @@
+{
+	"$schema": "http://json-schema.org/schema#",
+	"type": "object",
+	"properties": {
+		"active": {
+			"type": "number"
+		},
+		"cached": {
+			"type": "number"
+		},
+		"free": {
+			"type": "number"
+		},
+		"swap_free": {
+			"type": "number"
+		},
+		"swap_total": {
+			"type": "number"
+		},
+		"total": {
+			"type": "number"
+		}
+	},
+	"required": [
+		"active",
+		"cached",
+		"free",
+		"swap_free",
+		"swap_total",
+		"total"
+	]
+}
