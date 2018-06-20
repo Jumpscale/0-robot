@@ -5,20 +5,21 @@ import unittest
 
 from zerorobot import service_collection as scol
 from zerorobot import template_collection as tcol
-from zerorobot import blueprint, config
-from zerorobot.server.handlers.ExecuteBlueprintHandler import (instantiate_services,
-                                                               _schedule_action)
+from zerorobot import blueprint
+from zerorobot.robot import config
+from zerorobot.server.handlers.ExecuteBlueprintHandler import (_schedule_action,
+                                                               instantiate_services)
 
 
 class TestBlueprintParsing(unittest.TestCase):
 
     def setUp(self):
-        config.DATA_DIR = tempfile.mkdtemp(prefix='0robottest')
+        config.data_repo = config.DataRepo(tempfile.mkdtemp(prefix='0robottest'))
         scol.drop_all()
 
     def tearDown(self):
-        if os.path.exists(config.DATA_DIR):
-            shutil.rmtree(config.DATA_DIR)
+        if os.path.exists(config.data_repo.path):
+            shutil.rmtree(config.data_repo.path)
 
     def read_bp(self, name):
         bp_path = os.path.join(os.path.dirname(__file__), 'fixtures/blueprints/%s' % name)

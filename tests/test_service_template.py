@@ -1,32 +1,33 @@
-from gevent import monkey
 # need to patch sockets to make requests async
+from gevent import monkey
 monkey.patch_all(subprocess=False)
 
 import glob
 import os
+import shutil
 import tempfile
 import unittest
-import shutil
+
 
 from js9 import j
 from zerorobot import service_collection as scol
-from zerorobot.service_collection import BadTemplateError
 from zerorobot import template_collection as tcol
+from zerorobot.robot import config
+from zerorobot.service_collection import BadTemplateError
 from zerorobot.template.base import (ActionNotFoundError,
                                      BadActionArgumentError, TemplateBase)
 from zerorobot.template_collection import _load_template
-from zerorobot import config
 
 
 class TestServiceTemplate(unittest.TestCase):
 
     def setUp(self):
-        config.DATA_DIR = tempfile.mkdtemp(prefix='0robottest')
+        config.data_repo = config.DataRepo(tempfile.mkdtemp(prefix='0robottest'))
         scol.drop_all()
 
     def tearDown(self):
-        if os.path.exists(config.DATA_DIR):
-            shutil.rmtree(config.DATA_DIR)
+        if os.path.exists(config.data_repo.path):
+            shutil.rmtree(config.data_repo.path)
 
     def load_template(self, name):
         """
@@ -68,7 +69,7 @@ class TestServiceTemplate(unittest.TestCase):
 
         srv.save()
         srv_dir = os.path.join(
-            config.DATA_DIR,
+            config.data_repo.path,
             srv.template_uid.host,
             srv.template_uid.account,
             srv.template_uid.repo,
@@ -212,7 +213,8 @@ class TestServiceTemplate(unittest.TestCase):
 
         try:
             srv.delete()
-            check_file_content = j.sal.fs.readFile(check_file)
+            with open(check_file) as f:
+                check_file_content = f.read()
             ss = check_file_content.splitlines()
             assert len(ss) == 2
             assert ss[0] == 'cleanup1'

@@ -12,13 +12,12 @@ from gevent.pywsgi import WSGIServer
 from js9 import j
 from zerorobot import service_collection as scol
 from zerorobot import template_collection as tcol
-from zerorobot import auto_pusher, config
 from zerorobot.git import url as giturl
 from zerorobot.prometheus.flask import monitor
-from zerorobot.server.app import app
 from zerorobot.server import auth
+from zerorobot.server.app import app
 
-from . import config_repo, data_repo, loader
+from . import config, loader
 
 # create logger
 logger = j.logger.get('zerorobot')
@@ -58,15 +57,14 @@ class Robot:
 
         It can be the same of one of the template repository used.
         """
-        location = data_repo.ensure(url)
-        config.DATA_DIR = j.sal.fs.joinPaths(location, 'zrobot_data')
+        config.data_repo = config.DataRepo(url)
         self.data_repo_url = url
 
     def add_template_repo(self, url, directory='templates'):
         url, branch = giturl.parse_template_repo_url(url)
         tcol.add_repo(url=url, branch=branch, directory=directory)
 
-    def set_config_repo(self, path=None, key=None):
+    def set_config_repo(self, url=None, key=None):
         """
         make sure the jumpscale configuration repository is initialized
         @param path: can be a git URL or a absolute path or None
@@ -77,7 +75,7 @@ class Robot:
         @param key: path to the sshkey to use with the configuration repo
         if key is None, a key is automatically generated
         """
-        config_repo.init(path, key)
+        config.config_repo = config.ConfigRepo(url=url, key=key)
 
     def start(self,
               listen=":6600",
@@ -93,13 +91,15 @@ class Robot:
         start the rest web server
         load the services from the local git repository
         """
-        if config.DATA_DIR is None:
+        config.mode = mode
+
+        if config.data_repo is None or config.data_repo.path is None:
             raise RuntimeError("Not data repository set. Robot doesn't know where to save data.")
 
         if not j.tools.configmanager.path:
             raise RuntimeError("config manager is not configured, can't continue")
 
-        logger.info("data directory: %s" % config.DATA_DIR)
+        logger.info("data directory: %s" % config.data_repo.path)
         logger.info("config directory: %s" % j.tools.configmanager.path)
         logger.info("sshkey used: %s" % os.path.expanduser(os.path.join('~/.ssh', j.tools.configmanager.keyname)))
 
@@ -120,11 +120,11 @@ class Robot:
         # auto-push data repo
         if auto_push:
             logger.info("auto push of data repo enabled")
-            repo_dir = giturl.git_path(self.data_repo_url)
-            auto_pusher.run(interval=auto_push_interval, repo_dir=repo_dir, logger=logger)
+            config.data_repo.start_auto_push(interval=auto_push_interval, logger=logger)
+            config.config_repo.start_auto_push(interval=auto_push_interval, logger=logger)
 
         # load services from data repo
-        loader.load_services(config.DATA_DIR)
+        loader.load_services(config.data_repo.path)
         # notify services that they can start processing their task list
         config.SERVICE_LOADED.set()
 

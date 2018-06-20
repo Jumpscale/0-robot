@@ -7,6 +7,7 @@ from js9 import j
 from .blueprints_api import blueprints_api
 from .services_api import services_api
 from .templates_api import templates_api
+from .robot_api import robot_api
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
 
@@ -15,6 +16,7 @@ app = Flask(__name__)
 app.register_blueprint(blueprints_api)
 app.register_blueprint(services_api)
 app.register_blueprint(templates_api)
+app.register_blueprint(robot_api)
 
 
 @app.route('/apidocs/<path:path>')

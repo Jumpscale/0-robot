@@ -4,7 +4,12 @@ code base
 """
 import gevent.event
 
-# path to the data director where to save the services
-DATA_DIR = None
+from .data_repo import DataRepo
+from .config_repo import ConfigRepo
 
 SERVICE_LOADED = gevent.event.Event()
+
+data_repo = None
+config_repo = None
+
+mode = None

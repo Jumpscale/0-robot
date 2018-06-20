@@ -11,9 +11,8 @@ from gevent import monkey
 from js9 import j
 from zerorobot import service_collection as scol
 from zerorobot import template_collection as tcol
-from zerorobot import config
 from zerorobot.dsl.ZeroRobotAPI import TemplateNotFoundError, ZeroRobotAPI
-from zerorobot.robot import Robot
+from zerorobot.robot import Robot, config
 from zerorobot.service_proxy import ServiceProxy
 from zerorobot.template.base import TemplateBase
 
@@ -103,7 +102,7 @@ class TestZRobotAPI(unittest.TestCase):
 
         # load template in current process
         with tempfile.TemporaryDirectory(prefix="robotlocal") as tmpdir:
-            config.DATA_DIR = tmpdir
+            config.data_repo = config.DataRepo(tmpdir)
             tcol.add_repo('http://github.com/zero-os/0-robot', directory='tests/fixtures/templates')
             # now that we have some templates loaded, it should create a local service
             node2 = self.api.services.create("github.com/zero-os/0-robot/node/0.0.1", 'node2')
@@ -132,7 +131,7 @@ class TestZRobotAPI(unittest.TestCase):
 
         # load template in current process
         with tempfile.TemporaryDirectory(prefix="robotlocal") as tmpdir:
-            config.DATA_DIR = tmpdir
+            config.data_repo = config.DataRepo(tmpdir)
             tcol.add_repo('http://github.com/zero-os/0-robot', directory='tests/fixtures/templates')
             # now that we have some templates loaded, it should create a local service
             node2 = self.api.services.create("node", 'node2')
@@ -157,7 +156,7 @@ class TestZRobotAPI(unittest.TestCase):
         # load template in current process
         with self.subTest(name='local'):
             with tempfile.TemporaryDirectory(prefix="robotlocal") as tmpdir:
-                config.DATA_DIR = tmpdir
+                config.data_repo = config.DataRepo(tmpdir)
                 tcol.add_repo('http://github.com/zero-os/0-robot', directory='tests/fixtures/templates')
                 robot = self.api
                 self._test_search(self.api)
@@ -169,7 +168,7 @@ class TestZRobotAPI(unittest.TestCase):
         # load template in current process
         with self.subTest(name='local'):
             with tempfile.TemporaryDirectory(prefix="robotlocal") as tmpdir:
-                config.DATA_DIR = tmpdir
+                config.data_repo = config.DataRepo(tmpdir)
                 tcol.add_repo('http://github.com/zero-os/0-robot', directory='tests/fixtures/templates')
 
                 self._test_exists(self.api)
@@ -181,7 +180,7 @@ class TestZRobotAPI(unittest.TestCase):
         with self.subTest(name='local'):
             # load template in current process
             with tempfile.TemporaryDirectory(prefix="robotlocal") as tmpdir:
-                config.DATA_DIR = tmpdir
+                config.data_repo = config.DataRepo(tmpdir)
                 tcol.add_repo('http://github.com/zero-os/0-robot', directory='tests/fixtures/templates')
 
                 self._test_get(self.api)
@@ -193,7 +192,7 @@ class TestZRobotAPI(unittest.TestCase):
         with self.subTest(name='local'):
             # load template in current process
             with tempfile.TemporaryDirectory(prefix="robotlocal") as tmpdir:
-                config.DATA_DIR = tmpdir
+                config.data_repo = config.DataRepo(tmpdir)
                 tcol.add_repo('http://github.com/zero-os/0-robot', directory='tests/fixtures/templates')
 
                 self._test_find_or_create(self.api)
