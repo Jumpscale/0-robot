@@ -9,6 +9,7 @@ generate-server:
 	sed -i "s/import handlers/from . import handlers/g" zerorobot/server/templates_api.py
 	sed -i "s/import handlers/from . import handlers/g" zerorobot/server/services_api.py
 	sed -i "s/import handlers/from . import handlers/g" zerorobot/server/blueprints_api.py
+	sed -i "s/import handlers/from . import handlers/g" zerorobot/server/robot_api.py
 
 generate-client:
 	cp api_spec/main.raml JumpScale9Zrobot/clients/zerorobot/api_spec/main.raml

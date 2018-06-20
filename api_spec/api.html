@@ -209,6 +209,406 @@
           
             <div class="panel panel-default">
               <div class="panel-heading">
+                <h3 id="robot" class="panel-title">/robot</h3>
+              </div>
+
+              <div class="panel-body">
+                
+                  <div class="top-resource-description">
+<p>This endpoint expose different information about the robot health and status</p>
+
+                  </div>
+                
+
+                <div class="panel-group">
+                  
+
+
+  
+  <div class="panel panel-white resource-modal">
+    <div class="panel-heading">
+      <h4 class="panel-title">
+        <a class="collapsed" data-toggle="collapse" href="#panel_robot_info">
+          <span class="parent">/robot</span>/info
+        </a>
+
+        <span class="methods">
+          
+            <a href="#robot_info_get"><!-- modal shown by hashchange event -->
+              <span class="badge badge_get">get <span class="glyphicon glyphicon-lock" title="Authentication required"></span></span>
+            </a>
+          
+        </span>
+      </h4>
+    </div>
+
+    <div id="panel_robot_info" class="panel-collapse collapse">
+      <div class="panel-body">
+        
+          
+        
+
+        <div class="list-group">
+          
+            <div onclick="window.location.href = '#robot_info_get'" class="list-group-item">
+              <span class="badge badge_get">get <span class="glyphicon glyphicon-lock" title="Authentication required"></span></span>
+              <div class="method_description">
+
+              </div>
+              <div class="clearfix"></div>
+            </div>
+          
+        </div>
+      </div>
+    </div>
+
+    
+      <div class="modal fade" tabindex="0" id="robot_info_get">
+        <div class="modal-dialog modal-lg">
+          <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+              <h4 class="modal-title" id="myModalLabel">
+                <span class="badge badge_get">get <span class="glyphicon glyphicon-lock" title="Authentication required"></span></span>
+                <span class="parent">/robot</span>/info
+              </h4>
+            </div>
+
+            <div class="modal-body">
+              
+
+              
+                
+                  
+                    <div class="alert alert-warning">
+                      
+                      <span class="glyphicon glyphicon-lock" title="Authentication required"></span>
+                      Secured by <b></b>
+                      
+                      
+                    </div>
+                  
+                
+              
+
+              <!-- Nav tabs -->
+              <ul class="nav nav-tabs">
+                
+
+                
+                  <li class="active">
+                    <a href="#robot_info_get_response" data-toggle="tab">Response</a>
+                  </li>
+                
+
+                
+                  <li>
+                    <a href="#robot_info_get_securedby" data-toggle="tab">Security</a>
+                  </li>
+                
+              </ul>
+
+              <!-- Tab panes -->
+              <div class="tab-content">
+                
+
+                
+                  <div class="tab-pane active" id="robot_info_get_response">
+                    
+                      <h2>HTTP status code <a href="http://httpstatus.es/200" target="_blank">200</a></h2>
+
+
+                      
+
+                      
+                        <h3>Body</h3>
+                        
+                          <p><strong>Media type</strong>: application/json</p>
+
+                          
+                            
+                              
+                                <p><strong>Type</strong>: object</p>
+                              
+                            
+                          
+
+                          
+
+                          
+
+                          
+                            <strong>Properties</strong>
+                            <ul>
+                              
+                                <li>
+  <strong>repositories</strong>:
+
+    
+      <em>required (object)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+    <ul>
+      
+        <li>
+  <strong>config</strong>:
+
+    
+      <em>required (object)
+      </em>
+    
+  
+
+<p>description of a configuration repository. Can be for 0-robot data repository or jumpscale configuration repository</p>
+
+
+  
+
+  
+
+  
+    <ul>
+      
+        <li>
+  <strong>url</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>last_pushed</strong>:
+
+    
+      <em>required (datetime)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+    </ul>
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>data</strong>:
+
+    
+      <em>required (object)
+      </em>
+    
+  
+
+<p>description of a configuration repository. Can be for 0-robot data repository or jumpscale configuration repository</p>
+
+
+  
+
+  
+
+  
+    <ul>
+      
+        <li>
+  <strong>url</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+        <li>
+  <strong>last_pushed</strong>:
+
+    
+      <em>required (datetime)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+    </ul>
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+      
+    </ul>
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                              
+                                <li>
+  <strong>type</strong>:
+
+    
+      <em>required (one of node, digitalme)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                              
+                            </ul>
+                          
+
+                          
+                          
+                          
+                        
+                      
+                    
+                  </div>
+                
+
+                
+                  <div class="tab-pane" id="robot_info_get_securedby">
+                    
+                      
+                      <h1>Secured by </h1>
+
+                      
+
+                      
+
+                      
+
+                    
+                  </div>
+                
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    
+  </div>
+
+
+
+
+
+
+                </div>
+              </div>
+            </div>
+          
+            <div class="panel panel-default">
+              <div class="panel-heading">
                 <h3 id="blueprints" class="panel-title">/blueprints</h3>
               </div>
 
@@ -9303,6 +9703,8 @@ a task that failed to execute and/or is being retried is in state error.</p>
         <div class="col-md-3">
           <div id="sidebar" class="hidden-print affix" role="complementary">
             <ul class="nav nav-pills nav-stacked">
+              
+                <li><a href="#robot">/robot</a></li>
               
                 <li><a href="#blueprints">/blueprints</a></li>
               

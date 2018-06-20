@@ -8,33 +8,32 @@ import unittest
 
 from js9 import j
 
-from zerorobot.robot import Robot
+from zerorobot.robot import Robot, config
 from zerorobot.git import url as giturl
-from zerorobot import config
 
 
 class TestRobot(unittest.TestCase):
 
     def setUp(self):
-        config.DATA_DIR = None
+        config.data_repo = None
 
     def test_add_data_repo(self):
         robot = Robot()
         dir_path = j.sal.fs.getTmpDirPath()
         robot.set_data_repo(dir_path)
-        self.assertEqual(config.DATA_DIR, os.path.join(dir_path, 'zrobot_data'))
+        self.assertEqual(config.data_repo.path, os.path.join(dir_path, 'zrobot_data'))
         self.assertEqual(robot.data_repo_url, dir_path)
 
     def test_data_dir_required(self):
-        robot = Robot()
         with self.assertRaises(RuntimeError, msg="robot should not start if not data dir set"):
-            robot.start()
+            robot = Robot()
+            robot.start(testing=True)
 
     def test_address(self):
         robot = Robot()
         self.assertIsNone(robot.address)
         with tempfile.TemporaryDirectory() as data_dir:
-            config.DATA_DIR = data_dir
+            robot.set_data_repo(data_dir)
             robot.start(listen="localhost:6600", block=False)
             self.assertEqual(robot.address, ('127.0.0.1', 6600))
             robot.stop()
