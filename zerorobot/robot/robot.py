@@ -12,12 +12,13 @@ from gevent.pywsgi import WSGIServer
 from js9 import j
 from zerorobot import service_collection as scol
 from zerorobot import template_collection as tcol
+from zerorobot import config, webhooks
 from zerorobot.git import url as giturl
 from zerorobot.prometheus.flask import monitor
 from zerorobot.server import auth
 from zerorobot.server.app import app
 
-from . import config, loader
+from . import loader
 
 # create logger
 logger = j.logger.get('zerorobot')
@@ -98,6 +99,10 @@ class Robot:
 
         if not j.tools.configmanager.path:
             raise RuntimeError("config manager is not configured, can't continue")
+
+        # instantiate webhooks manager and load the configured webhooks
+        config.webhooks = webhooks.Storage(config.data_repo.path)
+        config.webhooks.load()
 
         logger.info("data directory: %s" % config.data_repo.path)
         logger.info("config directory: %s" % j.tools.configmanager.path)

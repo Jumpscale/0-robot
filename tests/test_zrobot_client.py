@@ -10,7 +10,8 @@ from js9 import j
 from zerorobot import service_collection as scol
 from zerorobot.dsl.ZeroRobotManager import (TemplateNotFoundError,
                                             ZeroRobotManager)
-from zerorobot.robot import Robot, config
+from zerorobot import config
+from zerorobot.robot import Robot
 from zerorobot.service_proxy import ServiceProxy
 
 # need to patch sockets to make requests async

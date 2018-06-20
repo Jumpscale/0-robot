@@ -409,6 +409,19 @@ types:
       nr_services:
         type: integer
 
+  WebHook:
+    description: information about a web hook
+    properties:
+      id:
+        type: string
+        required: false
+      kind:
+        enum: [ eco ]
+        required: true
+      url:
+        type: string
+        required: true
+
 /robot:
   description: This endpoint expose different information about the robot health and status
   /info:
@@ -425,6 +438,33 @@ types:
         200:
           body:
             type: Metrics
+
+  /webhooks:
+    description: Allow to managed web hook where the Error condition happening in the task are pushed
+    get:
+      description: List all configured web hooks
+      displayName: ListWebHooks
+      responses:
+        200:
+          body:
+            type: WebHook[]
+    post:
+      description: Add a new web hook configuration
+      displayName: AddWebHook
+      body:
+        type: WebHook
+      responses:
+        201:
+          description: web hook created
+          body:
+            type: WebHook
+    /{id}:
+      delete:
+        description: delete a web hook configuration
+        displayName: DeleteWebHook
+        responses:
+          204:
+            description: web hook deleted
 
 
 /blueprints:

@@ -8,7 +8,8 @@ import unittest
 
 from js9 import j
 
-from zerorobot.robot import Robot, config
+from zerorobot.robot import Robot
+from zerorobot import config
 from zerorobot.git import url as giturl
 
 

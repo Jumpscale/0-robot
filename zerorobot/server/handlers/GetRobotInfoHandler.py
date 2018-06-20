@@ -1,7 +1,7 @@
 # THIS FILE IS SAFE TO EDIT. It will not be overwritten when rerunning go-raml.
 
 from flask import jsonify
-from zerorobot.robot import config
+from zerorobot import config
 
 
 def GetRobotInfoHandler():

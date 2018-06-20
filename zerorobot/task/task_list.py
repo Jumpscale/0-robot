@@ -3,6 +3,7 @@ import json
 import os
 
 import gevent
+import requests
 from gevent.lock import Semaphore
 from gevent.queue import PriorityQueue
 

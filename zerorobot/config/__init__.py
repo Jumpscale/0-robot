@@ -13,3 +13,5 @@ data_repo = None
 config_repo = None
 
 mode = None
+
+webhooks = None

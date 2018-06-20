@@ -1,6 +1,6 @@
 import unittest
 
-from zerorobot.robot.config import auto_pusher
+from zerorobot.config import auto_pusher
 
 
 class TestAutoPusher(unittest.TestCase):

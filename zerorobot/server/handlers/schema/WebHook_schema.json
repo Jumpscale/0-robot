@@ -8,11 +8,18 @@
 				"null"
 			]
 		},
+		"kind": {
+			"type": "string",
+			"enum": [
+				"eco"
+			]
+		},
 		"url": {
 			"type": "string"
 		}
 	},
 	"required": [
+		"kind",
 		"url"
 	]
 }
