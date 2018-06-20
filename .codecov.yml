@@ -4,9 +4,10 @@ coverage:
   precision: 0
   ignore:
     # ignore all generated files, as we do not control those
-    - zerorobot/server/types/**
+    - zerorobot/server/types/.*
     - zerorobot/server/app.py
     - zerorobot/server/blueprints_api.py
     - zerorobot/server/templates_api.py
     - zerorobot/server/services_api.py
-    - JumpScale9Zrobot/clients/zerorobot/client
+    - zerorobot/server/robot_api.py
+    - JumpScale9Zrobot/clients/zerorobot/client/.*

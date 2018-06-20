@@ -5,6 +5,7 @@ dist: trusty
 python:
   - "3.5.2"
   - "3.5"
+  - "3.6"
 
 install:
   - pip3 install codecov pytest pytest-cov
@@ -16,4 +17,4 @@ script:
   - make test
 
 after_success:
-- codecov
+  - codecov
