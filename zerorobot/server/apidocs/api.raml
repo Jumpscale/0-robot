@@ -364,16 +364,6 @@ types:
     description: type used in the query parameters of the ListService method
     properties:
 
-  Metrics:
-    description: simple metrics of the robot
-    properties:
-      cpu:
-        type: number
-      memory:
-        type: number
-      nr_services:
-        type: integer
-
   Repository:
     description: description of a configuration repository. Can be for 0-robot data repository or jumpscale configuration repository
     properties:
@@ -392,25 +382,33 @@ types:
       type:
         enum: [ node, digitalme ]
 
-  WebHook:
-    description: information about a web hook
+  Metrics:
+    description: simple metrics of the robot
     properties:
-      id:
-        type: string
-        required: false
-      url:
-        type: string
-        required: true
+      cpu:
+        type: object
+        properties:
+          user: number
+          nice: number
+          system: number
+          idle: number
+          iowait: number
+          irq: number
+          softirq: number
+      memory:
+        type: object
+        properties:
+          total: number
+          active: number
+          free: number
+          cached: number
+          swap_total: number
+          swap_free: number
+      nr_services:
+        type: integer
 
 /robot:
   description: This endpoint expose different information about the robot health and status
-  /metrics:
-    get:
-      displayName: GetMetrics
-      responses:
-        200:
-          body:
-            type: Metrics
   /info:
     get:
       displayName: GetRobotInfo
@@ -418,30 +416,14 @@ types:
         200:
           body:
             type: RobotInfo
-
-  /webhooks:
-    description: Allow to managed web hook where the Error condition happening in the task are pushed
+  /metrics:
     get:
-      description: List all configured web hooks
+      displayName: GetMetrics
       responses:
         200:
           body:
-            type: WebHook[]
-    post:
-      description: Add a new web hook configuration
-      body:
-        type: WebHook
-        responses:
-          201:
-            description: web hook created
-            body:
-              type: WebHook
-    /{id}:
-      delete:
-        description: delete a web hook configuration
-        responses:
-          204:
-            description: web hook deleted
+            type: Metrics
+
 
 /blueprints:
   description: |

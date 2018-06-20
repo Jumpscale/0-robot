@@ -1,0 +1,20 @@
+{
+	"$schema": "http://json-schema.org/schema#",
+	"type": "object",
+	"properties": {
+		"cpu": {
+			"$ref": "Metricscpu_schema.json"
+		},
+		"memory": {
+			"$ref": "Metricsmemory_schema.json"
+		},
+		"nr_services": {
+			"type": "integer"
+		}
+	},
+	"required": [
+		"cpu",
+		"memory",
+		"nr_services"
+	]
+}
