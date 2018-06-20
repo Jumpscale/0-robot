@@ -36,7 +36,7 @@ class RobotInfo(object):
         self.repositories = client_support.set_property(
             'repositories', data, data_types, False, [], False, True, class_name)
         data_types = [EnumRobotInfoType]
-        self.type = client_support.set_property('type', data, data_types, False, [], False, True, class_name)
+        self.type = client_support.set_property('type', data, data_types, False, [], False, False, class_name)
 
     def __str__(self):
         return self.as_json(indent=4)

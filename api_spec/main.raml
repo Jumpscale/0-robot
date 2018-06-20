@@ -371,6 +371,7 @@ types:
         type: string
       last_pushed:
         type: datetime
+        required: false
 
   RobotInfo:
     properties:
@@ -381,6 +382,7 @@ types:
           data: Repository
       type:
         enum: [ node, digitalme ]
+        required: false
 
   Metrics:
     description: simple metrics of the robot

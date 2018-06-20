@@ -6,7 +6,10 @@
 			"$ref": "RobotInforepositories_schema.json"
 		},
 		"type": {
-			"type": "string",
+			"type": [
+				"string",
+				"null"
+			],
 			"enum": [
 				"node",
 				"digitalme"
@@ -14,7 +17,6 @@
 		}
 	},
 	"required": [
-		"repositories",
-		"type"
+		"repositories"
 	]
 }

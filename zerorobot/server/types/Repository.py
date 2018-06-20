@@ -34,7 +34,7 @@ class Repository(object):
         # set attributes
         data_types = [datetime]
         self.last_pushed = client_support.set_property(
-            'last_pushed', data, data_types, False, [], False, True, class_name)
+            'last_pushed', data, data_types, False, [], False, False, class_name)
         data_types = [string_types]
         self.url = client_support.set_property('url', data, data_types, False, [], False, True, class_name)
 
