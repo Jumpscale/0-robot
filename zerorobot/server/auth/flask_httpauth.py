@@ -1,5 +1,5 @@
 from functools import wraps
-from flask import request, make_response, jsonify
+from flask import request, make_response, jsonify, Response
 from werkzeug.datastructures import Authorization
 
 
@@ -116,20 +116,25 @@ class MultiAuth(object):
     def login_required(self, f):
         @wraps(f)
         def decorated(*args, **kwargs):
-            selected_auth = None
-            if 'Authorization' in request.headers:
-                try:
-                    scheme, creds = request.headers['Authorization'].split(
-                        None, 1)
-                except ValueError:
-                    # malformed Authorization header
-                    pass
-                else:
-                    for auth in self.additional_auth:
-                        if auth.scheme == scheme:
-                            selected_auth = auth
-                            break
-            if selected_auth is None:
-                selected_auth = self.main_auth
-            return selected_auth.login_required(f)(*args, **kwargs)
+            # try if one of the authentication scheme works
+            for auth in [self.main_auth, *self.additional_auth]:
+                resp = auth.login_required(f)(*args, **kwargs)
+                status_code = _extract_status_code(resp)
+                if status_code < 400:
+                    return resp
+            return self.main_auth.auth_error_callback()
+
         return decorated
+
+
+def _extract_status_code(resp):
+    if isinstance(resp, tuple):
+        size = len(resp)
+        if size == 3:  # tuple is (body, status_code, headers)
+            return resp[1]
+        if size == 2:  # tuple is (response, status_code)
+            return resp[0].status_code
+    if isinstance(resp, Response):
+        return resp.status_code
+
+    raise TypeError('response has an unexpected type: %s' % type(resp))

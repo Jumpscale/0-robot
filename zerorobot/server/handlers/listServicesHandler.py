@@ -9,7 +9,6 @@ from zerorobot.server.handlers.views import service_view
 from zerorobot.server import auth
 
 
-@auth.all.login_required
 def listServicesHandler():
     '''
     List all the services known by the ZeroRobot.
