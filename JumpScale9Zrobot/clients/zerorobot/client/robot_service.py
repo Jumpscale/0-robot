@@ -104,7 +104,6 @@ class RobotService:
 
         uri = self.client.base_url + "/robot/webhooks"
         resp = self.client.post(uri, data, headers, query_params, content_type)
-
         try:
             if resp.status_code == 201:
                 return WebHook(resp.json()), resp

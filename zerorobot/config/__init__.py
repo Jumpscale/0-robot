@@ -13,5 +13,6 @@ data_repo = None
 config_repo = None
 
 mode = None
+god = False
 
 webhooks = None

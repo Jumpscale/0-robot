@@ -3511,6 +3511,37 @@ a task that failed to execute and/or is being retried is in state error.</p>
 
               
                 <li>
+  <strong>data</strong>:
+
+    
+      <em>(object)
+      </em>
+    
+  
+
+<p>When 0-robot is started in god mode, you can retrieve the data of a service. This is only used to ease development of the templates</p>
+
+
+  
+
+  
+
+  
+    <ul>
+      
+    </ul>
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+              
+                <li>
   <strong>secret</strong>:
 
     
@@ -5443,6 +5474,37 @@ Need to be under one of these format</p>
 </li>
 
                                       
+                                        <li>
+  <strong>data</strong>:
+
+    
+      <em>(object)
+      </em>
+    
+  
+
+<p>When 0-robot is started in god mode, you can retrieve the data of a service. This is only used to ease development of the templates</p>
+
+
+  
+
+  
+
+  
+    <ul>
+      
+    </ul>
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                                      
                                     </ul>
                                   
 
@@ -6042,6 +6104,37 @@ Need to be under one of these format</p>
 
                               
                                 <li>
+  <strong>data</strong>:
+
+    
+      <em>(object)
+      </em>
+    
+  
+
+<p>When 0-robot is started in god mode, you can retrieve the data of a service. This is only used to ease development of the templates</p>
+
+
+  
+
+  
+
+  
+    <ul>
+      
+    </ul>
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                              
+                                <li>
   <strong>secret</strong>:
 
     
@@ -6597,6 +6690,37 @@ body:
 
   
 
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                              
+                                <li>
+  <strong>data</strong>:
+
+    
+      <em>(object)
+      </em>
+    
+  
+
+<p>When 0-robot is started in god mode, you can retrieve the data of a service. This is only used to ease development of the templates</p>
+
+
+  
+
+  
+
+  
+    <ul>
+      
+    </ul>
   
 
   
@@ -11042,6 +11166,212 @@ a task that failed to execute and/or is being retried is in state error.</p>
   </div>
 
 
+
+
+
+
+
+  
+  <div class="panel panel-white resource-modal">
+    <div class="panel-heading">
+      <h4 class="panel-title">
+        <a class="collapsed" data-toggle="collapse" href="#panel_services__service_guid__logs">
+          <span class="parent">/services/{service_guid}</span>/logs
+        </a>
+
+        <span class="methods">
+          
+            <a href="#services__service_guid__logs_get"><!-- modal shown by hashchange event -->
+              <span class="badge badge_get">get <span class="glyphicon glyphicon-lock" title="Authentication required"></span></span>
+            </a>
+          
+        </span>
+      </h4>
+    </div>
+
+    <div id="panel_services__service_guid__logs" class="panel-collapse collapse">
+      <div class="panel-body">
+        
+          
+        
+
+        <div class="list-group">
+          
+            <div onclick="window.location.href = '#services__service_guid__logs_get'" class="list-group-item">
+              <span class="badge badge_get">get <span class="glyphicon glyphicon-lock" title="Authentication required"></span></span>
+              <div class="method_description">
+<p>returns the logs of the services tasks</p>
+
+              </div>
+              <div class="clearfix"></div>
+            </div>
+          
+        </div>
+      </div>
+    </div>
+
+    
+      <div class="modal fade" tabindex="0" id="services__service_guid__logs_get">
+        <div class="modal-dialog modal-lg">
+          <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+              <h4 class="modal-title" id="myModalLabel">
+                <span class="badge badge_get">get <span class="glyphicon glyphicon-lock" title="Authentication required"></span></span>
+                <span class="parent">/services/{service_guid}</span>/logs
+              </h4>
+            </div>
+
+            <div class="modal-body">
+              
+                <div class="alert alert-info">
+<p>returns the logs of the services tasks</p>
+
+                </div>
+              
+
+              
+                
+                  
+                    <div class="alert alert-warning">
+                      
+                      <span class="glyphicon glyphicon-lock" title="Authentication required"></span>
+                      Secured by <b></b>
+                      
+                      
+                    </div>
+                  
+                
+              
+
+              <!-- Nav tabs -->
+              <ul class="nav nav-tabs">
+                
+                  <li class="active">
+                    <a href="#services__service_guid__logs_get_request" data-toggle="tab">Request</a>
+                  </li>
+                
+
+                
+                  <li>
+                    <a href="#services__service_guid__logs_get_response" data-toggle="tab">Response</a>
+                  </li>
+                
+
+                
+                  <li>
+                    <a href="#services__service_guid__logs_get_securedby" data-toggle="tab">Security</a>
+                  </li>
+                
+              </ul>
+
+              <!-- Tab panes -->
+              <div class="tab-content">
+                
+                  <div class="tab-pane active" id="services__service_guid__logs_get_request">
+                    
+                      <h3>URI Parameters</h3>
+                      <ul>
+                        
+                          <li>
+  <strong>service_guid</strong>:
+
+    
+      <em>required (string)
+      </em>
+    
+  
+
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+
+</li>
+
+                        
+                      </ul>
+                    
+
+                    
+
+                    
+
+                    
+
+                    
+
+                    
+                  </div>
+                
+
+                
+                  <div class="tab-pane" id="services__service_guid__logs_get_response">
+                    
+                      <h2>HTTP status code <a href="http://httpstatus.es/200" target="_blank">200</a></h2>
+
+
+                      
+
+                      
+                        <h3>Body</h3>
+                        
+                          <p><strong>Media type</strong>: application/json</p>
+
+                          
+                            
+                              
+                                <p><strong>Type</strong>: string</p>
+                              
+                            
+                          
+
+                          
+
+                          
+
+                          
+
+                          
+                          
+                          
+                        
+                      
+                    
+                  </div>
+                
+
+                
+                  <div class="tab-pane" id="services__service_guid__logs_get_securedby">
+                    
+                      
+                      <h1>Secured by </h1>
+
+                      
+
+                      
+
+                      
+
+                    
+                  </div>
+                
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    
+  </div>
 
 
 

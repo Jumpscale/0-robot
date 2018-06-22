@@ -17,6 +17,7 @@ class Service(object):
     @staticmethod
     def create(**kwargs):
         """
+        :type data: dict
         :type guid: string_types
         :type name: string_types
         :type public: bool
@@ -36,6 +37,8 @@ class Service(object):
         data = json or kwargs
 
         # set attributes
+        data_types = [dict]
+        self.data = client_support.set_property('data', data, data_types, False, [], False, False, class_name)
         data_types = [string_types]
         self.guid = client_support.set_property('guid', data, data_types, False, [], False, True, class_name)
         data_types = [string_types]

@@ -13,6 +13,7 @@ class Node(TemplateBase):
     @profile()
     def start(self):
         print('started')
+        self.logger.info("started")
         return 'result'
 
     def stop(self):

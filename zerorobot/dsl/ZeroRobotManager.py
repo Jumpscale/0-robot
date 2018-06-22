@@ -54,6 +54,8 @@ class ServicesMgr:
 
         srv = ServiceProxy(data.name, data.guid, self._client)
         srv.template_uid = TemplateUID.parse(data.template)
+        if data.data:
+            srv._data = data.as_dict()
         return srv
 
     def _get(self, guid=None):

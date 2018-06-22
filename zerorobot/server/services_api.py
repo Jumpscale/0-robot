@@ -77,3 +77,12 @@ def GetTask(task_guid, service_guid):
     It is handler for GET /services/<service_guid>/task_list/<task_guid>
     """
     return handlers.GetTaskHandler(task_guid, service_guid)
+
+
+@services_api.route('/services/<service_guid>/logs', methods=['GET'])
+def GetLogs(service_guid):
+    """
+    returns the logs of the services tasks
+    It is handler for GET /services/<service_guid>/logs
+    """
+    return handlers.GetLogsHandler(service_guid)

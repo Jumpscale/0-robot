@@ -9,6 +9,7 @@ from .EnumServiceStateState import EnumServiceStateState
 from .EnumTaskState import EnumTaskState
 from .EnumWebHookKind import EnumWebHookKind
 from .Error import Error
+from .Logs import Logs
 from .Metrics import Metrics
 from .Metricscpu import Metricscpu
 from .Metricsmemory import Metricsmemory

@@ -87,12 +87,14 @@ class Robot:
               admin_organization=None,
               user_organization=None,
               mode=None,
+              god=False,
               **kwargs):
         """
         start the rest web server
         load the services from the local git repository
         """
         config.mode = mode
+        config.god = god  # when true, this allow to get data and logs from services using the REST API
 
         if config.data_repo is None or config.data_repo.path is None:
             raise RuntimeError("Not data repository set. Robot doesn't know where to save data.")

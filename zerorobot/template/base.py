@@ -393,26 +393,6 @@ def _recurring_action(service, action, period):
             break
 
 
-def _send_eco_webhooks(service, task):
-    if task.eco is None:
-        return
-
-    wh_mgr = webhooks.get()
-
-    # TODO: send concurrently from a pool of greenlet
-    data = {
-        'service': service.guid,
-        'action_name': task.action_name,
-        'args': task.args,
-    }
-    for url in wh_mgr.list():
-        try:
-            requests.post(url, json=data)
-            logger.debug("eco web hook sent to %s" % url)
-        except Exception as err:
-            logger.warning('fail to send web hook to %s' % url)
-
-
 _LOGGER_FORMAT = '%(asctime)s - %(pathname)s:%(lineno)d - %(levelname)s - %(message)s'
 
 

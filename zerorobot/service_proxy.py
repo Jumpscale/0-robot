@@ -37,12 +37,16 @@ class ServiceProxy():
         self.template_uid = None
         # a proxy service doesn't have direct access to the data of it's remote homologue
         # cause data are always only accessible  by the service itself and locally
-        self.data = None
+        self._data = None
         self.task_list = TaskListProxy(self)
 
     def __repr__(self):
         # Provide a nice representation in tools like IPython / js9
         return "robot://%s/%s?%s" % (self._zrobot_client.instance, self.template_uid, urllib.parse.urlencode(dict(name=self.name, guid=self.guid)))
+
+    @property
+    def data(self):
+        return self._data
 
     @property
     def state(self):
@@ -60,6 +64,17 @@ class ServiceProxy():
         """
         actions, _ = self._zrobot_client.api.services.ListActions(self.guid)
         return sorted([a.name for a in actions])
+
+    @property
+    def logs(self):
+        try:
+            logs, resp = self._zrobot_client.api.services.GetLogs(self.guid)
+        except HTTPError as err:
+            if err.response.status_code == 400:
+                raise RuntimeError(err.response.json()['message'])
+            raise err
+
+        return logs.logs
 
     def schedule_action(self, action, args=None):
         """

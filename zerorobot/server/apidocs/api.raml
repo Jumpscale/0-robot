@@ -197,6 +197,11 @@ types:
       public:
         type: boolean
         required: false
+      data:
+        type: object
+        required: false
+        description:
+          When 0-robot is started in god mode, you can retrieve the data of a service. This is only used to ease development of the templates
     example:
       guid: 7040fda3-08e1-4109-829c-925a907809f9
       template: github.com/jumpscale/0-robot/node/0.0.1
@@ -662,3 +667,12 @@ types:
               description: Not task found in the task list with this guid
               body:
                 type: Error
+    /logs:
+      get:
+        securedBy: [zrobot]
+        description: returns the logs of the services tasks
+        displayName: GetLogs
+        responses:
+          200:
+            body:
+              type: string
