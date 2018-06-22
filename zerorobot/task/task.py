@@ -83,9 +83,9 @@ class Task:
             # capture stacktrace and exception
             exc_type, exc, exc_traceback = sys.exc_info()
             self._eco = j.core.errorhandler.parsePythonExceptionObject(exc, tb=exc_traceback)
-            # if not isinstance(exc, ExpectedError):
-            gevent.spawn(self._report_telegram, exc_type, exc, exc_traceback)
-            gevent.spawn(_send_eco_webhooks, self.service, self)
+            if not isinstance(exc, ExpectedError):
+                gevent.spawn(self._report_telegram, exc_type, exc, exc_traceback)
+                gevent.spawn(_send_eco_webhooks, self.service, self)
         finally:
             self._duration = time.time() - started
         return self._result
