@@ -12,15 +12,15 @@ class ZrobotBaseTest(TestCase):
 
     @classmethod
     def preTest(cls, path, template):
-        config.DATA_DIR = tempfile.mkdtemp(prefix='0-templates_')
+        config.data_repo = config.DataRepo(tempfile.mkdtemp(prefix='0-templates_'))
         template_collection._load_template('https://github.com/zero-os/0-templates', path)
         template.template_uid = TemplateUID.parse(
             'github.com/zero-os/0-templates/%s/%s' % (template.template_name, template.version))
 
     @classmethod
     def tearDownClass(cls):
-        if os.path.exists(config.DATA_DIR):
-            shutil.rmtree(config.DATA_DIR)
+        if os.path.exists(config.data_repo.path):
+            shutil.rmtree(config.data_repo.path)
 
 
 def task_mock(result):
