@@ -1,7 +1,8 @@
-from setuptools import setup, find_packages
-from setuptools.command.install import install as _install
-from setuptools.command.develop import develop as _develop
 import os
+
+from setuptools import find_packages, setup
+from setuptools.command.develop import develop as _develop
+from setuptools.command.install import install as _install
 
 
 def _post_install(libname, libpath):
@@ -37,7 +38,7 @@ class develop(_develop):
 
 setup(
     name='ZeroRobot',
-    version='0.8.0',
+    version='0.8.1',
     description='Automation framework for cloud workloads',
     url='https://github.com/zero-os/0-robot',
     author='Christophe de Carvalho',

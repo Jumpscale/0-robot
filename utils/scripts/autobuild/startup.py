@@ -24,7 +24,7 @@ def configure_local_client():
     """)
 
 
-def get_organization():
+def get_admin_organization():
     """
     decide which organization to use to protect admin endpoint of the 0-robot API
 
@@ -48,8 +48,16 @@ def get_organization():
                 org = scope[len('user:memberof:'):]
                 break
     else:
-        org = kernel_args.get('organization')
+        org = kernel_args.get('admin_organization')
+        if not org:
+            org = kernel_args.get('organization')
+
     return org
+
+
+def get_user_organization():
+    kernel_args = read_kernel()
+    return kernel_args.get('user_organization')
 
 
 def read_kernel():
@@ -72,9 +80,13 @@ def read_kernel():
 def start_robot():
     args = ['zrobot', 'server', 'start', '--mode', 'node']
 
-    org = get_organization()
-    if org:
-        args.extend(['--admin-organization', org])
+    admin_org = get_admin_organization()
+    if admin_org:
+        args.extend(['--admin-organization', admin_org])
+
+    user_org = get_user_organization()
+    if user_org:
+        args.extend(['--user-organization', user_org])
 
     print('starting node robot: %s' ' '.join(args))
 

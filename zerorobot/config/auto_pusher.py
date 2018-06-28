@@ -51,6 +51,7 @@ class AutoPusher:
 
             git = j.clients.git.get(basedir=self.repo_dir)
             git.commit(message='zrobot sync', addremove=True)
+            git.pull()
             git.push()
 
             self.last_pushed = datetime.datetime.now()
