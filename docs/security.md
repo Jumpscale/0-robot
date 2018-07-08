@@ -52,8 +52,10 @@ ZrobotSecret: Bearer <token> <token> <token> ...
 
 
 ## God mode:
-god mode allows you to access functionalities with no need to go through the security schema.
-First:
+god mode allows you to access functionalities overriding the security schema.
+
+To activate god mode:
+
 Start the robot with god mode flag 
 ### example:
 ```bash
@@ -70,4 +72,4 @@ set god token in client configurations
 cl = j.clients.zrobot.get('instance_name')
 cl.god_token_set('god_token")
 ```
-Note: to access functionalities of the robot .. must god mode flag is true and you must provide the correct god token
+Note: to access the robot in god mode, god mode flag must be set to `true` and you must provide the generated god token
