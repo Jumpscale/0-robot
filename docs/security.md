@@ -68,6 +68,6 @@ To activate god mode:
  - then using Jumpscale, set god token in client configurations 
    ```bash
    cl = j.clients.zrobot.get('instance_name')
-   cl.god_token_set('god_token")
+   cl.god_token_set('god_token')
    ```
 Note: to access the robot in god mode, god mode flag must be set to `true` and you must provide the generated god token
