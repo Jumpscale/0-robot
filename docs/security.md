@@ -49,3 +49,25 @@ ZrobotSecret: Bearer <token> <token> <token> ...
 |get task               |service|
 |list tasks             |service|
 |list actions           |service|
+
+
+## God mode:
+god mode allows you to access functionalities with no need to go through the security schema.
+First:
+Start the robot with god mode flag 
+### example:
+```bash
+zrobot server start -T http://github.com/zero-os/0-templates --god
+```
+Then get god token from robot to be able to access functionalities
+
+```bash
+zrobot godtoken get
+```
+then using Jumpscale
+set god token in client configurations 
+```bash
+cl = j.clients.zrobot.get('instance_name')
+cl.god_token_set('god_token")
+```
+Note: to access functionalities of the robot .. must god mode flag is true and you must provide the correct god token
