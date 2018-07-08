@@ -4,8 +4,8 @@ from flask import jsonify, request
 from jose import jwt
 from js9 import j
 from zerorobot import service_collection as scol
-
-from . import user_jwt
+from zerorobot import config
+from . import user_jwt, god_jwt
 from .flask_httpauth import HTTPTokenAuth, MultiAuth
 
 logger = j.logger.get('zrobot')
@@ -19,9 +19,10 @@ MHYwEAYHKoZIzj0CAQYFK4EEACIDYgAES5X8XrfKdx9gYayFITc89wad4usrk0n2
 admin_organization = None  # to be set at startup by robot class
 user_organization = None  # to be set at startup by robot class
 
-admin = HTTPTokenAuth('Bearer', header='ZrobotAdmin')
-user = HTTPTokenAuth('Bearer',  header='ZrobotUser')
-service = HTTPTokenAuth('Bearer',  header='ZrobotSecret')
+god = HTTPTokenAuth('Bearer',  header = 'ZrobotGod')
+admin = HTTPTokenAuth('Bearer', header = 'ZrobotAdmin')
+user = HTTPTokenAuth('Bearer',  header = 'ZrobotUser')
+service = HTTPTokenAuth('Bearer',  header = 'ZrobotSecret')
 
 user_service = MultiAuth(user, service)
 admin_user = MultiAuth(admin, user)
@@ -59,9 +60,11 @@ def _verify_admin_token(token):
 def _verify_user_token(token):
     return _verify_token(token, user_organization)
 
-
 @service.verify_token
 def _verify_secret_token(tokens):
+    #check if god mode is enable and verify god token
+    if config.god is True and god_jwt.verify(request.headers[god.header].split(' ')[1]):
+        return True
     service_guid = request.view_args.get('service_guid')
     if not service_guid:
         return False
