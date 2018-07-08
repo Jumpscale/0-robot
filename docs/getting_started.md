@@ -53,6 +53,7 @@ Options:
                                 the user API endpoint.
   --mode [node]                 mode of 0-robot
   --help                        Show this message and exit.
+  --god                         enable god mode (use ONLY for development !!)
 ```
 Options details:
 
