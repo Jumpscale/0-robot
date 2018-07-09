@@ -63,8 +63,11 @@ def _verify_user_token(token):
 @service.verify_token
 def _verify_secret_token(tokens):
     #check if god mode is enable and verify god token
-    if config.god is True and god_jwt.verify(request.headers[god.header].split(' ')[1]):
-        return True
+    god_header = request.headers.get(god.header)
+    if config.god is True and god_header:
+        if god_jwt.verify(god_header.split(' ')[1]):
+            request.headers.get(god.header)
+            return True
     service_guid = request.view_args.get('service_guid')
     if not service_guid:
         return False
