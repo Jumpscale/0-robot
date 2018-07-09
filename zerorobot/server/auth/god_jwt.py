@@ -15,12 +15,12 @@ def create(claims):
         claims {dict} -- dict of claims to include in the JWT
     """
     key = _get_key()
-    return jwt.encode(claims, key, algorithm='HS512') #using HS512 algorithm 
+    return jwt.encode(claims, key, algorithm='HS256') #using HS256 algorithm 
 
 
 def decode(token):
     key = _get_key()
-    return jwt.decode(token, key, algorithms='HS512')
+    return jwt.decode(token, key, algorithms='HS256')
 
 
 def verify(token):
