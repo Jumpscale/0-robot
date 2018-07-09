@@ -66,7 +66,6 @@ def _verify_secret_token(tokens):
     god_header = request.headers.get(god.header)
     if config.god is True and god_header:
         if god_jwt.verify(god_header.split(' ')[1]):
-            request.headers.get(god.header)
             return True
     service_guid = request.view_args.get('service_guid')
     if not service_guid:
