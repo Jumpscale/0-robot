@@ -70,12 +70,13 @@ def is_god_token_valid():
     if 'ZrobotSecret' not in request.headers:
         return False
     ss = request.headers['ZrobotSecret'].split(' ')
+    god_token=''
     #check if i have god token in header or not structrue ('Bearer', 'secret','Bearer','god_token')
     if len(ss) < 2:
         return False
     elif len(ss) == 2:
         god_token = ss[1]
-    else:
+    elif len(ss) == 4 :
         god_token = ss[3]
     if config.god is True and auth.god_jwt.verify(god_token):
         return True
