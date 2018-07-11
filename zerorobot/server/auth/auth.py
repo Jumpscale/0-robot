@@ -19,7 +19,6 @@ MHYwEAYHKoZIzj0CAQYFK4EEACIDYgAES5X8XrfKdx9gYayFITc89wad4usrk0n2
 admin_organization = None  # to be set at startup by robot class
 user_organization = None  # to be set at startup by robot class
 
-god = HTTPTokenAuth('Bearer',  header = 'ZrobotGod')
 admin = HTTPTokenAuth('Bearer', header = 'ZrobotAdmin')
 user = HTTPTokenAuth('Bearer',  header = 'ZrobotUser')
 service = HTTPTokenAuth('Bearer',  header = 'ZrobotSecret')
@@ -62,16 +61,17 @@ def _verify_user_token(token):
 
 @service.verify_token
 def _verify_secret_token(tokens):
-    #check if god mode is enable and verify god token
-    god_header = request.headers.get(god.header)
-    if config.god is True and god_header:
-        if god_jwt.verify(god_header.split(' ')[1]):
-            return True
+    
     service_guid = request.view_args.get('service_guid')
     if not service_guid:
         return False
-
-    for token in tokens.split(' '):
+    all_token = tokens.split(' ')
+    if len(all_token) > 2 :
+        god_token = all_token[2]
+        if config.god is True and  god_jwt.verify(god_token):
+            return True
+    for token in all_token[0].split(' '):
+        #check if god mode is enable and verify god token
         if user_jwt.verify(service_guid, token):
             return True
 
