@@ -70,8 +70,8 @@ class TestGodMode(unittest.TestCase):
         with RobotContext(god=True) as cl:
             cl._client.god_token_set(god_token)
             proxy, service = self.create_proxy(cl)
-
-            assert proxy.data is None
+            # cause data are always only accessible  by the service itself and locally
+            assert proxy.data is not None
 
     def test_read_data_god_disabled_token_invalid(self):
         god_token = god_jwt.create()
@@ -80,7 +80,7 @@ class TestGodMode(unittest.TestCase):
             cl._client.god_token_set(god_token)
             proxy, service = self.create_proxy(cl)
             assert proxy.data is None
-
+            
     def test_read_data_god_disabled_token_valid(self):
         god_token = god_jwt.create()
         with RobotContext(god=False) as cl:
