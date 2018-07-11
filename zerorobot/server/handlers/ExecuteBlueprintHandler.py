@@ -205,7 +205,7 @@ def _extract_user_secrets(request):
         return []
 
     ss = request.headers['ZrobotSecret'].split(None, 1)
-    if len(ss) != 2:
+    if len(ss) < 2:
         return []
 
     auth_type = ss[0]
