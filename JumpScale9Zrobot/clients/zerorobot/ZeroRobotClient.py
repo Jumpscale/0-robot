@@ -50,17 +50,22 @@ class ZeroRobotClient(JSConfigClientBase):
 
         if self._api is None:
             self._api = Client(base_uri=self.config.data["url"])
-            #get god_token_jwt from config of client
-            if self.config.data.get('god_token_'):
-                header='Bearer %s' %self.config.data.get('god_token_')
-                self._api.security_schemes.passthrough_client_god.set_zrobotgod_header(header)
             if self.config.data.get('jwt_'):
                 header = 'Bearer %s' % self.config.data['jwt_']
                 self._api.security_schemes.passthrough_client_user.set_zrobotuser_header(header)
                 self._api.security_schemes.passthrough_client_admin.set_zrobotadmin_header(header)
-            if self.config.data.get('secrets_'):
+            if self.config.data.get('secrets_') and self.config.data.get('god_token_'):
                 header = 'Bearer %s' % ' '.join(self.config.data['secrets_'])
+                header += ' Bearer %s' %self.config.data.get('god_token_')
                 self._api.security_schemes.passthrough_client_service.set_zrobotsecret_header(header)
+            else:
+                if self.config.data.get('secrets_'):
+                    header = 'Bearer %s' % ' '.join(self.config.data['secrets_'])
+                    self._api.security_schemes.passthrough_client_service.set_zrobotsecret_header(header)
+                if self.config.data.get('god_token_'):
+                    header = 'Bearer %s' %self.config.data.get('god_token_')
+                    self._api.security_schemes.passthrough_client_service.set_zrobotsecret_header(header)               
+            
         return self._api
 
     def god_token_set(self, god_token):
