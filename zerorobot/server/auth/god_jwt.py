@@ -8,12 +8,10 @@ logger = j.logger.get('zrobot')
 _token_prefix = "Bearer "
 
 
-def create(claims):
-    """create a JWT with the claims pass as argument
-
-    Arguments:
-        claims {dict} -- dict of claims to include in the JWT
+def create():
+    """create a JWT with the claims
     """
+    claims = {'authentication': 'god_token'}
     key = _get_key()
     return jwt.encode(claims, key, algorithm='HS256') #using HS256 algorithm 
 
@@ -27,7 +25,7 @@ def verify(token):
     if not token:
         return False
 
-    expected = {'god_token_':'GodToken'}
+    expected = {'authentication': 'god_token'}
     try:
         claims = decode(token)
         if claims == expected:
