@@ -38,7 +38,7 @@ def is_god_token_valid(headers):
         return False
     elif len(ss) == 2:
         god_token = ss[1]
-    else:
+    elif len(ss) == 4:
         god_token = ss[3]
     if config.god is True and auth.god_jwt.verify(god_token):
         return True
