@@ -17,4 +17,4 @@ def godtoken():
 
 @godtoken.command()
 def get():
-    print("god token:%s " % auth.god_jwt.create({'god_token_':'GodToken'}))
+    print("god token:%s " % auth.god_jwt.create())
