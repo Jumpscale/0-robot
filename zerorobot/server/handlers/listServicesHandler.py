@@ -20,7 +20,7 @@ def listServicesHandler():
         val = request.args.get(x)
         if val:
             kwargs[x] = val
-    if(is_god_token_valid(request.headers)):
+    if is_god_token_valid(request.headers):
         services = [service_view(s) for s in scol.find(**kwargs)]
     else:
         allowed_services = extract_guid_from_headers(request.headers)
@@ -33,7 +33,7 @@ def extract_guid_from_headers(headers):
         return []
 
     services_guids = []
-    ss = headers['ZrobotSecret'].split(' ')
+    ss = headers['ZrobotSecret'].split(None,1)
     if len(ss) < 2:
         return []
 
@@ -59,13 +59,14 @@ def is_god_token_valid(headers):
         return False
 
     ss = headers['ZrobotSecret'].split(' ')
-    #check if i have god token in header or not structrue ('Bearer', 'secret','Bearer','god_token')
+    # check if  god token is in header or not
+    # header structure ('Bearer', 'secret','god_token')
     if len(ss) < 2:
         return False
     elif len(ss) == 2:
         god_token = ss[1]
-    elif len(ss) == 4:
-        god_token = ss[3]
+    else:
+        god_token = ss[2]
     if config.god is True and auth.god_jwt.verify(god_token):
         return True
     return False

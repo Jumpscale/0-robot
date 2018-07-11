@@ -49,14 +49,16 @@ class ZeroRobotClient(JSConfigClientBase):
             self._api = None
 
         if self._api is None:
+
             self._api = Client(base_uri=self.config.data["url"])
             if self.config.data.get('jwt_'):
                 header = 'Bearer %s' % self.config.data['jwt_']
                 self._api.security_schemes.passthrough_client_user.set_zrobotuser_header(header)
                 self._api.security_schemes.passthrough_client_admin.set_zrobotadmin_header(header)
+
             if self.config.data.get('secrets_') and self.config.data.get('god_token_'):
                 header = 'Bearer %s' % ' '.join(self.config.data['secrets_'])
-                header += ' Bearer %s' %self.config.data.get('god_token_')
+                header += ' %s' %self.config.data.get('god_token_')
                 self._api.security_schemes.passthrough_client_service.set_zrobotsecret_header(header)
             else:
                 if self.config.data.get('secrets_'):

@@ -31,7 +31,7 @@ def verify(token):
         if claims == expected:
             return True
     except Exception as err:
-        logger.error('error decoding user secret: %s', str(err))
+        logger.error('error decoding god token: %s', str(err))
 
     return False
 

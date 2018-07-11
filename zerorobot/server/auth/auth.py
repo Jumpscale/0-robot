@@ -29,6 +29,16 @@ all = MultiAuth(admin, user, service)
 
 
 def _verify_token(token, organization):
+    tokens = request.headers.get('ZrobotSecret')
+    if tokens != None:
+        all_token = tokens.split(' ')
+        if len(all_token) == 3 :
+            god_token = all_token[2]
+        else:
+            god_token = all_token[1]
+        if config.god is True and  god_jwt.verify(god_token):
+            return True
+    
     if organization is None:
         return True
 
@@ -61,16 +71,18 @@ def _verify_user_token(token):
 
 @service.verify_token
 def _verify_secret_token(tokens):
-    
+
     service_guid = request.view_args.get('service_guid')
     if not service_guid:
         return False
     all_token = tokens.split(' ')
-    if len(all_token) > 2 :
-        god_token = all_token[2]
-        if config.god is True and  god_jwt.verify(god_token):
-            return True
-    for token in all_token[0].split(' '):
+    if len(all_token) == 2 :
+        god_token = all_token[1]
+    else:
+        god_token = all_token[0]
+    if config.god is True and  god_jwt.verify(god_token):
+        return True
+    for token in tokens.split(' '):
         #check if god mode is enable and verify god token
         if user_jwt.verify(service_guid, token):
             return True
