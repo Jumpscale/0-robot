@@ -1,5 +1,7 @@
 from zerorobot import service_collection as scol
+from flask import request
 from zerorobot import config
+from zerorobot.server import auth
 import json
 
 
@@ -13,8 +15,7 @@ def service_view(service):
         "actions": [],
         "public": scol.is_service_public(service.guid)
     }
-
-    if config.god:
+    if is_god_token_valid():
         s['data'] = service.data
     return s
 
@@ -63,3 +64,19 @@ def template_view(template):
         "name": template.template_uid.name,
         "version": template.template_uid.version,
     }
+
+
+def is_god_token_valid():
+    if 'ZrobotSecret' not in request.headers:
+        return False
+    ss = request.headers['ZrobotSecret'].split(' ')
+    #check if i have god token in header or not structrue ('Bearer', 'secret','Bearer','god_token')
+    if len(ss) < 2:
+        return False
+    elif len(ss) == 2:
+        god_token = ss[1]
+    else:
+        god_token = ss[3]
+    if config.god is True and auth.god_jwt.verify(god_token):
+        return True
+    return False
