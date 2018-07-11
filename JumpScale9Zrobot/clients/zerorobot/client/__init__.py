@@ -33,7 +33,6 @@ from .services_service import ServicesService
 from .templates_service import TemplatesService
 
 from .passthrough_client_admin import PassThroughClientAdmin
-from .passthrough_client_god import PassThroughClientGod
 from .passthrough_client_user import PassThroughClientUser
 from .passthrough_client_service import PassThroughClientService
 from .http_client import HTTPClient
@@ -55,4 +54,3 @@ class Security:
         self.passthrough_client_admin = PassThroughClientAdmin(http_client)
         self.passthrough_client_user = PassThroughClientUser(http_client)
         self.passthrough_client_service = PassThroughClientService(http_client)
-        self.passthrough_client_god = PassThroughClientGod(http_client)
