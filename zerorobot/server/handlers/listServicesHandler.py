@@ -7,6 +7,7 @@ from flask import request
 from zerorobot import service_collection as scol
 from zerorobot.server.handlers.views import service_view
 from zerorobot.server import auth
+from zerorobot import config
 
 
 def listServicesHandler():
@@ -19,9 +20,11 @@ def listServicesHandler():
         val = request.args.get(x)
         if val:
             kwargs[x] = val
-
-    allowed_services = extract_guid_from_headers(request.headers)
-    services = [service_view(s) for s in scol.find(**kwargs) if s.guid in allowed_services or scol.is_service_public(s.guid) is True]
+    if(is_god_token_valid(request.headers)):
+        services = [service_view(s) for s in scol.find(**kwargs)]
+    else:
+        allowed_services = extract_guid_from_headers(request.headers)
+        services = [service_view(s) for s in scol.find(**kwargs) if s.guid in allowed_services or scol.is_service_public(s.guid) is True]
     return json.dumps(services), 200, {"Content-type": 'application/json'}
 
 
@@ -30,8 +33,8 @@ def extract_guid_from_headers(headers):
         return []
 
     services_guids = []
-    ss = headers['ZrobotSecret'].split(None, 1)
-    if len(ss) != 2:
+    ss = headers['ZrobotSecret'].split(' ')
+    if len(ss) < 2:
         return []
 
     auth_type = ss[0]
@@ -49,3 +52,20 @@ def extract_guid_from_headers(headers):
             continue
 
     return services_guids
+
+def is_god_token_valid(headers):
+    
+    if 'ZrobotSecret' not in request.headers:
+        return False
+
+    ss = headers['ZrobotSecret'].split(' ')
+    #check if i have god token in header or not structrue ('Bearer', 'secret','Bearer','god_token')
+    if len(ss) < 2:
+        return False
+    elif len(ss) == 2:
+        god_token = ss[1]
+    else:
+        god_token = ss[3]
+    if config.god is True and auth.god_jwt.verify(god_token):
+        return True
+    return False
