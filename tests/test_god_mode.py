@@ -76,11 +76,11 @@ class TestGodMode(unittest.TestCase):
     def test_read_data_god_disabled_token_invalid(self):
         god_token = god_jwt.create()
         god_token += "INVALID"
-        with RobotContext(god=False ) as cl:
+        with RobotContext(god=False) as cl:
             cl._client.god_token_set(god_token)
             proxy, service = self.create_proxy(cl)
             assert proxy.data is None
-            
+
     def test_read_data_god_disabled_token_valid(self):
         god_token = god_jwt.create()
         with RobotContext(god=False) as cl:
@@ -101,7 +101,7 @@ class TestGodMode(unittest.TestCase):
 
             assert proxy.logs, "when the log file exist, logs should not be empty"
 
-    def test_read_data_logs_disabled_token_valid(self):
+    def test_read_data_logs_god_disabled_token_valid(self):
         god_token = god_jwt.create()
         with RobotContext(god=False) as cl:
             cl._client.god_token_set(god_token)
@@ -126,7 +126,7 @@ class TestGodMode(unittest.TestCase):
             with self.assertRaises(RuntimeError):
                 proxy.logs
 
-    def test_read_data_logs_disabled_token_invalid(self):
+    def test_read_data_logs_god_disabled_token_invalid(self):
         god_token = god_jwt.create()
         god_token += "INVALID"
         with RobotContext(god=False) as cl:
@@ -180,7 +180,7 @@ class TestGodMode(unittest.TestCase):
         with RobotContext(god=True) as cl:
             cl._client.god_token_set(god_token)
             proxy, service = self.create_proxy(cl)
-            
+
             # creates a new instance of the client with the god token
             j.clients.zrobot.get('test2', {'url': 'http://localhost:6600'})
             cl2 = ZeroRobotManager('test2')

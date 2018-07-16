@@ -9,11 +9,9 @@ from zerorobot import config
 from zerorobot.server import auth
 
 
-@auth.service.login_required
 def GetLogsHandler(service_guid):
-    
-    if is_god_token_valid(request.headers) is False:
-        return jsonify(code=400, message="god mode is not enable on the 0-robot, logs are not accessible"), 400
+    if not auth.god_jwt.check_god_token(request):
+        return jsonify(code=400, message='god mode is not enabled on the service, you cannot read the logs'), 400
 
     try:
         service = scol.get_by_guid(service_guid)
@@ -26,20 +24,3 @@ def GetLogsHandler(service_guid):
 
     with open(log_file) as f:
         return jsonify(logs=f.read()), 200
-
-def is_god_token_valid(headers):
-    
-    if 'ZrobotSecret' not in request.headers:
-        return False
-
-    ss = headers['ZrobotSecret'].split(' ')
-    #check if i have god token in header or not structrue ('Bearer', 'secret','god_token')
-    if len(ss) < 2:
-        return False
-    elif len(ss) == 2:
-        god_token = ss[1]
-    else:
-        god_token = ss[2]
-    if config.god is True and auth.god_jwt.verify(god_token):
-        return True
-    return False

@@ -1,8 +1,7 @@
-from zerorobot import service_collection as scol
-from flask import request
-from zerorobot import config
-from zerorobot.server import auth
 import json
+
+from zerorobot import service_collection as scol
+from zerorobot import config
 
 
 def service_view(service):

@@ -8,6 +8,7 @@ from zerorobot.cli import utils
 from zerorobot import config
 from zerorobot.server import auth
 
+
 @click.group()
 def godtoken():
     """
@@ -15,6 +16,7 @@ def godtoken():
     """
     pass
 
+
 @godtoken.command()
 def get():
-    print("god token:%s " % auth.god_jwt.create())
+    print("god token: %s " % auth.god_jwt.create())

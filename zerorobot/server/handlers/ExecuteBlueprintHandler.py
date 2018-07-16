@@ -49,7 +49,7 @@ def ExecuteBlueprintHandler():
         return jsonify(code=err_code, message=err_msg), err_code
 
     services_2b_schedules = _find_services_to_be_scheduled(actions)
-    allowed_services = _extract_user_secrets(request) + [s['guid'] for s in services_created]
+    allowed_services = auth.user_jwt.extract_service_guid(request) + [s['guid'] for s in services_created]
     not_allowed = set(services_2b_schedules) - set(allowed_services)
     if not_allowed:
         error_msg = "you are trying to schedule action on some services on which you don't have rights."
@@ -198,29 +198,3 @@ def _schedule_action(action_item):
         t = service.schedule_action(action, args=args)
         tasks.append((t, service))
     return tasks
-
-
-def _extract_user_secrets(request):
-    if 'ZrobotSecret' not in request.headers:
-        return []
-
-    ss = request.headers['ZrobotSecret'].split(None, 1)
-    if len(ss) < 2:
-        return []
-
-    auth_type = ss[0]
-    tokens = ss[1]
-    if auth_type != 'Bearer' or not tokens:
-        return []
-
-    services_guids = []
-    for token in tokens.split(' '):
-        try:
-            claims = auth.user_jwt.decode(token)
-            guid = claims.get('service_guid')
-            if guid:
-                services_guids.append(guid)
-        except:
-            continue
-
-    return services_guids

@@ -1,6 +1,7 @@
 from functools import wraps
 import os
 
+from zerorobot import config
 from jose import jwt
 from js9 import j
 
@@ -13,7 +14,7 @@ def create():
     """
     claims = {'authentication': 'god_token'}
     key = _get_key()
-    return jwt.encode(claims, key, algorithm='HS256') #using HS256 algorithm 
+    return jwt.encode(claims, key, algorithm='HS256')  # using HS256 algorithm
 
 
 def decode(token):
@@ -22,7 +23,7 @@ def decode(token):
 
 
 def verify(token):
-    if not token:
+    if not token or not config.god:
         return False
 
     expected = {'authentication': 'god_token'}
@@ -32,6 +33,30 @@ def verify(token):
             return True
     except Exception as err:
         logger.error('error decoding god token: %s', str(err))
+
+    return False
+
+
+def check_god_token(request):
+    # if god mode is not enabled on the service, no point going further
+    if not config.god:
+        return False
+
+    if 'ZrobotSecret' not in request.headers:
+        return False
+
+    ss = request.headers['ZrobotSecret'].split(' ', 1)
+    if len(ss) != 2:
+        return False
+
+    auth_type = ss[0]
+    tokens = ss[1]
+    if auth_type != 'Bearer' or not tokens:
+        return []
+
+    for token in tokens.split(' '):
+        if verify(token):
+            return True
 
     return False
 
