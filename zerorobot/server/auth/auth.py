@@ -29,6 +29,9 @@ all = MultiAuth(admin, user, service)
 
 
 def _verify_token(token, organization):
+    if god_jwt.verify(token):
+        return True
+
     if organization is None:
         return True
 
