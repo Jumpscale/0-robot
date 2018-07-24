@@ -131,7 +131,7 @@ class Robot:
             config.config_repo.start_auto_push(interval=auto_push_interval, logger=logger)
 
         # load services from data repo
-        loader.load_services(config.data_repo.path)
+        loader.load_services(config)
         # notify services that they can start processing their task list
         config.SERVICE_LOADED.set()
 

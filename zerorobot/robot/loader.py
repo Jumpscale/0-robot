@@ -5,23 +5,18 @@ import gevent
 from js9 import j
 from zerorobot import service_collection as scol
 from zerorobot import template_collection as tcol
-from zerorobot import config
+from zerorobot import storage
 from zerorobot.template_uid import TemplateUID
 
 logger = j.logger.get('zerorobot')
 
 
-def load_services(data_dir):
-    if not os.path.exists(data_dir):
-        os.makedirs(data_dir)
+def load_services(config):
+    store = storage.get(config)
 
-    for srv_dir in j.sal.fs.listDirsInDir(data_dir, recursive=True):
-        info_path = os.path.join(srv_dir, 'service.yaml')
-        if not os.path.exists(info_path):
-            continue
-        service_info = j.data.serializer.yaml.load(info_path)
+    for service_details in store.list():
+        tmpl_uid = TemplateUID.parse(service_details['service']['template'])
 
-        tmpl_uid = TemplateUID.parse(service_info['template'])
         try:
             tmplClass = tcol.get(str(tmpl_uid))
         except tcol.TemplateNotFoundError:
@@ -35,12 +30,12 @@ def load_services(data_dir):
                 # if the template is not found, try to add the repo using the info of the service template uid
                 url = "http://%s/%s/%s" % (tmpl_uid.host, tmpl_uid.account, tmpl_uid.repo)
                 tcol.add_repo(url)
-                tmplClass = tcol.get(service_info['template'])
+                tmplClass = tcol.get(service_details['template'])
             else:
                 # template of another version found, use newer version to load the service
                 tmplClass = tmplClasses[0]
 
-        srv = scol.load(tmplClass, srv_dir)
+        scol.load(tmplClass, service_details)
 
     loading_failed = []
     for service in scol.list_services():

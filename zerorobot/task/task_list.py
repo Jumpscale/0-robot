@@ -143,36 +143,19 @@ class TaskList:
         # this will raise TaskNotFoundError if can't find the task
         return self._done.get(guid)
 
-    def save(self, path):
+    def load(self, tasks):
         """
-        serialize the task list to disk
-        @param path: file path where to serialize the task list
+        @param tasks: list of tasks in the format:
+        {
+            "guid": ,
+            "action_name" ,
+            "args" ,
+            "state" ,
+            "eco" ,
+            "created" ,
+        }
         """
-        def serialize_task(task):
-            return {
-                "guid": task.guid,
-                "action_name": task.action_name,
-                "args": task._args,
-                "state": task.state,
-                "eco": json.loads(task.eco.json) if task.eco else None,
-                "created": task.created,
-            }
-        output = []
-        for task in self.list_tasks(all=False):
-            output.append(serialize_task(task))
-        j.data.serializer.yaml.dump(path, output)
-
-    def load(self, path):
-        """
-        load a task list that have been serialized with save method
-        @param path: file path where the task list is serialized
-        @param service: the service object to which this task list belongs
-        """
-        if not os.path.exists(path):
-            return
-
-        data = j.data.serializer.yaml.load(path)
-        for task in data:
+        for task in tasks:
             if task['state'] in [TASK_STATE_NEW, TASK_STATE_RUNNING]:
                 self.put(_instantiate_task(task, self.service))
             else:

@@ -76,41 +76,30 @@ def delete(service):
     logger.debug("delete service %s from collection" % service)
 
 
-def load(template, base_path):
+def load(template, service_detail):
     """
     load the service from it's file system serialized format
 
     @param template: the template class to use to instantiate the service
-    @param base_path: path of the directory where
-                        to load the service state and data from
+    @param service_detail:all the detail of a service in a dict (info, data, states, task list)
     """
-    if not os.path.exists(base_path):
-        raise FileNotFoundError("Trying to load service from %s, but directory doesn't exists" % base_path)
-
-    guid = os.path.basename(base_path)
-    service_info = j.data.serializer.yaml.load(os.path.join(base_path, 'service.yaml'))
-    service_data = j.data.serializer.yaml.load(os.path.join(base_path, 'data.yaml'))
-
-    template_uid = TemplateUID.parse(service_info['template'])
+    template_uid = TemplateUID.parse(service_detail['service']['template'])
+    guid = service_detail['service']['guid']
     try:
         if template_uid > template.template_uid:
-            raise BadTemplateError("Trying to load service %s with template %s, while it requires %s or higher" % (guid, template.template_uid, service_info['template']))
+            raise BadTemplateError("Trying to load service %s with template %s, while it requires %s or higher" % (guid, template.template_uid, service_detail['service']['template']))
     except ValueError:  # is the two template are not the same, ValueError is raised
-        raise BadTemplateError("Trying to load service %s with template %s, while it requires %s or higher" % (guid, template.template_uid, service_info['template']))
+        raise BadTemplateError("Trying to load service %s with template %s, while it requires %s or higher" % (guid, template.template_uid, service_detail['service']['template']))
 
-    if service_info['guid'] != guid:
-        raise BadTemplateError("Trying to load service from folder %s, but name of the service is %s"
-                               % (base_path, service_info['name']))
+    service = template(name=service_detail['service']['name'], guid=guid, data=service_detail['data'])
+    service._public = service_detail['service'].get('public', False)
 
-    srv = template(name=service_info['name'], guid=service_info['guid'], data=service_data)
-    srv._public = service_info.get('public', False)
-
-    srv.state.load(os.path.join(base_path, 'state.yaml'))
-    srv.data.load(os.path.join(base_path, 'data.yaml'))
-    srv.task_list.load(os.path.join(base_path, 'tasks.yaml'))
-    srv._path = base_path
-    add(srv)
-    return srv
+    service.state.load(service_detail['states'])
+    # srv.data.load(service_detail['data']) FIXME: should we need this since we pass the data in the constructor line 94
+    service.task_list.load(service_detail['tasks'])
+    # srv._path = base_path
+    add(service)
+    return service
 
 
 def upgrade(service, new_template, force=False):
@@ -134,10 +123,15 @@ def upgrade(service, new_template, force=False):
     delete(service)
 
     # create new instance of the service with updated version of the template
-    # we use load so it loads with the same data of previous version, but with new template
-    service = load(new_template, service._path)
-    service.save()
-    return service
+    new_service = new_template(name=service.name, guid=service.guid, data=service.data)
+    new_service._public = service._public
+
+    new_service.state = service.states
+    new_service.task_list = service.task_list
+    add(new_service)
+
+    new_service.save()
+    return new_service
 
 
 def drop_all():

@@ -46,6 +46,11 @@ class DataRepo:
             return None
         return self.auto_pusher.last_pushed
 
+    @property
+    def type(self):
+        # TODO: support zdb
+        return 'fs'
+
     def start_auto_push(self, interval=60, logger=None):
         self.auto_pusher = AutoPusher(interval, self.path, logger)
         self.auto_pusher.run()

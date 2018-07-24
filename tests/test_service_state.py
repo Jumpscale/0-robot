@@ -52,15 +52,8 @@ class TestServiceState(unittest.TestCase):
         state.set('network', 'tcp-81', 'error')
 
         with tempfile.TemporaryDirectory() as tmpdir:
-            path = os.path.join(tmpdir, 'zrobot-test-state.yml')
-            state.save(path)
-
-            with open(path) as f:
-                content = f.read()
-            self.assertEqual(content, j.data.serializer.yaml.dumps(state.categories))
-
             state2 = ServiceState()
-            state2.load(path)
+            state2.load(state.categories)
             self.assertDictEqual(state.categories, state2.categories)
 
     def test_check(self):

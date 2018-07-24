@@ -13,6 +13,7 @@ from js9 import j
 from zerorobot import service_collection as scol
 from zerorobot import template_collection as tcol
 from zerorobot import config
+from zerorobot.storage.filesystem import _serialize_service
 from zerorobot.service_collection import BadTemplateError
 from zerorobot.template.base import (ActionNotFoundError,
                                      BadActionArgumentError, TemplateBase)
@@ -99,12 +100,11 @@ class TestServiceTemplate(unittest.TestCase):
     def test_service_load(self):
         Node = self.load_template('node')
         srv = tcol.instantiate_service(Node, 'testnode')
-        path = srv.save()
 
         # unload service from memory
         scol.drop_all()
 
-        loaded = scol.load(Node, path)
+        loaded = scol.load(Node, _serialize_service(srv))
         self.assertEqual(srv.name, loaded.name, "name of the loaded service should be %s" % srv.name)
         self.assertEqual(srv.template_name, loaded.template_name, "template_name of the loaded service should be %s" % srv.template_name)
         self.assertEqual(srv.guid, loaded.guid, "guid of the loaded service should be %s" % srv.guid)
@@ -113,31 +113,14 @@ class TestServiceTemplate(unittest.TestCase):
         self.assertIsNotNone(srv.state, "loaded service state should not be None")
         self.assertIsNotNone(srv.task_list, "loaded service task_list should not be None")
 
-    def test_service_load_dir_not_exists(self):
-        Node = self.load_template('node')
-        srv = tcol.instantiate_service(Node, 'testnode')
-        path = srv.save()
-        with self.assertRaises(FileNotFoundError):
-            scol.load(Node, '/tmp/zerorobot-test-not-exists')
-
-    def test_service_load_wrong_name(self):
-        Node = self.load_template('node')
-        srv = tcol.instantiate_service(Node, 'testnode')
-        path = srv.save()
-        # rename the folder where the service have been saved
-        new_path = os.path.join(os.path.dirname(path), 'other')
-        os.rename(path, new_path)
-        with self.assertRaises(BadTemplateError):
-            scol.load(Node, new_path)
-
     def test_service_load_wrong_template(self):
         Node = self.load_template('node')
         Vm = self.load_template('vm')
         srv = tcol.instantiate_service(Node, 'testnode')
-        path = srv.save()
+        serialized = _serialize_service(srv)
         with self.assertRaises(BadTemplateError):
             # Try to load with the wrong template class
-            scol.load(Vm, path)
+            scol.load(Vm, serialized)
 
     def test_service_add_task(self):
         Node = self.load_template('node')

@@ -29,6 +29,7 @@ class StateCheckError(ExpectedError, Exception):
     """
     pass
 
+
 class ServiceState:
     """
     This class represent the state of the service.
@@ -103,21 +104,13 @@ class ServiceState:
 
         del self.categories[category][tag]
 
-    def save(self, path):
+    def load(self, data):
         """
-        Serialize the state into a file
-
-        @param path: file path where to save the state
-        """
-        j.data.serializer.yaml.dump(path, self.categories)
-
-    def load(self, path):
-        """
-        Load the state from a file created by the save method
+        Load the state from a dict pass in the data arguments
 
         @param path: file path from where to load the state
         """
-        self.categories = j.data.serializer.yaml.load(path)
+        self.categories = data
 
     def __repr__(self):
         return str(self.categories)

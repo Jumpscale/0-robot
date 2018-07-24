@@ -21,6 +21,8 @@ from zerorobot import webhooks
 from zerorobot.dsl.ZeroRobotAPI import ZeroRobotAPI
 from zerorobot.prometheus.robot import task_latency
 from zerorobot import config
+from zerorobot import storage
+
 from zerorobot.task import (PRIORITY_NORMAL, PRIORITY_SYSTEM, TASK_STATE_ERROR,
                             Task, TaskList)
 from zerorobot.task.utils import wait_all
@@ -169,22 +171,8 @@ class TemplateBase:
                           to save the service state and data
         return the path where the service is saved
         """
-        if self._path is None:
-            raise RuntimeError("service._path is None, don't know where to save the service")
-
-        os.makedirs(self._path, exist_ok=True)
-
-        j.data.serializer.yaml.dump(os.path.join(self._path, 'service.yaml'), {
-            'template': str(self.template_uid),
-            'version': self.version,
-            'name': self.name,
-            'guid': self.guid,
-            'public': self._public,
-        })
-        self.state.save(os.path.join(self._path, 'state.yaml'))
-        self.data.save(os.path.join(self._path, 'data.yaml'))
-        self.task_list.save(os.path.join(self._path, 'tasks.yaml'))
-        return self._path
+        store = storage.get(config)
+        store.save(self)
 
     def _run(self):
         """
@@ -313,11 +301,12 @@ class TemplateBase:
             if hasattr(h, 'close'):
                 h.close()
 
-        # remove data from disk
-        if self._path and os.path.exists(self._path):
-            shutil.rmtree(os.path.dirname(self._path))
+        # remove from persistant storage
+        store = storage.get(config)
+        store.delete(self)
 
         # remove logs from disk
+        # TODO: write logs into storage interface
         log_file = os.path.join(j.dirs.LOGDIR, 'zrobot', self.guid)
         for f in glob.glob(log_file+'*'):
             os.remove(f)
