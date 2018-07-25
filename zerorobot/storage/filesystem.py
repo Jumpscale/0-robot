@@ -3,7 +3,7 @@ import shutil
 
 from js9 import j
 
-from .base import ServiceStorageBase
+from .base import ServiceStorageBase, _serialize_service
 
 
 class FileSystemServiceStorage(ServiceStorageBase):
@@ -59,33 +59,3 @@ class FileSystemServiceStorage(ServiceStorageBase):
         path = self._service_path(service)
         if path and os.path.exists(path):
             shutil.rmtree(os.path.dirname(path))
-
-
-def _serialize_service(service):
-    return {
-        'service': _serialize_service_info(service),
-        'states': service.state.categories,
-        'data': dict(service.data),
-        'tasks': [_serialize_task(task) for task in service.task_list.list_tasks(all=False)]
-    }
-
-
-def _serialize_service_info(service):
-    return {
-        'template': str(service.template_uid),
-        'version': service.version,
-        'name': service.name,
-        'guid': service.guid,
-        'public': service._public,
-    }
-
-
-def _serialize_task(task):
-    return {
-        "guid": task.guid,
-        "action_name": task.action_name,
-        "args": task._args,
-        "state": task.state,
-        "eco": j.data.serializer.json.loads(task.eco.json) if task.eco else None,
-        "created": task.created,
-    }

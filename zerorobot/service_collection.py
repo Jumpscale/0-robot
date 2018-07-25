@@ -97,7 +97,6 @@ def load(template, service_detail):
     service.state.load(service_detail['states'])
     # srv.data.load(service_detail['data']) FIXME: should we need this since we pass the data in the constructor line 94
     service.task_list.load(service_detail['tasks'])
-    # srv._path = base_path
     add(service)
     return service
 

@@ -96,15 +96,14 @@ class Robot:
         config.mode = mode
         config.god = god  # when true, this allow to get data and logs from services using the REST API
 
-        if config.data_repo is None or config.data_repo.path is None:
+        if config.data_repo is None:
             raise RuntimeError("Not data repository set. Robot doesn't know where to save data.")
 
         if not j.tools.configmanager.path:
             raise RuntimeError("config manager is not configured, can't continue")
 
         # instantiate webhooks manager and load the configured webhooks
-        config.webhooks = webhooks.Storage(config.data_repo.path)
-        config.webhooks.load()
+        config.webhooks = webhooks.get(config)
 
         logger.info("data directory: %s" % config.data_repo.path)
         logger.info("config directory: %s" % j.tools.configmanager.path)
