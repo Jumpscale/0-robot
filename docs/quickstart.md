@@ -102,15 +102,12 @@ Connection to main saved
 
 ## Creating instance of the service and scheduling actions using the DSL
 
-using zerorobot dsl to easily interact with the robot
+using the 0-robot client is the easiest way to interact with the robot
 
-1- Create ZeroRobotAPI Manager
+1- Create 0-robot client
 ```
-In [54]: from zerorobot.dsl import ZeroRobotAPI
+robot = j.clients.zrobot.robot['instance']
 
-In [55]: api = ZeroRobotAPI.ZeroRobotAPI()
-
-In [56]: robot = api.robots['main']
 ```
 2- Create instance of the helloworld template
 ```

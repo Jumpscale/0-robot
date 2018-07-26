@@ -57,26 +57,44 @@ Options:
 ```
 Options details:
 
-- `--listen`: The interface and port on which the robot REST API need to listen to. Has to be under the form `host:port`  
+`--listen` :  
+The interface and port on which the robot REST API need to listen to. Has to be under the form `host:port`  
 e.g: `0.0.0.0:8080`
-- `--data-repo`:  
-The URL of a git repository or the absolute path of a directory on the local file system where the data of your services will be stored  
-if not specified, a directory is automatically created `{j.dirs.DATADIR}/zrobot`  
+
+`--data-repo` :  
+0-Robot supports 2 type of storage: local filesystem or [0-db](https://github.com/zero-os/0-db).  
+
+When using the filesystem `--data-repo` can be the URL of a git repository or the absolute path of a directory on the local file system where the data of your services will be stored. If not specified, a directory is automatically created `{j.dirs.DATADIR}/zrobot`  
+
+When using 0-db, `--data-repo` need to be an url under the form: `zdb://admin_passwd:encryption_key@hostname:port`. The only required field being the hostname, all the other are optional.
+Here is a list of all possiblities:
+- `zdb://hostname`
+- `zdb://hostname:port`
+- `zdb://admin_passwd@hostname:port`
+- `zdb://admin_passwd:encryption_key@hostname:port`
+
+
 When starting, the robot also loads all the services present in this repository.  
-- `--template-repo`:  
+
+`--template-repo` :  
 The URL of a repository that contains templates. You can give multiple template repository by give multiple time the parameter.
 if the url contains a fragment (#) the fragment is used as branch name. example: http://github.com/account/repo#mybranch will use the 'mybranch` branch
-- `--config-repo`:  
+
+`--config-repo` :  
 URL or absolute path of the configuration repository.  
  if not specified and jumpscale doens't have a configuration repo already configure a directory is automatically created in `{j.dirs.CODEDIR}/local/stdorg/config`
  otherwise the robot uses the configuration from jumpscale
- - `--config-key`: 
+ 
+ `--config-key` : 
 Absolute path to ssh key to secure configuration data, which is committed and pushed (see auto-push) in the configuration repo. If omitted, the robot will try to use the key configured key in jumpscale if any or will generate a new ssh key.
-- `--debug`:  
+
+`--debug`:  
 Sets the logger output level to debug
-- `--auto-push`:  
+
+`--auto-push`:  
 Enables automatic committing and pushing of the data repository for backup. Check the [automatic syncing chapter](#automatic-syncing-of-data-repository) for more details
-- `--auto-push-interval`:  
+
+`--auto-push-interval`:  
 Define a custom interval in minutes for `auto-push` if enabled (default: 60)
 
 ### example:
@@ -86,19 +104,6 @@ zrobot server start --listen :6601 --template-repo https://github.com/zero-os/0-
 ### Note regarding security:
 0-robot REST API uses different secrets to authenticate the requests. You MUST run the 0-robot API behind HTTPS, failing to do so would allow hackers to gather your secrets and usurp your identity. More detail about the different secrets: [security.md](security.md)
 
-## Running 0-robot in a docker
-
-0-robot is available as a published docker image on docker hub: [https://hub.docker.com/r/jumpscale/0-robot/](https://hub.docker.com/r/jumpscale/0-robot/)
-
-To run it:
-- mount the password-less id_rsa named ssh key into /root/.ssh. Make sure id_rsa is the only ssh key that is mounted into /root/.ssh
-- expose the 0-robot listening port 
-- pass the 0-robot arguments as environment variables
-
-eg:
-```bash
-root@myawesomemachine:~# docker run --name 0-robot -d -p 192.168.199.2:6600:6600 -v /root/.ssh2:/root/.ssh -e data-repo=ssh://git@myawesomegitserver.org:10023/MyAwesomeOrganization/myawseomedatarepo.git -e config-repo=ssh://git@myawesomegitserver.org:10023/MyAwesomeOrganization/myawseomeconfigrepo.git -e config-key=/root/.ssh/id_rsa -e template-repo=https://github.com/zero-os/0-templates.git jumpscale/0-robot:latest
-```
 
 ## Automatic syncing of data repository
 
@@ -113,5 +118,5 @@ When the server is started, a greenlet is started that for each interval will co
 zrobot server start --data-repo git@github.com:user/zrobot-data.git --config-repo git@github.com:user/zrobot-config.git --template-repo https://github.com/zero-os/0-templates.git --auto-push --auto-push-interval 120
 ```
 
-This call of zrobot server start would enable auto pushing of the data repository (git@github.com:user/zrobot-data.git) every 120 minutes.
+This call of zrobot server start would enable auto pushing of the data repository (`git@github.com:user/zrobot-data.git`) every 120 minutes.
 Omitting `--auto-push-interval 120` will push the repository every 60 minutes.
