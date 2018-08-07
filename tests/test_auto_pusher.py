@@ -11,12 +11,12 @@ class TestAutoPusher(unittest.TestCase):
     def test_is_ssh_remote(self):
         tt = [
             {
-                'url': 'https://github.com/zero-os/0-robot.git',
+                'url': 'https://github.com/threefoldtech/0-robot.git',
                 'expected': False,
                 'name': 'https url',
             },
             {
-                'url': 'git@github.com:zero-os/0-robot.git',
+                'url': 'git@github.com:threefoldtech/0-robot.git',
                 'expected': True,
                 'name': 'valid',
             },

@@ -6,7 +6,7 @@ import os
 import tempfile
 import unittest
 
-from js9 import j
+from jumpscale import j
 
 from zerorobot.robot import Robot
 from zerorobot import config
@@ -37,20 +37,20 @@ class TestRobot(unittest.TestCase):
             robot.set_data_repo(data_dir)
             robot.start(listen="localhost:6600", block=False)
             self.assertEqual(robot.address, ('127.0.0.1', 6600))
-            robot.stop()
+            robot.stop(timeout=1)
         self.assertIsNone(robot.address)
 
     def test_template_url(self):
         tt = (
             {
-                'url': 'http://github.com/zero-os/0-templates',
-                'repo': 'http://github.com/zero-os/0-templates',
+                'url': 'http://github.com/threefoldtech/0-templates',
+                'repo': 'http://github.com/threefoldtech/0-templates',
                 'branch': None,
                 'exception': None,
             },
             {
-                'url': 'http://github.com/zero-os/0-templates#anotherbranch',
-                'repo': 'http://github.com/zero-os/0-templates',
+                'url': 'http://github.com/threefoldtech/0-templates#anotherbranch',
+                'repo': 'http://github.com/threefoldtech/0-templates',
                 'branch': 'anotherbranch',
                 'exception': None,
             },

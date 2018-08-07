@@ -1,16 +1,16 @@
 # Getting started
 
 ## Install 0-Robot
-Requirements: You need to have [Jumpscale9](https://github.com/jumpscale/home) installed to be able to run the 0-Robot.  
-See the [intallation instruction](https://github.com/Jumpscale/core9#jumpscale-9)
+Requirements: You need to have [Jumpscale](https://github.com/threefoldtech/jumpscale_core) installed to be able to run the 0-Robot.  
+See the [intallation instruction](https://github.com/threefoldtech/jumpscale_core#jumpscale-9)
 
 Clone this repository and install the zerorobot:
 
 ```bash
 apt-get install -y libsqlite3-dev
-mkdir -p /opt/code/github/zero-os
-cd /opt/code/github/zero-os
-git clone https://github.com/zero-os/0-robot.git
+mkdir -p /opt/code/github/threefoldtech
+cd /opt/code/github/threefoldtech
+git clone https://github.com/threefoldtech/0-robot.git
 cd 0-robot
 pip install -e .
 ```
@@ -83,9 +83,8 @@ if the url contains a fragment (#) the fragment is used as branch name. example:
 `--config-repo` :  
 URL or absolute path of the configuration repository.  
  if not specified and jumpscale doens't have a configuration repo already configure a directory is automatically created in `{j.dirs.CODEDIR}/local/stdorg/config`
- otherwise the robot uses the configuration from jumpscale
- 
- `--config-key` : 
+ otherwise the robot uses the configuration from Jumpscale
+ - `--config-key`: 
 Absolute path to ssh key to secure configuration data, which is committed and pushed (see auto-push) in the configuration repo. If omitted, the robot will try to use the key configured key in jumpscale if any or will generate a new ssh key.
 
 `--debug`:  
@@ -99,7 +98,7 @@ Define a custom interval in minutes for `auto-push` if enabled (default: 60)
 
 ### example:
 ```bash
-zrobot server start --listen :6601 --template-repo https://github.com/zero-os/0-templates.git --data-repo https://github.com/user/zrobot1.git
+zrobot server start --listen :6601 --template-repo https://github.com/threefoldtech/0-templates.git --data-repo https://github.com/user/zrobot1.git --robots http://localhost:6602 --organization myOrg
 ```
 ### Note regarding security:
 0-robot REST API uses different secrets to authenticate the requests. You MUST run the 0-robot API behind HTTPS, failing to do so would allow hackers to gather your secrets and usurp your identity. More detail about the different secrets: [security.md](security.md)
@@ -115,7 +114,7 @@ When the server is started, a greenlet is started that for each interval will co
 
 ### example:
 ```bash
-zrobot server start --data-repo git@github.com:user/zrobot-data.git --config-repo git@github.com:user/zrobot-config.git --template-repo https://github.com/zero-os/0-templates.git --auto-push --auto-push-interval 120
+zrobot server start --data-repo git@github.com:user/zrobot-data.git --config-repo git@github.com:user/zrobot-config.git --template-repo https://github.com/threefoldtech/0-templates.git --auto-push --auto-push-interval 120
 ```
 
 This call of zrobot server start would enable auto pushing of the data repository (`git@github.com:user/zrobot-data.git`) every 120 minutes.

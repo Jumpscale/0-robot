@@ -5,7 +5,7 @@ import time
 from functools import wraps
 import gevent
 
-from js9 import j
+from jumpscale import j
 
 from .base import TemplateBase
 

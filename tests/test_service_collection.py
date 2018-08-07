@@ -9,7 +9,7 @@ class FakeService:
     def __init__(self, guid, name):
         self.name = name
         self.guid = guid
-        self.template_uid = TemplateUID.parse('github.com/zero-os/0-robot/fakeservice/0.0.1')
+        self.template_uid = TemplateUID.parse('github.com/threefoldtech/0-robot/fakeservice/0.0.1')
         self._public = False
 
 
@@ -18,7 +18,7 @@ class FakeService2:
     def __init__(self, guid, name):
         self.name = name
         self.guid = guid
-        self.template_uid = TemplateUID.parse('github.com/zero-os/0-robot/other/0.0.1')
+        self.template_uid = TemplateUID.parse('github.com/threefoldtech/0-robot/other/0.0.1')
 
 
 class TestServiceCollection(unittest.TestCase):
@@ -71,7 +71,7 @@ class TestServiceCollection(unittest.TestCase):
         scol.add(s2)
         scol.add(s3)
 
-        results = scol.find(template_uid='github.com/zero-os/0-robot/fakeservice/0.0.1')
+        results = scol.find(template_uid='github.com/threefoldtech/0-robot/fakeservice/0.0.1')
         self.assertEqual(len(results), 2)
         guids = [s1.guid, s2.guid]
         for s in results:

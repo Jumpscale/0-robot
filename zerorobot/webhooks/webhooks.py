@@ -3,7 +3,7 @@ from enum import Enum
 
 import msgpack
 
-from js9 import j
+from jumpscale import j
 
 
 class Kind(Enum):
@@ -40,6 +40,7 @@ class WebHook:
 
 
 class Manager:
+
     def __init__(self, store):
         self._store = store
         self.webhooks = store.load()
@@ -91,6 +92,7 @@ class FSStorage:
 
 
 class ZDBStorage:
+
     def __init__(self, addr, port, admin_passwd='', encr_key=''):
         zdb = j.clients.zdb.configure(instance='zrobot',
                                       secrets='',

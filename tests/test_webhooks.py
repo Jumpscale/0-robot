@@ -1,7 +1,7 @@
 import os
 import unittest
 
-from js9 import j
+from jumpscale import j
 from zerorobot import webhooks
 
 

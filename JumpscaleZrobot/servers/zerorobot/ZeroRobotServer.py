@@ -1,7 +1,7 @@
 import logging
 
-from js9 import j
-from JumpScale9.logging.Handlers import TelegramFormatter, TelegramHandler
+from jumpscale import j
+from Jumpscale.logging.Handlers import TelegramFormatter, TelegramHandler
 from zerorobot.robot import Robot
 
 telegram_logger = logging.getLogger('telegram_logger')
@@ -20,6 +20,7 @@ telegram_chat_id = ""
 auto_push = false
 auto_push_interval = 10
 organization = ""
+block = true
 """
 JSConfigBase = j.tools.configmanager.base_class_config
 
@@ -28,6 +29,12 @@ class ZeroRobotServer(JSConfigBase):
 
     def __init__(self, instance, data={}, parent=None, interactive=False, template=TEMPLATE):
         JSConfigBase.__init__(self, instance=instance, data=data, parent=parent, template=template, interactive=interactive)
+        self._robot = None
+
+    @property
+    def address(self):
+        if self._robot:
+            return self._robot.address
 
     def start(self):
         """
@@ -61,6 +68,7 @@ class ZeroRobotServer(JSConfigBase):
         auto_push = self.config.data.get('auto_push', False)
         auto_push_interval = self.config.data.get('auto_push_interval', False)
         organization = self.config.data.get('organization') or None
+        block = self.config.data.get('block', True)
 
         level = "INFO"
         if debug:
@@ -80,12 +88,18 @@ class ZeroRobotServer(JSConfigBase):
             handler.setLevel(logging.ERROR)
             telegram_logger.addHandler(handler)
 
-        robot = Robot()
+        self._robot = Robot()
 
         for url in template_repo or []:
-            robot.add_template_repo(url)
+            self._robot.add_template_repo(url)
 
-        robot.set_data_repo(data_repo)
-        robot.set_config_repo(config_repo, config_key)
+        self._robot.set_data_repo(data_repo)
+        self._robot.set_config_repo(config_repo, config_key)
 
-        robot.start(listen=listen, auto_push=auto_push, auto_push_interval=auto_push_interval, jwt_organization=organization)
+        self._robot.start(listen=listen, auto_push=auto_push, auto_push_interval=auto_push_interval,
+                          jwt_organization=organization, block=block)
+
+    def stop(self, timeout=30):
+        if self._robot:
+            self._robot.stop(timeout=timeout)
+            self._robot = None

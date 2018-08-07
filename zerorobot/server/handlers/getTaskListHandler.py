@@ -1,7 +1,7 @@
 # THIS FILE IS SAFE TO EDIT. It will not be overwritten when rerunning go-raml.
 
 from flask import jsonify, request
-from js9 import j
+from jumpscale import j
 from zerorobot import service_collection as scol
 from zerorobot.server import auth
 from zerorobot.server.handlers.views import task_view

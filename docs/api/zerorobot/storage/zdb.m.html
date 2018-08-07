@@ -3,8 +3,8 @@
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 
-    <title>zerorobot.robot.data_repo API documentation</title>
-    <meta name="description" content="data_repo module hold the logic of the configuration of the jumpscale configuration repository" />
+    <title>zerorobot.storage.zdb API documentation</title>
+    <meta name="description" content="" />
 
   <link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:400,300' rel='stylesheet' type='text/css'>
   
@@ -1041,14 +1041,23 @@ table {
     <h1>Index</h1>
     <ul id="index">
 
-    <li class="set"><h3><a href="#header-functions">Functions</a></h3>
-      
+
+    <li class="set"><h3><a href="#header-classes">Classes</a></h3>
+      <ul>
+        <li class="mono">
+        <span class="class_name"><a href="#zerorobot.storage.zdb.ZDBServiceStorage">ZDBServiceStorage</a></span>
+        
+          
   <ul>
-    <li class="mono"><a href="#zerorobot.robot.data_repo.ensure">ensure</a></li>
+    <li class="mono"><a href="#zerorobot.storage.zdb.ZDBServiceStorage.__init__">__init__</a></li>
+    <li class="mono"><a href="#zerorobot.storage.zdb.ZDBServiceStorage.delete">delete</a></li>
+    <li class="mono"><a href="#zerorobot.storage.zdb.ZDBServiceStorage.list">list</a></li>
+    <li class="mono"><a href="#zerorobot.storage.zdb.ZDBServiceStorage.save">save</a></li>
   </ul>
 
+        </li>
+      </ul>
     </li>
-
 
     </ul>
   </div>
@@ -1061,45 +1070,46 @@ table {
 
 
   <header id="section-intro">
-  <h1 class="title"><span class="name">zerorobot.robot.data_repo</span> module</h1>
-  <p>data_repo module hold the logic of the configuration of the jumpscale configuration repository</p>
+  <h1 class="title"><span class="name">zerorobot.storage.zdb</span> module</h1>
   
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.robot.data_repo', this);">Show source &equiv;</a></p>
-  <div id="source-zerorobot.robot.data_repo" class="source">
-    <div class="codehilite"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">data_repo module hold the logic of the configuration of the jumpscale configuration repository</span>
-<span class="sd">&quot;&quot;&quot;</span>
+  
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.storage.zdb', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.storage.zdb" class="source">
+    <div class="codehilite"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
 
-<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">msgpack</span>
 
-<span class="kn">from</span> <span class="nn">js9</span> <span class="kn">import</span> <span class="n">j</span>
-<span class="kn">from</span> <span class="nn">zerorobot.git</span> <span class="kn">import</span> <span class="n">url</span> <span class="k">as</span> <span class="n">giturl</span>
+<span class="kn">from</span> <span class="nn">jumpscale</span> <span class="kn">import</span> <span class="n">j</span>
+
+<span class="kn">from</span> <span class="nn">.base</span> <span class="kn">import</span> <span class="n">ServiceStorageBase</span><span class="p">,</span> <span class="n">_serialize_service</span>
 
 
-<span class="k">def</span> <span class="nf">ensure</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    ensure the 0-robot data repository exists</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">path</span><span class="p">:</span>
-        <span class="c1"># no path specify, we create one</span>
-        <span class="n">path</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">sal</span><span class="o">.</span><span class="n">fs</span><span class="o">.</span><span class="n">joinPaths</span><span class="p">(</span><span class="n">j</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">dirs</span><span class="o">.</span><span class="n">DATADIR</span><span class="p">,</span> <span class="s1">&#39;zrobot&#39;</span><span class="p">)</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="c1"># try to see of path is a git URL</span>
-            <span class="n">url</span> <span class="o">=</span> <span class="n">path</span>
-            <span class="n">path</span> <span class="o">=</span> <span class="n">giturl</span><span class="o">.</span><span class="n">git_path</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
-            <span class="c1"># if the repo is not clone yet, clone it now</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
-                <span class="n">path</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">clients</span><span class="o">.</span><span class="n">git</span><span class="o">.</span><span class="n">pullGitRepo</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
-        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
-            <span class="c1"># path is not an URL, we expect an absolute path</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isabs</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;path value is not valid. Need to be a valid git url or an absolute path on the local filesystem&quot;</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">ZDBServiceStorage</span><span class="p">(</span><span class="n">ServiceStorageBase</span><span class="p">):</span>
 
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
-        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">addr</span><span class="p">,</span> <span class="n">port</span><span class="p">,</span> <span class="n">admin_passwd</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">encr_key</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="n">zdb</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">clients</span><span class="o">.</span><span class="n">zdb</span><span class="o">.</span><span class="n">configure</span><span class="p">(</span><span class="n">instance</span><span class="o">=</span><span class="s1">&#39;zrobot&#39;</span><span class="p">,</span>
+                                      <span class="n">secrets</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span>
+                                      <span class="n">addr</span><span class="o">=</span><span class="n">addr</span><span class="p">,</span>
+                                      <span class="n">port</span><span class="o">=</span><span class="n">port</span><span class="p">,</span>
+                                      <span class="n">adminsecret</span><span class="o">=</span><span class="n">admin_passwd</span> <span class="ow">or</span> <span class="s1">&#39;&#39;</span><span class="p">,</span>
+                                      <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;user&#39;</span><span class="p">,</span>
+                                      <span class="n">encryptionkey</span><span class="o">=</span><span class="n">encr_key</span> <span class="ow">or</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
 
-    <span class="k">return</span> <span class="n">path</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_ns</span> <span class="o">=</span> <span class="n">zdb</span><span class="o">.</span><span class="n">namespace_new</span><span class="p">(</span><span class="s1">&#39;zrobot_data&#39;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">service</span><span class="p">):</span>
+        <span class="n">serialized_service</span> <span class="o">=</span> <span class="n">_serialize_service</span><span class="p">(</span><span class="n">service</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_ns</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">msgpack</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">serialized_service</span><span class="p">),</span> <span class="n">service</span><span class="o">.</span><span class="n">guid</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">list</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">guid</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ns</span><span class="o">.</span><span class="n">list</span><span class="p">():</span>
+            <span class="n">obj</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ns</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">guid</span><span class="p">)</span>
+            <span class="n">service</span> <span class="o">=</span> <span class="n">msgpack</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span>
+            <span class="k">yield</span> <span class="n">service</span>
+
+    <span class="k">def</span> <span class="nf">delete</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">service</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_ns</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">service</span><span class="o">.</span><span class="n">guid</span><span class="p">)</span>
 </pre></div>
 
   </div>
@@ -1108,44 +1118,79 @@ table {
 
   <section id="section-items">
 
-    <h2 class="section-title" id="header-functions">Functions</h2>
+
+    <h2 class="section-title" id="header-classes">Classes</h2>
       
+      <div class="item">
+      <p id="zerorobot.storage.zdb.ZDBServiceStorage" class="name">class <span class="ident">ZDBServiceStorage</span></p>
+      
+  
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.storage.zdb.ZDBServiceStorage', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.storage.zdb.ZDBServiceStorage" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">ZDBServiceStorage</span><span class="p">(</span><span class="n">ServiceStorageBase</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">addr</span><span class="p">,</span> <span class="n">port</span><span class="p">,</span> <span class="n">admin_passwd</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">encr_key</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="n">zdb</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">clients</span><span class="o">.</span><span class="n">zdb</span><span class="o">.</span><span class="n">configure</span><span class="p">(</span><span class="n">instance</span><span class="o">=</span><span class="s1">&#39;zrobot&#39;</span><span class="p">,</span>
+                                      <span class="n">secrets</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span>
+                                      <span class="n">addr</span><span class="o">=</span><span class="n">addr</span><span class="p">,</span>
+                                      <span class="n">port</span><span class="o">=</span><span class="n">port</span><span class="p">,</span>
+                                      <span class="n">adminsecret</span><span class="o">=</span><span class="n">admin_passwd</span> <span class="ow">or</span> <span class="s1">&#39;&#39;</span><span class="p">,</span>
+                                      <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;user&#39;</span><span class="p">,</span>
+                                      <span class="n">encryptionkey</span><span class="o">=</span><span class="n">encr_key</span> <span class="ow">or</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_ns</span> <span class="o">=</span> <span class="n">zdb</span><span class="o">.</span><span class="n">namespace_new</span><span class="p">(</span><span class="s1">&#39;zrobot_data&#39;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">service</span><span class="p">):</span>
+        <span class="n">serialized_service</span> <span class="o">=</span> <span class="n">_serialize_service</span><span class="p">(</span><span class="n">service</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_ns</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">msgpack</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">serialized_service</span><span class="p">),</span> <span class="n">service</span><span class="o">.</span><span class="n">guid</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">list</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">guid</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ns</span><span class="o">.</span><span class="n">list</span><span class="p">():</span>
+            <span class="n">obj</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ns</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">guid</span><span class="p">)</span>
+            <span class="n">service</span> <span class="o">=</span> <span class="n">msgpack</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span>
+            <span class="k">yield</span> <span class="n">service</span>
+
+    <span class="k">def</span> <span class="nf">delete</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">service</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_ns</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">service</span><span class="o">.</span><span class="n">guid</span><span class="p">)</span>
+</pre></div>
+
+  </div>
+</div>
+
+
+      <div class="class">
+          <h3>Ancestors (in MRO)</h3>
+          <ul class="class_list">
+          <li><a href="#zerorobot.storage.zdb.ZDBServiceStorage">ZDBServiceStorage</a></li>
+          <li>zerorobot.storage.base.ServiceStorageBase</li>
+          <li>builtins.object</li>
+          </ul>
+          <h3>Static methods</h3>
+            
   <div class="item">
-    <div class="name def" id="zerorobot.robot.data_repo.ensure">
-    <p>def <span class="ident">ensure</span>(</p><p>path=None)</p>
+    <div class="name def" id="zerorobot.storage.zdb.ZDBServiceStorage.__init__">
+    <p>def <span class="ident">__init__</span>(</p><p>self, addr, port, admin_passwd=&#39;&#39;, encr_key=&#39;&#39;)</p>
     </div>
     
 
     
   
-    <div class="desc"><p>ensure the 0-robot data repository exists</p></div>
+    <div class="desc"><p>Initialize self.  See help(type(self)) for accurate signature.</p></div>
   <div class="source_cont">
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.robot.data_repo.ensure', this);">Show source &equiv;</a></p>
-  <div id="source-zerorobot.robot.data_repo.ensure" class="source">
-    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">ensure</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    ensure the 0-robot data repository exists</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">path</span><span class="p">:</span>
-        <span class="c1"># no path specify, we create one</span>
-        <span class="n">path</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">sal</span><span class="o">.</span><span class="n">fs</span><span class="o">.</span><span class="n">joinPaths</span><span class="p">(</span><span class="n">j</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">dirs</span><span class="o">.</span><span class="n">DATADIR</span><span class="p">,</span> <span class="s1">&#39;zrobot&#39;</span><span class="p">)</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="c1"># try to see of path is a git URL</span>
-            <span class="n">url</span> <span class="o">=</span> <span class="n">path</span>
-            <span class="n">path</span> <span class="o">=</span> <span class="n">giturl</span><span class="o">.</span><span class="n">git_path</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
-            <span class="c1"># if the repo is not clone yet, clone it now</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
-                <span class="n">path</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">clients</span><span class="o">.</span><span class="n">git</span><span class="o">.</span><span class="n">pullGitRepo</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
-        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
-            <span class="c1"># path is not an URL, we expect an absolute path</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isabs</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;path value is not valid. Need to be a valid git url or an absolute path on the local filesystem&quot;</span><span class="p">)</span>
-
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
-        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
-
-    <span class="k">return</span> <span class="n">path</span>
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.storage.zdb.ZDBServiceStorage.__init__', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.storage.zdb.ZDBServiceStorage.__init__" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">addr</span><span class="p">,</span> <span class="n">port</span><span class="p">,</span> <span class="n">admin_passwd</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">encr_key</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">):</span>
+    <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+    <span class="n">zdb</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">clients</span><span class="o">.</span><span class="n">zdb</span><span class="o">.</span><span class="n">configure</span><span class="p">(</span><span class="n">instance</span><span class="o">=</span><span class="s1">&#39;zrobot&#39;</span><span class="p">,</span>
+                                  <span class="n">secrets</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span>
+                                  <span class="n">addr</span><span class="o">=</span><span class="n">addr</span><span class="p">,</span>
+                                  <span class="n">port</span><span class="o">=</span><span class="n">port</span><span class="p">,</span>
+                                  <span class="n">adminsecret</span><span class="o">=</span><span class="n">admin_passwd</span> <span class="ow">or</span> <span class="s1">&#39;&#39;</span><span class="p">,</span>
+                                  <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;user&#39;</span><span class="p">,</span>
+                                  <span class="n">encryptionkey</span><span class="o">=</span><span class="n">encr_key</span> <span class="ow">or</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_ns</span> <span class="o">=</span> <span class="n">zdb</span><span class="o">.</span><span class="n">namespace_new</span><span class="p">(</span><span class="s1">&#39;zrobot_data&#39;</span><span class="p">)</span>
 </pre></div>
 
   </div>
@@ -1153,7 +1198,111 @@ table {
 
   </div>
   
+            
+  <div class="item">
+    <div class="name def" id="zerorobot.storage.zdb.ZDBServiceStorage.delete">
+    <p>def <span class="ident">delete</span>(</p><p>self, service)</p>
+    </div>
+    
 
+    
+  
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.storage.zdb.ZDBServiceStorage.delete', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.storage.zdb.ZDBServiceStorage.delete" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">delete</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">service</span><span class="p">):</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_ns</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">service</span><span class="o">.</span><span class="n">guid</span><span class="p">)</span>
+</pre></div>
+
+  </div>
+</div>
+
+  </div>
+  
+            
+  <div class="item">
+    <div class="name def" id="zerorobot.storage.zdb.ZDBServiceStorage.list">
+    <p>def <span class="ident">list</span>(</p><p>self)</p>
+    </div>
+    
+
+    
+  
+    <div class="desc"><p>yield all the services data found in the storage</p>
+<p>this method yield a dict containing all the data of a service
+example of such a dict:
+{
+    'service':{
+        'template': '',
+        'version': '',
+        'name': '',
+        'guid': '',
+        'public': '',
+    },
+    'states':{
+        'category1':{
+            'name': 'state',
+        },
+        'category2':{
+            'name': 'state',
+        }
+    },
+    'data': {
+        ...
+    },
+    'tasks': [
+        {
+            "guid":: '',
+            "action_name": '',
+            "args": '',
+            "state": '',
+            "eco": '',
+            "created": '',
+        }
+    ]
+}</p></div>
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.storage.zdb.ZDBServiceStorage.list', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.storage.zdb.ZDBServiceStorage.list" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">list</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">guid</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ns</span><span class="o">.</span><span class="n">list</span><span class="p">():</span>
+        <span class="n">obj</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ns</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">guid</span><span class="p">)</span>
+        <span class="n">service</span> <span class="o">=</span> <span class="n">msgpack</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span>
+        <span class="k">yield</span> <span class="n">service</span>
+</pre></div>
+
+  </div>
+</div>
+
+  </div>
+  
+            
+  <div class="item">
+    <div class="name def" id="zerorobot.storage.zdb.ZDBServiceStorage.save">
+    <p>def <span class="ident">save</span>(</p><p>self, service)</p>
+    </div>
+    
+
+    
+  
+    <div class="desc"><p>save a service object</p>
+<p>:param service: service
+:type service: zerorobot.template.base</p></div>
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.storage.zdb.ZDBServiceStorage.save', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.storage.zdb.ZDBServiceStorage.save" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">service</span><span class="p">):</span>
+    <span class="n">serialized_service</span> <span class="o">=</span> <span class="n">_serialize_service</span><span class="p">(</span><span class="n">service</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_ns</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">msgpack</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">serialized_service</span><span class="p">),</span> <span class="n">service</span><span class="o">.</span><span class="n">guid</span><span class="p">)</span>
+</pre></div>
+
+  </div>
+</div>
+
+  </div>
+  
+      </div>
+      </div>
 
   </section>
 

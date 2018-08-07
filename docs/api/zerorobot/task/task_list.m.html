@@ -1062,6 +1062,7 @@ table {
           
   <ul>
     <li class="mono"><a href="#zerorobot.task.task_list.TaskList.__init__">__init__</a></li>
+    <li class="mono"><a href="#zerorobot.task.task_list.TaskList.clear">clear</a></li>
     <li class="mono"><a href="#zerorobot.task.task_list.TaskList.done">done</a></li>
     <li class="mono"><a href="#zerorobot.task.task_list.TaskList.empty">empty</a></li>
     <li class="mono"><a href="#zerorobot.task.task_list.TaskList.get">get</a></li>
@@ -1069,7 +1070,6 @@ table {
     <li class="mono"><a href="#zerorobot.task.task_list.TaskList.list_tasks">list_tasks</a></li>
     <li class="mono"><a href="#zerorobot.task.task_list.TaskList.load">load</a></li>
     <li class="mono"><a href="#zerorobot.task.task_list.TaskList.put">put</a></li>
-    <li class="mono"><a href="#zerorobot.task.task_list.TaskList.save">save</a></li>
   </ul>
 
         </li>
@@ -1095,8 +1095,11 @@ table {
     <div class="codehilite"><pre><span></span><span class="n">mport</span> <span class="n">json</span>
 <span class="n">mport</span> <span class="n">os</span>
 <span class="n">mport</span> <span class="n">gevent</span>
+<span class="n">mport</span> <span class="n">requests</span>
+<span class="n">rom</span> <span class="n">gevent</span><span class="o">.</span><span class="n">lock</span> <span class="kn">import</span> <span class="nn">Semaphore</span>
 <span class="n">rom</span> <span class="n">gevent</span><span class="o">.</span><span class="n">queue</span> <span class="kn">import</span> <span class="nn">PriorityQueue</span>
-<span class="n">rom</span> <span class="n">js9</span> <span class="kn">import</span> <span class="nn">j</span>
+<span class="n">rom</span> <span class="n">jumpscale</span> <span class="kn">import</span> <span class="nn">j</span>
+<span class="n">rom</span> <span class="n">zerorobot</span><span class="o">.</span><span class="n">prometheus</span><span class="o">.</span><span class="n">robot</span> <span class="kn">import</span> <span class="nn">nr_task_waiting</span>
 <span class="n">rom</span> <span class="o">.</span> <span class="kn">import</span> <span class="p">(</span><span class="n">PRIORITY_NORMAL</span><span class="p">,</span> <span class="n">PRIORITY_SYSTEM</span><span class="p">,</span> <span class="n">TASK_STATE_ERROR</span><span class="p">,</span>
               <span class="n">TASK_STATE_NEW</span><span class="p">,</span> <span class="n">TASK_STATE_OK</span><span class="p">,</span> <span class="n">TASK_STATE_RUNNING</span><span class="p">)</span>
 <span class="n">rom</span> <span class="o">.</span><span class="n">storage</span><span class="o">.</span><span class="n">base</span> <span class="kn">import</span> <span class="nn">TaskNotFoundError</span>
@@ -1105,7 +1108,6 @@ table {
  <span class="kn">from</span> <span class="nn">.storage.redis</span> <span class="kn">import</span> <span class="n">TaskStorageRedis</span>
 <span class="n">rom</span> <span class="o">.</span><span class="n">task</span> <span class="kn">import</span> <span class="nn">Task</span>
 <span class="n">rom</span> <span class="o">.</span><span class="n">utils</span> <span class="kn">import</span> <span class="nn">_instantiate_task</span>
-<span class="n">rom</span> <span class="n">zerorobot</span><span class="o">.</span><span class="n">prometheus</span><span class="o">.</span><span class="n">robot</span> <span class="kn">import</span> <span class="nn">nr_task_waiting</span>
 <span class="n">lass</span> <span class="n">TaskList</span><span class="p">:</span>
    <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">   Task list if a FIFO queue of tasks</span>
@@ -1122,7 +1124,16 @@ table {
        <span class="c1"># self._done = TaskStorageFile(self)</span>
        <span class="bp">self</span><span class="o">.</span><span class="n">_done</span> <span class="o">=</span> <span class="n">TaskStorageSqlite</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
        <span class="c1"># pointer to current task</span>
-       <span class="bp">self</span><span class="o">.</span><span class="n">current</span> <span class="o">=</span> <span class="bp">None</span>
+       <span class="bp">self</span><span class="o">.</span><span class="n">_current</span> <span class="o">=</span> <span class="bp">None</span>
+       <span class="bp">self</span><span class="o">.</span><span class="n">_current_mu</span> <span class="o">=</span> <span class="n">Semaphore</span><span class="p">()</span>
+   <span class="nd">@property</span>
+   <span class="k">def</span> <span class="nf">current</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+       <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_current_mu</span><span class="p">:</span>
+           <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_current</span>
+   <span class="nd">@current.setter</span>
+   <span class="k">def</span> <span class="nf">current</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+       <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_current_mu</span><span class="p">:</span>
+           <span class="bp">self</span><span class="o">.</span><span class="n">_current</span> <span class="o">=</span> <span class="n">value</span>
    <span class="k">def</span> <span class="fm">__del__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_done</span><span class="p">:</span>
            <span class="bp">self</span><span class="o">.</span><span class="n">_done</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
@@ -1156,6 +1167,15 @@ table {
 <span class="sd">       return True if the task list is empty, False otherwise</span>
 <span class="sd">       &quot;&quot;&quot;</span>
        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_queue</span><span class="o">.</span><span class="n">empty</span><span class="p">()</span>
+   <span class="k">def</span> <span class="nf">clear</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+       <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">       clear emtpy the task list from all its tasks</span>
+<span class="sd">       &quot;&quot;&quot;</span>
+       <span class="k">try</span><span class="p">:</span>
+           <span class="k">while</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">empty</span><span class="p">():</span>
+               <span class="bp">self</span><span class="o">.</span><span class="n">_queue</span><span class="o">.</span><span class="n">get_nowait</span><span class="p">()</span>
+       <span class="k">except</span> <span class="n">gevent</span><span class="o">.</span><span class="n">queue</span><span class="o">.</span><span class="n">Empty</span><span class="p">:</span>
+           <span class="k">return</span>
    <span class="k">def</span> <span class="nf">list_tasks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">all</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
        <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">       @param all: if True, also return the task that have been executed</span>
@@ -1192,34 +1212,19 @@ table {
        <span class="c1"># search in done task</span>
        <span class="c1"># this will raise TaskNotFoundError if can&#39;t find the task</span>
        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_done</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">guid</span><span class="p">)</span>
-   <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
+   <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tasks</span><span class="p">):</span>
        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">       serialize the task list to disk</span>
-<span class="sd">       @param path: file path where to serialize the task list</span>
+<span class="sd">       @param tasks: list of tasks in the format:</span>
+<span class="sd">       {</span>
+<span class="sd">           &quot;guid&quot;: ,</span>
+<span class="sd">           &quot;action_name&quot; ,</span>
+<span class="sd">           &quot;args&quot; ,</span>
+<span class="sd">           &quot;state&quot; ,</span>
+<span class="sd">           &quot;eco&quot; ,</span>
+<span class="sd">           &quot;created&quot; ,</span>
+<span class="sd">       }</span>
 <span class="sd">       &quot;&quot;&quot;</span>
-       <span class="k">def</span> <span class="nf">serialize_task</span><span class="p">(</span><span class="n">task</span><span class="p">):</span>
-           <span class="k">return</span> <span class="p">{</span>
-               <span class="s2">&quot;guid&quot;</span><span class="p">:</span> <span class="n">task</span><span class="o">.</span><span class="n">guid</span><span class="p">,</span>
-               <span class="s2">&quot;action_name&quot;</span><span class="p">:</span> <span class="n">task</span><span class="o">.</span><span class="n">action_name</span><span class="p">,</span>
-               <span class="s2">&quot;args&quot;</span><span class="p">:</span> <span class="n">task</span><span class="o">.</span><span class="n">_args</span><span class="p">,</span>
-               <span class="s2">&quot;state&quot;</span><span class="p">:</span> <span class="n">task</span><span class="o">.</span><span class="n">state</span><span class="p">,</span>
-               <span class="s2">&quot;eco&quot;</span><span class="p">:</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">task</span><span class="o">.</span><span class="n">eco</span><span class="o">.</span><span class="n">json</span><span class="p">)</span> <span class="k">if</span> <span class="n">task</span><span class="o">.</span><span class="n">eco</span> <span class="k">else</span> <span class="bp">None</span><span class="p">,</span>
-               <span class="s2">&quot;created&quot;</span><span class="p">:</span> <span class="n">task</span><span class="o">.</span><span class="n">created</span><span class="p">,</span>
-           <span class="p">}</span>
-       <span class="n">output</span> <span class="o">=</span> <span class="p">[]</span>
-       <span class="k">for</span> <span class="n">task</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">list_tasks</span><span class="p">(</span><span class="nb">all</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
-           <span class="n">output</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">serialize_task</span><span class="p">(</span><span class="n">task</span><span class="p">))</span>
-       <span class="n">j</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">serializer</span><span class="o">.</span><span class="n">yaml</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">output</span><span class="p">)</span>
-   <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
-       <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">       load a task list that have been serialized with save method</span>
-<span class="sd">       @param path: file path where the task list is serialized</span>
-<span class="sd">       @param service: the service object to which this task list belongs</span>
-<span class="sd">       &quot;&quot;&quot;</span>
-       <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
-           <span class="k">return</span>
-       <span class="n">data</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">serializer</span><span class="o">.</span><span class="n">yaml</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
-       <span class="k">for</span> <span class="n">task</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+       <span class="k">for</span> <span class="n">task</span> <span class="ow">in</span> <span class="n">tasks</span><span class="p">:</span>
            <span class="k">if</span> <span class="n">task</span><span class="p">[</span><span class="s1">&#39;state&#39;</span><span class="p">]</span> <span class="ow">in</span> <span class="p">[</span><span class="n">TASK_STATE_NEW</span><span class="p">,</span> <span class="n">TASK_STATE_RUNNING</span><span class="p">]:</span>
                <span class="bp">self</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="n">_instantiate_task</span><span class="p">(</span><span class="n">task</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">service</span><span class="p">))</span>
            <span class="k">else</span><span class="p">:</span>
@@ -1311,7 +1316,18 @@ table {
         <span class="c1"># self._done = TaskStorageFile(self)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_done</span> <span class="o">=</span> <span class="n">TaskStorageSqlite</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
         <span class="c1"># pointer to current task</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">current</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_current</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_current_mu</span> <span class="o">=</span> <span class="n">Semaphore</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">current</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_current_mu</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_current</span>
+
+    <span class="nd">@current.setter</span>
+    <span class="k">def</span> <span class="nf">current</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_current_mu</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_current</span> <span class="o">=</span> <span class="n">value</span>
 
     <span class="k">def</span> <span class="fm">__del__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_done</span><span class="p">:</span>
@@ -1350,6 +1366,17 @@ table {
 <span class="sd">        return True if the task list is empty, False otherwise</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_queue</span><span class="o">.</span><span class="n">empty</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">clear</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        clear emtpy the task list from all its tasks</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">while</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">empty</span><span class="p">():</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_queue</span><span class="o">.</span><span class="n">get_nowait</span><span class="p">()</span>
+        <span class="k">except</span> <span class="n">gevent</span><span class="o">.</span><span class="n">queue</span><span class="o">.</span><span class="n">Empty</span><span class="p">:</span>
+            <span class="k">return</span>
 
     <span class="k">def</span> <span class="nf">list_tasks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">all</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -1394,36 +1421,19 @@ table {
         <span class="c1"># this will raise TaskNotFoundError if can&#39;t find the task</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_done</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">guid</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tasks</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        serialize the task list to disk</span>
-<span class="sd">        @param path: file path where to serialize the task list</span>
+<span class="sd">        @param tasks: list of tasks in the format:</span>
+<span class="sd">        {</span>
+<span class="sd">            &quot;guid&quot;: ,</span>
+<span class="sd">            &quot;action_name&quot; ,</span>
+<span class="sd">            &quot;args&quot; ,</span>
+<span class="sd">            &quot;state&quot; ,</span>
+<span class="sd">            &quot;eco&quot; ,</span>
+<span class="sd">            &quot;created&quot; ,</span>
+<span class="sd">        }</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">def</span> <span class="nf">serialize_task</span><span class="p">(</span><span class="n">task</span><span class="p">):</span>
-            <span class="k">return</span> <span class="p">{</span>
-                <span class="s2">&quot;guid&quot;</span><span class="p">:</span> <span class="n">task</span><span class="o">.</span><span class="n">guid</span><span class="p">,</span>
-                <span class="s2">&quot;action_name&quot;</span><span class="p">:</span> <span class="n">task</span><span class="o">.</span><span class="n">action_name</span><span class="p">,</span>
-                <span class="s2">&quot;args&quot;</span><span class="p">:</span> <span class="n">task</span><span class="o">.</span><span class="n">_args</span><span class="p">,</span>
-                <span class="s2">&quot;state&quot;</span><span class="p">:</span> <span class="n">task</span><span class="o">.</span><span class="n">state</span><span class="p">,</span>
-                <span class="s2">&quot;eco&quot;</span><span class="p">:</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">task</span><span class="o">.</span><span class="n">eco</span><span class="o">.</span><span class="n">json</span><span class="p">)</span> <span class="k">if</span> <span class="n">task</span><span class="o">.</span><span class="n">eco</span> <span class="k">else</span> <span class="bp">None</span><span class="p">,</span>
-                <span class="s2">&quot;created&quot;</span><span class="p">:</span> <span class="n">task</span><span class="o">.</span><span class="n">created</span><span class="p">,</span>
-            <span class="p">}</span>
-        <span class="n">output</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">task</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">list_tasks</span><span class="p">(</span><span class="nb">all</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
-            <span class="n">output</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">serialize_task</span><span class="p">(</span><span class="n">task</span><span class="p">))</span>
-        <span class="n">j</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">serializer</span><span class="o">.</span><span class="n">yaml</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">output</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        load a task list that have been serialized with save method</span>
-<span class="sd">        @param path: file path where the task list is serialized</span>
-<span class="sd">        @param service: the service object to which this task list belongs</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
-            <span class="k">return</span>
-
-        <span class="n">data</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">serializer</span><span class="o">.</span><span class="n">yaml</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">task</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">task</span> <span class="ow">in</span> <span class="n">tasks</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">task</span><span class="p">[</span><span class="s1">&#39;state&#39;</span><span class="p">]</span> <span class="ow">in</span> <span class="p">[</span><span class="n">TASK_STATE_NEW</span><span class="p">,</span> <span class="n">TASK_STATE_RUNNING</span><span class="p">]:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="n">_instantiate_task</span><span class="p">(</span><span class="n">task</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">service</span><span class="p">))</span>
             <span class="k">else</span><span class="p">:</span>
@@ -1467,7 +1477,37 @@ table {
     <span class="c1"># self._done = TaskStorageFile(self)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_done</span> <span class="o">=</span> <span class="n">TaskStorageSqlite</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
     <span class="c1"># pointer to current task</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">current</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_current</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_current_mu</span> <span class="o">=</span> <span class="n">Semaphore</span><span class="p">()</span>
+</pre></div>
+
+  </div>
+</div>
+
+  </div>
+  
+            
+  <div class="item">
+    <div class="name def" id="zerorobot.task.task_list.TaskList.clear">
+    <p>def <span class="ident">clear</span>(</p><p>self)</p>
+    </div>
+    
+
+    
+  
+    <div class="desc"><p>clear emtpy the task list from all its tasks</p></div>
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.task.task_list.TaskList.clear', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.task.task_list.TaskList.clear" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">clear</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    clear emtpy the task list from all its tasks</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">while</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">empty</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_queue</span><span class="o">.</span><span class="n">get_nowait</span><span class="p">()</span>
+    <span class="k">except</span> <span class="n">gevent</span><span class="o">.</span><span class="n">queue</span><span class="o">.</span><span class="n">Empty</span><span class="p">:</span>
+        <span class="k">return</span>
 </pre></div>
 
   </div>
@@ -1638,28 +1678,37 @@ returns all the task that are currently in the task list</p></div>
             
   <div class="item">
     <div class="name def" id="zerorobot.task.task_list.TaskList.load">
-    <p>def <span class="ident">load</span>(</p><p>self, path)</p>
+    <p>def <span class="ident">load</span>(</p><p>self, tasks)</p>
     </div>
     
 
     
   
-    <div class="desc"><p>load a task list that have been serialized with save method
-@param path: file path where the task list is serialized
-@param service: the service object to which this task list belongs</p></div>
+    <div class="desc"><p>@param tasks: list of tasks in the format:
+{
+    "guid": ,
+    "action_name" ,
+    "args" ,
+    "state" ,
+    "eco" ,
+    "created" ,
+}</p></div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.task.task_list.TaskList.load', this);">Show source &equiv;</a></p>
   <div id="source-zerorobot.task.task_list.TaskList.load" class="source">
-    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tasks</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    load a task list that have been serialized with save method</span>
-<span class="sd">    @param path: file path where the task list is serialized</span>
-<span class="sd">    @param service: the service object to which this task list belongs</span>
+<span class="sd">    @param tasks: list of tasks in the format:</span>
+<span class="sd">    {</span>
+<span class="sd">        &quot;guid&quot;: ,</span>
+<span class="sd">        &quot;action_name&quot; ,</span>
+<span class="sd">        &quot;args&quot; ,</span>
+<span class="sd">        &quot;state&quot; ,</span>
+<span class="sd">        &quot;eco&quot; ,</span>
+<span class="sd">        &quot;created&quot; ,</span>
+<span class="sd">    }</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
-        <span class="k">return</span>
-    <span class="n">data</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">serializer</span><span class="o">.</span><span class="n">yaml</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
-    <span class="k">for</span> <span class="n">task</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+    <span class="k">for</span> <span class="n">task</span> <span class="ow">in</span> <span class="n">tasks</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">task</span><span class="p">[</span><span class="s1">&#39;state&#39;</span><span class="p">]</span> <span class="ow">in</span> <span class="p">[</span><span class="n">TASK_STATE_NEW</span><span class="p">,</span> <span class="n">TASK_STATE_RUNNING</span><span class="p">]:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="n">_instantiate_task</span><span class="p">(</span><span class="n">task</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">service</span><span class="p">))</span>
         <span class="k">else</span><span class="p">:</span>
@@ -1694,45 +1743,6 @@ returns all the task that are currently in the task list</p></div>
     <span class="n">task</span><span class="o">.</span><span class="n">_priority</span> <span class="o">=</span> <span class="n">priority</span>
     <span class="n">nr_task_waiting</span><span class="o">.</span><span class="n">labels</span><span class="p">(</span><span class="n">service_guid</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">service</span><span class="o">.</span><span class="n">guid</span><span class="p">)</span><span class="o">.</span><span class="n">inc</span><span class="p">()</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_queue</span><span class="o">.</span><span class="n">put</span><span class="p">((</span><span class="n">priority</span><span class="p">,</span> <span class="n">task</span><span class="p">))</span>
-</pre></div>
-
-  </div>
-</div>
-
-  </div>
-  
-            
-  <div class="item">
-    <div class="name def" id="zerorobot.task.task_list.TaskList.save">
-    <p>def <span class="ident">save</span>(</p><p>self, path)</p>
-    </div>
-    
-
-    
-  
-    <div class="desc"><p>serialize the task list to disk
-@param path: file path where to serialize the task list</p></div>
-  <div class="source_cont">
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.task.task_list.TaskList.save', this);">Show source &equiv;</a></p>
-  <div id="source-zerorobot.task.task_list.TaskList.save" class="source">
-    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    serialize the task list to disk</span>
-<span class="sd">    @param path: file path where to serialize the task list</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="nf">serialize_task</span><span class="p">(</span><span class="n">task</span><span class="p">):</span>
-        <span class="k">return</span> <span class="p">{</span>
-            <span class="s2">&quot;guid&quot;</span><span class="p">:</span> <span class="n">task</span><span class="o">.</span><span class="n">guid</span><span class="p">,</span>
-            <span class="s2">&quot;action_name&quot;</span><span class="p">:</span> <span class="n">task</span><span class="o">.</span><span class="n">action_name</span><span class="p">,</span>
-            <span class="s2">&quot;args&quot;</span><span class="p">:</span> <span class="n">task</span><span class="o">.</span><span class="n">_args</span><span class="p">,</span>
-            <span class="s2">&quot;state&quot;</span><span class="p">:</span> <span class="n">task</span><span class="o">.</span><span class="n">state</span><span class="p">,</span>
-            <span class="s2">&quot;eco&quot;</span><span class="p">:</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">task</span><span class="o">.</span><span class="n">eco</span><span class="o">.</span><span class="n">json</span><span class="p">)</span> <span class="k">if</span> <span class="n">task</span><span class="o">.</span><span class="n">eco</span> <span class="k">else</span> <span class="bp">None</span><span class="p">,</span>
-            <span class="s2">&quot;created&quot;</span><span class="p">:</span> <span class="n">task</span><span class="o">.</span><span class="n">created</span><span class="p">,</span>
-        <span class="p">}</span>
-    <span class="n">output</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">task</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">list_tasks</span><span class="p">(</span><span class="nb">all</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
-        <span class="n">output</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">serialize_task</span><span class="p">(</span><span class="n">task</span><span class="p">))</span>
-    <span class="n">j</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">serializer</span><span class="o">.</span><span class="n">yaml</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">output</span><span class="p">)</span>
 </pre></div>
 
   </div>

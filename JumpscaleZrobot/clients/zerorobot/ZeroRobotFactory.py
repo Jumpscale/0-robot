@@ -1,6 +1,7 @@
+import collections
 import os
 
-from js9 import j
+from jumpscale import j
 from zerorobot.dsl.ZeroRobotManager import ZeroRobotManager
 
 from .ZeroRobotClient import ZeroRobotClient
@@ -13,6 +14,7 @@ class ZeroRobotFactory(JSConfigFactoryBase):
     def __init__(self):
         self.__jslocation__ = "j.clients.zrobot"
         super().__init__(child_class=ZeroRobotClient)
+        self._robots = RobotLoader()
 
     def generate(self):
         """
@@ -34,9 +36,42 @@ class ZeroRobotFactory(JSConfigFactoryBase):
         ZeroRobotManager is a high level client for 0-robot that present the 0-robot API with an easy interface
         see https://zero-os.github.io/0-robot/api/zerorobot/dsl/ZeroRobotManager.m.html for full API documentation
         """
-        if ZeroRobotManager is None:
-            raise RuntimeError("zerorobot library is not installed, see 'https://github.com/zero-os/0-robot' to know how to install it")
+        return self._robots
+
+
+class RobotLoader(collections.MutableMapping):
+
+    def __getitem__(self, key):
+        return self.get(key)
+
+    def __setitem__(self, key, value):
+        raise NotImplementedError("you cannot set a robot.")
+
+    def __delitem__(self, key):
+        j.clients.zrobot.delete(key)
+
+    def __iter__(self):
+        return iter(j.clients.zrobot.getall())
+
+    def __len__(self):
+        return j.clients.zrobot.count()
+
+    def __keytransform__(self, key):
+        return key
+
+    def get(self, key):
+        if not isinstance(key, str):
+            raise TypeError
+
+        if not j.clients.zrobot.exists(key):
+            raise KeyError()
+
+        return ZeroRobotManager(key)
+
+    def __repr__(self):
         robots = {}
-        for instance in j.tools.configmanager.list(self.__jslocation__):
+        for instance in j.clients.zrobot.list():
             robots[instance] = ZeroRobotManager(instance)
-        return robots
+        return str(robots)
+
+    __str__ = __repr__

@@ -1078,7 +1078,7 @@ table {
 <span class="kn">from</span> <span class="nn">zerorobot.server</span> <span class="kn">import</span> <span class="n">auth</span>
 
 
-<span class="nd">@auth.all.login_required</span>
+<span class="nd">@auth.service.login_required</span>
 <span class="k">def</span> <span class="nf">GetServiceHandler</span><span class="p">(</span><span class="n">service_guid</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Get the detail of a service</span>
@@ -1114,7 +1114,7 @@ It is handler for GET /services/<service_guid></p></div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.server.handlers.GetServiceHandler.GetServiceHandler', this);">Show source &equiv;</a></p>
   <div id="source-zerorobot.server.handlers.GetServiceHandler.GetServiceHandler" class="source">
-    <div class="codehilite"><pre><span></span><span class="nd">@auth.all.login_required</span>
+    <div class="codehilite"><pre><span></span><span class="nd">@auth.service.login_required</span>
 <span class="k">def</span> <span class="nf">GetServiceHandler</span><span class="p">(</span><span class="n">service_guid</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Get the detail of a service</span>

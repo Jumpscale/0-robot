@@ -1,6 +1,6 @@
 import gevent
 import datetime
-from js9 import j
+from jumpscale import j
 
 from zerorobot import service_collection as scol
 

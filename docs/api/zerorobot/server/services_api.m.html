@@ -1053,6 +1053,7 @@ table {
   <ul>
     <li class="mono"><a href="#zerorobot.server.services_api.AddTaskToList">AddTaskToList</a></li>
     <li class="mono"><a href="#zerorobot.server.services_api.DeleteService">DeleteService</a></li>
+    <li class="mono"><a href="#zerorobot.server.services_api.GetLogs">GetLogs</a></li>
     <li class="mono"><a href="#zerorobot.server.services_api.GetService">GetService</a></li>
     <li class="mono"><a href="#zerorobot.server.services_api.GetTask">GetTask</a></li>
     <li class="mono"><a href="#zerorobot.server.services_api.ListActions">ListActions</a></li>
@@ -1125,6 +1126,15 @@ table {
     <span class="k">return</span> <span class="n">handlers</span><span class="o">.</span><span class="n">DeleteServiceHandler</span><span class="p">(</span><span class="n">service_guid</span><span class="p">)</span>
 
 
+<span class="nd">@services_api.route</span><span class="p">(</span><span class="s1">&#39;/services/&lt;service_guid&gt;/actions&#39;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;GET&#39;</span><span class="p">])</span>
+<span class="k">def</span> <span class="nf">ListActions</span><span class="p">(</span><span class="n">service_guid</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    List all the possible action a service can do.</span>
+<span class="sd">    It is handler for GET /services/&lt;service_guid&gt;/actions</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">handlers</span><span class="o">.</span><span class="n">ListActionsHandler</span><span class="p">(</span><span class="n">service_guid</span><span class="p">)</span>
+
+
 <span class="nd">@services_api.route</span><span class="p">(</span><span class="s1">&#39;/services/&lt;service_guid&gt;/task_list&#39;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;GET&#39;</span><span class="p">])</span>
 <span class="k">def</span> <span class="nf">getTaskList</span><span class="p">(</span><span class="n">service_guid</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
@@ -1152,13 +1162,13 @@ table {
     <span class="k">return</span> <span class="n">handlers</span><span class="o">.</span><span class="n">GetTaskHandler</span><span class="p">(</span><span class="n">task_guid</span><span class="p">,</span> <span class="n">service_guid</span><span class="p">)</span>
 
 
-<span class="nd">@services_api.route</span><span class="p">(</span><span class="s1">&#39;/services/&lt;service_guid&gt;/actions&#39;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;GET&#39;</span><span class="p">])</span>
-<span class="k">def</span> <span class="nf">ListActions</span><span class="p">(</span><span class="n">service_guid</span><span class="p">):</span>
+<span class="nd">@services_api.route</span><span class="p">(</span><span class="s1">&#39;/services/&lt;service_guid&gt;/logs&#39;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;GET&#39;</span><span class="p">])</span>
+<span class="k">def</span> <span class="nf">GetLogs</span><span class="p">(</span><span class="n">service_guid</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    List all the possible action a service can do.</span>
-<span class="sd">    It is handler for GET /services/&lt;service_guid&gt;/actions</span>
+<span class="sd">    returns the logs of the services tasks</span>
+<span class="sd">    It is handler for GET /services/&lt;service_guid&gt;/logs</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">handlers</span><span class="o">.</span><span class="n">ListActionsHandler</span><span class="p">(</span><span class="n">service_guid</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">handlers</span><span class="o">.</span><span class="n">GetLogsHandler</span><span class="p">(</span><span class="n">service_guid</span><span class="p">)</span>
 </pre></div>
 
   </div>
@@ -1226,6 +1236,34 @@ It is handler for DELETE /services/<service_guid></p></div>
 <span class="sd">    It is handler for DELETE /services/&lt;service_guid&gt;</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">handlers</span><span class="o">.</span><span class="n">DeleteServiceHandler</span><span class="p">(</span><span class="n">service_guid</span><span class="p">)</span>
+</pre></div>
+
+  </div>
+</div>
+
+  </div>
+  
+      
+  <div class="item">
+    <div class="name def" id="zerorobot.server.services_api.GetLogs">
+    <p>def <span class="ident">GetLogs</span>(</p><p>service_guid)</p>
+    </div>
+    
+
+    
+  
+    <div class="desc"><p>returns the logs of the services tasks
+It is handler for GET /services/<service_guid>/logs</p></div>
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.server.services_api.GetLogs', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.server.services_api.GetLogs" class="source">
+    <div class="codehilite"><pre><span></span><span class="nd">@services_api.route</span><span class="p">(</span><span class="s1">&#39;/services/&lt;service_guid&gt;/logs&#39;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;GET&#39;</span><span class="p">])</span>
+<span class="k">def</span> <span class="nf">GetLogs</span><span class="p">(</span><span class="n">service_guid</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    returns the logs of the services tasks</span>
+<span class="sd">    It is handler for GET /services/&lt;service_guid&gt;/logs</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">handlers</span><span class="o">.</span><span class="n">GetLogsHandler</span><span class="p">(</span><span class="n">service_guid</span><span class="p">)</span>
 </pre></div>
 
   </div>

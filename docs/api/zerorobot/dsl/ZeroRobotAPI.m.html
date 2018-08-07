@@ -1117,7 +1117,7 @@ table {
 <span class="sd">It provie ways to create and list services from a group of ZeroRobots in a unified way.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="kn">from</span> <span class="nn">js9</span> <span class="kn">import</span> <span class="n">j</span>
+<span class="kn">from</span> <span class="nn">jumpscale</span> <span class="kn">import</span> <span class="n">j</span>
 <span class="kn">from</span> <span class="nn">zerorobot</span> <span class="kn">import</span> <span class="n">service_collection</span> <span class="k">as</span> <span class="n">scol</span>
 <span class="kn">from</span> <span class="nn">zerorobot</span> <span class="kn">import</span> <span class="n">template_collection</span> <span class="k">as</span> <span class="n">tcol</span>
 <span class="kn">from</span> <span class="nn">zerorobot.dsl.ZeroRobotManager</span> <span class="kn">import</span> <span class="n">ZeroRobotManager</span>
@@ -1185,7 +1185,7 @@ table {
         <span class="k">if</span> <span class="n">i</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">scol</span><span class="o">.</span><span class="n">TooManyResults</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%d</span><span class="s2"> services found&quot;</span> <span class="o">%</span> <span class="n">i</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">i</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">scol</span><span class="o">.</span><span class="n">ServiceNotFoundError</span><span class="p">()</span>
+            <span class="k">raise</span> <span class="n">scol</span><span class="o">.</span><span class="n">ServiceNotFoundError</span><span class="p">(</span><span class="s2">&quot;service not found: query was: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">kwargs</span><span class="p">))</span>
         <span class="k">return</span> <span class="n">results</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
     <span class="k">def</span> <span class="nf">create</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">template_uid</span><span class="p">,</span> <span class="n">service_name</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">public</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
@@ -1621,7 +1621,7 @@ table {
         <span class="k">if</span> <span class="n">i</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">scol</span><span class="o">.</span><span class="n">TooManyResults</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%d</span><span class="s2"> services found&quot;</span> <span class="o">%</span> <span class="n">i</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">i</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">scol</span><span class="o">.</span><span class="n">ServiceNotFoundError</span><span class="p">()</span>
+            <span class="k">raise</span> <span class="n">scol</span><span class="o">.</span><span class="n">ServiceNotFoundError</span><span class="p">(</span><span class="s2">&quot;service not found: query was: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">kwargs</span><span class="p">))</span>
         <span class="k">return</span> <span class="n">results</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
     <span class="k">def</span> <span class="nf">create</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">template_uid</span><span class="p">,</span> <span class="n">service_name</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">public</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
@@ -1897,7 +1897,7 @@ You can filter on:
     <span class="k">if</span> <span class="n">i</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">scol</span><span class="o">.</span><span class="n">TooManyResults</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%d</span><span class="s2"> services found&quot;</span> <span class="o">%</span> <span class="n">i</span><span class="p">)</span>
     <span class="k">elif</span> <span class="n">i</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="n">scol</span><span class="o">.</span><span class="n">ServiceNotFoundError</span><span class="p">()</span>
+        <span class="k">raise</span> <span class="n">scol</span><span class="o">.</span><span class="n">ServiceNotFoundError</span><span class="p">(</span><span class="s2">&quot;service not found: query was: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">kwargs</span><span class="p">))</span>
     <span class="k">return</span> <span class="n">results</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 </pre></div>
 

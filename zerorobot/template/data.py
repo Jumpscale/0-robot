@@ -1,7 +1,7 @@
 
 import os
 
-from js9 import j
+from jumpscale import j
 
 from zerorobot.task import PRIORITY_SYSTEM
 

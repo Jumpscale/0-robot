@@ -14,8 +14,10 @@ from logging.handlers import RotatingFileHandler
 from uuid import uuid4
 
 import gevent
+from gevent.event import Event
+from gevent.queue import Empty
 
-from js9 import j
+from jumpscale import j
 from zerorobot import service_collection as scol
 from zerorobot import webhooks
 from zerorobot.dsl.ZeroRobotAPI import ZeroRobotAPI
@@ -103,7 +105,16 @@ class GreenletsMgr:
         for gl in self.gls.values():
             gl.kill(block=False)
         if wait:
-            gevent.wait(list(self.gls.values()), timeout=timeout)
+            self.wait_all(timeout)
+
+    def stop_recurring(self, wait=False, timeout=None):
+        for key, gl in self.gls.items():
+            if key.startswith('recurring_'):
+                logger.info("kill %s" % key)
+                gl.kill(block=wait, timeout=timeout)
+
+    def wait_all(self, timeout=None):
+        gevent.wait(list(self.gls.values()), timeout=timeout)
 
 
 class TemplateBase:
@@ -122,6 +133,7 @@ class TemplateBase:
 
     def __init__(self, name=None, guid=None, data=None):
         self.template_dir = os.path.dirname(sys.modules.get(str(self.template_uid)).__file__)
+        self.__stop_event = Event()
         self.guid = guid or str(uuid4())
         self.name = name or self.guid
         self._public = False
@@ -183,9 +195,14 @@ class TemplateBase:
         if config.SERVICE_LOADED:
             config.SERVICE_LOADED.wait()
 
-        while True:
+        while not self.__stop_event.is_set():
             try:
-                task = self.task_list.get()
+                try:
+                    # wait for 5 second before re-trying the exit condition
+                    task = self.task_list.get(timeout=5)
+                except Empty:
+                    continue
+
                 task.service = self
                 try:
                     task.execute()
@@ -193,8 +210,9 @@ class TemplateBase:
                     task_latency.labels(action_name=task.action_name, template_uid=str(self.template_uid)).observe(task.duration)
                     # notify the task list that this task is done
                     self.task_list.done(task)
-                    if task.state == TASK_STATE_ERROR:
+                    if task.state == TASK_STATE_ERROR and task.eco:
                         self.logger.error("error executing action %s:\n%s" % (task.action_name, task.eco.traceback))
+
             except gevent.GreenletExit:
                 # TODO: gracefull shutdown
                 # make sure the task storage is close properly
@@ -264,6 +282,28 @@ class TemplateBase:
 
         gl = gevent.Greenlet(_recurring_action, self, action, period)
         self.gl_mgr.add("recurring_" + action, gl)
+
+    def _gracefull_stop(self, timeout=None):
+        """
+        Gracefully stop the service
+
+        1. kill all the recurring greenlets
+        2. if there is a task in progress wait till timout, then kill
+        """
+        self.logger.info("stopping service %s (%s)", self.name, self.guid)
+        self.__stop_event.set()  # make the main loop exit
+
+        # stop all recurring action and processing of task list
+        self.gl_mgr.stop_recurring(wait=False)
+        main_gl = self.gl_mgr.get('executor')
+
+        # if the main loop is busy with a task, wait timeout
+        # then kill
+        try:
+            if self.task_list.current:
+                main_gl.join(timeout=timeout)
+        finally:
+            main_gl.kill(block=True, timeout=1)
 
     def delete(self, wait=False, timeout=60, die=False):
         """

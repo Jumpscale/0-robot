@@ -5,7 +5,7 @@ from pathlib import Path
 
 import requests
 
-from js9 import j
+from jumpscale import j
 from zerorobot.dsl.ZeroRobotManager import ZeroRobotManager
 
 _JS_CONFIG_KEY = 'zrobot_current'

@@ -1116,7 +1116,7 @@ other services and class need to use this module method to create, access, list 
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="kn">import</span> <span class="nn">os</span>
 
-<span class="kn">from</span> <span class="nn">js9</span> <span class="kn">import</span> <span class="n">j</span>
+<span class="kn">from</span> <span class="nn">jumpscale</span> <span class="kn">import</span> <span class="n">j</span>
 <span class="kn">from</span> <span class="nn">zerorobot.sqlite</span> <span class="kn">import</span> <span class="n">SqliteIndex</span>
 <span class="kn">from</span> <span class="nn">zerorobot.template_uid</span> <span class="kn">import</span> <span class="n">TemplateUID</span>
 
@@ -1188,41 +1188,29 @@ other services and class need to use this module method to create, access, list 
     <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;delete service </span><span class="si">%s</span><span class="s2"> from collection&quot;</span> <span class="o">%</span> <span class="n">service</span><span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="n">template</span><span class="p">,</span> <span class="n">base_path</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="n">template</span><span class="p">,</span> <span class="n">service_detail</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    load the service from it&#39;s file system serialized format</span>
 
 <span class="sd">    @param template: the template class to use to instantiate the service</span>
-<span class="sd">    @param base_path: path of the directory where</span>
-<span class="sd">                        to load the service state and data from</span>
+<span class="sd">    @param service_detail:all the detail of a service in a dict (info, data, states, task list)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">base_path</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="n">FileNotFoundError</span><span class="p">(</span><span class="s2">&quot;Trying to load service from </span><span class="si">%s</span><span class="s2">, but directory doesn&#39;t exists&quot;</span> <span class="o">%</span> <span class="n">base_path</span><span class="p">)</span>
-
-    <span class="n">guid</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">base_path</span><span class="p">)</span>
-    <span class="n">service_info</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">serializer</span><span class="o">.</span><span class="n">yaml</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">base_path</span><span class="p">,</span> <span class="s1">&#39;service.yaml&#39;</span><span class="p">))</span>
-    <span class="n">service_data</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">serializer</span><span class="o">.</span><span class="n">yaml</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">base_path</span><span class="p">,</span> <span class="s1">&#39;data.yaml&#39;</span><span class="p">))</span>
-
-    <span class="n">template_uid</span> <span class="o">=</span> <span class="n">TemplateUID</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">service_info</span><span class="p">[</span><span class="s1">&#39;template&#39;</span><span class="p">])</span>
+    <span class="n">template_uid</span> <span class="o">=</span> <span class="n">TemplateUID</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">service_detail</span><span class="p">[</span><span class="s1">&#39;service&#39;</span><span class="p">][</span><span class="s1">&#39;template&#39;</span><span class="p">])</span>
+    <span class="n">guid</span> <span class="o">=</span> <span class="n">service_detail</span><span class="p">[</span><span class="s1">&#39;service&#39;</span><span class="p">][</span><span class="s1">&#39;guid&#39;</span><span class="p">]</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">template_uid</span> <span class="o">&gt;</span> <span class="n">template</span><span class="o">.</span><span class="n">template_uid</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">BadTemplateError</span><span class="p">(</span><span class="s2">&quot;Trying to load service </span><span class="si">%s</span><span class="s2"> with template </span><span class="si">%s</span><span class="s2">, while it requires </span><span class="si">%s</span><span class="s2"> or higher&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">guid</span><span class="p">,</span> <span class="n">template</span><span class="o">.</span><span class="n">template_uid</span><span class="p">,</span> <span class="n">service_info</span><span class="p">[</span><span class="s1">&#39;template&#39;</span><span class="p">]))</span>
+            <span class="k">raise</span> <span class="n">BadTemplateError</span><span class="p">(</span><span class="s2">&quot;Trying to load service </span><span class="si">%s</span><span class="s2"> with template </span><span class="si">%s</span><span class="s2">, while it requires </span><span class="si">%s</span><span class="s2"> or higher&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">guid</span><span class="p">,</span> <span class="n">template</span><span class="o">.</span><span class="n">template_uid</span><span class="p">,</span> <span class="n">service_detail</span><span class="p">[</span><span class="s1">&#39;service&#39;</span><span class="p">][</span><span class="s1">&#39;template&#39;</span><span class="p">]))</span>
     <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>  <span class="c1"># is the two template are not the same, ValueError is raised</span>
-        <span class="k">raise</span> <span class="n">BadTemplateError</span><span class="p">(</span><span class="s2">&quot;Trying to load service </span><span class="si">%s</span><span class="s2"> with template </span><span class="si">%s</span><span class="s2">, while it requires </span><span class="si">%s</span><span class="s2"> or higher&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">guid</span><span class="p">,</span> <span class="n">template</span><span class="o">.</span><span class="n">template_uid</span><span class="p">,</span> <span class="n">service_info</span><span class="p">[</span><span class="s1">&#39;template&#39;</span><span class="p">]))</span>
+        <span class="k">raise</span> <span class="n">BadTemplateError</span><span class="p">(</span><span class="s2">&quot;Trying to load service </span><span class="si">%s</span><span class="s2"> with template </span><span class="si">%s</span><span class="s2">, while it requires </span><span class="si">%s</span><span class="s2"> or higher&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">guid</span><span class="p">,</span> <span class="n">template</span><span class="o">.</span><span class="n">template_uid</span><span class="p">,</span> <span class="n">service_detail</span><span class="p">[</span><span class="s1">&#39;service&#39;</span><span class="p">][</span><span class="s1">&#39;template&#39;</span><span class="p">]))</span>
 
-    <span class="k">if</span> <span class="n">service_info</span><span class="p">[</span><span class="s1">&#39;guid&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="n">guid</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="n">BadTemplateError</span><span class="p">(</span><span class="s2">&quot;Trying to load service from folder </span><span class="si">%s</span><span class="s2">, but name of the service is </span><span class="si">%s</span><span class="s2">&quot;</span>
-                               <span class="o">%</span> <span class="p">(</span><span class="n">base_path</span><span class="p">,</span> <span class="n">service_info</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]))</span>
+    <span class="n">service</span> <span class="o">=</span> <span class="n">template</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">service_detail</span><span class="p">[</span><span class="s1">&#39;service&#39;</span><span class="p">][</span><span class="s1">&#39;name&#39;</span><span class="p">],</span> <span class="n">guid</span><span class="o">=</span><span class="n">guid</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">service_detail</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">])</span>
+    <span class="n">service</span><span class="o">.</span><span class="n">_public</span> <span class="o">=</span> <span class="n">service_detail</span><span class="p">[</span><span class="s1">&#39;service&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;public&#39;</span><span class="p">,</span> <span class="bp">False</span><span class="p">)</span>
 
-    <span class="n">srv</span> <span class="o">=</span> <span class="n">template</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">service_info</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">],</span> <span class="n">guid</span><span class="o">=</span><span class="n">service_info</span><span class="p">[</span><span class="s1">&#39;guid&#39;</span><span class="p">],</span> <span class="n">data</span><span class="o">=</span><span class="n">service_data</span><span class="p">)</span>
-    <span class="n">srv</span><span class="o">.</span><span class="n">_public</span> <span class="o">=</span> <span class="n">service_info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;public&#39;</span><span class="p">,</span> <span class="bp">False</span><span class="p">)</span>
-
-    <span class="n">srv</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">base_path</span><span class="p">,</span> <span class="s1">&#39;state.yaml&#39;</span><span class="p">))</span>
-    <span class="n">srv</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">base_path</span><span class="p">,</span> <span class="s1">&#39;data.yaml&#39;</span><span class="p">))</span>
-    <span class="n">srv</span><span class="o">.</span><span class="n">task_list</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">base_path</span><span class="p">,</span> <span class="s1">&#39;tasks.yaml&#39;</span><span class="p">))</span>
-    <span class="n">srv</span><span class="o">.</span><span class="n">_path</span> <span class="o">=</span> <span class="n">base_path</span>
-    <span class="n">add</span><span class="p">(</span><span class="n">srv</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">srv</span>
+    <span class="n">service</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">service_detail</span><span class="p">[</span><span class="s1">&#39;states&#39;</span><span class="p">])</span>
+    <span class="c1"># srv.data.load(service_detail[&#39;data&#39;]) FIXME: should we need this since we pass the data in the constructor line 94</span>
+    <span class="n">service</span><span class="o">.</span><span class="n">task_list</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">service_detail</span><span class="p">[</span><span class="s1">&#39;tasks&#39;</span><span class="p">])</span>
+    <span class="n">add</span><span class="p">(</span><span class="n">service</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">service</span>
 
 
 <span class="k">def</span> <span class="nf">upgrade</span><span class="p">(</span><span class="n">service</span><span class="p">,</span> <span class="n">new_template</span><span class="p">,</span> <span class="n">force</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
@@ -1246,10 +1234,15 @@ other services and class need to use this module method to create, access, list 
     <span class="n">delete</span><span class="p">(</span><span class="n">service</span><span class="p">)</span>
 
     <span class="c1"># create new instance of the service with updated version of the template</span>
-    <span class="c1"># we use load so it loads with the same data of previous version, but with new template</span>
-    <span class="n">service</span> <span class="o">=</span> <span class="n">load</span><span class="p">(</span><span class="n">new_template</span><span class="p">,</span> <span class="n">service</span><span class="o">.</span><span class="n">_path</span><span class="p">)</span>
-    <span class="n">service</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
-    <span class="k">return</span> <span class="n">service</span>
+    <span class="n">new_service</span> <span class="o">=</span> <span class="n">new_template</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">service</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">guid</span><span class="o">=</span><span class="n">service</span><span class="o">.</span><span class="n">guid</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">service</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+    <span class="n">new_service</span><span class="o">.</span><span class="n">_public</span> <span class="o">=</span> <span class="n">service</span><span class="o">.</span><span class="n">_public</span>
+
+    <span class="n">new_service</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="n">service</span><span class="o">.</span><span class="n">state</span>
+    <span class="n">new_service</span><span class="o">.</span><span class="n">task_list</span> <span class="o">=</span> <span class="n">service</span><span class="o">.</span><span class="n">task_list</span>
+    <span class="n">add</span><span class="p">(</span><span class="n">new_service</span><span class="p">)</span>
+
+    <span class="n">new_service</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">new_service</span>
 
 
 <span class="k">def</span> <span class="nf">drop_all</span><span class="p">():</span>
@@ -1521,7 +1514,7 @@ other services and class need to use this module method to create, access, list 
       
   <div class="item">
     <div class="name def" id="zerorobot.service_collection.load">
-    <p>def <span class="ident">load</span>(</p><p>template, base_path)</p>
+    <p>def <span class="ident">load</span>(</p><p>template, service_detail)</p>
     </div>
     
 
@@ -1529,46 +1522,33 @@ other services and class need to use this module method to create, access, list 
   
     <div class="desc"><p>load the service from it's file system serialized format</p>
 <p>@param template: the template class to use to instantiate the service
-@param base_path: path of the directory where
-                    to load the service state and data from</p></div>
+@param service_detail:all the detail of a service in a dict (info, data, states, task list)</p></div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.service_collection.load', this);">Show source &equiv;</a></p>
   <div id="source-zerorobot.service_collection.load" class="source">
-    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="n">template</span><span class="p">,</span> <span class="n">base_path</span><span class="p">):</span>
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="n">template</span><span class="p">,</span> <span class="n">service_detail</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    load the service from it&#39;s file system serialized format</span>
 
 <span class="sd">    @param template: the template class to use to instantiate the service</span>
-<span class="sd">    @param base_path: path of the directory where</span>
-<span class="sd">                        to load the service state and data from</span>
+<span class="sd">    @param service_detail:all the detail of a service in a dict (info, data, states, task list)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">base_path</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="n">FileNotFoundError</span><span class="p">(</span><span class="s2">&quot;Trying to load service from </span><span class="si">%s</span><span class="s2">, but directory doesn&#39;t exists&quot;</span> <span class="o">%</span> <span class="n">base_path</span><span class="p">)</span>
-
-    <span class="n">guid</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">base_path</span><span class="p">)</span>
-    <span class="n">service_info</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">serializer</span><span class="o">.</span><span class="n">yaml</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">base_path</span><span class="p">,</span> <span class="s1">&#39;service.yaml&#39;</span><span class="p">))</span>
-    <span class="n">service_data</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">serializer</span><span class="o">.</span><span class="n">yaml</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">base_path</span><span class="p">,</span> <span class="s1">&#39;data.yaml&#39;</span><span class="p">))</span>
-
-    <span class="n">template_uid</span> <span class="o">=</span> <span class="n">TemplateUID</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">service_info</span><span class="p">[</span><span class="s1">&#39;template&#39;</span><span class="p">])</span>
+    <span class="n">template_uid</span> <span class="o">=</span> <span class="n">TemplateUID</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">service_detail</span><span class="p">[</span><span class="s1">&#39;service&#39;</span><span class="p">][</span><span class="s1">&#39;template&#39;</span><span class="p">])</span>
+    <span class="n">guid</span> <span class="o">=</span> <span class="n">service_detail</span><span class="p">[</span><span class="s1">&#39;service&#39;</span><span class="p">][</span><span class="s1">&#39;guid&#39;</span><span class="p">]</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">template_uid</span> <span class="o">&gt;</span> <span class="n">template</span><span class="o">.</span><span class="n">template_uid</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">BadTemplateError</span><span class="p">(</span><span class="s2">&quot;Trying to load service </span><span class="si">%s</span><span class="s2"> with template </span><span class="si">%s</span><span class="s2">, while it requires </span><span class="si">%s</span><span class="s2"> or higher&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">guid</span><span class="p">,</span> <span class="n">template</span><span class="o">.</span><span class="n">template_uid</span><span class="p">,</span> <span class="n">service_info</span><span class="p">[</span><span class="s1">&#39;template&#39;</span><span class="p">]))</span>
+            <span class="k">raise</span> <span class="n">BadTemplateError</span><span class="p">(</span><span class="s2">&quot;Trying to load service </span><span class="si">%s</span><span class="s2"> with template </span><span class="si">%s</span><span class="s2">, while it requires </span><span class="si">%s</span><span class="s2"> or higher&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">guid</span><span class="p">,</span> <span class="n">template</span><span class="o">.</span><span class="n">template_uid</span><span class="p">,</span> <span class="n">service_detail</span><span class="p">[</span><span class="s1">&#39;service&#39;</span><span class="p">][</span><span class="s1">&#39;template&#39;</span><span class="p">]))</span>
     <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>  <span class="c1"># is the two template are not the same, ValueError is raised</span>
-        <span class="k">raise</span> <span class="n">BadTemplateError</span><span class="p">(</span><span class="s2">&quot;Trying to load service </span><span class="si">%s</span><span class="s2"> with template </span><span class="si">%s</span><span class="s2">, while it requires </span><span class="si">%s</span><span class="s2"> or higher&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">guid</span><span class="p">,</span> <span class="n">template</span><span class="o">.</span><span class="n">template_uid</span><span class="p">,</span> <span class="n">service_info</span><span class="p">[</span><span class="s1">&#39;template&#39;</span><span class="p">]))</span>
+        <span class="k">raise</span> <span class="n">BadTemplateError</span><span class="p">(</span><span class="s2">&quot;Trying to load service </span><span class="si">%s</span><span class="s2"> with template </span><span class="si">%s</span><span class="s2">, while it requires </span><span class="si">%s</span><span class="s2"> or higher&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">guid</span><span class="p">,</span> <span class="n">template</span><span class="o">.</span><span class="n">template_uid</span><span class="p">,</span> <span class="n">service_detail</span><span class="p">[</span><span class="s1">&#39;service&#39;</span><span class="p">][</span><span class="s1">&#39;template&#39;</span><span class="p">]))</span>
 
-    <span class="k">if</span> <span class="n">service_info</span><span class="p">[</span><span class="s1">&#39;guid&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="n">guid</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="n">BadTemplateError</span><span class="p">(</span><span class="s2">&quot;Trying to load service from folder </span><span class="si">%s</span><span class="s2">, but name of the service is </span><span class="si">%s</span><span class="s2">&quot;</span>
-                               <span class="o">%</span> <span class="p">(</span><span class="n">base_path</span><span class="p">,</span> <span class="n">service_info</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]))</span>
+    <span class="n">service</span> <span class="o">=</span> <span class="n">template</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">service_detail</span><span class="p">[</span><span class="s1">&#39;service&#39;</span><span class="p">][</span><span class="s1">&#39;name&#39;</span><span class="p">],</span> <span class="n">guid</span><span class="o">=</span><span class="n">guid</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">service_detail</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">])</span>
+    <span class="n">service</span><span class="o">.</span><span class="n">_public</span> <span class="o">=</span> <span class="n">service_detail</span><span class="p">[</span><span class="s1">&#39;service&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;public&#39;</span><span class="p">,</span> <span class="bp">False</span><span class="p">)</span>
 
-    <span class="n">srv</span> <span class="o">=</span> <span class="n">template</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">service_info</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">],</span> <span class="n">guid</span><span class="o">=</span><span class="n">service_info</span><span class="p">[</span><span class="s1">&#39;guid&#39;</span><span class="p">],</span> <span class="n">data</span><span class="o">=</span><span class="n">service_data</span><span class="p">)</span>
-    <span class="n">srv</span><span class="o">.</span><span class="n">_public</span> <span class="o">=</span> <span class="n">service_info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;public&#39;</span><span class="p">,</span> <span class="bp">False</span><span class="p">)</span>
-
-    <span class="n">srv</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">base_path</span><span class="p">,</span> <span class="s1">&#39;state.yaml&#39;</span><span class="p">))</span>
-    <span class="n">srv</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">base_path</span><span class="p">,</span> <span class="s1">&#39;data.yaml&#39;</span><span class="p">))</span>
-    <span class="n">srv</span><span class="o">.</span><span class="n">task_list</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">base_path</span><span class="p">,</span> <span class="s1">&#39;tasks.yaml&#39;</span><span class="p">))</span>
-    <span class="n">srv</span><span class="o">.</span><span class="n">_path</span> <span class="o">=</span> <span class="n">base_path</span>
-    <span class="n">add</span><span class="p">(</span><span class="n">srv</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">srv</span>
+    <span class="n">service</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">service_detail</span><span class="p">[</span><span class="s1">&#39;states&#39;</span><span class="p">])</span>
+    <span class="c1"># srv.data.load(service_detail[&#39;data&#39;]) FIXME: should we need this since we pass the data in the constructor line 94</span>
+    <span class="n">service</span><span class="o">.</span><span class="n">task_list</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">service_detail</span><span class="p">[</span><span class="s1">&#39;tasks&#39;</span><span class="p">])</span>
+    <span class="n">add</span><span class="p">(</span><span class="n">service</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">service</span>
 </pre></div>
 
   </div>
@@ -1631,10 +1611,15 @@ other services and class need to use this module method to create, access, list 
     <span class="n">delete</span><span class="p">(</span><span class="n">service</span><span class="p">)</span>
 
     <span class="c1"># create new instance of the service with updated version of the template</span>
-    <span class="c1"># we use load so it loads with the same data of previous version, but with new template</span>
-    <span class="n">service</span> <span class="o">=</span> <span class="n">load</span><span class="p">(</span><span class="n">new_template</span><span class="p">,</span> <span class="n">service</span><span class="o">.</span><span class="n">_path</span><span class="p">)</span>
-    <span class="n">service</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
-    <span class="k">return</span> <span class="n">service</span>
+    <span class="n">new_service</span> <span class="o">=</span> <span class="n">new_template</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">service</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">guid</span><span class="o">=</span><span class="n">service</span><span class="o">.</span><span class="n">guid</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">service</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+    <span class="n">new_service</span><span class="o">.</span><span class="n">_public</span> <span class="o">=</span> <span class="n">service</span><span class="o">.</span><span class="n">_public</span>
+
+    <span class="n">new_service</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="n">service</span><span class="o">.</span><span class="n">state</span>
+    <span class="n">new_service</span><span class="o">.</span><span class="n">task_list</span> <span class="o">=</span> <span class="n">service</span><span class="o">.</span><span class="n">task_list</span>
+    <span class="n">add</span><span class="p">(</span><span class="n">new_service</span><span class="p">)</span>
+
+    <span class="n">new_service</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">new_service</span>
 </pre></div>
 
   </div>

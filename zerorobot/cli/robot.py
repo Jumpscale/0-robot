@@ -2,7 +2,7 @@ import sys
 
 import click
 
-from js9 import j
+from jumpscale import j
 from zerorobot.cli import utils
 
 

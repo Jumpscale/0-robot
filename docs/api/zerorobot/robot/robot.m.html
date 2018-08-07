@@ -1095,16 +1095,16 @@ table {
 <span class="kn">from</span> <span class="nn">gevent.pool</span> <span class="kn">import</span> <span class="n">Pool</span>
 <span class="kn">from</span> <span class="nn">gevent.pywsgi</span> <span class="kn">import</span> <span class="n">WSGIServer</span>
 
-<span class="kn">from</span> <span class="nn">js9</span> <span class="kn">import</span> <span class="n">j</span>
+<span class="kn">from</span> <span class="nn">jumpscale</span> <span class="kn">import</span> <span class="n">j</span>
 <span class="kn">from</span> <span class="nn">zerorobot</span> <span class="kn">import</span> <span class="n">service_collection</span> <span class="k">as</span> <span class="n">scol</span>
 <span class="kn">from</span> <span class="nn">zerorobot</span> <span class="kn">import</span> <span class="n">template_collection</span> <span class="k">as</span> <span class="n">tcol</span>
-<span class="kn">from</span> <span class="nn">zerorobot</span> <span class="kn">import</span> <span class="n">auto_pusher</span><span class="p">,</span> <span class="n">config</span>
+<span class="kn">from</span> <span class="nn">zerorobot</span> <span class="kn">import</span> <span class="n">config</span><span class="p">,</span> <span class="n">webhooks</span>
 <span class="kn">from</span> <span class="nn">zerorobot.git</span> <span class="kn">import</span> <span class="n">url</span> <span class="k">as</span> <span class="n">giturl</span>
 <span class="kn">from</span> <span class="nn">zerorobot.prometheus.flask</span> <span class="kn">import</span> <span class="n">monitor</span>
-<span class="kn">from</span> <span class="nn">zerorobot.server.app</span> <span class="kn">import</span> <span class="n">app</span>
 <span class="kn">from</span> <span class="nn">zerorobot.server</span> <span class="kn">import</span> <span class="n">auth</span>
+<span class="kn">from</span> <span class="nn">zerorobot.server.app</span> <span class="kn">import</span> <span class="n">app</span>
 
-<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">config_repo</span><span class="p">,</span> <span class="n">data_repo</span><span class="p">,</span> <span class="n">loader</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">loader</span>
 
 <span class="c1"># create logger</span>
 <span class="n">logger</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;zerorobot&#39;</span><span class="p">)</span>
@@ -1144,15 +1144,14 @@ table {
 
 <span class="sd">        It can be the same of one of the template repository used.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">location</span> <span class="o">=</span> <span class="n">data_repo</span><span class="o">.</span><span class="n">ensure</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
-        <span class="n">config</span><span class="o">.</span><span class="n">DATA_DIR</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">sal</span><span class="o">.</span><span class="n">fs</span><span class="o">.</span><span class="n">joinPaths</span><span class="p">(</span><span class="n">location</span><span class="p">,</span> <span class="s1">&#39;zrobot_data&#39;</span><span class="p">)</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">data_repo</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">DataRepo</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">data_repo_url</span> <span class="o">=</span> <span class="n">url</span>
 
     <span class="k">def</span> <span class="nf">add_template_repo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">directory</span><span class="o">=</span><span class="s1">&#39;templates&#39;</span><span class="p">):</span>
         <span class="n">url</span><span class="p">,</span> <span class="n">branch</span> <span class="o">=</span> <span class="n">giturl</span><span class="o">.</span><span class="n">parse_template_repo_url</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
         <span class="n">tcol</span><span class="o">.</span><span class="n">add_repo</span><span class="p">(</span><span class="n">url</span><span class="o">=</span><span class="n">url</span><span class="p">,</span> <span class="n">branch</span><span class="o">=</span><span class="n">branch</span><span class="p">,</span> <span class="n">directory</span><span class="o">=</span><span class="n">directory</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">set_config_repo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">set_config_repo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        make sure the jumpscale configuration repository is initialized</span>
 <span class="sd">        @param path: can be a git URL or a absolute path or None</span>
@@ -1163,7 +1162,7 @@ table {
 <span class="sd">        @param key: path to the sshkey to use with the configuration repo</span>
 <span class="sd">        if key is None, a key is automatically generated</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">config_repo</span><span class="o">.</span><span class="n">init</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">config_repo</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">ConfigRepo</span><span class="p">(</span><span class="n">url</span><span class="o">=</span><span class="n">url</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="n">key</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">start</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
               <span class="n">listen</span><span class="o">=</span><span class="s2">&quot;:6600&quot;</span><span class="p">,</span>
@@ -1174,19 +1173,27 @@ table {
               <span class="n">admin_organization</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
               <span class="n">user_organization</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
               <span class="n">mode</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+              <span class="n">god</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
               <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        start the rest web server</span>
 <span class="sd">        load the services from the local git repository</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">DATA_DIR</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">mode</span> <span class="o">=</span> <span class="n">mode</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">god</span> <span class="o">=</span> <span class="n">god</span>  <span class="c1"># when true, this allow to get data and logs from services using the REST API</span>
+
+        <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">data_repo</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Not data repository set. Robot doesn&#39;t know where to save data.&quot;</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="n">j</span><span class="o">.</span><span class="n">tools</span><span class="o">.</span><span class="n">configmanager</span><span class="o">.</span><span class="n">path</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;config manager is not configured, can&#39;t continue&quot;</span><span class="p">)</span>
 
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;data directory: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">config</span><span class="o">.</span><span class="n">DATA_DIR</span><span class="p">)</span>
+        <span class="c1"># instantiate webhooks manager and load the configured webhooks</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">webhooks</span> <span class="o">=</span> <span class="n">webhooks</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;data directory: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">config</span><span class="o">.</span><span class="n">data_repo</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;config directory: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">j</span><span class="o">.</span><span class="n">tools</span><span class="o">.</span><span class="n">configmanager</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;sshkey used: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">expanduser</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;~/.ssh&#39;</span><span class="p">,</span> <span class="n">j</span><span class="o">.</span><span class="n">tools</span><span class="o">.</span><span class="n">configmanager</span><span class="o">.</span><span class="n">keyname</span><span class="p">)))</span>
 
         <span class="c1"># configure prometheus monitoring</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;testing&#39;</span><span class="p">,</span> <span class="bp">False</span><span class="p">):</span>
@@ -1205,11 +1212,11 @@ table {
         <span class="c1"># auto-push data repo</span>
         <span class="k">if</span> <span class="n">auto_push</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;auto push of data repo enabled&quot;</span><span class="p">)</span>
-            <span class="n">repo_dir</span> <span class="o">=</span> <span class="n">giturl</span><span class="o">.</span><span class="n">git_path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_repo_url</span><span class="p">)</span>
-            <span class="n">auto_pusher</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">interval</span><span class="o">=</span><span class="n">auto_push_interval</span><span class="p">,</span> <span class="n">repo_dir</span><span class="o">=</span><span class="n">repo_dir</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">)</span>
+            <span class="n">config</span><span class="o">.</span><span class="n">data_repo</span><span class="o">.</span><span class="n">start_auto_push</span><span class="p">(</span><span class="n">interval</span><span class="o">=</span><span class="n">auto_push_interval</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">)</span>
+            <span class="n">config</span><span class="o">.</span><span class="n">config_repo</span><span class="o">.</span><span class="n">start_auto_push</span><span class="p">(</span><span class="n">interval</span><span class="o">=</span><span class="n">auto_push_interval</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">)</span>
 
         <span class="c1"># load services from data repo</span>
-        <span class="n">loader</span><span class="o">.</span><span class="n">load_services</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">DATA_DIR</span><span class="p">)</span>
+        <span class="n">loader</span><span class="o">.</span><span class="n">load_services</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
         <span class="c1"># notify services that they can start processing their task list</span>
         <span class="n">config</span><span class="o">.</span><span class="n">SERVICE_LOADED</span><span class="o">.</span><span class="n">set</span><span class="p">()</span>
 
@@ -1266,13 +1273,13 @@ table {
 
 
 <span class="k">def</span> <span class="nf">_create_node_service</span><span class="p">():</span>
-    <span class="n">service_found</span> <span class="o">=</span> <span class="n">scol</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">template_host</span><span class="o">=</span><span class="s1">&#39;github.com&#39;</span><span class="p">,</span> <span class="n">template_account</span><span class="o">=</span><span class="s1">&#39;zero-os&#39;</span><span class="p">,</span> <span class="n">template_name</span><span class="o">=</span><span class="s1">&#39;node&#39;</span><span class="p">)</span>
+    <span class="n">service_found</span> <span class="o">=</span> <span class="n">scol</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">template_host</span><span class="o">=</span><span class="s1">&#39;github.com&#39;</span><span class="p">,</span> <span class="n">template_account</span><span class="o">=</span><span class="s1">&#39;threefoldtech&#39;</span><span class="p">,</span> <span class="n">template_name</span><span class="o">=</span><span class="s1">&#39;node&#39;</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">service_found</span><span class="p">:</span>
-        <span class="n">template_found</span> <span class="o">=</span> <span class="n">tcol</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">host</span><span class="o">=</span><span class="s1">&#39;github.com&#39;</span><span class="p">,</span> <span class="n">account</span><span class="o">=</span><span class="s1">&#39;zero-os&#39;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;node&#39;</span><span class="p">)</span>
+        <span class="n">template_found</span> <span class="o">=</span> <span class="n">tcol</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">host</span><span class="o">=</span><span class="s1">&#39;github.com&#39;</span><span class="p">,</span> <span class="n">account</span><span class="o">=</span><span class="s1">&#39;threefoldtech&#39;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;node&#39;</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">template_found</span><span class="p">:</span>
-            <span class="n">tcol</span><span class="o">.</span><span class="n">add_repo</span><span class="p">(</span><span class="s2">&quot;https://github.com/zero-os/0-templates&quot;</span><span class="p">)</span>
+            <span class="n">tcol</span><span class="o">.</span><span class="n">add_repo</span><span class="p">(</span><span class="s2">&quot;https://github.com/threefoldtech/0-templates&quot;</span><span class="p">)</span>
 
-        <span class="n">template_found</span> <span class="o">=</span> <span class="n">tcol</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">host</span><span class="o">=</span><span class="s1">&#39;github.com&#39;</span><span class="p">,</span> <span class="n">account</span><span class="o">=</span><span class="s1">&#39;zero-os&#39;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;node&#39;</span><span class="p">)</span>
+        <span class="n">template_found</span> <span class="o">=</span> <span class="n">tcol</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">host</span><span class="o">=</span><span class="s1">&#39;github.com&#39;</span><span class="p">,</span> <span class="n">account</span><span class="o">=</span><span class="s1">&#39;threefoldtech&#39;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;node&#39;</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">template_found</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;cannot create node service and --mode node is set&quot;</span><span class="p">)</span>
 
@@ -1397,15 +1404,14 @@ It is responsible to:
 
 <span class="sd">        It can be the same of one of the template repository used.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">location</span> <span class="o">=</span> <span class="n">data_repo</span><span class="o">.</span><span class="n">ensure</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
-        <span class="n">config</span><span class="o">.</span><span class="n">DATA_DIR</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">sal</span><span class="o">.</span><span class="n">fs</span><span class="o">.</span><span class="n">joinPaths</span><span class="p">(</span><span class="n">location</span><span class="p">,</span> <span class="s1">&#39;zrobot_data&#39;</span><span class="p">)</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">data_repo</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">DataRepo</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">data_repo_url</span> <span class="o">=</span> <span class="n">url</span>
 
     <span class="k">def</span> <span class="nf">add_template_repo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">directory</span><span class="o">=</span><span class="s1">&#39;templates&#39;</span><span class="p">):</span>
         <span class="n">url</span><span class="p">,</span> <span class="n">branch</span> <span class="o">=</span> <span class="n">giturl</span><span class="o">.</span><span class="n">parse_template_repo_url</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
         <span class="n">tcol</span><span class="o">.</span><span class="n">add_repo</span><span class="p">(</span><span class="n">url</span><span class="o">=</span><span class="n">url</span><span class="p">,</span> <span class="n">branch</span><span class="o">=</span><span class="n">branch</span><span class="p">,</span> <span class="n">directory</span><span class="o">=</span><span class="n">directory</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">set_config_repo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">set_config_repo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        make sure the jumpscale configuration repository is initialized</span>
 <span class="sd">        @param path: can be a git URL or a absolute path or None</span>
@@ -1416,7 +1422,7 @@ It is responsible to:
 <span class="sd">        @param key: path to the sshkey to use with the configuration repo</span>
 <span class="sd">        if key is None, a key is automatically generated</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">config_repo</span><span class="o">.</span><span class="n">init</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">config_repo</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">ConfigRepo</span><span class="p">(</span><span class="n">url</span><span class="o">=</span><span class="n">url</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="n">key</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">start</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
               <span class="n">listen</span><span class="o">=</span><span class="s2">&quot;:6600&quot;</span><span class="p">,</span>
@@ -1427,19 +1433,27 @@ It is responsible to:
               <span class="n">admin_organization</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
               <span class="n">user_organization</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
               <span class="n">mode</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+              <span class="n">god</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
               <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        start the rest web server</span>
 <span class="sd">        load the services from the local git repository</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">DATA_DIR</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">mode</span> <span class="o">=</span> <span class="n">mode</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">god</span> <span class="o">=</span> <span class="n">god</span>  <span class="c1"># when true, this allow to get data and logs from services using the REST API</span>
+
+        <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">data_repo</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Not data repository set. Robot doesn&#39;t know where to save data.&quot;</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="n">j</span><span class="o">.</span><span class="n">tools</span><span class="o">.</span><span class="n">configmanager</span><span class="o">.</span><span class="n">path</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;config manager is not configured, can&#39;t continue&quot;</span><span class="p">)</span>
 
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;data directory: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">config</span><span class="o">.</span><span class="n">DATA_DIR</span><span class="p">)</span>
+        <span class="c1"># instantiate webhooks manager and load the configured webhooks</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">webhooks</span> <span class="o">=</span> <span class="n">webhooks</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;data directory: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">config</span><span class="o">.</span><span class="n">data_repo</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;config directory: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">j</span><span class="o">.</span><span class="n">tools</span><span class="o">.</span><span class="n">configmanager</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;sshkey used: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">expanduser</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;~/.ssh&#39;</span><span class="p">,</span> <span class="n">j</span><span class="o">.</span><span class="n">tools</span><span class="o">.</span><span class="n">configmanager</span><span class="o">.</span><span class="n">keyname</span><span class="p">)))</span>
 
         <span class="c1"># configure prometheus monitoring</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;testing&#39;</span><span class="p">,</span> <span class="bp">False</span><span class="p">):</span>
@@ -1458,11 +1472,11 @@ It is responsible to:
         <span class="c1"># auto-push data repo</span>
         <span class="k">if</span> <span class="n">auto_push</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;auto push of data repo enabled&quot;</span><span class="p">)</span>
-            <span class="n">repo_dir</span> <span class="o">=</span> <span class="n">giturl</span><span class="o">.</span><span class="n">git_path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_repo_url</span><span class="p">)</span>
-            <span class="n">auto_pusher</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">interval</span><span class="o">=</span><span class="n">auto_push_interval</span><span class="p">,</span> <span class="n">repo_dir</span><span class="o">=</span><span class="n">repo_dir</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">)</span>
+            <span class="n">config</span><span class="o">.</span><span class="n">data_repo</span><span class="o">.</span><span class="n">start_auto_push</span><span class="p">(</span><span class="n">interval</span><span class="o">=</span><span class="n">auto_push_interval</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">)</span>
+            <span class="n">config</span><span class="o">.</span><span class="n">config_repo</span><span class="o">.</span><span class="n">start_auto_push</span><span class="p">(</span><span class="n">interval</span><span class="o">=</span><span class="n">auto_push_interval</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">)</span>
 
         <span class="c1"># load services from data repo</span>
-        <span class="n">loader</span><span class="o">.</span><span class="n">load_services</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">DATA_DIR</span><span class="p">)</span>
+        <span class="n">loader</span><span class="o">.</span><span class="n">load_services</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
         <span class="c1"># notify services that they can start processing their task list</span>
         <span class="n">config</span><span class="o">.</span><span class="n">SERVICE_LOADED</span><span class="o">.</span><span class="n">set</span><span class="p">()</span>
 
@@ -1581,7 +1595,7 @@ It is responsible to:
             
   <div class="item">
     <div class="name def" id="zerorobot.robot.robot.Robot.set_config_repo">
-    <p>def <span class="ident">set_config_repo</span>(</p><p>self, path=None, key=None)</p>
+    <p>def <span class="ident">set_config_repo</span>(</p><p>self, url=None, key=None)</p>
     </div>
     
 
@@ -1597,7 +1611,7 @@ if key is None, a key is automatically generated</p></div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.robot.robot.Robot.set_config_repo', this);">Show source &equiv;</a></p>
   <div id="source-zerorobot.robot.robot.Robot.set_config_repo" class="source">
-    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">set_config_repo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">set_config_repo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    make sure the jumpscale configuration repository is initialized</span>
 <span class="sd">    @param path: can be a git URL or a absolute path or None</span>
@@ -1607,7 +1621,7 @@ if key is None, a key is automatically generated</p></div>
 <span class="sd">    @param key: path to the sshkey to use with the configuration repo</span>
 <span class="sd">    if key is None, a key is automatically generated</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">config_repo</span><span class="o">.</span><span class="n">init</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span>
+    <span class="n">config</span><span class="o">.</span><span class="n">config_repo</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">ConfigRepo</span><span class="p">(</span><span class="n">url</span><span class="o">=</span><span class="n">url</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="n">key</span><span class="p">)</span>
 </pre></div>
 
   </div>
@@ -1642,8 +1656,7 @@ if key is None, a key is automatically generated</p></div>
 <span class="sd">        if None: automatically create a configuration repository in `{j.dirs.DATADIR}/zrobot`</span>
 <span class="sd">    It can be the same of one of the template repository used.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">location</span> <span class="o">=</span> <span class="n">data_repo</span><span class="o">.</span><span class="n">ensure</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
-    <span class="n">config</span><span class="o">.</span><span class="n">DATA_DIR</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">sal</span><span class="o">.</span><span class="n">fs</span><span class="o">.</span><span class="n">joinPaths</span><span class="p">(</span><span class="n">location</span><span class="p">,</span> <span class="s1">&#39;zrobot_data&#39;</span><span class="p">)</span>
+    <span class="n">config</span><span class="o">.</span><span class="n">data_repo</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">DataRepo</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">data_repo_url</span> <span class="o">=</span> <span class="n">url</span>
 </pre></div>
 
@@ -1655,7 +1668,7 @@ if key is None, a key is automatically generated</p></div>
             
   <div class="item">
     <div class="name def" id="zerorobot.robot.robot.Robot.start">
-    <p>def <span class="ident">start</span>(</p><p>self, listen=&#39;:6600&#39;, log_level=10, block=True, auto_push=False, auto_push_interval=60, admin_organization=None, user_organization=None, mode=None, **kwargs)</p>
+    <p>def <span class="ident">start</span>(</p><p>self, listen=&#39;:6600&#39;, log_level=10, block=True, auto_push=False, auto_push_interval=60, admin_organization=None, user_organization=None, mode=None, god=False, **kwargs)</p>
     </div>
     
 
@@ -1675,17 +1688,23 @@ load the services from the local git repository</p></div>
           <span class="n">admin_organization</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
           <span class="n">user_organization</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
           <span class="n">mode</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+          <span class="n">god</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
           <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    start the rest web server</span>
 <span class="sd">    load the services from the local git repository</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">DATA_DIR</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+    <span class="n">config</span><span class="o">.</span><span class="n">mode</span> <span class="o">=</span> <span class="n">mode</span>
+    <span class="n">config</span><span class="o">.</span><span class="n">god</span> <span class="o">=</span> <span class="n">god</span>  <span class="c1"># when true, this allow to get data and logs from services using the REST API</span>
+    <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">data_repo</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Not data repository set. Robot doesn&#39;t know where to save data.&quot;</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">j</span><span class="o">.</span><span class="n">tools</span><span class="o">.</span><span class="n">configmanager</span><span class="o">.</span><span class="n">path</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;config manager is not configured, can&#39;t continue&quot;</span><span class="p">)</span>
-    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;data directory: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">config</span><span class="o">.</span><span class="n">DATA_DIR</span><span class="p">)</span>
+    <span class="c1"># instantiate webhooks manager and load the configured webhooks</span>
+    <span class="n">config</span><span class="o">.</span><span class="n">webhooks</span> <span class="o">=</span> <span class="n">webhooks</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;data directory: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">config</span><span class="o">.</span><span class="n">data_repo</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;config directory: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">j</span><span class="o">.</span><span class="n">tools</span><span class="o">.</span><span class="n">configmanager</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;sshkey used: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">expanduser</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;~/.ssh&#39;</span><span class="p">,</span> <span class="n">j</span><span class="o">.</span><span class="n">tools</span><span class="o">.</span><span class="n">configmanager</span><span class="o">.</span><span class="n">keyname</span><span class="p">)))</span>
     <span class="c1"># configure prometheus monitoring</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;testing&#39;</span><span class="p">,</span> <span class="bp">False</span><span class="p">):</span>
         <span class="n">monitor</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>
@@ -1698,10 +1717,10 @@ load the services from the local git repository</p></div>
     <span class="c1"># auto-push data repo</span>
     <span class="k">if</span> <span class="n">auto_push</span><span class="p">:</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;auto push of data repo enabled&quot;</span><span class="p">)</span>
-        <span class="n">repo_dir</span> <span class="o">=</span> <span class="n">giturl</span><span class="o">.</span><span class="n">git_path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_repo_url</span><span class="p">)</span>
-        <span class="n">auto_pusher</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">interval</span><span class="o">=</span><span class="n">auto_push_interval</span><span class="p">,</span> <span class="n">repo_dir</span><span class="o">=</span><span class="n">repo_dir</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">)</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">data_repo</span><span class="o">.</span><span class="n">start_auto_push</span><span class="p">(</span><span class="n">interval</span><span class="o">=</span><span class="n">auto_push_interval</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">)</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">config_repo</span><span class="o">.</span><span class="n">start_auto_push</span><span class="p">(</span><span class="n">interval</span><span class="o">=</span><span class="n">auto_push_interval</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">)</span>
     <span class="c1"># load services from data repo</span>
-    <span class="n">loader</span><span class="o">.</span><span class="n">load_services</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">DATA_DIR</span><span class="p">)</span>
+    <span class="n">loader</span><span class="o">.</span><span class="n">load_services</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
     <span class="c1"># notify services that they can start processing their task list</span>
     <span class="n">config</span><span class="o">.</span><span class="n">SERVICE_LOADED</span><span class="o">.</span><span class="n">set</span><span class="p">()</span>
     <span class="k">if</span> <span class="n">mode</span> <span class="o">==</span> <span class="s1">&#39;node&#39;</span><span class="p">:</span>

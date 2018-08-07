@@ -44,7 +44,7 @@ actions: ['install', 'start']
 
 ```yaml
 # actions and template, will schedule install and start action on all services of type `github.com/jumpscale/0-robot/node/0.0.1`
-template: github.com/zero-os/0-robot/node/0.0.1
+template: github.com/threefoldtech/0-robot/node/0.0.1
 actions: ['install', 'start']
 ```
 
@@ -56,15 +56,15 @@ actions: ['install', 'start']
 
 
 ```yaml
-# full block, will schedule install and start action on service type `github.com/zero-os/0-robot/node/0.0.1` and with name 'node1'
-template: github.com/zero-os/0-robot/node/0.0.1
+# full block, will schedule install and start action on service type `github.com/threefoldtech/0-robot/node/0.0.1` and with name 'node1'
+template: github.com/threefoldtech/0-robot/node/0.0.1
 service: node1
 actions: ['install', 'start']
 ```
 
 ```yaml
 # full block with argument, will schedule 'migrate_vm' action and pass the argument 'destination' to the 'migrate_vm' action.
-template: github.com/zero-os/0-robot/node/0.0.1
+template: github.com/threefoldtech/0-robot/node/0.0.1
 service: node1
 actions: ['migrate_vm']
 args:
@@ -75,13 +75,13 @@ args:
 This blueprint will  create 2 new node services and schedule `install` and `start` action on both of them.
 ```yaml
 services:
-    - github.com/zero-os/0-robot/node/0.0.1__node1:
+    - github.com/threefoldtech/0-robot/node/0.0.1__node1:
         foo: bar
     
-    - github.com/zero-os/0-robot/node/0.0.1__node2:
+    - github.com/threefoldtech/0-robot/node/0.0.1__node2:
         foo: bar
 
 actions:
-    template: github.com/zero-os/0-robot/node/0.0.1
+    template: github.com/threefoldtech/0-robot/node/0.0.1
     actions: ['install', 'start']
 ```

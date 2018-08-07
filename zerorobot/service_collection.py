@@ -4,7 +4,7 @@ other services and class need to use this module method to create, access, list 
 """
 import os
 
-from js9 import j
+from jumpscale import j
 from zerorobot.sqlite import SqliteIndex
 from zerorobot.template_uid import TemplateUID
 

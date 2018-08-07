@@ -9,7 +9,7 @@ When you load new template version in the robot, all the services created from t
 Example:
 ```python
 # here we pull the template repo and checkout the tag 2.0.0
-robot.templates.checkout_repo('https://github.com/zero-os/0-templates','2.0.0')
+robot.templates.checkout_repo('https://github.com/threefoldtech/0-templates','2.0.0')
 ```
 
 Another possibility of upgrade of service, is if you stop the robot, upgrade the template version and then restart the robot. During bootstrap, the robot will try to upgrade the service to the latest version available of the templates.

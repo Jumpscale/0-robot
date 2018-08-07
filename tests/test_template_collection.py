@@ -15,7 +15,7 @@ class TestTemplateCollection(unittest.TestCase):
     def test_load_template(self):
         # valid template
         file_path = os.path.join(os.path.dirname(__file__), 'fixtures/templates/node')
-        tcol._load_template("https://github.com/zero-os/0-robot", file_path)
+        tcol._load_template("https://github.com/threefoldtech/0-robot", file_path)
         self.assertEqual(len(tcol._templates), 1, 'should have loaded a template')
 
         # non existing template
@@ -24,34 +24,34 @@ class TestTemplateCollection(unittest.TestCase):
 
     def test_get_template_uid(self):
         dir_path = os.path.join(os.path.dirname(__file__), 'fixtures/templates/node')
-        tcol._load_template("https://github.com/zero-os/0-robot", dir_path)
+        tcol._load_template("https://github.com/threefoldtech/0-robot", dir_path)
         self.assertGreater(len(tcol._templates), 0, 'should have loaded template, actual loaded')
 
-        template = tcol.get('github.com/zero-os/0-robot/node/0.0.1')
+        template = tcol.get('github.com/threefoldtech/0-robot/node/0.0.1')
         self.assertTrue(template is not None)
         self.assertEqual(template.template_dir, dir_path)
 
         with self.assertRaises(TemplateNotFoundError, msg="should raise TemplateNotFoundError"):
-            tcol.get('github.com/zero-os/0-robot/noexists/0.0.1')
+            tcol.get('github.com/threefoldtech/0-robot/noexists/0.0.1')
 
     def test_get_template_name(self):
         dir_path = os.path.join(os.path.dirname(__file__), 'fixtures/templates/node')
-        tcol._load_template("https://github.com/zero-os/0-robot", dir_path)
+        tcol._load_template("https://github.com/threefoldtech/0-robot", dir_path)
         self.assertGreater(len(tcol._templates), 0, 'should have loaded template, actual loaded')
 
         template = tcol.get('node')
         self.assertTrue(template is not None)
         self.assertEqual(template.template_dir, dir_path)
-        self.assertEqual(str(template.template_uid), 'github.com/zero-os/0-robot/node/0.0.1')
+        self.assertEqual(str(template.template_uid), 'github.com/threefoldtech/0-robot/node/0.0.1')
 
         with self.assertRaises(TemplateNotFoundError, msg="should raise TemplateNotFoundError"):
             tcol.get('noexists')
 
     def test_get_template_name_conflict(self):
         dir_path = os.path.join(os.path.dirname(__file__), 'fixtures/templates/node')
-        tcol._load_template("https://github.com/zero-os/0-robot", dir_path)
+        tcol._load_template("https://github.com/threefoldtech/0-robot", dir_path)
         dir_path = os.path.join(os.path.dirname(__file__), 'fixtures/templates_2/node')
-        tcol._load_template("https://github.com/zero-os/0-robot", dir_path)
+        tcol._load_template("https://github.com/threefoldtech/0-robot", dir_path)
         self.assertEqual(len(tcol._templates), 2, 'should have loaded 2 templates')
         with self.assertRaises(tcol.TemplateConflictError) as err:
             tmpl = tcol.get('node')
@@ -59,7 +59,7 @@ class TestTemplateCollection(unittest.TestCase):
     def test_list_template(self):
         # valid template
         file_path = os.path.join(os.path.dirname(__file__), 'fixtures/templates/node')
-        tcol._load_template("https://github.com/zero-os/0-robot", file_path)
+        tcol._load_template("https://github.com/threefoldtech/0-robot", file_path)
 
         templates = tcol.list_templates()
         self.assertEqual(len(templates), 1, "size of templates list should 1")
@@ -169,7 +169,7 @@ class TestTemplateCollection(unittest.TestCase):
                 'valid': True
             },
             {
-                # https://github.com/zero-os/0-robot/issues/69
+                # https://github.com/threefoldtech/0-robot/issues/69
                 'url': 'ssh://git@docs.greenitgloe.com:10022/Threefold/it_env_zrobot_nodes-0001.git',
                 'protocol': 'git',
                 'host': 'docs.greenitgloe.com',
@@ -195,7 +195,7 @@ class TestTemplateCollection(unittest.TestCase):
 
         # load some templates
         dir_path = os.path.join(os.path.dirname(__file__), 'fixtures/templates/node')
-        tcol._load_template("https://github.com/zero-os/0-robot", dir_path)
+        tcol._load_template("https://github.com/threefoldtech/0-robot", dir_path)
 
         assert tcol.find() != [], "find should not return an empty list when there are some templates loaded"
         assert len(tcol.find()) == len(tcol.list_templates()), "find without argument should return the full list of loaded templates"
@@ -203,7 +203,7 @@ class TestTemplateCollection(unittest.TestCase):
         assert len(tcol.find(host='github.com')) != 0
         assert len(tcol.find(host='gitlab.com')) == 0
 
-        assert len(tcol.find(account='zero-os')) != 0
+        assert len(tcol.find(account='threefoldtech')) != 0
         assert len(tcol.find(account='nonexisting')) == 0
 
         assert len(tcol.find(repo='0-robot')) != 0
@@ -215,6 +215,6 @@ class TestTemplateCollection(unittest.TestCase):
         assert len(tcol.find(version='0.0.1')) != 0
         assert len(tcol.find(version='nonexisting')) == 0
 
-        found = tcol.find(host='github.com', account='zero-os', repo='0-robot', name='node', version='0.0.1')
+        found = tcol.find(host='github.com', account='threefoldtech', repo='0-robot', name='node', version='0.0.1')
         assert len(found) == 1
-        assert str(found[0].template_uid) == 'github.com/zero-os/0-robot/node/0.0.1'
+        assert str(found[0].template_uid) == 'github.com/threefoldtech/0-robot/node/0.0.1'

@@ -5,7 +5,7 @@ this module contains utility to parse git URL
 import re
 import urllib
 
-from js9 import j
+from jumpscale import j
 
 _url_pattern_ssh = re.compile('^(git)@(.*?):(.*?)/(.*?)/?$')
 _url_pattern_ssh2 = re.compile('^(git)@(.*?)/(.*?)/(.*?)/?$')

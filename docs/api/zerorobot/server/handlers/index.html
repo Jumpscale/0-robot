@@ -1047,13 +1047,19 @@ table {
       <ul>
         <li class="mono"><a href="AddTaskToListHandler.m.html">zerorobot.server.handlers.AddTaskToListHandler</a></li>
         <li class="mono"><a href="AddTemplateRepoHandler.m.html">zerorobot.server.handlers.AddTemplateRepoHandler</a></li>
+        <li class="mono"><a href="AddWebHookHandler.m.html">zerorobot.server.handlers.AddWebHookHandler</a></li>
         <li class="mono"><a href="CheckoutVersionTemplateRepoHandler.m.html">zerorobot.server.handlers.CheckoutVersionTemplateRepoHandler</a></li>
         <li class="mono"><a href="DeleteServiceHandler.m.html">zerorobot.server.handlers.DeleteServiceHandler</a></li>
+        <li class="mono"><a href="DeleteWebHookHandler.m.html">zerorobot.server.handlers.DeleteWebHookHandler</a></li>
         <li class="mono"><a href="ExecuteBlueprintHandler.m.html">zerorobot.server.handlers.ExecuteBlueprintHandler</a></li>
+        <li class="mono"><a href="GetLogsHandler.m.html">zerorobot.server.handlers.GetLogsHandler</a></li>
+        <li class="mono"><a href="GetMetricsHandler.m.html">zerorobot.server.handlers.GetMetricsHandler</a></li>
+        <li class="mono"><a href="GetRobotInfoHandler.m.html">zerorobot.server.handlers.GetRobotInfoHandler</a></li>
         <li class="mono"><a href="GetServiceHandler.m.html">zerorobot.server.handlers.GetServiceHandler</a></li>
         <li class="mono"><a href="GetTaskHandler.m.html">zerorobot.server.handlers.GetTaskHandler</a></li>
         <li class="mono"><a href="ListActionsHandler.m.html">zerorobot.server.handlers.ListActionsHandler</a></li>
         <li class="mono"><a href="ListTemplatesHandler.m.html">zerorobot.server.handlers.ListTemplatesHandler</a></li>
+        <li class="mono"><a href="ListWebHooksHandler.m.html">zerorobot.server.handlers.ListWebHooksHandler</a></li>
         <li class="mono"><a href="createServiceHandler.m.html">zerorobot.server.handlers.createServiceHandler</a></li>
         <li class="mono"><a href="getTaskListHandler.m.html">zerorobot.server.handlers.getTaskListHandler</a></li>
         <li class="mono"><a href="listServicesHandler.m.html">zerorobot.server.handlers.listServicesHandler</a></li>
@@ -1080,14 +1086,20 @@ table {
 
 
 <span class="kn">from</span> <span class="nn">.ExecuteBlueprintHandler</span> <span class="kn">import</span> <span class="n">ExecuteBlueprintHandler</span>
+<span class="kn">from</span> <span class="nn">.ListWebHooksHandler</span> <span class="kn">import</span> <span class="n">ListWebHooksHandler</span>
+<span class="kn">from</span> <span class="nn">.AddWebHookHandler</span> <span class="kn">import</span> <span class="n">AddWebHookHandler</span>
+<span class="kn">from</span> <span class="nn">.DeleteWebHookHandler</span> <span class="kn">import</span> <span class="n">DeleteWebHookHandler</span>
+<span class="kn">from</span> <span class="nn">.GetRobotInfoHandler</span> <span class="kn">import</span> <span class="n">GetRobotInfoHandler</span>
+<span class="kn">from</span> <span class="nn">.GetMetricsHandler</span> <span class="kn">import</span> <span class="n">GetMetricsHandler</span>
 <span class="kn">from</span> <span class="nn">.listServicesHandler</span> <span class="kn">import</span> <span class="n">listServicesHandler</span>
 <span class="kn">from</span> <span class="nn">.createServiceHandler</span> <span class="kn">import</span> <span class="n">createServiceHandler</span>
 <span class="kn">from</span> <span class="nn">.GetServiceHandler</span> <span class="kn">import</span> <span class="n">GetServiceHandler</span>
 <span class="kn">from</span> <span class="nn">.DeleteServiceHandler</span> <span class="kn">import</span> <span class="n">DeleteServiceHandler</span>
+<span class="kn">from</span> <span class="nn">.ListActionsHandler</span> <span class="kn">import</span> <span class="n">ListActionsHandler</span>
 <span class="kn">from</span> <span class="nn">.getTaskListHandler</span> <span class="kn">import</span> <span class="n">getTaskListHandler</span>
 <span class="kn">from</span> <span class="nn">.AddTaskToListHandler</span> <span class="kn">import</span> <span class="n">AddTaskToListHandler</span>
 <span class="kn">from</span> <span class="nn">.GetTaskHandler</span> <span class="kn">import</span> <span class="n">GetTaskHandler</span>
-<span class="kn">from</span> <span class="nn">.ListActionsHandler</span> <span class="kn">import</span> <span class="n">ListActionsHandler</span>
+<span class="kn">from</span> <span class="nn">.GetLogsHandler</span> <span class="kn">import</span> <span class="n">GetLogsHandler</span>
 <span class="kn">from</span> <span class="nn">.ListTemplatesHandler</span> <span class="kn">import</span> <span class="n">ListTemplatesHandler</span>
 <span class="kn">from</span> <span class="nn">.AddTemplateRepoHandler</span> <span class="kn">import</span> <span class="n">AddTemplateRepoHandler</span>
 <span class="kn">from</span> <span class="nn">.CheckoutVersionTemplateRepoHandler</span> <span class="kn">import</span> <span class="n">CheckoutVersionTemplateRepoHandler</span>
@@ -1115,6 +1127,12 @@ table {
 
       </div>
       <div class="item">
+      <p class="name"><a href="AddWebHookHandler.m.html">zerorobot.server.handlers.AddWebHookHandler</a></p>
+      
+  
+
+      </div>
+      <div class="item">
       <p class="name"><a href="CheckoutVersionTemplateRepoHandler.m.html">zerorobot.server.handlers.CheckoutVersionTemplateRepoHandler</a></p>
       
   
@@ -1127,7 +1145,31 @@ table {
 
       </div>
       <div class="item">
+      <p class="name"><a href="DeleteWebHookHandler.m.html">zerorobot.server.handlers.DeleteWebHookHandler</a></p>
+      
+  
+
+      </div>
+      <div class="item">
       <p class="name"><a href="ExecuteBlueprintHandler.m.html">zerorobot.server.handlers.ExecuteBlueprintHandler</a></p>
+      
+  
+
+      </div>
+      <div class="item">
+      <p class="name"><a href="GetLogsHandler.m.html">zerorobot.server.handlers.GetLogsHandler</a></p>
+      
+  
+
+      </div>
+      <div class="item">
+      <p class="name"><a href="GetMetricsHandler.m.html">zerorobot.server.handlers.GetMetricsHandler</a></p>
+      
+  
+
+      </div>
+      <div class="item">
+      <p class="name"><a href="GetRobotInfoHandler.m.html">zerorobot.server.handlers.GetRobotInfoHandler</a></p>
       
   
 
@@ -1152,6 +1194,12 @@ table {
       </div>
       <div class="item">
       <p class="name"><a href="ListTemplatesHandler.m.html">zerorobot.server.handlers.ListTemplatesHandler</a></p>
+      
+  
+
+      </div>
+      <div class="item">
+      <p class="name"><a href="ListWebHooksHandler.m.html">zerorobot.server.handlers.ListWebHooksHandler</a></p>
       
   
 

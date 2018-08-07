@@ -1,6 +1,6 @@
 import time
 
-from js9 import j
+from jumpscale import j
 
 from .client import Client
 

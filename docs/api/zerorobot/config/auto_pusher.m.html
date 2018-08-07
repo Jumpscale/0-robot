@@ -3,7 +3,7 @@
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 
-    <title>zerorobot.auto_pusher API documentation</title>
+    <title>zerorobot.config.auto_pusher API documentation</title>
     <meta name="description" content="" />
 
   <link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:400,300' rel='stylesheet' type='text/css'>
@@ -1041,14 +1041,21 @@ table {
     <h1>Index</h1>
     <ul id="index">
 
-    <li class="set"><h3><a href="#header-functions">Functions</a></h3>
-      
+
+    <li class="set"><h3><a href="#header-classes">Classes</a></h3>
+      <ul>
+        <li class="mono">
+        <span class="class_name"><a href="#zerorobot.config.auto_pusher.AutoPusher">AutoPusher</a></span>
+        
+          
   <ul>
-    <li class="mono"><a href="#zerorobot.auto_pusher.run">run</a></li>
+    <li class="mono"><a href="#zerorobot.config.auto_pusher.AutoPusher.__init__">__init__</a></li>
+    <li class="mono"><a href="#zerorobot.config.auto_pusher.AutoPusher.run">run</a></li>
   </ul>
 
+        </li>
+      </ul>
     </li>
-
 
     </ul>
   </div>
@@ -1061,78 +1068,68 @@ table {
 
 
   <header id="section-intro">
-  <h1 class="title"><span class="name">zerorobot.auto_pusher</span> module</h1>
+  <h1 class="title"><span class="name">zerorobot.config.auto_pusher</span> module</h1>
   
   
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.auto_pusher', this);">Show source &equiv;</a></p>
-  <div id="source-zerorobot.auto_pusher" class="source">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.config.auto_pusher', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.config.auto_pusher" class="source">
     <div class="codehilite"><pre><span></span><span class="kn">import</span> <span class="nn">gevent</span>
-<span class="kn">from</span> <span class="nn">js9</span> <span class="kn">import</span> <span class="n">j</span>
+<span class="kn">import</span> <span class="nn">datetime</span>
+<span class="kn">from</span> <span class="nn">jumpscale</span> <span class="kn">import</span> <span class="n">j</span>
 
 <span class="kn">from</span> <span class="nn">zerorobot</span> <span class="kn">import</span> <span class="n">service_collection</span> <span class="k">as</span> <span class="n">scol</span>
 
 
-<span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="n">interval</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span> <span class="n">repo_dir</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    runs auto push of provided repo directory in a greenlet</span>
-<span class="sd">    provided interval is in minutes</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">_init_auto_push</span><span class="p">(</span><span class="n">repo_dir</span><span class="o">=</span><span class="n">repo_dir</span><span class="p">)</span>
-    <span class="n">gevent</span><span class="o">.</span><span class="n">spawn</span><span class="p">(</span><span class="n">_auto_push_data_repo</span><span class="p">,</span> <span class="n">interval</span><span class="p">,</span> <span class="n">repo_dir</span><span class="p">,</span> <span class="n">logger</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">AutoPusher</span><span class="p">:</span>
 
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">interval</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span> <span class="n">repo_dir</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">interval</span> <span class="o">=</span> <span class="n">interval</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">repo_dir</span> <span class="o">=</span> <span class="n">repo_dir</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span> <span class="o">=</span> <span class="n">logger</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">last_pushed</span> <span class="o">=</span> <span class="bp">None</span>
 
-<span class="k">def</span> <span class="nf">_init_auto_push</span><span class="p">(</span><span class="n">repo_dir</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    checks if setup is properly configured for auto pushing the repo</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="c1"># check if remote is ssh</span>
-    <span class="n">git</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">clients</span><span class="o">.</span><span class="n">git</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">basedir</span><span class="o">=</span><span class="n">repo_dir</span><span class="p">)</span>
-    <span class="n">remote</span> <span class="o">=</span> <span class="n">git</span><span class="o">.</span><span class="n">getConfig</span><span class="p">(</span><span class="s2">&quot;remote.origin.url&quot;</span><span class="p">)</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">remote</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;data git repository doesn&#39;t have a remote set, don&#39;t know where to push&quot;</span><span class="p">)</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">_is_ssh_remote</span><span class="p">(</span><span class="n">remote</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;The data repository is not an ssh endpoint which is required for auto pushing.&quot;</span><span class="p">)</span>
+        <span class="c1"># checks if setup is properly configured for auto pushing the repo</span>
+        <span class="n">git</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">clients</span><span class="o">.</span><span class="n">git</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">basedir</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">repo_dir</span><span class="p">)</span>
+        <span class="n">remote</span> <span class="o">=</span> <span class="n">git</span><span class="o">.</span><span class="n">getConfig</span><span class="p">(</span><span class="s2">&quot;remote.origin.url&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">remote</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;data git repository doesn&#39;t have a remote set, don&#39;t know where to push&quot;</span><span class="p">)</span>
+        <span class="c1"># check if remote is ssh</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">_is_ssh_remote</span><span class="p">(</span><span class="n">remote</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;The data repository is not an ssh endpoint which is required for auto pushing.&quot;</span><span class="p">)</span>
 
-    <span class="n">_load_ssh_key</span><span class="p">()</span>
-
-
-<span class="k">def</span> <span class="nf">_auto_push_data_repo</span><span class="p">(</span><span class="n">interval</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span> <span class="n">repo_dir</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    run a coroutine that pushes the repository at provided interval</span>
-<span class="sd">    provided interval is in minutes</span>
-<span class="sd">    meant to be run as gevent greenlet/coroutine</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;waiting interval&quot;</span><span class="p">)</span>
-        <span class="n">gevent</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="n">seconds</span><span class="o">=</span><span class="n">interval</span><span class="o">*</span><span class="mi">60</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">logger</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;saving services and pushing data repo&quot;</span><span class="p">)</span>
         <span class="n">_load_ssh_key</span><span class="p">()</span>
 
-        <span class="c1"># save all services</span>
-        <span class="k">for</span> <span class="n">service</span> <span class="ow">in</span> <span class="n">scol</span><span class="o">.</span><span class="n">list_services</span><span class="p">():</span>
-            <span class="n">service</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        runs auto push of provided repo directory in a greenlet</span>
+<span class="sd">        provided interval is in minutes</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">gevent</span><span class="o">.</span><span class="n">spawn</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_auto_push</span><span class="p">)</span>
 
-        <span class="n">_push_data_repo</span><span class="p">(</span><span class="n">repo_dir</span><span class="o">=</span><span class="n">repo_dir</span><span class="p">)</span>
-        <span class="n">_push_config_repo</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">_auto_push</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        run a coroutine that pushes the repository at provided interval</span>
+<span class="sd">        provided interval is in minutes</span>
+<span class="sd">        meant to be run as gevent greenlet/coroutine</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+            <span class="n">sleep</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">interval</span> <span class="o">*</span> <span class="mi">60</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;waiting interval (</span><span class="si">%s</span><span class="s2">)&quot;</span> <span class="o">%</span> <span class="n">sleep</span><span class="p">)</span>
+            <span class="n">gevent</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="n">seconds</span><span class="o">=</span><span class="n">sleep</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">logger</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;saving services and pushing data repo&quot;</span><span class="p">)</span>
+            <span class="n">_load_ssh_key</span><span class="p">()</span>
 
+            <span class="c1"># save all services</span>
+            <span class="k">for</span> <span class="n">service</span> <span class="ow">in</span> <span class="n">scol</span><span class="o">.</span><span class="n">list_services</span><span class="p">():</span>
+                <span class="n">service</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
 
-<span class="k">def</span> <span class="nf">_push_data_repo</span><span class="p">(</span><span class="n">repo_dir</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    commit and push (full) repository</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">git</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">clients</span><span class="o">.</span><span class="n">git</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">basedir</span><span class="o">=</span><span class="n">repo_dir</span><span class="p">)</span>
-    <span class="n">git</span><span class="o">.</span><span class="n">commit</span><span class="p">(</span><span class="n">message</span><span class="o">=</span><span class="s1">&#39;zrobot sync&#39;</span><span class="p">,</span> <span class="n">addremove</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
-    <span class="n">git</span><span class="o">.</span><span class="n">push</span><span class="p">()</span>
+            <span class="n">git</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">clients</span><span class="o">.</span><span class="n">git</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">basedir</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">repo_dir</span><span class="p">)</span>
+            <span class="n">git</span><span class="o">.</span><span class="n">commit</span><span class="p">(</span><span class="n">message</span><span class="o">=</span><span class="s1">&#39;zrobot sync&#39;</span><span class="p">,</span> <span class="n">addremove</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+            <span class="n">git</span><span class="o">.</span><span class="n">pull</span><span class="p">()</span>
+            <span class="n">git</span><span class="o">.</span><span class="n">push</span><span class="p">()</span>
 
-
-<span class="k">def</span> <span class="nf">_push_config_repo</span><span class="p">():</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    commit and push (full) repository</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">git</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">clients</span><span class="o">.</span><span class="n">git</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">basedir</span><span class="o">=</span><span class="n">j</span><span class="o">.</span><span class="n">tools</span><span class="o">.</span><span class="n">configmanager</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
-    <span class="n">git</span><span class="o">.</span><span class="n">commit</span><span class="p">(</span><span class="n">message</span><span class="o">=</span><span class="s1">&#39;zrobot sync&#39;</span><span class="p">,</span> <span class="n">addremove</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
-    <span class="n">git</span><span class="o">.</span><span class="n">push</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">last_pushed</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
 
 
 <span class="k">def</span> <span class="nf">_load_ssh_key</span><span class="p">():</span>
@@ -1156,11 +1153,117 @@ table {
 
   <section id="section-items">
 
-    <h2 class="section-title" id="header-functions">Functions</h2>
+
+    <h2 class="section-title" id="header-classes">Classes</h2>
       
+      <div class="item">
+      <p id="zerorobot.config.auto_pusher.AutoPusher" class="name">class <span class="ident">AutoPusher</span></p>
+      
+  
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.config.auto_pusher.AutoPusher', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.config.auto_pusher.AutoPusher" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">AutoPusher</span><span class="p">:</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">interval</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span> <span class="n">repo_dir</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">interval</span> <span class="o">=</span> <span class="n">interval</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">repo_dir</span> <span class="o">=</span> <span class="n">repo_dir</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span> <span class="o">=</span> <span class="n">logger</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">last_pushed</span> <span class="o">=</span> <span class="bp">None</span>
+
+        <span class="c1"># checks if setup is properly configured for auto pushing the repo</span>
+        <span class="n">git</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">clients</span><span class="o">.</span><span class="n">git</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">basedir</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">repo_dir</span><span class="p">)</span>
+        <span class="n">remote</span> <span class="o">=</span> <span class="n">git</span><span class="o">.</span><span class="n">getConfig</span><span class="p">(</span><span class="s2">&quot;remote.origin.url&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">remote</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;data git repository doesn&#39;t have a remote set, don&#39;t know where to push&quot;</span><span class="p">)</span>
+        <span class="c1"># check if remote is ssh</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">_is_ssh_remote</span><span class="p">(</span><span class="n">remote</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;The data repository is not an ssh endpoint which is required for auto pushing.&quot;</span><span class="p">)</span>
+
+        <span class="n">_load_ssh_key</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        runs auto push of provided repo directory in a greenlet</span>
+<span class="sd">        provided interval is in minutes</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">gevent</span><span class="o">.</span><span class="n">spawn</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_auto_push</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_auto_push</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        run a coroutine that pushes the repository at provided interval</span>
+<span class="sd">        provided interval is in minutes</span>
+<span class="sd">        meant to be run as gevent greenlet/coroutine</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+            <span class="n">sleep</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">interval</span> <span class="o">*</span> <span class="mi">60</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;waiting interval (</span><span class="si">%s</span><span class="s2">)&quot;</span> <span class="o">%</span> <span class="n">sleep</span><span class="p">)</span>
+            <span class="n">gevent</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="n">seconds</span><span class="o">=</span><span class="n">sleep</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">logger</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;saving services and pushing data repo&quot;</span><span class="p">)</span>
+            <span class="n">_load_ssh_key</span><span class="p">()</span>
+
+            <span class="c1"># save all services</span>
+            <span class="k">for</span> <span class="n">service</span> <span class="ow">in</span> <span class="n">scol</span><span class="o">.</span><span class="n">list_services</span><span class="p">():</span>
+                <span class="n">service</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+
+            <span class="n">git</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">clients</span><span class="o">.</span><span class="n">git</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">basedir</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">repo_dir</span><span class="p">)</span>
+            <span class="n">git</span><span class="o">.</span><span class="n">commit</span><span class="p">(</span><span class="n">message</span><span class="o">=</span><span class="s1">&#39;zrobot sync&#39;</span><span class="p">,</span> <span class="n">addremove</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+            <span class="n">git</span><span class="o">.</span><span class="n">pull</span><span class="p">()</span>
+            <span class="n">git</span><span class="o">.</span><span class="n">push</span><span class="p">()</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">last_pushed</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+</pre></div>
+
+  </div>
+</div>
+
+
+      <div class="class">
+          <h3>Ancestors (in MRO)</h3>
+          <ul class="class_list">
+          <li><a href="#zerorobot.config.auto_pusher.AutoPusher">AutoPusher</a></li>
+          <li>builtins.object</li>
+          </ul>
+          <h3>Static methods</h3>
+            
   <div class="item">
-    <div class="name def" id="zerorobot.auto_pusher.run">
-    <p>def <span class="ident">run</span>(</p><p>interval=60, repo_dir=&#39;&#39;, logger=None)</p>
+    <div class="name def" id="zerorobot.config.auto_pusher.AutoPusher.__init__">
+    <p>def <span class="ident">__init__</span>(</p><p>self, interval=60, repo_dir=None, logger=None)</p>
+    </div>
+    
+
+    
+  
+    <div class="desc"><p>Initialize self.  See help(type(self)) for accurate signature.</p></div>
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.config.auto_pusher.AutoPusher.__init__', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.config.auto_pusher.AutoPusher.__init__" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">interval</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span> <span class="n">repo_dir</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">interval</span> <span class="o">=</span> <span class="n">interval</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">repo_dir</span> <span class="o">=</span> <span class="n">repo_dir</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">logger</span> <span class="o">=</span> <span class="n">logger</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">last_pushed</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="c1"># checks if setup is properly configured for auto pushing the repo</span>
+    <span class="n">git</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">clients</span><span class="o">.</span><span class="n">git</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">basedir</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">repo_dir</span><span class="p">)</span>
+    <span class="n">remote</span> <span class="o">=</span> <span class="n">git</span><span class="o">.</span><span class="n">getConfig</span><span class="p">(</span><span class="s2">&quot;remote.origin.url&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">remote</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;data git repository doesn&#39;t have a remote set, don&#39;t know where to push&quot;</span><span class="p">)</span>
+    <span class="c1"># check if remote is ssh</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">_is_ssh_remote</span><span class="p">(</span><span class="n">remote</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;The data repository is not an ssh endpoint which is required for auto pushing.&quot;</span><span class="p">)</span>
+    <span class="n">_load_ssh_key</span><span class="p">()</span>
+</pre></div>
+
+  </div>
+</div>
+
+  </div>
+  
+            
+  <div class="item">
+    <div class="name def" id="zerorobot.config.auto_pusher.AutoPusher.run">
+    <p>def <span class="ident">run</span>(</p><p>self)</p>
     </div>
     
 
@@ -1169,15 +1272,14 @@ table {
     <div class="desc"><p>runs auto push of provided repo directory in a greenlet
 provided interval is in minutes</p></div>
   <div class="source_cont">
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.auto_pusher.run', this);">Show source &equiv;</a></p>
-  <div id="source-zerorobot.auto_pusher.run" class="source">
-    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="n">interval</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span> <span class="n">repo_dir</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.config.auto_pusher.AutoPusher.run', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.config.auto_pusher.AutoPusher.run" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    runs auto push of provided repo directory in a greenlet</span>
 <span class="sd">    provided interval is in minutes</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">_init_auto_push</span><span class="p">(</span><span class="n">repo_dir</span><span class="o">=</span><span class="n">repo_dir</span><span class="p">)</span>
-    <span class="n">gevent</span><span class="o">.</span><span class="n">spawn</span><span class="p">(</span><span class="n">_auto_push_data_repo</span><span class="p">,</span> <span class="n">interval</span><span class="p">,</span> <span class="n">repo_dir</span><span class="p">,</span> <span class="n">logger</span><span class="p">)</span>
+    <span class="n">gevent</span><span class="o">.</span><span class="n">spawn</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_auto_push</span><span class="p">)</span>
 </pre></div>
 
   </div>
@@ -1185,7 +1287,49 @@ provided interval is in minutes</p></div>
 
   </div>
   
+          <h3>Instance variables</h3>
+            <div class="item">
+            <p id="zerorobot.config.auto_pusher.AutoPusher.interval" class="name">var <span class="ident">interval</span></p>
+            
 
+            
+  
+  <div class="source_cont">
+</div>
+
+            </div>
+            <div class="item">
+            <p id="zerorobot.config.auto_pusher.AutoPusher.last_pushed" class="name">var <span class="ident">last_pushed</span></p>
+            
+
+            
+  
+  <div class="source_cont">
+</div>
+
+            </div>
+            <div class="item">
+            <p id="zerorobot.config.auto_pusher.AutoPusher.logger" class="name">var <span class="ident">logger</span></p>
+            
+
+            
+  
+  <div class="source_cont">
+</div>
+
+            </div>
+            <div class="item">
+            <p id="zerorobot.config.auto_pusher.AutoPusher.repo_dir" class="name">var <span class="ident">repo_dir</span></p>
+            
+
+            
+  
+  <div class="source_cont">
+</div>
+
+            </div>
+      </div>
+      </div>
 
   </section>
 

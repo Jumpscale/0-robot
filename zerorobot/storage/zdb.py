@@ -2,7 +2,7 @@ import os
 
 import msgpack
 
-from js9 import j
+from jumpscale import j
 
 from .base import ServiceStorageBase, _serialize_service
 

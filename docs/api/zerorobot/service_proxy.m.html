@@ -1125,7 +1125,7 @@ so the robot see the service as if it as local to him while in reality the servi
 <span class="kn">from</span> <span class="nn">requests.exceptions</span> <span class="kn">import</span> <span class="n">HTTPError</span>
 
 <span class="kn">from</span> <span class="nn">jose</span> <span class="kn">import</span> <span class="n">jwt</span>
-<span class="kn">from</span> <span class="nn">js9</span> <span class="kn">import</span> <span class="n">j</span>
+<span class="kn">from</span> <span class="nn">jumpscale</span> <span class="kn">import</span> <span class="n">j</span>
 <span class="kn">from</span> <span class="nn">zerorobot.task</span> <span class="kn">import</span> <span class="p">(</span><span class="n">TASK_STATE_ERROR</span><span class="p">,</span> <span class="n">TASK_STATE_NEW</span><span class="p">,</span> <span class="n">TASK_STATE_OK</span><span class="p">,</span>
                             <span class="n">TASK_STATE_RUNNING</span><span class="p">,</span> <span class="n">Task</span><span class="p">,</span> <span class="n">TaskNotFoundError</span><span class="p">)</span>
 <span class="kn">from</span> <span class="nn">zerorobot.template.state</span> <span class="kn">import</span> <span class="n">ServiceState</span>
@@ -1151,12 +1151,16 @@ so the robot see the service as if it as local to him while in reality the servi
         <span class="bp">self</span><span class="o">.</span><span class="n">template_uid</span> <span class="o">=</span> <span class="bp">None</span>
         <span class="c1"># a proxy service doesn&#39;t have direct access to the data of it&#39;s remote homologue</span>
         <span class="c1"># cause data are always only accessible  by the service itself and locally</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_data</span> <span class="o">=</span> <span class="bp">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">task_list</span> <span class="o">=</span> <span class="n">TaskListProxy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c1"># Provide a nice representation in tools like IPython / js9</span>
         <span class="k">return</span> <span class="s2">&quot;robot://</span><span class="si">%s</span><span class="s2">/</span><span class="si">%s</span><span class="s2">?</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_zrobot_client</span><span class="o">.</span><span class="n">instance</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">template_uid</span><span class="p">,</span> <span class="n">urllib</span><span class="o">.</span><span class="n">parse</span><span class="o">.</span><span class="n">urlencode</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">guid</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">guid</span><span class="p">)))</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">state</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -1174,6 +1178,17 @@ so the robot see the service as if it as local to him while in reality the servi
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">actions</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_zrobot_client</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">services</span><span class="o">.</span><span class="n">ListActions</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">guid</span><span class="p">)</span>
         <span class="k">return</span> <span class="nb">sorted</span><span class="p">([</span><span class="n">a</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">actions</span><span class="p">])</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">logs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">logs</span><span class="p">,</span> <span class="n">resp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_zrobot_client</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">services</span><span class="o">.</span><span class="n">GetLogs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">guid</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">HTTPError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">err</span><span class="o">.</span><span class="n">response</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">400</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="n">err</span><span class="o">.</span><span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()[</span><span class="s1">&#39;message&#39;</span><span class="p">])</span>
+            <span class="k">raise</span> <span class="n">err</span>
+
+        <span class="k">return</span> <span class="n">logs</span><span class="o">.</span><span class="n">logs</span>
 
     <span class="k">def</span> <span class="nf">schedule_action</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -1369,12 +1384,16 @@ so the robot see the service as if it as local to him while in reality the servi
         <span class="bp">self</span><span class="o">.</span><span class="n">template_uid</span> <span class="o">=</span> <span class="bp">None</span>
         <span class="c1"># a proxy service doesn&#39;t have direct access to the data of it&#39;s remote homologue</span>
         <span class="c1"># cause data are always only accessible  by the service itself and locally</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_data</span> <span class="o">=</span> <span class="bp">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">task_list</span> <span class="o">=</span> <span class="n">TaskListProxy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c1"># Provide a nice representation in tools like IPython / js9</span>
         <span class="k">return</span> <span class="s2">&quot;robot://</span><span class="si">%s</span><span class="s2">/</span><span class="si">%s</span><span class="s2">?</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_zrobot_client</span><span class="o">.</span><span class="n">instance</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">template_uid</span><span class="p">,</span> <span class="n">urllib</span><span class="o">.</span><span class="n">parse</span><span class="o">.</span><span class="n">urlencode</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">guid</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">guid</span><span class="p">)))</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">state</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -1392,6 +1411,17 @@ so the robot see the service as if it as local to him while in reality the servi
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">actions</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_zrobot_client</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">services</span><span class="o">.</span><span class="n">ListActions</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">guid</span><span class="p">)</span>
         <span class="k">return</span> <span class="nb">sorted</span><span class="p">([</span><span class="n">a</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">actions</span><span class="p">])</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">logs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">logs</span><span class="p">,</span> <span class="n">resp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_zrobot_client</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">services</span><span class="o">.</span><span class="n">GetLogs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">guid</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">HTTPError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">err</span><span class="o">.</span><span class="n">response</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">400</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="n">err</span><span class="o">.</span><span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()[</span><span class="s1">&#39;message&#39;</span><span class="p">])</span>
+            <span class="k">raise</span> <span class="n">err</span>
+
+        <span class="k">return</span> <span class="n">logs</span><span class="o">.</span><span class="n">logs</span>
 
     <span class="k">def</span> <span class="nf">schedule_action</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -1465,7 +1495,7 @@ so the robot see the service as if it as local to him while in reality the servi
     <span class="bp">self</span><span class="o">.</span><span class="n">template_uid</span> <span class="o">=</span> <span class="bp">None</span>
     <span class="c1"># a proxy service doesn&#39;t have direct access to the data of it&#39;s remote homologue</span>
     <span class="c1"># cause data are always only accessible  by the service itself and locally</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_data</span> <span class="o">=</span> <span class="bp">None</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">task_list</span> <span class="o">=</span> <span class="n">TaskListProxy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 </pre></div>
 
@@ -1567,6 +1597,16 @@ the corresponding service</p>
             </div>
             <div class="item">
             <p id="zerorobot.service_proxy.ServiceProxy.guid" class="name">var <span class="ident">guid</span></p>
+            
+
+            
+  
+  <div class="source_cont">
+</div>
+
+            </div>
+            <div class="item">
+            <p id="zerorobot.service_proxy.ServiceProxy.logs" class="name">var <span class="ident">logs</span></p>
             
 
             

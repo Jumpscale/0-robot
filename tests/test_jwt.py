@@ -1,6 +1,6 @@
 import unittest
 
-from js9 import j
+from jumpscale import j
 from zerorobot.server.auth import user_jwt
 
 

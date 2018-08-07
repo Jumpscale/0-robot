@@ -4,11 +4,11 @@ from gevent import monkey
 # need to patch sockets to make requests async
 monkey.patch_all(subprocess=False)
 
-from js9 import j
+from jumpscale import j
 import click
 import logging
-from JumpScale9.logging.Handlers import TelegramHandler
-from JumpScale9.logging.Handlers import TelegramFormatter
+from Jumpscale.logging.Handlers import TelegramHandler
+from Jumpscale.logging.Handlers import TelegramFormatter
 from zerorobot.robot import Robot
 
 

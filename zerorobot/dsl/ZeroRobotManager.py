@@ -4,7 +4,7 @@ This module contains a wrapper of the go-raml generated client for ZeroRobot.
 
 from requests.exceptions import HTTPError
 
-from js9 import j
+from jumpscale import j
 from zerorobot.git.repo import RepoCheckoutError
 from zerorobot.service_collection import (ServiceConflictError,
                                           ServiceNotFoundError, TooManyResults)

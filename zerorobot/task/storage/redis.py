@@ -1,5 +1,5 @@
 
-from js9 import j
+from jumpscale import j
 
 from .base import TaskNotFoundError
 from zerorobot.task.utils import _instantiate_task

@@ -1,4 +1,4 @@
-from js9 import j
+from jumpscale import j
 
 FLIST_HASH = '679d829a0d'
 VERSION = '0.7.2'
@@ -18,8 +18,8 @@ hub.authenticate()
 hub.api.set_user('gig-official-apps')
 
 
-hub.promote('gig-autobuilder', 'zero-os-0-robot-master-%s.flist' % FLIST_HASH, 'zero-os-0-robot-%s.flist' % VERSION)
-hub.promote('gig-autobuilder', 'zero-os-0-robot-autostart-master-%s.flist' % FLIST_HASH, 'zero-os-0-robot-autostart-%s.flist' % VERSION)
+hub.promote('gig-autobuilder', 'threefoldtech-0-robot-master-%s.flist' % FLIST_HASH, 'threefoldtech-0-robot-%s.flist' % VERSION)
+hub.promote('gig-autobuilder', 'threefoldtech-0-robot-autostart-master-%s.flist' % FLIST_HASH, 'threefoldtech-0-robot-autostart-%s.flist' % VERSION)
 
-hub.symlink('zero-os-0-robot-%s.flist' % VERSION, 'zero-os-0-robot-latest.flist')
-hub.symlink('zero-os-0-robot-autostart-%s.flist' % VERSION, 'zero-os-0-robot-autostart-latest.flist')
+hub.symlink('threefoldtech-0-robot-%s.flist' % VERSION, 'threefoldtech-0-robot-latest.flist')
+hub.symlink('threefoldtech-0-robot-autostart-%s.flist' % VERSION, 'threefoldtech-0-robot-autostart-latest.flist')

@@ -1096,25 +1096,24 @@ table {
 <span class="sd">These two classes are used by the services to managed the requested actions</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
+<span class="kn">import</span> <span class="nn">hashlib</span>
+<span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">pprint</span>
 <span class="kn">import</span> <span class="nn">sys</span>
 <span class="kn">import</span> <span class="nn">time</span>
 <span class="kn">import</span> <span class="nn">traceback</span>
-<span class="kn">import</span> <span class="nn">pprint</span>
-<span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">import</span> <span class="nn">hashlib</span>
 
 <span class="kn">import</span> <span class="nn">gevent</span>
+<span class="kn">import</span> <span class="nn">requests</span>
 <span class="kn">from</span> <span class="nn">gevent.lock</span> <span class="kn">import</span> <span class="n">Semaphore</span>
 
+<span class="kn">from</span> <span class="nn">jumpscale</span> <span class="kn">import</span> <span class="n">j</span>
+<span class="kn">from</span> <span class="nn">zerorobot</span> <span class="kn">import</span> <span class="n">config</span>
 <span class="kn">from</span> <span class="nn">zerorobot.errors</span> <span class="kn">import</span> <span class="n">ExpectedError</span>
-
-<span class="kn">from</span> <span class="nn">js9</span> <span class="kn">import</span> <span class="n">j</span>
-
 
 <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="p">(</span><span class="n">TASK_STATE_ERROR</span><span class="p">,</span> <span class="n">TASK_STATE_NEW</span><span class="p">,</span> <span class="n">TASK_STATE_OK</span><span class="p">,</span>
                <span class="n">TASK_STATE_RUNNING</span><span class="p">)</span>
-
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;zerorobot&#39;</span><span class="p">)</span>
 <span class="n">telegram_logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;telegram_logger&#39;</span><span class="p">)</span>
@@ -1131,6 +1130,7 @@ table {
 <span class="sd">        @param args: argument to pass to the action when executing</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">guid</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">idgenerator</span><span class="o">.</span><span class="n">generateGUID</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">service</span> <span class="o">=</span> <span class="bp">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_func</span> <span class="o">=</span> <span class="n">func</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">action_name</span> <span class="o">=</span> <span class="n">func</span><span class="o">.</span><span class="vm">__name__</span> <span class="k">if</span> <span class="n">func</span> <span class="k">else</span> <span class="bp">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_args</span> <span class="o">=</span> <span class="n">args</span>
@@ -1175,39 +1175,12 @@ table {
             <span class="c1"># capture stacktrace and exception</span>
             <span class="n">exc_type</span><span class="p">,</span> <span class="n">exc</span><span class="p">,</span> <span class="n">exc_traceback</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">exc_info</span><span class="p">()</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_eco</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">errorhandler</span><span class="o">.</span><span class="n">parsePythonExceptionObject</span><span class="p">(</span><span class="n">exc</span><span class="p">,</span> <span class="n">tb</span><span class="o">=</span><span class="n">exc_traceback</span><span class="p">)</span>
-            <span class="n">gevent</span><span class="o">.</span><span class="n">spawn</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_report</span><span class="p">,</span> <span class="n">exc_type</span><span class="p">,</span> <span class="n">exc</span><span class="p">,</span> <span class="n">exc_traceback</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">exc</span><span class="p">,</span> <span class="n">ExpectedError</span><span class="p">):</span>
+                <span class="n">gevent</span><span class="o">.</span><span class="n">spawn</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_report_telegram</span><span class="p">,</span> <span class="n">exc_type</span><span class="p">,</span> <span class="n">exc</span><span class="p">,</span> <span class="n">exc_traceback</span><span class="p">)</span>
+                <span class="n">gevent</span><span class="o">.</span><span class="n">spawn</span><span class="p">(</span><span class="n">_send_eco_webhooks</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">service</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
         <span class="k">finally</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_duration</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">started</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_result</span>
-
-    <span class="k">def</span> <span class="nf">_report</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exc_type</span><span class="p">,</span> <span class="n">exc</span><span class="p">,</span> <span class="n">tb</span><span class="p">):</span>
-        <span class="c1"># if enabled, unexpected errors would be logged on the telegram chat</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">exc</span><span class="p">,</span> <span class="n">ExpectedError</span><span class="p">):</span>
-            <span class="c1"># go to last traceback</span>
-            <span class="n">last_traceback</span> <span class="o">=</span> <span class="n">tb</span>
-            <span class="k">while</span> <span class="n">last_traceback</span><span class="o">.</span><span class="n">tb_next</span><span class="p">:</span>
-                <span class="n">last_traceback</span> <span class="o">=</span> <span class="n">last_traceback</span><span class="o">.</span><span class="n">tb_next</span>
-
-            <span class="c1"># get locals</span>
-            <span class="n">locals_</span> <span class="o">=</span> <span class="n">last_traceback</span><span class="o">.</span><span class="n">tb_frame</span><span class="o">.</span><span class="n">f_locals</span>
-
-            <span class="n">stacktrace</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">traceback</span><span class="o">.</span><span class="n">format_tb</span><span class="p">(</span><span class="n">tb</span><span class="p">))</span>
-            <span class="n">stacktrace_hash</span> <span class="o">=</span> <span class="n">hashlib</span><span class="o">.</span><span class="n">md5</span><span class="p">(</span><span class="n">stacktrace</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s1">&#39;utf8&#39;</span><span class="p">))</span><span class="o">.</span><span class="n">digest</span><span class="p">()</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">stacktrace_hash</span> <span class="ow">in</span> <span class="n">stacks</span><span class="p">:</span>
-                <span class="k">try</span><span class="p">:</span>
-                    <span class="n">telegram_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
-                        <span class="s2">&quot;Error type: </span><span class="si">%s</span><span class="se">\n</span><span class="s2">Error message:</span><span class="se">\n\t</span><span class="si">%s</span><span class="se">\n</span><span class="s2">Stacktrace:</span><span class="se">\n</span><span class="si">%s</span><span class="se">\n\n</span><span class="s2">Task arguments:</span><span class="se">\n</span><span class="si">%s</span><span class="se">\n\n</span><span class="s2">Local values:</span><span class="se">\n</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span>
-                            <span class="n">exc_type</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span>
-                            <span class="n">exc</span><span class="p">,</span>
-                            <span class="n">stacktrace</span><span class="p">,</span>
-                            <span class="n">pprint</span><span class="o">.</span><span class="n">pformat</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_args</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">50</span><span class="p">),</span>
-                            <span class="n">pprint</span><span class="o">.</span><span class="n">pformat</span><span class="p">(</span><span class="n">locals_</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">50</span><span class="p">)</span>
-                        <span class="p">))</span>
-                    <span class="n">stacks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">stacktrace_hash</span><span class="p">)</span>
-                    <span class="k">while</span> <span class="nb">len</span><span class="p">(</span><span class="n">stacks</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1000</span><span class="p">:</span>
-                        <span class="n">stacks</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
-                <span class="k">except</span><span class="p">:</span>
-                    <span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="s2">&quot;Failed to log error to telegram handler&quot;</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">state</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -1259,6 +1232,60 @@ table {
 
     <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="nb">repr</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_report_telegram</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exc_type</span><span class="p">,</span> <span class="n">exc</span><span class="p">,</span> <span class="n">tb</span><span class="p">):</span>
+        <span class="c1"># if enabled, unexpected errors would be logged on the telegram chat</span>
+        <span class="c1"># go to last traceback</span>
+        <span class="n">last_traceback</span> <span class="o">=</span> <span class="n">tb</span>
+        <span class="k">while</span> <span class="n">last_traceback</span><span class="o">.</span><span class="n">tb_next</span><span class="p">:</span>
+            <span class="n">last_traceback</span> <span class="o">=</span> <span class="n">last_traceback</span><span class="o">.</span><span class="n">tb_next</span>
+
+        <span class="c1"># get locals</span>
+        <span class="n">locals_</span> <span class="o">=</span> <span class="n">last_traceback</span><span class="o">.</span><span class="n">tb_frame</span><span class="o">.</span><span class="n">f_locals</span>
+
+        <span class="n">stacktrace</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">traceback</span><span class="o">.</span><span class="n">format_tb</span><span class="p">(</span><span class="n">tb</span><span class="p">))</span>
+        <span class="n">stacktrace_hash</span> <span class="o">=</span> <span class="n">hashlib</span><span class="o">.</span><span class="n">md5</span><span class="p">(</span><span class="n">stacktrace</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s1">&#39;utf8&#39;</span><span class="p">))</span><span class="o">.</span><span class="n">digest</span><span class="p">()</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">stacktrace_hash</span> <span class="ow">in</span> <span class="n">stacks</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">telegram_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                    <span class="s2">&quot;Error type: </span><span class="si">%s</span><span class="se">\n</span><span class="s2">Error message:</span><span class="se">\n\t</span><span class="si">%s</span><span class="se">\n</span><span class="s2">Stacktrace:</span><span class="se">\n</span><span class="si">%s</span><span class="se">\n\n</span><span class="s2">Task arguments:</span><span class="se">\n</span><span class="si">%s</span><span class="se">\n\n</span><span class="s2">Local values:</span><span class="se">\n</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span>
+                        <span class="n">exc_type</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span>
+                        <span class="n">exc</span><span class="p">,</span>
+                        <span class="n">stacktrace</span><span class="p">,</span>
+                        <span class="n">pprint</span><span class="o">.</span><span class="n">pformat</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_args</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">50</span><span class="p">),</span>
+                        <span class="n">pprint</span><span class="o">.</span><span class="n">pformat</span><span class="p">(</span><span class="n">locals_</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">50</span><span class="p">)</span>
+                    <span class="p">))</span>
+                <span class="n">stacks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">stacktrace_hash</span><span class="p">)</span>
+                <span class="k">while</span> <span class="nb">len</span><span class="p">(</span><span class="n">stacks</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1000</span><span class="p">:</span>
+                    <span class="n">stacks</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+            <span class="k">except</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="s2">&quot;Failed to log error to telegram handler&quot;</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_send_eco_webhooks</span><span class="p">(</span><span class="n">service</span><span class="p">,</span> <span class="n">task</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">task</span><span class="o">.</span><span class="n">eco</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="k">return</span>
+
+    <span class="n">webhooks</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">webhooks</span>
+
+    <span class="c1"># TODO: send concurrently from a pool of greenlet</span>
+    <span class="n">task</span><span class="o">.</span><span class="n">eco</span><span class="o">.</span><span class="n">key</span>  <span class="c1"># make sure uniquekey is filled</span>
+    <span class="n">eco_data</span> <span class="o">=</span> <span class="n">task</span><span class="o">.</span><span class="n">eco</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">eco_data</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;tb&#39;</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+
+    <span class="n">data</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;service&#39;</span><span class="p">:</span> <span class="n">service</span><span class="o">.</span><span class="n">guid</span><span class="p">,</span>
+        <span class="s1">&#39;action_name&#39;</span><span class="p">:</span> <span class="n">task</span><span class="o">.</span><span class="n">action_name</span><span class="p">,</span>
+        <span class="s1">&#39;args&#39;</span><span class="p">:</span> <span class="n">task</span><span class="o">.</span><span class="n">_args</span><span class="p">,</span>
+        <span class="s1">&#39;eco&#39;</span><span class="p">:</span> <span class="n">eco_data</span>
+    <span class="p">}</span>
+
+    <span class="k">for</span> <span class="n">wh</span> <span class="ow">in</span> <span class="n">webhooks</span><span class="o">.</span><span class="n">list</span><span class="p">(</span><span class="n">kind</span><span class="o">=</span><span class="s1">&#39;eco&#39;</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">requests</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="n">wh</span><span class="o">.</span><span class="n">url</span><span class="p">,</span> <span class="n">json</span><span class="o">=</span><span class="n">data</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;eco web hook sent to </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">wh</span><span class="o">.</span><span class="n">url</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;fail to send web hook to </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">wh</span><span class="o">.</span><span class="n">url</span><span class="p">)</span>
 </pre></div>
 
   </div>
@@ -1343,6 +1370,7 @@ table {
 <span class="sd">        @param args: argument to pass to the action when executing</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">guid</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">idgenerator</span><span class="o">.</span><span class="n">generateGUID</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">service</span> <span class="o">=</span> <span class="bp">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_func</span> <span class="o">=</span> <span class="n">func</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">action_name</span> <span class="o">=</span> <span class="n">func</span><span class="o">.</span><span class="vm">__name__</span> <span class="k">if</span> <span class="n">func</span> <span class="k">else</span> <span class="bp">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_args</span> <span class="o">=</span> <span class="n">args</span>
@@ -1387,39 +1415,12 @@ table {
             <span class="c1"># capture stacktrace and exception</span>
             <span class="n">exc_type</span><span class="p">,</span> <span class="n">exc</span><span class="p">,</span> <span class="n">exc_traceback</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">exc_info</span><span class="p">()</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_eco</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">errorhandler</span><span class="o">.</span><span class="n">parsePythonExceptionObject</span><span class="p">(</span><span class="n">exc</span><span class="p">,</span> <span class="n">tb</span><span class="o">=</span><span class="n">exc_traceback</span><span class="p">)</span>
-            <span class="n">gevent</span><span class="o">.</span><span class="n">spawn</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_report</span><span class="p">,</span> <span class="n">exc_type</span><span class="p">,</span> <span class="n">exc</span><span class="p">,</span> <span class="n">exc_traceback</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">exc</span><span class="p">,</span> <span class="n">ExpectedError</span><span class="p">):</span>
+                <span class="n">gevent</span><span class="o">.</span><span class="n">spawn</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_report_telegram</span><span class="p">,</span> <span class="n">exc_type</span><span class="p">,</span> <span class="n">exc</span><span class="p">,</span> <span class="n">exc_traceback</span><span class="p">)</span>
+                <span class="n">gevent</span><span class="o">.</span><span class="n">spawn</span><span class="p">(</span><span class="n">_send_eco_webhooks</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">service</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
         <span class="k">finally</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_duration</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">started</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_result</span>
-
-    <span class="k">def</span> <span class="nf">_report</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exc_type</span><span class="p">,</span> <span class="n">exc</span><span class="p">,</span> <span class="n">tb</span><span class="p">):</span>
-        <span class="c1"># if enabled, unexpected errors would be logged on the telegram chat</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">exc</span><span class="p">,</span> <span class="n">ExpectedError</span><span class="p">):</span>
-            <span class="c1"># go to last traceback</span>
-            <span class="n">last_traceback</span> <span class="o">=</span> <span class="n">tb</span>
-            <span class="k">while</span> <span class="n">last_traceback</span><span class="o">.</span><span class="n">tb_next</span><span class="p">:</span>
-                <span class="n">last_traceback</span> <span class="o">=</span> <span class="n">last_traceback</span><span class="o">.</span><span class="n">tb_next</span>
-
-            <span class="c1"># get locals</span>
-            <span class="n">locals_</span> <span class="o">=</span> <span class="n">last_traceback</span><span class="o">.</span><span class="n">tb_frame</span><span class="o">.</span><span class="n">f_locals</span>
-
-            <span class="n">stacktrace</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">traceback</span><span class="o">.</span><span class="n">format_tb</span><span class="p">(</span><span class="n">tb</span><span class="p">))</span>
-            <span class="n">stacktrace_hash</span> <span class="o">=</span> <span class="n">hashlib</span><span class="o">.</span><span class="n">md5</span><span class="p">(</span><span class="n">stacktrace</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s1">&#39;utf8&#39;</span><span class="p">))</span><span class="o">.</span><span class="n">digest</span><span class="p">()</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">stacktrace_hash</span> <span class="ow">in</span> <span class="n">stacks</span><span class="p">:</span>
-                <span class="k">try</span><span class="p">:</span>
-                    <span class="n">telegram_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
-                        <span class="s2">&quot;Error type: </span><span class="si">%s</span><span class="se">\n</span><span class="s2">Error message:</span><span class="se">\n\t</span><span class="si">%s</span><span class="se">\n</span><span class="s2">Stacktrace:</span><span class="se">\n</span><span class="si">%s</span><span class="se">\n\n</span><span class="s2">Task arguments:</span><span class="se">\n</span><span class="si">%s</span><span class="se">\n\n</span><span class="s2">Local values:</span><span class="se">\n</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span>
-                            <span class="n">exc_type</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span>
-                            <span class="n">exc</span><span class="p">,</span>
-                            <span class="n">stacktrace</span><span class="p">,</span>
-                            <span class="n">pprint</span><span class="o">.</span><span class="n">pformat</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_args</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">50</span><span class="p">),</span>
-                            <span class="n">pprint</span><span class="o">.</span><span class="n">pformat</span><span class="p">(</span><span class="n">locals_</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">50</span><span class="p">)</span>
-                        <span class="p">))</span>
-                    <span class="n">stacks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">stacktrace_hash</span><span class="p">)</span>
-                    <span class="k">while</span> <span class="nb">len</span><span class="p">(</span><span class="n">stacks</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1000</span><span class="p">:</span>
-                        <span class="n">stacks</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
-                <span class="k">except</span><span class="p">:</span>
-                    <span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="s2">&quot;Failed to log error to telegram handler&quot;</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">state</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -1471,6 +1472,34 @@ table {
 
     <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="nb">repr</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_report_telegram</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exc_type</span><span class="p">,</span> <span class="n">exc</span><span class="p">,</span> <span class="n">tb</span><span class="p">):</span>
+        <span class="c1"># if enabled, unexpected errors would be logged on the telegram chat</span>
+        <span class="c1"># go to last traceback</span>
+        <span class="n">last_traceback</span> <span class="o">=</span> <span class="n">tb</span>
+        <span class="k">while</span> <span class="n">last_traceback</span><span class="o">.</span><span class="n">tb_next</span><span class="p">:</span>
+            <span class="n">last_traceback</span> <span class="o">=</span> <span class="n">last_traceback</span><span class="o">.</span><span class="n">tb_next</span>
+
+        <span class="c1"># get locals</span>
+        <span class="n">locals_</span> <span class="o">=</span> <span class="n">last_traceback</span><span class="o">.</span><span class="n">tb_frame</span><span class="o">.</span><span class="n">f_locals</span>
+
+        <span class="n">stacktrace</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">traceback</span><span class="o">.</span><span class="n">format_tb</span><span class="p">(</span><span class="n">tb</span><span class="p">))</span>
+        <span class="n">stacktrace_hash</span> <span class="o">=</span> <span class="n">hashlib</span><span class="o">.</span><span class="n">md5</span><span class="p">(</span><span class="n">stacktrace</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s1">&#39;utf8&#39;</span><span class="p">))</span><span class="o">.</span><span class="n">digest</span><span class="p">()</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">stacktrace_hash</span> <span class="ow">in</span> <span class="n">stacks</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">telegram_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                    <span class="s2">&quot;Error type: </span><span class="si">%s</span><span class="se">\n</span><span class="s2">Error message:</span><span class="se">\n\t</span><span class="si">%s</span><span class="se">\n</span><span class="s2">Stacktrace:</span><span class="se">\n</span><span class="si">%s</span><span class="se">\n\n</span><span class="s2">Task arguments:</span><span class="se">\n</span><span class="si">%s</span><span class="se">\n\n</span><span class="s2">Local values:</span><span class="se">\n</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span>
+                        <span class="n">exc_type</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span>
+                        <span class="n">exc</span><span class="p">,</span>
+                        <span class="n">stacktrace</span><span class="p">,</span>
+                        <span class="n">pprint</span><span class="o">.</span><span class="n">pformat</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_args</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">50</span><span class="p">),</span>
+                        <span class="n">pprint</span><span class="o">.</span><span class="n">pformat</span><span class="p">(</span><span class="n">locals_</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">50</span><span class="p">)</span>
+                    <span class="p">))</span>
+                <span class="n">stacks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">stacktrace_hash</span><span class="p">)</span>
+                <span class="k">while</span> <span class="nb">len</span><span class="p">(</span><span class="n">stacks</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1000</span><span class="p">:</span>
+                    <span class="n">stacks</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+            <span class="k">except</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="s2">&quot;Failed to log error to telegram handler&quot;</span><span class="p">)</span>
 </pre></div>
 
   </div>
@@ -1506,6 +1535,7 @@ table {
 <span class="sd">    @param args: argument to pass to the action when executing</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">guid</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">idgenerator</span><span class="o">.</span><span class="n">generateGUID</span><span class="p">()</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">service</span> <span class="o">=</span> <span class="bp">None</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_func</span> <span class="o">=</span> <span class="n">func</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">action_name</span> <span class="o">=</span> <span class="n">func</span><span class="o">.</span><span class="vm">__name__</span> <span class="k">if</span> <span class="n">func</span> <span class="k">else</span> <span class="bp">None</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_args</span> <span class="o">=</span> <span class="n">args</span>
@@ -1550,7 +1580,9 @@ table {
         <span class="c1"># capture stacktrace and exception</span>
         <span class="n">exc_type</span><span class="p">,</span> <span class="n">exc</span><span class="p">,</span> <span class="n">exc_traceback</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">exc_info</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_eco</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">errorhandler</span><span class="o">.</span><span class="n">parsePythonExceptionObject</span><span class="p">(</span><span class="n">exc</span><span class="p">,</span> <span class="n">tb</span><span class="o">=</span><span class="n">exc_traceback</span><span class="p">)</span>
-        <span class="n">gevent</span><span class="o">.</span><span class="n">spawn</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_report</span><span class="p">,</span> <span class="n">exc_type</span><span class="p">,</span> <span class="n">exc</span><span class="p">,</span> <span class="n">exc_traceback</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">exc</span><span class="p">,</span> <span class="n">ExpectedError</span><span class="p">):</span>
+            <span class="n">gevent</span><span class="o">.</span><span class="n">spawn</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_report_telegram</span><span class="p">,</span> <span class="n">exc_type</span><span class="p">,</span> <span class="n">exc</span><span class="p">,</span> <span class="n">exc_traceback</span><span class="p">)</span>
+            <span class="n">gevent</span><span class="o">.</span><span class="n">spawn</span><span class="p">(</span><span class="n">_send_eco_webhooks</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">service</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
     <span class="k">finally</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_duration</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">started</span>
     <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_result</span>
@@ -1662,6 +1694,16 @@ raises TimeoutError</p>
             </div>
             <div class="item">
             <p id="zerorobot.task.task.Task.result" class="name">var <span class="ident">result</span></p>
+            
+
+            
+  
+  <div class="source_cont">
+</div>
+
+            </div>
+            <div class="item">
+            <p id="zerorobot.task.task.Task.service" class="name">var <span class="ident">service</span></p>
             
 
             

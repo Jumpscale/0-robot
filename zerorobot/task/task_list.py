@@ -7,7 +7,7 @@ import requests
 from gevent.lock import Semaphore
 from gevent.queue import PriorityQueue
 
-from js9 import j
+from jumpscale import j
 from zerorobot.prometheus.robot import nr_task_waiting
 
 from . import (PRIORITY_NORMAL, PRIORITY_SYSTEM, TASK_STATE_ERROR,
@@ -55,12 +55,12 @@ class TaskList:
         if self._done:
             self._done.close()
 
-    def get(self):
+    def get(self, timeout=None):
         """
         pop out a task from the task list
         this call is blocking when the task list is empty
         """
-        _, task = self._queue.get()
+        _, task = self._queue.get(timeout=timeout)
         self.current = task
         nr_task_waiting.labels(service_guid=self.service.guid).dec()
         return task

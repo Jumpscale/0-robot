@@ -1077,26 +1077,21 @@ table {
 
 <span class="kn">import</span> <span class="nn">gevent</span>
 
-<span class="kn">from</span> <span class="nn">js9</span> <span class="kn">import</span> <span class="n">j</span>
+<span class="kn">from</span> <span class="nn">jumpscale</span> <span class="kn">import</span> <span class="n">j</span>
 <span class="kn">from</span> <span class="nn">zerorobot</span> <span class="kn">import</span> <span class="n">service_collection</span> <span class="k">as</span> <span class="n">scol</span>
 <span class="kn">from</span> <span class="nn">zerorobot</span> <span class="kn">import</span> <span class="n">template_collection</span> <span class="k">as</span> <span class="n">tcol</span>
-<span class="kn">from</span> <span class="nn">zerorobot</span> <span class="kn">import</span> <span class="n">auto_pusher</span><span class="p">,</span> <span class="n">config</span>
+<span class="kn">from</span> <span class="nn">zerorobot</span> <span class="kn">import</span> <span class="n">storage</span>
 <span class="kn">from</span> <span class="nn">zerorobot.template_uid</span> <span class="kn">import</span> <span class="n">TemplateUID</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;zerorobot&#39;</span><span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">load_services</span><span class="p">(</span><span class="n">data_dir</span><span class="p">):</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">data_dir</span><span class="p">):</span>
-        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">data_dir</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">load_services</span><span class="p">(</span><span class="n">config</span><span class="p">):</span>
+    <span class="n">store</span> <span class="o">=</span> <span class="n">storage</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
 
-    <span class="k">for</span> <span class="n">srv_dir</span> <span class="ow">in</span> <span class="n">j</span><span class="o">.</span><span class="n">sal</span><span class="o">.</span><span class="n">fs</span><span class="o">.</span><span class="n">listDirsInDir</span><span class="p">(</span><span class="n">data_dir</span><span class="p">,</span> <span class="n">recursive</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
-        <span class="n">info_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">srv_dir</span><span class="p">,</span> <span class="s1">&#39;service.yaml&#39;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">info_path</span><span class="p">):</span>
-            <span class="k">continue</span>
-        <span class="n">service_info</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">serializer</span><span class="o">.</span><span class="n">yaml</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">info_path</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">service_details</span> <span class="ow">in</span> <span class="n">store</span><span class="o">.</span><span class="n">list</span><span class="p">():</span>
+        <span class="n">tmpl_uid</span> <span class="o">=</span> <span class="n">TemplateUID</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">service_details</span><span class="p">[</span><span class="s1">&#39;service&#39;</span><span class="p">][</span><span class="s1">&#39;template&#39;</span><span class="p">])</span>
 
-        <span class="n">tmpl_uid</span> <span class="o">=</span> <span class="n">TemplateUID</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">service_info</span><span class="p">[</span><span class="s1">&#39;template&#39;</span><span class="p">])</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">tmplClass</span> <span class="o">=</span> <span class="n">tcol</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">tmpl_uid</span><span class="p">))</span>
         <span class="k">except</span> <span class="n">tcol</span><span class="o">.</span><span class="n">TemplateNotFoundError</span><span class="p">:</span>
@@ -1110,12 +1105,12 @@ table {
                 <span class="c1"># if the template is not found, try to add the repo using the info of the service template uid</span>
                 <span class="n">url</span> <span class="o">=</span> <span class="s2">&quot;http://</span><span class="si">%s</span><span class="s2">/</span><span class="si">%s</span><span class="s2">/</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">tmpl_uid</span><span class="o">.</span><span class="n">host</span><span class="p">,</span> <span class="n">tmpl_uid</span><span class="o">.</span><span class="n">account</span><span class="p">,</span> <span class="n">tmpl_uid</span><span class="o">.</span><span class="n">repo</span><span class="p">)</span>
                 <span class="n">tcol</span><span class="o">.</span><span class="n">add_repo</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
-                <span class="n">tmplClass</span> <span class="o">=</span> <span class="n">tcol</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">service_info</span><span class="p">[</span><span class="s1">&#39;template&#39;</span><span class="p">])</span>
+                <span class="n">tmplClass</span> <span class="o">=</span> <span class="n">tcol</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">service_details</span><span class="p">[</span><span class="s1">&#39;service&#39;</span><span class="p">][</span><span class="s1">&#39;template&#39;</span><span class="p">])</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="c1"># template of another version found, use newer version to load the service</span>
                 <span class="n">tmplClass</span> <span class="o">=</span> <span class="n">tmplClasses</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
-        <span class="n">srv</span> <span class="o">=</span> <span class="n">scol</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">tmplClass</span><span class="p">,</span> <span class="n">srv_dir</span><span class="p">)</span>
+        <span class="n">scol</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">tmplClass</span><span class="p">,</span> <span class="n">service_details</span><span class="p">)</span>
 
     <span class="n">loading_failed</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">service</span> <span class="ow">in</span> <span class="n">scol</span><span class="o">.</span><span class="n">list_services</span><span class="p">():</span>
@@ -1173,7 +1168,7 @@ table {
       
   <div class="item">
     <div class="name def" id="zerorobot.robot.loader.load_services">
-    <p>def <span class="ident">load_services</span>(</p><p>data_dir)</p>
+    <p>def <span class="ident">load_services</span>(</p><p>config)</p>
     </div>
     
 
@@ -1182,17 +1177,12 @@ table {
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.robot.loader.load_services', this);">Show source &equiv;</a></p>
   <div id="source-zerorobot.robot.loader.load_services" class="source">
-    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">load_services</span><span class="p">(</span><span class="n">data_dir</span><span class="p">):</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">data_dir</span><span class="p">):</span>
-        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">data_dir</span><span class="p">)</span>
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">load_services</span><span class="p">(</span><span class="n">config</span><span class="p">):</span>
+    <span class="n">store</span> <span class="o">=</span> <span class="n">storage</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
 
-    <span class="k">for</span> <span class="n">srv_dir</span> <span class="ow">in</span> <span class="n">j</span><span class="o">.</span><span class="n">sal</span><span class="o">.</span><span class="n">fs</span><span class="o">.</span><span class="n">listDirsInDir</span><span class="p">(</span><span class="n">data_dir</span><span class="p">,</span> <span class="n">recursive</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
-        <span class="n">info_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">srv_dir</span><span class="p">,</span> <span class="s1">&#39;service.yaml&#39;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">info_path</span><span class="p">):</span>
-            <span class="k">continue</span>
-        <span class="n">service_info</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">serializer</span><span class="o">.</span><span class="n">yaml</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">info_path</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">service_details</span> <span class="ow">in</span> <span class="n">store</span><span class="o">.</span><span class="n">list</span><span class="p">():</span>
+        <span class="n">tmpl_uid</span> <span class="o">=</span> <span class="n">TemplateUID</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">service_details</span><span class="p">[</span><span class="s1">&#39;service&#39;</span><span class="p">][</span><span class="s1">&#39;template&#39;</span><span class="p">])</span>
 
-        <span class="n">tmpl_uid</span> <span class="o">=</span> <span class="n">TemplateUID</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">service_info</span><span class="p">[</span><span class="s1">&#39;template&#39;</span><span class="p">])</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">tmplClass</span> <span class="o">=</span> <span class="n">tcol</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">tmpl_uid</span><span class="p">))</span>
         <span class="k">except</span> <span class="n">tcol</span><span class="o">.</span><span class="n">TemplateNotFoundError</span><span class="p">:</span>
@@ -1206,12 +1196,12 @@ table {
                 <span class="c1"># if the template is not found, try to add the repo using the info of the service template uid</span>
                 <span class="n">url</span> <span class="o">=</span> <span class="s2">&quot;http://</span><span class="si">%s</span><span class="s2">/</span><span class="si">%s</span><span class="s2">/</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">tmpl_uid</span><span class="o">.</span><span class="n">host</span><span class="p">,</span> <span class="n">tmpl_uid</span><span class="o">.</span><span class="n">account</span><span class="p">,</span> <span class="n">tmpl_uid</span><span class="o">.</span><span class="n">repo</span><span class="p">)</span>
                 <span class="n">tcol</span><span class="o">.</span><span class="n">add_repo</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
-                <span class="n">tmplClass</span> <span class="o">=</span> <span class="n">tcol</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">service_info</span><span class="p">[</span><span class="s1">&#39;template&#39;</span><span class="p">])</span>
+                <span class="n">tmplClass</span> <span class="o">=</span> <span class="n">tcol</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">service_details</span><span class="p">[</span><span class="s1">&#39;service&#39;</span><span class="p">][</span><span class="s1">&#39;template&#39;</span><span class="p">])</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="c1"># template of another version found, use newer version to load the service</span>
                 <span class="n">tmplClass</span> <span class="o">=</span> <span class="n">tmplClasses</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
-        <span class="n">srv</span> <span class="o">=</span> <span class="n">scol</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">tmplClass</span><span class="p">,</span> <span class="n">srv_dir</span><span class="p">)</span>
+        <span class="n">scol</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">tmplClass</span><span class="p">,</span> <span class="n">service_details</span><span class="p">)</span>
 
     <span class="n">loading_failed</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">service</span> <span class="ow">in</span> <span class="n">scol</span><span class="o">.</span><span class="n">list_services</span><span class="p">():</span>

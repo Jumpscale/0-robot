@@ -1,7 +1,7 @@
 import time
 import unittest
 
-from JumpScale9.errorhandling.ErrorConditionObject import ErrorConditionObject
+from Jumpscale.errorhandling.ErrorConditionObject import ErrorConditionObject
 from zerorobot.task.task import (TASK_STATE_ERROR, TASK_STATE_NEW,
                                  TASK_STATE_OK, TASK_STATE_RUNNING, Task)
 from zerorobot.template.decorator import timeout

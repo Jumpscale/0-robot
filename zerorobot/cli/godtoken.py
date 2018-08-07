@@ -3,7 +3,7 @@ import sys
 import click
 from requests.exceptions import HTTPError
 
-from js9 import j
+from jumpscale import j
 from zerorobot.cli import utils
 from zerorobot import config
 from zerorobot.server import auth

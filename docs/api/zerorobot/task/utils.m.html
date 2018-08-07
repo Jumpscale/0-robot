@@ -1054,6 +1054,13 @@ table {
 
     </li>
 
+    <li class="set"><h3><a href="#header-functions">Functions</a></h3>
+      
+  <ul>
+    <li class="mono"><a href="#zerorobot.task.utils.wait_all">wait_all</a></li>
+  </ul>
+
+    </li>
 
 
     </ul>
@@ -1072,7 +1079,7 @@ table {
   
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.task.utils', this);">Show source &equiv;</a></p>
   <div id="source-zerorobot.task.utils" class="source">
-    <div class="codehilite"><pre><span></span><span class="kn">from</span> <span class="nn">js9</span> <span class="kn">import</span> <span class="n">j</span>
+    <div class="codehilite"><pre><span></span><span class="kn">from</span> <span class="nn">jumpscale</span> <span class="kn">import</span> <span class="n">j</span>
 
 <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="p">(</span><span class="n">PRIORITY_NORMAL</span><span class="p">,</span> <span class="n">PRIORITY_RECURRING</span><span class="p">,</span> <span class="n">PRIORITY_SYSTEM</span><span class="p">,</span>
                <span class="n">TASK_STATE_ERROR</span><span class="p">,</span> <span class="n">TASK_STATE_NEW</span><span class="p">,</span> <span class="n">TASK_STATE_OK</span><span class="p">,</span>
@@ -1094,6 +1101,31 @@ table {
     <span class="n">t</span><span class="o">.</span><span class="n">_created</span> <span class="o">=</span> <span class="n">task</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;created&#39;</span><span class="p">)</span>
     <span class="n">t</span><span class="o">.</span><span class="n">_duration</span> <span class="o">=</span> <span class="n">task</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;duration&#39;</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">t</span>
+
+
+<span class="k">def</span> <span class="nf">wait_all</span><span class="p">(</span><span class="n">tasks</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span> <span class="n">die</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    helper method to wait for a list of tasks</span>
+
+<span class="sd">    :param tasks: iterable that contains zerorobot.task.Task objects</span>
+<span class="sd">    :type tasks: iterable</span>
+<span class="sd">    :param timeout: timeout per task, defaults to 60</span>
+<span class="sd">    :param timeout: int, optional</span>
+<span class="sd">    :param die: if True, raise any exception that was raise in the tasks, defaults to False</span>
+<span class="sd">    :param die: bool, optional</span>
+<span class="sd">    :raises TypeError: raised if the iterable does not contains only zerorobot.task.Task</span>
+<span class="sd">    :return: a list of all the result from the tasks</span>
+<span class="sd">    :rtype: list</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">task</span> <span class="ow">in</span> <span class="nb">iter</span><span class="p">(</span><span class="n">tasks</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">task</span><span class="p">,</span> <span class="n">Task</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;element of tasks should be an instance of zerorobot.task.Task&quot;</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">task</span><span class="o">.</span><span class="n">wait</span><span class="p">(</span><span class="n">timeout</span><span class="o">=</span><span class="n">timeout</span><span class="p">,</span> <span class="n">die</span><span class="o">=</span><span class="n">die</span><span class="p">)</span><span class="o">.</span><span class="n">result</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">TimeoutError</span><span class="p">:</span>
+            <span class="k">continue</span>
+    <span class="k">return</span> <span class="n">results</span>
 </pre></div>
 
   </div>
@@ -1159,6 +1191,59 @@ table {
 
       </div>
 
+    <h2 class="section-title" id="header-functions">Functions</h2>
+      
+  <div class="item">
+    <div class="name def" id="zerorobot.task.utils.wait_all">
+    <p>def <span class="ident">wait_all</span>(</p><p>tasks, timeout=60, die=False)</p>
+    </div>
+    
+
+    
+  
+    <div class="desc"><p>helper method to wait for a list of tasks</p>
+<p>:param tasks: iterable that contains zerorobot.task.Task objects
+:type tasks: iterable
+:param timeout: timeout per task, defaults to 60
+:param timeout: int, optional
+:param die: if True, raise any exception that was raise in the tasks, defaults to False
+:param die: bool, optional
+:raises TypeError: raised if the iterable does not contains only zerorobot.task.Task
+:return: a list of all the result from the tasks
+:rtype: list</p></div>
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.task.utils.wait_all', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.task.utils.wait_all" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">wait_all</span><span class="p">(</span><span class="n">tasks</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span> <span class="n">die</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    helper method to wait for a list of tasks</span>
+
+<span class="sd">    :param tasks: iterable that contains zerorobot.task.Task objects</span>
+<span class="sd">    :type tasks: iterable</span>
+<span class="sd">    :param timeout: timeout per task, defaults to 60</span>
+<span class="sd">    :param timeout: int, optional</span>
+<span class="sd">    :param die: if True, raise any exception that was raise in the tasks, defaults to False</span>
+<span class="sd">    :param die: bool, optional</span>
+<span class="sd">    :raises TypeError: raised if the iterable does not contains only zerorobot.task.Task</span>
+<span class="sd">    :return: a list of all the result from the tasks</span>
+<span class="sd">    :rtype: list</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">task</span> <span class="ow">in</span> <span class="nb">iter</span><span class="p">(</span><span class="n">tasks</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">task</span><span class="p">,</span> <span class="n">Task</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;element of tasks should be an instance of zerorobot.task.Task&quot;</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">task</span><span class="o">.</span><span class="n">wait</span><span class="p">(</span><span class="n">timeout</span><span class="o">=</span><span class="n">timeout</span><span class="p">,</span> <span class="n">die</span><span class="o">=</span><span class="n">die</span><span class="p">)</span><span class="o">.</span><span class="n">result</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">TimeoutError</span><span class="p">:</span>
+            <span class="k">continue</span>
+    <span class="k">return</span> <span class="n">results</span>
+</pre></div>
+
+  </div>
+</div>
+
+  </div>
+  
 
 
   </section>

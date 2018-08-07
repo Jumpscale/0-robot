@@ -1068,7 +1068,6 @@ table {
     <li class="mono"><a href="#zerorobot.template.state.ServiceState.delete">delete</a></li>
     <li class="mono"><a href="#zerorobot.template.state.ServiceState.get">get</a></li>
     <li class="mono"><a href="#zerorobot.template.state.ServiceState.load">load</a></li>
-    <li class="mono"><a href="#zerorobot.template.state.ServiceState.save">save</a></li>
     <li class="mono"><a href="#zerorobot.template.state.ServiceState.set">set</a></li>
   </ul>
 
@@ -1100,7 +1099,7 @@ table {
   
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.template.state', this);">Show source &equiv;</a></p>
   <div id="source-zerorobot.template.state" class="source">
-    <div class="codehilite"><pre><span></span><span class="kn">from</span> <span class="nn">js9</span> <span class="kn">import</span> <span class="n">j</span>
+    <div class="codehilite"><pre><span></span><span class="kn">from</span> <span class="nn">jumpscale</span> <span class="kn">import</span> <span class="n">j</span>
 <span class="kn">from</span> <span class="nn">zerorobot.errors</span> <span class="kn">import</span> <span class="n">ExpectedError</span>
 
 <span class="n">SERVICE_STATE_OK</span> <span class="o">=</span> <span class="s1">&#39;ok&#39;</span>
@@ -1130,6 +1129,7 @@ table {
 <span class="sd">    This exception is raised when a call to ServiceState.check fails</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">pass</span>
+
 
 <span class="k">class</span> <span class="nc">ServiceState</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
@@ -1205,21 +1205,13 @@ table {
 
         <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">categories</span><span class="p">[</span><span class="n">category</span><span class="p">][</span><span class="n">tag</span><span class="p">]</span>
 
-    <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Serialize the state into a file</span>
-
-<span class="sd">        @param path: file path where to save the state</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">j</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">serializer</span><span class="o">.</span><span class="n">yaml</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">categories</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Load the state from a file created by the save method</span>
+<span class="sd">        Load the state from a dict pass in the data arguments</span>
 
 <span class="sd">        @param path: file path from where to load the state</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">categories</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">serializer</span><span class="o">.</span><span class="n">yaml</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">categories</span> <span class="o">=</span> <span class="n">data</span>
 
     <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">categories</span><span class="p">)</span>
@@ -1394,21 +1386,13 @@ that is not supported</p></div>
 
         <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">categories</span><span class="p">[</span><span class="n">category</span><span class="p">][</span><span class="n">tag</span><span class="p">]</span>
 
-    <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Serialize the state into a file</span>
-
-<span class="sd">        @param path: file path where to save the state</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">j</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">serializer</span><span class="o">.</span><span class="n">yaml</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">categories</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Load the state from a file created by the save method</span>
+<span class="sd">        Load the state from a dict pass in the data arguments</span>
 
 <span class="sd">        @param path: file path from where to load the state</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">categories</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">serializer</span><span class="o">.</span><span class="n">yaml</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">categories</span> <span class="o">=</span> <span class="n">data</span>
 
     <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">categories</span><span class="p">)</span>
@@ -1559,50 +1543,23 @@ if tag is None, delete the full category</p></div>
             
   <div class="item">
     <div class="name def" id="zerorobot.template.state.ServiceState.load">
-    <p>def <span class="ident">load</span>(</p><p>self, path)</p>
+    <p>def <span class="ident">load</span>(</p><p>self, data)</p>
     </div>
     
 
     
   
-    <div class="desc"><p>Load the state from a file created by the save method</p>
+    <div class="desc"><p>Load the state from a dict pass in the data arguments</p>
 <p>@param path: file path from where to load the state</p></div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.template.state.ServiceState.load', this);">Show source &equiv;</a></p>
   <div id="source-zerorobot.template.state.ServiceState.load" class="source">
-    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Load the state from a file created by the save method</span>
+<span class="sd">    Load the state from a dict pass in the data arguments</span>
 <span class="sd">    @param path: file path from where to load the state</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">categories</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">serializer</span><span class="o">.</span><span class="n">yaml</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
-</pre></div>
-
-  </div>
-</div>
-
-  </div>
-  
-            
-  <div class="item">
-    <div class="name def" id="zerorobot.template.state.ServiceState.save">
-    <p>def <span class="ident">save</span>(</p><p>self, path)</p>
-    </div>
-    
-
-    
-  
-    <div class="desc"><p>Serialize the state into a file</p>
-<p>@param path: file path where to save the state</p></div>
-  <div class="source_cont">
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.template.state.ServiceState.save', this);">Show source &equiv;</a></p>
-  <div id="source-zerorobot.template.state.ServiceState.save" class="source">
-    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Serialize the state into a file</span>
-<span class="sd">    @param path: file path where to save the state</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">j</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">serializer</span><span class="o">.</span><span class="n">yaml</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">categories</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">categories</span> <span class="o">=</span> <span class="n">data</span>
 </pre></div>
 
   </div>

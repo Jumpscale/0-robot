@@ -1,4 +1,4 @@
-from js9 import j
+from jumpscale import j
 
 from . import (PRIORITY_NORMAL, PRIORITY_RECURRING, PRIORITY_SYSTEM,
                TASK_STATE_ERROR, TASK_STATE_NEW, TASK_STATE_OK,

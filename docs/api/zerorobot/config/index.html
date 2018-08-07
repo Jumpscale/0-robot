@@ -1044,14 +1044,23 @@ table {
     <li class="set"><h3><a href="#header-variables">Module variables</a></h3>
       
   <ul>
-    <li class="mono"><a href="#zerorobot.config.DATA_DIR">DATA_DIR</a></li>
     <li class="mono"><a href="#zerorobot.config.SERVICE_LOADED">SERVICE_LOADED</a></li>
+    <li class="mono"><a href="#zerorobot.config.config_repo">config_repo</a></li>
+    <li class="mono"><a href="#zerorobot.config.data_repo">data_repo</a></li>
+    <li class="mono"><a href="#zerorobot.config.god">god</a></li>
+    <li class="mono"><a href="#zerorobot.config.mode">mode</a></li>
+    <li class="mono"><a href="#zerorobot.config.webhooks">webhooks</a></li>
   </ul>
 
     </li>
 
 
 
+    <li class="set"><h3><a href="#header-submodules">Sub-modules</a></h3>
+      <ul>
+        <li class="mono"><a href="auto_pusher.m.html">zerorobot.config.auto_pusher</a></li>
+      </ul>
+    </li>
     </ul>
   </div>
 
@@ -1075,10 +1084,18 @@ code base</p>
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="kn">import</span> <span class="nn">gevent.event</span>
 
-<span class="c1"># path to the data director where to save the services</span>
-<span class="n">DATA_DIR</span> <span class="o">=</span> <span class="bp">None</span>
+<span class="kn">from</span> <span class="nn">.data_repo</span> <span class="kn">import</span> <span class="n">DataRepo</span>
+<span class="kn">from</span> <span class="nn">.config_repo</span> <span class="kn">import</span> <span class="n">ConfigRepo</span>
 
 <span class="n">SERVICE_LOADED</span> <span class="o">=</span> <span class="n">gevent</span><span class="o">.</span><span class="n">event</span><span class="o">.</span><span class="n">Event</span><span class="p">()</span>
+
+<span class="n">data_repo</span> <span class="o">=</span> <span class="bp">None</span>
+<span class="n">config_repo</span> <span class="o">=</span> <span class="bp">None</span>
+
+<span class="n">mode</span> <span class="o">=</span> <span class="bp">None</span>
+<span class="n">god</span> <span class="o">=</span> <span class="bp">False</span>
+
+<span class="n">webhooks</span> <span class="o">=</span> <span class="bp">None</span>
 </pre></div>
 
   </div>
@@ -1088,14 +1105,6 @@ code base</p>
   <section id="section-items">
     <h2 class="section-title" id="header-variables">Module variables</h2>
       <div class="item">
-      <p id="zerorobot.config.DATA_DIR" class="name">var <span class="ident">DATA_DIR</span></p>
-      
-  
-  <div class="source_cont">
-</div>
-
-      </div>
-      <div class="item">
       <p id="zerorobot.config.SERVICE_LOADED" class="name">var <span class="ident">SERVICE_LOADED</span></p>
       
   
@@ -1103,9 +1112,56 @@ code base</p>
 </div>
 
       </div>
+      <div class="item">
+      <p id="zerorobot.config.config_repo" class="name">var <span class="ident">config_repo</span></p>
+      
+  
+  <div class="source_cont">
+</div>
+
+      </div>
+      <div class="item">
+      <p id="zerorobot.config.data_repo" class="name">var <span class="ident">data_repo</span></p>
+      
+  
+  <div class="source_cont">
+</div>
+
+      </div>
+      <div class="item">
+      <p id="zerorobot.config.god" class="name">var <span class="ident">god</span></p>
+      
+  
+  <div class="source_cont">
+</div>
+
+      </div>
+      <div class="item">
+      <p id="zerorobot.config.mode" class="name">var <span class="ident">mode</span></p>
+      
+  
+  <div class="source_cont">
+</div>
+
+      </div>
+      <div class="item">
+      <p id="zerorobot.config.webhooks" class="name">var <span class="ident">webhooks</span></p>
+      
+  
+  <div class="source_cont">
+</div>
+
+      </div>
 
 
 
+    <h2 class="section-title" id="header-submodules">Sub-modules</h2>
+      <div class="item">
+      <p class="name"><a href="auto_pusher.m.html">zerorobot.config.auto_pusher</a></p>
+      
+  
+
+      </div>
   </section>
 
     </article>

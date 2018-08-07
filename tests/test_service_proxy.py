@@ -8,8 +8,8 @@ import unittest
 import uuid
 
 
-from js9 import j
-from JumpScale9.errorhandling.ErrorConditionObject import ErrorConditionObject
+from jumpscale import j
+from Jumpscale.errorhandling.ErrorConditionObject import ErrorConditionObject
 from zerorobot import service_collection as scol
 from zerorobot import template_collection as tcol
 from zerorobot import config
@@ -27,7 +27,7 @@ class TestServiceProxy(unittest.TestCase):
         self.cl = ZeroRobotManager('test')
         self.robot = Robot()
         self.robot.set_data_repo(j.sal.fs.getTmpDirPath())
-        self.robot.add_template_repo('http://github.com/zero-os/0-robot', directory='tests/fixtures/templates')
+        self.robot.add_template_repo('http://github.com/threefoldtech/0-robot', directory='tests/fixtures/templates')
         if os.path.exists(config.data_repo.path):
             shutil.rmtree(config.data_repo.path)
         # make sure we don't have any service loaded
@@ -35,13 +35,13 @@ class TestServiceProxy(unittest.TestCase):
         self.robot.start(listen='127.0.0.1:6600', block=False, testing=True)
 
     def tearDown(self):
-        self.robot.stop()
+        self.robot.stop(timeout=1)
         if os.path.exists(config.data_repo.path):
             shutil.rmtree(config.data_repo.path)
         j.clients.zrobot.delete('test')
 
     def _create_proxy(self, public=False):
-        template = 'github.com/zero-os/0-robot/node/0.0.1'
+        template = 'github.com/threefoldtech/0-robot/node/0.0.1'
         name = 'node1'
         proxy = self.cl.services.create(template, name, public=public)
         service = scol.get_by_guid(proxy.guid)

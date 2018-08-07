@@ -1,6 +1,6 @@
 services:
-  - github.com/zero-os/0-robot/node/0.0.1__name:
-  - github.com/zero-os/0-robot/vm/0.0.1__name:
+  - github.com/threefoldtech/0-robot/node/0.0.1__name:
+  - github.com/threefoldtech/0-robot/vm/0.0.1__name:
 
 actions:
     service: 'name'

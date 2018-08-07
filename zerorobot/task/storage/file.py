@@ -2,7 +2,7 @@ from .base import TaskStorageBase, TaskNotFoundError
 from zerorobot.task.utils import _instantiate_task
 import os
 
-from js9 import j
+from jumpscale import j
 
 
 class TaskStorageFile(TaskStorageBase):

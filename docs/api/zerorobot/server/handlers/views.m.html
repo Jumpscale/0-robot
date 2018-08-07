@@ -1069,12 +1069,14 @@ table {
   
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.server.handlers.views', this);">Show source &equiv;</a></p>
   <div id="source-zerorobot.server.handlers.views" class="source">
-    <div class="codehilite"><pre><span></span><span class="kn">from</span> <span class="nn">zerorobot</span> <span class="kn">import</span> <span class="n">service_collection</span> <span class="k">as</span> <span class="n">scol</span>
-<span class="kn">import</span> <span class="nn">json</span>
+    <div class="codehilite"><pre><span></span><span class="kn">import</span> <span class="nn">json</span>
+
+<span class="kn">from</span> <span class="nn">zerorobot</span> <span class="kn">import</span> <span class="n">service_collection</span> <span class="k">as</span> <span class="n">scol</span>
+<span class="kn">from</span> <span class="nn">zerorobot</span> <span class="kn">import</span> <span class="n">config</span>
 
 
 <span class="k">def</span> <span class="nf">service_view</span><span class="p">(</span><span class="n">service</span><span class="p">):</span>
-    <span class="k">return</span> <span class="p">{</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="p">{</span>
         <span class="s2">&quot;template&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">service</span><span class="o">.</span><span class="n">template_uid</span><span class="p">),</span>
         <span class="s2">&quot;version&quot;</span><span class="p">:</span> <span class="n">service</span><span class="o">.</span><span class="n">version</span><span class="p">,</span>
         <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">service</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
@@ -1083,6 +1085,9 @@ table {
         <span class="s2">&quot;actions&quot;</span><span class="p">:</span> <span class="p">[],</span>
         <span class="s2">&quot;public&quot;</span><span class="p">:</span> <span class="n">scol</span><span class="o">.</span><span class="n">is_service_public</span><span class="p">(</span><span class="n">service</span><span class="o">.</span><span class="n">guid</span><span class="p">)</span>
     <span class="p">}</span>
+    <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">god</span><span class="p">:</span>
+        <span class="n">s</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">service</span><span class="o">.</span><span class="n">data</span>
+    <span class="k">return</span> <span class="n">s</span>
 
 
 <span class="k">def</span> <span class="nf">state_view</span><span class="p">(</span><span class="n">state</span><span class="p">):</span>
@@ -1151,7 +1156,7 @@ table {
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.server.handlers.views.service_view', this);">Show source &equiv;</a></p>
   <div id="source-zerorobot.server.handlers.views.service_view" class="source">
     <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">service_view</span><span class="p">(</span><span class="n">service</span><span class="p">):</span>
-    <span class="k">return</span> <span class="p">{</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="p">{</span>
         <span class="s2">&quot;template&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">service</span><span class="o">.</span><span class="n">template_uid</span><span class="p">),</span>
         <span class="s2">&quot;version&quot;</span><span class="p">:</span> <span class="n">service</span><span class="o">.</span><span class="n">version</span><span class="p">,</span>
         <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">service</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
@@ -1160,6 +1165,9 @@ table {
         <span class="s2">&quot;actions&quot;</span><span class="p">:</span> <span class="p">[],</span>
         <span class="s2">&quot;public&quot;</span><span class="p">:</span> <span class="n">scol</span><span class="o">.</span><span class="n">is_service_public</span><span class="p">(</span><span class="n">service</span><span class="o">.</span><span class="n">guid</span><span class="p">)</span>
     <span class="p">}</span>
+    <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">god</span><span class="p">:</span>
+        <span class="n">s</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">service</span><span class="o">.</span><span class="n">data</span>
+    <span class="k">return</span> <span class="n">s</span>
 </pre></div>
 
   </div>

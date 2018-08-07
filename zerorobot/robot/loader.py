@@ -2,7 +2,7 @@ import os
 
 import gevent
 
-from js9 import j
+from jumpscale import j
 from zerorobot import service_collection as scol
 from zerorobot import template_collection as tcol
 from zerorobot import storage

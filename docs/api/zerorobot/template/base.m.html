@@ -1082,6 +1082,7 @@ table {
           
   <ul>
     <li class="mono"><a href="#zerorobot.template.base.TemplateBase.__init__">__init__</a></li>
+    <li class="mono"><a href="#zerorobot.template.base.TemplateBase.add_delete_callback">add_delete_callback</a></li>
     <li class="mono"><a href="#zerorobot.template.base.TemplateBase.delete">delete</a></li>
     <li class="mono"><a href="#zerorobot.template.base.TemplateBase.recurring_action">recurring_action</a></li>
     <li class="mono"><a href="#zerorobot.template.base.TemplateBase.save">save</a></li>
@@ -1128,13 +1129,17 @@ It is the class every template should inherits from.</p>
 
 <span class="kn">import</span> <span class="nn">gevent</span>
 
-<span class="kn">from</span> <span class="nn">js9</span> <span class="kn">import</span> <span class="n">j</span>
+<span class="kn">from</span> <span class="nn">jumpscale</span> <span class="kn">import</span> <span class="n">j</span>
 <span class="kn">from</span> <span class="nn">zerorobot</span> <span class="kn">import</span> <span class="n">service_collection</span> <span class="k">as</span> <span class="n">scol</span>
-<span class="kn">from</span> <span class="nn">zerorobot</span> <span class="kn">import</span> <span class="n">config</span>
+<span class="kn">from</span> <span class="nn">zerorobot</span> <span class="kn">import</span> <span class="n">webhooks</span>
 <span class="kn">from</span> <span class="nn">zerorobot.dsl.ZeroRobotAPI</span> <span class="kn">import</span> <span class="n">ZeroRobotAPI</span>
 <span class="kn">from</span> <span class="nn">zerorobot.prometheus.robot</span> <span class="kn">import</span> <span class="n">task_latency</span>
+<span class="kn">from</span> <span class="nn">zerorobot</span> <span class="kn">import</span> <span class="n">config</span>
+<span class="kn">from</span> <span class="nn">zerorobot</span> <span class="kn">import</span> <span class="n">storage</span>
+
 <span class="kn">from</span> <span class="nn">zerorobot.task</span> <span class="kn">import</span> <span class="p">(</span><span class="n">PRIORITY_NORMAL</span><span class="p">,</span> <span class="n">PRIORITY_SYSTEM</span><span class="p">,</span> <span class="n">TASK_STATE_ERROR</span><span class="p">,</span>
                             <span class="n">Task</span><span class="p">,</span> <span class="n">TaskList</span><span class="p">)</span>
+<span class="kn">from</span> <span class="nn">zerorobot.task.utils</span> <span class="kn">import</span> <span class="n">wait_all</span>
 <span class="kn">from</span> <span class="nn">zerorobot.template.data</span> <span class="kn">import</span> <span class="n">ServiceData</span>
 <span class="kn">from</span> <span class="nn">zerorobot.template.state</span> <span class="kn">import</span> <span class="n">ServiceState</span>
 
@@ -1236,7 +1241,7 @@ It is the class every template should inherits from.</p>
         <span class="bp">self</span><span class="o">.</span><span class="n">_public</span> <span class="o">=</span> <span class="bp">False</span>
         <span class="c1"># location on the filesystem where to store the service</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
-            <span class="n">config</span><span class="o">.</span><span class="n">DATA_DIR</span><span class="p">,</span>
+            <span class="n">config</span><span class="o">.</span><span class="n">data_repo</span><span class="o">.</span><span class="n">path</span><span class="p">,</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">template_uid</span><span class="o">.</span><span class="n">host</span><span class="p">,</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">template_uid</span><span class="o">.</span><span class="n">account</span><span class="p">,</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">template_uid</span><span class="o">.</span><span class="n">repo</span><span class="p">,</span>
@@ -1252,6 +1257,8 @@ It is the class every template should inherits from.</p>
             <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="n">ServiceState</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">task_list</span> <span class="o">=</span> <span class="n">TaskList</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_delete_callback</span> <span class="o">=</span> <span class="p">[]</span>
 
         <span class="c1"># start the greenlets of this service</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">gl_mgr</span> <span class="o">=</span> <span class="n">GreenletsMgr</span><span class="p">()</span>
@@ -1278,22 +1285,8 @@ It is the class every template should inherits from.</p>
 <span class="sd">                          to save the service state and data</span>
 <span class="sd">        return the path where the service is saved</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_path</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;service._path is None, don&#39;t know where to save the service&quot;</span><span class="p">)</span>
-
-        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_path</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
-
-        <span class="n">j</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">serializer</span><span class="o">.</span><span class="n">yaml</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_path</span><span class="p">,</span> <span class="s1">&#39;service.yaml&#39;</span><span class="p">),</span> <span class="p">{</span>
-            <span class="s1">&#39;template&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">template_uid</span><span class="p">),</span>
-            <span class="s1">&#39;version&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">version</span><span class="p">,</span>
-            <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
-            <span class="s1">&#39;guid&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">guid</span><span class="p">,</span>
-            <span class="s1">&#39;public&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_public</span><span class="p">,</span>
-        <span class="p">})</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_path</span><span class="p">,</span> <span class="s1">&#39;state.yaml&#39;</span><span class="p">))</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_path</span><span class="p">,</span> <span class="s1">&#39;data.yaml&#39;</span><span class="p">))</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">task_list</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_path</span><span class="p">,</span> <span class="s1">&#39;tasks.yaml&#39;</span><span class="p">))</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_path</span>
+        <span class="n">store</span> <span class="o">=</span> <span class="n">storage</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+        <span class="n">store</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -1307,6 +1300,7 @@ It is the class every template should inherits from.</p>
         <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">task</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">task_list</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+                <span class="n">task</span><span class="o">.</span><span class="n">service</span> <span class="o">=</span> <span class="bp">self</span>
                 <span class="k">try</span><span class="p">:</span>
                     <span class="n">task</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
                 <span class="k">finally</span><span class="p">:</span>
@@ -1385,7 +1379,7 @@ It is the class every template should inherits from.</p>
         <span class="n">gl</span> <span class="o">=</span> <span class="n">gevent</span><span class="o">.</span><span class="n">Greenlet</span><span class="p">(</span><span class="n">_recurring_action</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span> <span class="n">action</span><span class="p">,</span> <span class="n">period</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">gl_mgr</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;recurring_&quot;</span> <span class="o">+</span> <span class="n">action</span><span class="p">,</span> <span class="n">gl</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">delete</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">delete</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span> <span class="n">die</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Delete the service.</span>
 
@@ -1394,7 +1388,26 @@ It is the class every template should inherits from.</p>
 <span class="sd">        e.g: super().delete()</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;deleting service </span><span class="si">%s</span><span class="s2"> (</span><span class="si">%s</span><span class="s2">)&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">guid</span><span class="p">)</span>
-        <span class="c1"># stop all recurring action</span>
+
+        <span class="c1"># empty the task list</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">task_list</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+
+        <span class="c1"># wait for the current task to finish if there is any</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">task_list</span><span class="o">.</span><span class="n">current</span> <span class="ow">and</span> <span class="n">wait</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">task_list</span><span class="o">.</span><span class="n">current</span><span class="o">.</span><span class="n">wait</span><span class="p">(</span><span class="n">timeout</span><span class="o">=</span><span class="n">timeout</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">task_list</span><span class="o">.</span><span class="n">empty</span><span class="p">():</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;service </span><span class="si">%s</span><span class="s2"> stop processing its task list, while some task remains in the queue&quot;</span><span class="p">)</span>
+
+        <span class="c1"># schedule and wait for all the cleanup actions</span>
+        <span class="n">delete_tasks</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">action</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_delete_callback</span><span class="p">:</span>
+            <span class="c1"># action()</span>
+            <span class="n">task</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">schedule_action</span><span class="p">(</span><span class="n">action</span><span class="p">)</span>
+            <span class="n">delete_tasks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">task</span><span class="p">)</span>
+        <span class="n">wait_all</span><span class="p">(</span><span class="n">delete_tasks</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">die</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+
+        <span class="c1"># stop all recurring action and processing of task list</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">gl_mgr</span><span class="o">.</span><span class="n">stop_all</span><span class="p">(</span><span class="n">wait</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
 
         <span class="c1"># close ressources of logging handlers</span>
@@ -1402,11 +1415,12 @@ It is the class every template should inherits from.</p>
             <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">h</span><span class="p">,</span> <span class="s1">&#39;close&#39;</span><span class="p">):</span>
                 <span class="n">h</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 
-        <span class="c1"># remove data from disk</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_path</span> <span class="ow">and</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_path</span><span class="p">):</span>
-            <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_path</span><span class="p">)</span>
+        <span class="c1"># remove from persistant storage</span>
+        <span class="n">store</span> <span class="o">=</span> <span class="n">storage</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+        <span class="n">store</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
         <span class="c1"># remove logs from disk</span>
+        <span class="c1"># TODO: write logs into storage interface</span>
         <span class="n">log_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">j</span><span class="o">.</span><span class="n">dirs</span><span class="o">.</span><span class="n">LOGDIR</span><span class="p">,</span> <span class="s1">&#39;zrobot&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">guid</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">log_file</span><span class="o">+</span><span class="s1">&#39;*&#39;</span><span class="p">):</span>
             <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
@@ -1425,6 +1439,34 @@ It is the class every template should inherits from.</p>
 <span class="sd">        @param data: is a dict with the new schema data</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">pass</span>
+
+    <span class="k">def</span> <span class="nf">add_delete_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        register an action to be executed before the service is deleted</span>
+
+<span class="sd">        when the &#39;delete&#39; method of the service will be called, all the actions</span>
+<span class="sd">        registered with this method will be executed before the service is deleted</span>
+
+<span class="sd">        Use this when you have some cleanup/uninstall actions</span>
+
+<span class="sd">        :param action: the action to be executed before delete</span>
+<span class="sd">        :type action: method</span>
+<span class="sd">        :raises ActionNotFoundError: raised when the action passed in not present on the service or if action is not a method</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">action_name</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">action</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="n">ActionNotFoundError</span><span class="p">(</span><span class="s2">&quot;service </span><span class="si">%s</span><span class="s2"> doesn&#39;t have action </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">action</span><span class="p">))</span>
+
+            <span class="n">method</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">callable</span><span class="p">(</span><span class="n">method</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="n">ActionNotFoundError</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> is not a function&quot;</span> <span class="o">%</span> <span class="n">action</span><span class="p">)</span>
+            <span class="n">action_name</span> <span class="o">=</span> <span class="n">action</span>
+        <span class="k">elif</span> <span class="n">inspect</span><span class="o">.</span><span class="n">ismethod</span><span class="p">(</span><span class="n">action</span><span class="p">):</span>
+            <span class="n">action_name</span> <span class="o">=</span> <span class="n">action</span><span class="o">.</span><span class="vm">__func__</span><span class="o">.</span><span class="vm">__name__</span>
+
+        <span class="k">if</span> <span class="n">action_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_delete_callback</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_delete_callback</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">action_name</span><span class="p">)</span>
 
 
 <span class="k">def</span> <span class="nf">_recurring_action</span><span class="p">(</span><span class="n">service</span><span class="p">,</span> <span class="n">action</span><span class="p">,</span> <span class="n">period</span><span class="p">):</span>
@@ -1879,7 +1921,7 @@ you can put a timeout when wait is true, to limit the amount of second to wait</
         <span class="bp">self</span><span class="o">.</span><span class="n">_public</span> <span class="o">=</span> <span class="bp">False</span>
         <span class="c1"># location on the filesystem where to store the service</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
-            <span class="n">config</span><span class="o">.</span><span class="n">DATA_DIR</span><span class="p">,</span>
+            <span class="n">config</span><span class="o">.</span><span class="n">data_repo</span><span class="o">.</span><span class="n">path</span><span class="p">,</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">template_uid</span><span class="o">.</span><span class="n">host</span><span class="p">,</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">template_uid</span><span class="o">.</span><span class="n">account</span><span class="p">,</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">template_uid</span><span class="o">.</span><span class="n">repo</span><span class="p">,</span>
@@ -1895,6 +1937,8 @@ you can put a timeout when wait is true, to limit the amount of second to wait</
             <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="n">ServiceState</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">task_list</span> <span class="o">=</span> <span class="n">TaskList</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_delete_callback</span> <span class="o">=</span> <span class="p">[]</span>
 
         <span class="c1"># start the greenlets of this service</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">gl_mgr</span> <span class="o">=</span> <span class="n">GreenletsMgr</span><span class="p">()</span>
@@ -1921,22 +1965,8 @@ you can put a timeout when wait is true, to limit the amount of second to wait</
 <span class="sd">                          to save the service state and data</span>
 <span class="sd">        return the path where the service is saved</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_path</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;service._path is None, don&#39;t know where to save the service&quot;</span><span class="p">)</span>
-
-        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_path</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
-
-        <span class="n">j</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">serializer</span><span class="o">.</span><span class="n">yaml</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_path</span><span class="p">,</span> <span class="s1">&#39;service.yaml&#39;</span><span class="p">),</span> <span class="p">{</span>
-            <span class="s1">&#39;template&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">template_uid</span><span class="p">),</span>
-            <span class="s1">&#39;version&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">version</span><span class="p">,</span>
-            <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
-            <span class="s1">&#39;guid&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">guid</span><span class="p">,</span>
-            <span class="s1">&#39;public&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_public</span><span class="p">,</span>
-        <span class="p">})</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_path</span><span class="p">,</span> <span class="s1">&#39;state.yaml&#39;</span><span class="p">))</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_path</span><span class="p">,</span> <span class="s1">&#39;data.yaml&#39;</span><span class="p">))</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">task_list</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_path</span><span class="p">,</span> <span class="s1">&#39;tasks.yaml&#39;</span><span class="p">))</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_path</span>
+        <span class="n">store</span> <span class="o">=</span> <span class="n">storage</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+        <span class="n">store</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -1950,6 +1980,7 @@ you can put a timeout when wait is true, to limit the amount of second to wait</
         <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">task</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">task_list</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+                <span class="n">task</span><span class="o">.</span><span class="n">service</span> <span class="o">=</span> <span class="bp">self</span>
                 <span class="k">try</span><span class="p">:</span>
                     <span class="n">task</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
                 <span class="k">finally</span><span class="p">:</span>
@@ -2028,7 +2059,7 @@ you can put a timeout when wait is true, to limit the amount of second to wait</
         <span class="n">gl</span> <span class="o">=</span> <span class="n">gevent</span><span class="o">.</span><span class="n">Greenlet</span><span class="p">(</span><span class="n">_recurring_action</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span> <span class="n">action</span><span class="p">,</span> <span class="n">period</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">gl_mgr</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;recurring_&quot;</span> <span class="o">+</span> <span class="n">action</span><span class="p">,</span> <span class="n">gl</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">delete</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">delete</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span> <span class="n">die</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Delete the service.</span>
 
@@ -2037,7 +2068,26 @@ you can put a timeout when wait is true, to limit the amount of second to wait</
 <span class="sd">        e.g: super().delete()</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;deleting service </span><span class="si">%s</span><span class="s2"> (</span><span class="si">%s</span><span class="s2">)&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">guid</span><span class="p">)</span>
-        <span class="c1"># stop all recurring action</span>
+
+        <span class="c1"># empty the task list</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">task_list</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+
+        <span class="c1"># wait for the current task to finish if there is any</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">task_list</span><span class="o">.</span><span class="n">current</span> <span class="ow">and</span> <span class="n">wait</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">task_list</span><span class="o">.</span><span class="n">current</span><span class="o">.</span><span class="n">wait</span><span class="p">(</span><span class="n">timeout</span><span class="o">=</span><span class="n">timeout</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">task_list</span><span class="o">.</span><span class="n">empty</span><span class="p">():</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;service </span><span class="si">%s</span><span class="s2"> stop processing its task list, while some task remains in the queue&quot;</span><span class="p">)</span>
+
+        <span class="c1"># schedule and wait for all the cleanup actions</span>
+        <span class="n">delete_tasks</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">action</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_delete_callback</span><span class="p">:</span>
+            <span class="c1"># action()</span>
+            <span class="n">task</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">schedule_action</span><span class="p">(</span><span class="n">action</span><span class="p">)</span>
+            <span class="n">delete_tasks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">task</span><span class="p">)</span>
+        <span class="n">wait_all</span><span class="p">(</span><span class="n">delete_tasks</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">die</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+
+        <span class="c1"># stop all recurring action and processing of task list</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">gl_mgr</span><span class="o">.</span><span class="n">stop_all</span><span class="p">(</span><span class="n">wait</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
 
         <span class="c1"># close ressources of logging handlers</span>
@@ -2045,11 +2095,12 @@ you can put a timeout when wait is true, to limit the amount of second to wait</
             <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">h</span><span class="p">,</span> <span class="s1">&#39;close&#39;</span><span class="p">):</span>
                 <span class="n">h</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 
-        <span class="c1"># remove data from disk</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_path</span> <span class="ow">and</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_path</span><span class="p">):</span>
-            <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_path</span><span class="p">)</span>
+        <span class="c1"># remove from persistant storage</span>
+        <span class="n">store</span> <span class="o">=</span> <span class="n">storage</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+        <span class="n">store</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
         <span class="c1"># remove logs from disk</span>
+        <span class="c1"># TODO: write logs into storage interface</span>
         <span class="n">log_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">j</span><span class="o">.</span><span class="n">dirs</span><span class="o">.</span><span class="n">LOGDIR</span><span class="p">,</span> <span class="s1">&#39;zrobot&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">guid</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">log_file</span><span class="o">+</span><span class="s1">&#39;*&#39;</span><span class="p">):</span>
             <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
@@ -2068,6 +2119,34 @@ you can put a timeout when wait is true, to limit the amount of second to wait</
 <span class="sd">        @param data: is a dict with the new schema data</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">pass</span>
+
+    <span class="k">def</span> <span class="nf">add_delete_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        register an action to be executed before the service is deleted</span>
+
+<span class="sd">        when the &#39;delete&#39; method of the service will be called, all the actions</span>
+<span class="sd">        registered with this method will be executed before the service is deleted</span>
+
+<span class="sd">        Use this when you have some cleanup/uninstall actions</span>
+
+<span class="sd">        :param action: the action to be executed before delete</span>
+<span class="sd">        :type action: method</span>
+<span class="sd">        :raises ActionNotFoundError: raised when the action passed in not present on the service or if action is not a method</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">action_name</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">action</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="n">ActionNotFoundError</span><span class="p">(</span><span class="s2">&quot;service </span><span class="si">%s</span><span class="s2"> doesn&#39;t have action </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">action</span><span class="p">))</span>
+
+            <span class="n">method</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">callable</span><span class="p">(</span><span class="n">method</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="n">ActionNotFoundError</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> is not a function&quot;</span> <span class="o">%</span> <span class="n">action</span><span class="p">)</span>
+            <span class="n">action_name</span> <span class="o">=</span> <span class="n">action</span>
+        <span class="k">elif</span> <span class="n">inspect</span><span class="o">.</span><span class="n">ismethod</span><span class="p">(</span><span class="n">action</span><span class="p">):</span>
+            <span class="n">action_name</span> <span class="o">=</span> <span class="n">action</span><span class="o">.</span><span class="vm">__func__</span><span class="o">.</span><span class="vm">__name__</span>
+
+        <span class="k">if</span> <span class="n">action_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_delete_callback</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_delete_callback</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">action_name</span><span class="p">)</span>
 </pre></div>
 
   </div>
@@ -2132,7 +2211,7 @@ you can put a timeout when wait is true, to limit the amount of second to wait</
     <span class="bp">self</span><span class="o">.</span><span class="n">_public</span> <span class="o">=</span> <span class="bp">False</span>
     <span class="c1"># location on the filesystem where to store the service</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
-        <span class="n">config</span><span class="o">.</span><span class="n">DATA_DIR</span><span class="p">,</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">data_repo</span><span class="o">.</span><span class="n">path</span><span class="p">,</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">template_uid</span><span class="o">.</span><span class="n">host</span><span class="p">,</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">template_uid</span><span class="o">.</span><span class="n">account</span><span class="p">,</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">template_uid</span><span class="o">.</span><span class="n">repo</span><span class="p">,</span>
@@ -2146,6 +2225,7 @@ you can put a timeout when wait is true, to limit the amount of second to wait</
         <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="n">ServiceState</span><span class="p">()</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">task_list</span> <span class="o">=</span> <span class="n">TaskList</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_delete_callback</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="c1"># start the greenlets of this service</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">gl_mgr</span> <span class="o">=</span> <span class="n">GreenletsMgr</span><span class="p">()</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">gl_mgr</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s1">&#39;executor&#39;</span><span class="p">,</span> <span class="n">gevent</span><span class="o">.</span><span class="n">Greenlet</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_run</span><span class="p">))</span>
@@ -2160,8 +2240,56 @@ you can put a timeout when wait is true, to limit the amount of second to wait</
   
             
   <div class="item">
+    <div class="name def" id="zerorobot.template.base.TemplateBase.add_delete_callback">
+    <p>def <span class="ident">add_delete_callback</span>(</p><p>self, action)</p>
+    </div>
+    
+
+    
+  
+    <div class="desc"><p>register an action to be executed before the service is deleted</p>
+<p>when the 'delete' method of the service will be called, all the actions
+registered with this method will be executed before the service is deleted</p>
+<p>Use this when you have some cleanup/uninstall actions</p>
+<p>:param action: the action to be executed before delete
+:type action: method
+:raises ActionNotFoundError: raised when the action passed in not present on the service or if action is not a method</p></div>
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.template.base.TemplateBase.add_delete_callback', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.template.base.TemplateBase.add_delete_callback" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">add_delete_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    register an action to be executed before the service is deleted</span>
+<span class="sd">    when the &#39;delete&#39; method of the service will be called, all the actions</span>
+<span class="sd">    registered with this method will be executed before the service is deleted</span>
+<span class="sd">    Use this when you have some cleanup/uninstall actions</span>
+<span class="sd">    :param action: the action to be executed before delete</span>
+<span class="sd">    :type action: method</span>
+<span class="sd">    :raises ActionNotFoundError: raised when the action passed in not present on the service or if action is not a method</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">action_name</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">action</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">ActionNotFoundError</span><span class="p">(</span><span class="s2">&quot;service </span><span class="si">%s</span><span class="s2"> doesn&#39;t have action </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">action</span><span class="p">))</span>
+        <span class="n">method</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">callable</span><span class="p">(</span><span class="n">method</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">ActionNotFoundError</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> is not a function&quot;</span> <span class="o">%</span> <span class="n">action</span><span class="p">)</span>
+        <span class="n">action_name</span> <span class="o">=</span> <span class="n">action</span>
+    <span class="k">elif</span> <span class="n">inspect</span><span class="o">.</span><span class="n">ismethod</span><span class="p">(</span><span class="n">action</span><span class="p">):</span>
+        <span class="n">action_name</span> <span class="o">=</span> <span class="n">action</span><span class="o">.</span><span class="vm">__func__</span><span class="o">.</span><span class="vm">__name__</span>
+    <span class="k">if</span> <span class="n">action_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_delete_callback</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_delete_callback</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">action_name</span><span class="p">)</span>
+</pre></div>
+
+  </div>
+</div>
+
+  </div>
+  
+            
+  <div class="item">
     <div class="name def" id="zerorobot.template.base.TemplateBase.delete">
-    <p>def <span class="ident">delete</span>(</p><p>self)</p>
+    <p>def <span class="ident">delete</span>(</p><p>self, wait=False, timeout=60, die=False)</p>
     </div>
     
 
@@ -2174,7 +2302,7 @@ e.g: super().delete()</p></div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.template.base.TemplateBase.delete', this);">Show source &equiv;</a></p>
   <div id="source-zerorobot.template.base.TemplateBase.delete" class="source">
-    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">delete</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">delete</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span> <span class="n">die</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Delete the service.</span>
 <span class="sd">    If you overwrite this method in your template,</span>
@@ -2182,16 +2310,31 @@ e.g: super().delete()</p></div>
 <span class="sd">    e.g: super().delete()</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;deleting service </span><span class="si">%s</span><span class="s2"> (</span><span class="si">%s</span><span class="s2">)&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">guid</span><span class="p">)</span>
-    <span class="c1"># stop all recurring action</span>
+    <span class="c1"># empty the task list</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">task_list</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+    <span class="c1"># wait for the current task to finish if there is any</span>
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">task_list</span><span class="o">.</span><span class="n">current</span> <span class="ow">and</span> <span class="n">wait</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">task_list</span><span class="o">.</span><span class="n">current</span><span class="o">.</span><span class="n">wait</span><span class="p">(</span><span class="n">timeout</span><span class="o">=</span><span class="n">timeout</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">task_list</span><span class="o">.</span><span class="n">empty</span><span class="p">():</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;service </span><span class="si">%s</span><span class="s2"> stop processing its task list, while some task remains in the queue&quot;</span><span class="p">)</span>
+    <span class="c1"># schedule and wait for all the cleanup actions</span>
+    <span class="n">delete_tasks</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">action</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_delete_callback</span><span class="p">:</span>
+        <span class="c1"># action()</span>
+        <span class="n">task</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">schedule_action</span><span class="p">(</span><span class="n">action</span><span class="p">)</span>
+        <span class="n">delete_tasks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">task</span><span class="p">)</span>
+    <span class="n">wait_all</span><span class="p">(</span><span class="n">delete_tasks</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">die</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+    <span class="c1"># stop all recurring action and processing of task list</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">gl_mgr</span><span class="o">.</span><span class="n">stop_all</span><span class="p">(</span><span class="n">wait</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
     <span class="c1"># close ressources of logging handlers</span>
     <span class="k">for</span> <span class="n">h</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">handlers</span><span class="p">:</span>
         <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">h</span><span class="p">,</span> <span class="s1">&#39;close&#39;</span><span class="p">):</span>
             <span class="n">h</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
-    <span class="c1"># remove data from disk</span>
-    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_path</span> <span class="ow">and</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_path</span><span class="p">):</span>
-        <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_path</span><span class="p">)</span>
+    <span class="c1"># remove from persistant storage</span>
+    <span class="n">store</span> <span class="o">=</span> <span class="n">storage</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+    <span class="n">store</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
     <span class="c1"># remove logs from disk</span>
+    <span class="c1"># TODO: write logs into storage interface</span>
     <span class="n">log_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">j</span><span class="o">.</span><span class="n">dirs</span><span class="o">.</span><span class="n">LOGDIR</span><span class="p">,</span> <span class="s1">&#39;zrobot&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">guid</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">log_file</span><span class="o">+</span><span class="s1">&#39;*&#39;</span><span class="p">):</span>
         <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
@@ -2267,20 +2410,8 @@ return the path where the service is saved</p></div>
 <span class="sd">                      to save the service state and data</span>
 <span class="sd">    return the path where the service is saved</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_path</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;service._path is None, don&#39;t know where to save the service&quot;</span><span class="p">)</span>
-    <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_path</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
-    <span class="n">j</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">serializer</span><span class="o">.</span><span class="n">yaml</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_path</span><span class="p">,</span> <span class="s1">&#39;service.yaml&#39;</span><span class="p">),</span> <span class="p">{</span>
-        <span class="s1">&#39;template&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">template_uid</span><span class="p">),</span>
-        <span class="s1">&#39;version&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">version</span><span class="p">,</span>
-        <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
-        <span class="s1">&#39;guid&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">guid</span><span class="p">,</span>
-        <span class="s1">&#39;public&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_public</span><span class="p">,</span>
-    <span class="p">})</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_path</span><span class="p">,</span> <span class="s1">&#39;state.yaml&#39;</span><span class="p">))</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_path</span><span class="p">,</span> <span class="s1">&#39;data.yaml&#39;</span><span class="p">))</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">task_list</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_path</span><span class="p">,</span> <span class="s1">&#39;tasks.yaml&#39;</span><span class="p">))</span>
-    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_path</span>
+    <span class="n">store</span> <span class="o">=</span> <span class="n">storage</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+    <span class="n">store</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 </pre></div>
 
   </div>

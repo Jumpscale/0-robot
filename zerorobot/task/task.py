@@ -16,7 +16,7 @@ import gevent
 import requests
 from gevent.lock import Semaphore
 
-from js9 import j
+from jumpscale import j
 from zerorobot import config
 from zerorobot.errors import ExpectedError
 

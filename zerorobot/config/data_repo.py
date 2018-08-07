@@ -5,7 +5,7 @@ this module contain class that are used to store the data repository configratio
 import os
 from urllib.parse import urlparse
 
-from js9 import j
+from jumpscale import j
 from zerorobot.git import url as giturl
 
 from .auto_pusher import AutoPusher

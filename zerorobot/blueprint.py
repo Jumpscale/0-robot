@@ -9,7 +9,7 @@ import re
 
 import yaml
 
-from js9 import j
+from jumpscale import j
 from zerorobot.template_uid import TemplateUID
 from zerorobot import template_collection as tcol
 

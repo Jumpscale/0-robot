@@ -1,4 +1,4 @@
-from js9 import j
+from jumpscale import j
 
 def _container_create(name, base=None, start=True, ssh=False):
     if base:
@@ -8,7 +8,7 @@ def _container_create(name, base=None, start=True, ssh=False):
     if start:
         container.start()
     return container
-    
+
 def _install_js(prefab, branch):
     # prefab.core.run("sed -i 's/filter = \\[\\]/filter = [\"*\"]/g' /root/js9host/cfg/jumpscale9.toml")
     prefab.js9.js9core.install(branch=branch, full=True)
@@ -24,7 +24,7 @@ def _install_zrobot(prefab, branch):
     prefab.runtimes.pip.ensure()
     for cmd in cmds:
         prefab.core.run(cmd)
-    
+
 
 def build_container_zrobot(name, jsbranch, zrbranch, push=True):
     "Build and push docker image for 0-robot"

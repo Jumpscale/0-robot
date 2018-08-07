@@ -1,6 +1,6 @@
 #! /usr/bin/python3
 "Docker image build script for 0-robot"
-from js9 import j
+from jumpscale import j
 
 
 REPOSITORY = "jumpscale/0-robot"

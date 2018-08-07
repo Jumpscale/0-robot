@@ -6,7 +6,7 @@ import unittest
 
 import gevent
 
-from js9 import j
+from jumpscale import j
 from zerorobot import config
 from zerorobot.template.decorator import profile, retry, timeout
 from zerorobot.template_collection import _load_template
@@ -206,7 +206,7 @@ class TestProfile(unittest.TestCase):
         fixtures/templates folder
         """
         dir_path = os.path.dirname(os.path.realpath(__file__))
-        tmpl = _load_template("https://github.com/zero-os/0-robot",
+        tmpl = _load_template("https://github.com/threefoldtech/0-robot",
                               os.path.join(dir_path, 'fixtures', 'templates', name))
         return tmpl
 

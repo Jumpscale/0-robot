@@ -58,7 +58,7 @@ To activate god mode:
 
  - Start the robot with god mode flag 
    ```bash
-   zrobot server start -T http://github.com/zero-os/0-templates --god
+   zrobot server start -T http://github.com/threefoldtech/0-templates --god
    ```
  - Then get god token from robot to be able to access functionalities
 

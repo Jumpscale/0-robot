@@ -1080,11 +1080,12 @@ table {
 <span class="kn">import</span> <span class="nn">sys</span>
 
 <span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">Flask</span><span class="p">,</span> <span class="n">jsonify</span><span class="p">,</span> <span class="n">send_file</span><span class="p">,</span> <span class="n">send_from_directory</span>
-<span class="kn">from</span> <span class="nn">js9</span> <span class="kn">import</span> <span class="n">j</span>
+<span class="kn">from</span> <span class="nn">jumpscale</span> <span class="kn">import</span> <span class="n">j</span>
 
 <span class="kn">from</span> <span class="nn">.blueprints_api</span> <span class="kn">import</span> <span class="n">blueprints_api</span>
 <span class="kn">from</span> <span class="nn">.services_api</span> <span class="kn">import</span> <span class="n">services_api</span>
 <span class="kn">from</span> <span class="nn">.templates_api</span> <span class="kn">import</span> <span class="n">templates_api</span>
+<span class="kn">from</span> <span class="nn">.robot_api</span> <span class="kn">import</span> <span class="n">robot_api</span>
 
 <span class="n">dir_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">realpath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">))</span>
 
@@ -1093,6 +1094,7 @@ table {
 <span class="n">app</span><span class="o">.</span><span class="n">register_blueprint</span><span class="p">(</span><span class="n">blueprints_api</span><span class="p">)</span>
 <span class="n">app</span><span class="o">.</span><span class="n">register_blueprint</span><span class="p">(</span><span class="n">services_api</span><span class="p">)</span>
 <span class="n">app</span><span class="o">.</span><span class="n">register_blueprint</span><span class="p">(</span><span class="n">templates_api</span><span class="p">)</span>
+<span class="n">app</span><span class="o">.</span><span class="n">register_blueprint</span><span class="p">(</span><span class="n">robot_api</span><span class="p">)</span>
 
 
 <span class="nd">@app.route</span><span class="p">(</span><span class="s1">&#39;/apidocs/&lt;path:path&gt;&#39;</span><span class="p">)</span>

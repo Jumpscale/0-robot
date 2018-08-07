@@ -8,7 +8,7 @@ from multiprocessing import Process
 
 from gevent import monkey
 
-from js9 import j
+from jumpscale import j
 from zerorobot import service_collection as scol
 from zerorobot import template_collection as tcol
 from zerorobot.dsl.ZeroRobotAPI import TemplateNotFoundError, ZeroRobotAPI
@@ -32,7 +32,7 @@ class TestZRobotAPI(unittest.TestCase):
             robot = Robot()
             robot.set_data_repo(j.sal.fs.getTmpDirPath())
             if with_tmpl:
-                robot.add_template_repo('http://github.com/zero-os/0-robot', directory='tests/fixtures/templates')
+                robot.add_template_repo('http://github.com/threefoldtech/0-robot', directory='tests/fixtures/templates')
 
             listen = "localhost:660%d" % int(id)
             addr = "http://%s" % listen
@@ -99,14 +99,14 @@ class TestZRobotAPI(unittest.TestCase):
         # make sure we don't have any template loaded in the current process
         tcol._templates = {}
         with self.assertRaises(TemplateNotFoundError, msg='trying to create a service from non handled template should raise '):
-            self.api.services.create("github.com/zero-os/0-robot/node/0.0.1", 'node1')
+            self.api.services.create("github.com/threefoldtech/0-robot/node/0.0.1", 'node1')
 
         # load template in current process
         with tempfile.TemporaryDirectory(prefix="robotlocal") as tmpdir:
             config.data_repo = config.DataRepo(tmpdir)
-            tcol.add_repo('http://github.com/zero-os/0-robot', directory='tests/fixtures/templates')
+            tcol.add_repo('http://github.com/threefoldtech/0-robot', directory='tests/fixtures/templates')
             # now that we have some templates loaded, it should create a local service
-            node2 = self.api.services.create("github.com/zero-os/0-robot/node/0.0.1", 'node2')
+            node2 = self.api.services.create("github.com/threefoldtech/0-robot/node/0.0.1", 'node2')
             self.assertTrue(isinstance(node2, TemplateBase))
 
             # the api should get all services from the local robot only
@@ -117,7 +117,7 @@ class TestZRobotAPI(unittest.TestCase):
                 self.assertEqual(len(robot.services.names), 0)
 
         robot = self.api.robots['robot1']
-        node = robot.services.create("github.com/zero-os/0-robot/node/0.0.1", 'node3')
+        node = robot.services.create("github.com/threefoldtech/0-robot/node/0.0.1", 'node3')
         self.assertEqual(type(node), ServiceProxy, "service create on remote robot should return ServiceProxy")
         self.assertEqual(len(robot.services.guids), 1)
         # ensure we can access the remote service from the robot object
@@ -133,7 +133,7 @@ class TestZRobotAPI(unittest.TestCase):
         # load template in current process
         with tempfile.TemporaryDirectory(prefix="robotlocal") as tmpdir:
             config.data_repo = config.DataRepo(tmpdir)
-            tcol.add_repo('http://github.com/zero-os/0-robot', directory='tests/fixtures/templates')
+            tcol.add_repo('http://github.com/threefoldtech/0-robot', directory='tests/fixtures/templates')
             # now that we have some templates loaded, it should create a local service
             node2 = self.api.services.create("node", 'node2')
             self.assertTrue(isinstance(node2, TemplateBase))
@@ -158,7 +158,7 @@ class TestZRobotAPI(unittest.TestCase):
         with self.subTest(name='local'):
             with tempfile.TemporaryDirectory(prefix="robotlocal") as tmpdir:
                 config.data_repo = config.DataRepo(tmpdir)
-                tcol.add_repo('http://github.com/zero-os/0-robot', directory='tests/fixtures/templates')
+                tcol.add_repo('http://github.com/threefoldtech/0-robot', directory='tests/fixtures/templates')
                 robot = self.api
                 self._test_search(self.api)
 
@@ -170,7 +170,7 @@ class TestZRobotAPI(unittest.TestCase):
         with self.subTest(name='local'):
             with tempfile.TemporaryDirectory(prefix="robotlocal") as tmpdir:
                 config.data_repo = config.DataRepo(tmpdir)
-                tcol.add_repo('http://github.com/zero-os/0-robot', directory='tests/fixtures/templates')
+                tcol.add_repo('http://github.com/threefoldtech/0-robot', directory='tests/fixtures/templates')
 
                 self._test_exists(self.api)
 
@@ -182,7 +182,7 @@ class TestZRobotAPI(unittest.TestCase):
             # load template in current process
             with tempfile.TemporaryDirectory(prefix="robotlocal") as tmpdir:
                 config.data_repo = config.DataRepo(tmpdir)
-                tcol.add_repo('http://github.com/zero-os/0-robot', directory='tests/fixtures/templates')
+                tcol.add_repo('http://github.com/threefoldtech/0-robot', directory='tests/fixtures/templates')
 
                 self._test_get(self.api)
 
@@ -194,7 +194,7 @@ class TestZRobotAPI(unittest.TestCase):
             # load template in current process
             with tempfile.TemporaryDirectory(prefix="robotlocal") as tmpdir:
                 config.data_repo = config.DataRepo(tmpdir)
-                tcol.add_repo('http://github.com/zero-os/0-robot', directory='tests/fixtures/templates')
+                tcol.add_repo('http://github.com/threefoldtech/0-robot', directory='tests/fixtures/templates')
 
                 self._test_find_or_create(self.api)
 
@@ -202,20 +202,20 @@ class TestZRobotAPI(unittest.TestCase):
             self._test_find_or_create(self.api.robots['robot1'])
 
     def _test_get(self, robot):
-        node1 = robot.services.create("github.com/zero-os/0-robot/node/0.0.1", 'node1')
-        node2 = robot.services.create("github.com/zero-os/0-robot/node/0.0.1", 'node2')
-        vm1 = robot.services.create("github.com/zero-os/0-robot/vm/0.0.1", 'vm1')
+        node1 = robot.services.create("github.com/threefoldtech/0-robot/node/0.0.1", 'node1')
+        node2 = robot.services.create("github.com/threefoldtech/0-robot/node/0.0.1", 'node2')
+        vm1 = robot.services.create("github.com/threefoldtech/0-robot/vm/0.0.1", 'vm1')
 
         self.assertEqual(node1.guid, robot.services.get(name='node1').guid)
         self.assertEqual(node2.guid, robot.services.get(name='node2').guid)
         self.assertEqual(vm1.guid, robot.services.get(name='vm1').guid)
 
-        self.assertEqual(vm1.guid, robot.services.get(template_uid='github.com/zero-os/0-robot/vm/0.0.1').guid)
+        self.assertEqual(vm1.guid, robot.services.get(template_uid='github.com/threefoldtech/0-robot/vm/0.0.1').guid)
 
         with self.assertRaises(scol.TooManyResults):
             robot.services.get(template_host='github.com')
         with self.assertRaises(scol.TooManyResults):
-            robot.services.get(template_account='zero-os')
+            robot.services.get(template_account='threefoldtech')
         with self.assertRaises(scol.TooManyResults):
             robot.services.get(template_repo='0-robot')
         with self.assertRaises(scol.TooManyResults):
@@ -226,36 +226,36 @@ class TestZRobotAPI(unittest.TestCase):
         with self.assertRaises(scol.ServiceNotFoundError):
             self.assertFalse(robot.services.get(name='nan'))
         with self.assertRaises(scol.ServiceNotFoundError):
-            self.assertFalse(robot.services.get(template_uid='github.com/zero-os/0-robot/node/1.1.0'))
+            self.assertFalse(robot.services.get(template_uid='github.com/threefoldtech/0-robot/node/1.1.0'))
         with self.assertRaises(scol.ServiceNotFoundError):
             self.assertFalse(robot.services.get(template_name='other'))
 
     def _test_exists(self, robot):
-        node1 = robot.services.create("github.com/zero-os/0-robot/node/0.0.1", 'node1')
-        node2 = robot.services.create("github.com/zero-os/0-robot/node/0.0.1", 'node2')
-        vm1 = robot.services.create("github.com/zero-os/0-robot/vm/0.0.1", 'vm1')
+        node1 = robot.services.create("github.com/threefoldtech/0-robot/node/0.0.1", 'node1')
+        node2 = robot.services.create("github.com/threefoldtech/0-robot/node/0.0.1", 'node2')
+        vm1 = robot.services.create("github.com/threefoldtech/0-robot/vm/0.0.1", 'vm1')
 
         self.assertTrue(robot.services.exists(name='node1'))
         self.assertTrue(robot.services.exists(name='node2'))
         self.assertTrue(robot.services.exists(name='vm1'))
 
-        self.assertTrue(robot.services.exists(template_uid='github.com/zero-os/0-robot/node/0.0.1'))
+        self.assertTrue(robot.services.exists(template_uid='github.com/threefoldtech/0-robot/node/0.0.1'))
         self.assertTrue(robot.services.exists(template_host='github.com'))
-        self.assertTrue(robot.services.exists(template_account='zero-os'))
+        self.assertTrue(robot.services.exists(template_account='threefoldtech'))
         self.assertTrue(robot.services.exists(template_repo='0-robot'))
         self.assertTrue(robot.services.exists(template_name='node'))
         self.assertTrue(robot.services.exists(template_version='0.0.1'))
 
         self.assertFalse(robot.services.exists(name='nan'))
-        self.assertFalse(robot.services.exists(template_uid='github.com/zero-os/0-robot/node/1.1.0'))
+        self.assertFalse(robot.services.exists(template_uid='github.com/threefoldtech/0-robot/node/1.1.0'))
         self.assertFalse(robot.services.exists(template_name='other'))
 
     def _test_search(self, robot):
-        node1 = robot.services.create("github.com/zero-os/0-robot/node/0.0.1", 'node1')
-        node2 = robot.services.create("github.com/zero-os/0-robot/node/0.0.1", 'node2')
-        vm1 = robot.services.create("github.com/zero-os/0-robot/vm/0.0.1", 'vm1')
+        node1 = robot.services.create("github.com/threefoldtech/0-robot/node/0.0.1", 'node1')
+        node2 = robot.services.create("github.com/threefoldtech/0-robot/node/0.0.1", 'node2')
+        vm1 = robot.services.create("github.com/threefoldtech/0-robot/vm/0.0.1", 'vm1')
 
-        results = robot.services.find(template_uid="github.com/zero-os/0-robot/node/0.0.1")
+        results = robot.services.find(template_uid="github.com/threefoldtech/0-robot/node/0.0.1")
         self.assertEqual(len(results), 2)
         guids = [node1.guid, node2.guid]
         for s in results:
@@ -272,13 +272,13 @@ class TestZRobotAPI(unittest.TestCase):
             self.assertIn(s.guid, guids)
 
     def _test_find_or_create(self, robot):
-        node1 = robot.services.create("github.com/zero-os/0-robot/node/0.0.1", 'node1')
+        node1 = robot.services.create("github.com/threefoldtech/0-robot/node/0.0.1", 'node1')
         assert len(robot.services.guids) == 1
 
-        srv = robot.services.find_or_create(template_uid="github.com/zero-os/0-robot/node/0.0.1", service_name='node1', data={})
+        srv = robot.services.find_or_create(template_uid="github.com/threefoldtech/0-robot/node/0.0.1", service_name='node1', data={})
         assert node1.guid == srv.guid, "find or create should return service if it exists"
         assert len(robot.services.guids) == 1
 
-        srv = robot.services.find_or_create(template_uid="github.com/zero-os/0-robot/node/0.0.1", service_name='node2', data={})
+        srv = robot.services.find_or_create(template_uid="github.com/threefoldtech/0-robot/node/0.0.1", service_name='node2', data={})
         assert node1.guid != srv.guid, "find or create should create a service if it doesn't exists"
         assert len(robot.services.guids) == 2

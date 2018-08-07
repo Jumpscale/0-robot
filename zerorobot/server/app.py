@@ -2,7 +2,7 @@ import os
 import sys
 
 from flask import Flask, jsonify, send_file, send_from_directory
-from js9 import j
+from jumpscale import j
 
 from .blueprints_api import blueprints_api
 from .services_api import services_api

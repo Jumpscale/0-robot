@@ -2,7 +2,7 @@ import os
 import tempfile
 import unittest
 
-from js9 import j
+from jumpscale import j
 from zerorobot.template.state import (BadServiceStateError, ServiceState,
                                       StateCategoryNotExistsError,
                                       StateCheckError)

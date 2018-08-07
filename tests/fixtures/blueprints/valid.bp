@@ -1,10 +1,10 @@
 services:
-  - github.com/zero-os/0-robot/node/0.0.1__node1:
+  - github.com/threefoldtech/0-robot/node/0.0.1__node1:
       foo: bar
   - node__node2:
       foor: bar
 
 actions:
-  - template: github.com/zero-os/0-robot/node/0.0.1
+  - template: github.com/threefoldtech/0-robot/node/0.0.1
     service: node1
     actions: ['start', 'monitor']

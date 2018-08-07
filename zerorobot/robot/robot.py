@@ -8,8 +8,9 @@ import gevent
 from gevent import GreenletExit
 from gevent.pool import Pool
 from gevent.pywsgi import WSGIServer
+from gevent.event import Event
 
-from js9 import j
+from jumpscale import j
 from zerorobot import service_collection as scol
 from zerorobot import template_collection as tcol
 from zerorobot import config, webhooks
@@ -34,18 +35,20 @@ class Robot:
     """
 
     def __init__(self):
-        self._started = False
-        self._block = True
+        self._stop_event = Event()
+        self._stop_event.set()
         self.data_repo_url = None
         self._http = None  # server handler
-        self.addr = None
+        self._addr = None
         self._sig_handler = []
 
     @property
+    def started(self):
+        return not self._stop_event.is_set()
+
+    @property
     def address(self):
-        if self._http:
-            return self._http.address
-        return None
+        return self._addr
 
     def set_data_repo(self, url):
         """
@@ -93,6 +96,8 @@ class Robot:
         start the rest web server
         load the services from the local git repository
         """
+        self._stop_event.clear()
+
         config.mode = mode
         config.god = god  # when true, this allow to get data and logs from services using the REST API
 
@@ -115,8 +120,6 @@ class Robot:
 
          # configure authentication middleware
         _configure_authentication(admin_organization, user_organization)
-
-        self._block = block
 
         self._sig_handler.append(gevent.signal(signal.SIGINT, self.stop))
 
@@ -145,36 +148,49 @@ class Robot:
         hostport = _split_hostport(listen)
         self._http = WSGIServer(hostport, app, spawn=pool, log=logger, error_log=logger)
         self._http.start()
+        self._addr = self._http.address
         logger.info("robot running at %s:%s" % hostport)
 
         if block:
-            self._http.serve_forever()
-            # this is executed when self.stop is called.
-            # here no more requests are comming in, we can safely save all services
-            self._save_services()
-        else:
-            self._http.start()
+            try:
+                # wait until stop() is called
+                self._stop_event.wait()
+            finally:
+                gevent.Greenlet.spawn(self.stop, timeout=60).join()
 
-    def stop(self):
+    def stop(self, timeout=30):
         """
-        stop receiving requests
-        gracefully stop all the services
-        serialize all services state to disk
+        1. stop receiving requests on the REST API
+        2. wait all currently active request finishes
+        3. stop all services
+        4. wait all services stop gracefully
+        5. serialize all services state to disk
+        6. exit the process
         """
+        logger.info('stopping robot')
+
         # prevent the signal handler to be called again if
         # more signal are received
         for h in self._sig_handler:
             h.cancel()
 
-        logger.info('stopping robot')
-        self._http.stop()
-        self._http = None
+        logger.info("stop REST API")
+        logger.info("waiting request to finish")
+        self._http.stop(timeout=10)
+        self._addr = None
 
-        # if we don't block, we can gracefully shutdown here
-        # cause we're not in a sig handler
-        if self._block is False:
-            # here no more requests are comming in, we can safely save all services
-            self._save_services()
+        logger.info("waiting for services to stop")
+        for service in scol.list_services():
+            try:
+                service._gracefull_stop(timeout=None)
+            except Exception as err:
+                logger.warning('exception raised while waiting %s %s (%s) to finish: %s', service.template_uid.name, service.name, service.guid, err)
+
+        # here no more requests are comming in, we can safely save all services
+        self._save_services()
+
+        # notify we can exist the process
+        self._stop_event.set()
 
     def _save_services(self):
         """
@@ -187,13 +203,13 @@ class Robot:
 
 
 def _create_node_service():
-    service_found = scol.find(template_host='github.com', template_account='zero-os', template_name='node')
+    service_found = scol.find(template_host='github.com', template_account='threefoldtech', template_name='node')
     if not service_found:
-        template_found = tcol.find(host='github.com', account='zero-os', name='node')
+        template_found = tcol.find(host='github.com', account='threefoldtech', name='node')
         if not template_found:
-            tcol.add_repo("https://github.com/zero-os/0-templates")
+            tcol.add_repo("https://github.com/threefoldtech/0-templates")
 
-        template_found = tcol.find(host='github.com', account='zero-os', name='node')
+        template_found = tcol.find(host='github.com', account='threefoldtech', name='node')
         if not template_found:
             raise RuntimeError("cannot create node service and --mode node is set")
 

@@ -9,7 +9,7 @@ import sys
 
 from gevent.pool import Pool
 
-from js9 import j
+from jumpscale import j
 from zerorobot import service_collection as scol
 from zerorobot import git
 from zerorobot.service_collection import ServiceConflictError

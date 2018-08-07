@@ -1104,7 +1104,7 @@ table {
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.server.auth.flask_httpauth', this);">Show source &equiv;</a></p>
   <div id="source-zerorobot.server.auth.flask_httpauth" class="source">
     <div class="codehilite"><pre><span></span><span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">wraps</span>
-<span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">request</span><span class="p">,</span> <span class="n">make_response</span><span class="p">,</span> <span class="n">jsonify</span>
+<span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">request</span><span class="p">,</span> <span class="n">make_response</span><span class="p">,</span> <span class="n">jsonify</span><span class="p">,</span> <span class="n">Response</span>
 <span class="kn">from</span> <span class="nn">werkzeug.datastructures</span> <span class="kn">import</span> <span class="n">Authorization</span>
 
 
@@ -1221,23 +1221,28 @@ table {
     <span class="k">def</span> <span class="nf">login_required</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">f</span><span class="p">):</span>
         <span class="nd">@wraps</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
         <span class="k">def</span> <span class="nf">decorated</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-            <span class="n">selected_auth</span> <span class="o">=</span> <span class="bp">None</span>
-            <span class="k">if</span> <span class="s1">&#39;Authorization&#39;</span> <span class="ow">in</span> <span class="n">request</span><span class="o">.</span><span class="n">headers</span><span class="p">:</span>
-                <span class="k">try</span><span class="p">:</span>
-                    <span class="n">scheme</span><span class="p">,</span> <span class="n">creds</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">headers</span><span class="p">[</span><span class="s1">&#39;Authorization&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span>
-                        <span class="bp">None</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-                <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
-                    <span class="c1"># malformed Authorization header</span>
-                    <span class="k">pass</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="k">for</span> <span class="n">auth</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">additional_auth</span><span class="p">:</span>
-                        <span class="k">if</span> <span class="n">auth</span><span class="o">.</span><span class="n">scheme</span> <span class="o">==</span> <span class="n">scheme</span><span class="p">:</span>
-                            <span class="n">selected_auth</span> <span class="o">=</span> <span class="n">auth</span>
-                            <span class="k">break</span>
-            <span class="k">if</span> <span class="n">selected_auth</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
-                <span class="n">selected_auth</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">main_auth</span>
-            <span class="k">return</span> <span class="n">selected_auth</span><span class="o">.</span><span class="n">login_required</span><span class="p">(</span><span class="n">f</span><span class="p">)(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="c1"># try if one of the authentication scheme works</span>
+            <span class="k">for</span> <span class="n">auth</span> <span class="ow">in</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">main_auth</span><span class="p">,</span> <span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">additional_auth</span><span class="p">]:</span>
+                <span class="n">resp</span> <span class="o">=</span> <span class="n">auth</span><span class="o">.</span><span class="n">login_required</span><span class="p">(</span><span class="n">f</span><span class="p">)(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+                <span class="n">status_code</span> <span class="o">=</span> <span class="n">_extract_status_code</span><span class="p">(</span><span class="n">resp</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">status_code</span> <span class="o">&lt;</span> <span class="mi">400</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="n">resp</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">main_auth</span><span class="o">.</span><span class="n">auth_error_callback</span><span class="p">()</span>
+
         <span class="k">return</span> <span class="n">decorated</span>
+
+
+<span class="k">def</span> <span class="nf">_extract_status_code</span><span class="p">(</span><span class="n">resp</span><span class="p">):</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">resp</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">):</span>
+        <span class="n">size</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">resp</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">size</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>  <span class="c1"># tuple is (body, status_code, headers)</span>
+            <span class="k">return</span> <span class="n">resp</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">size</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>  <span class="c1"># tuple is (response, status_code)</span>
+            <span class="k">return</span> <span class="n">resp</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">status_code</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">resp</span><span class="p">,</span> <span class="n">Response</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">resp</span><span class="o">.</span><span class="n">status_code</span>
+
+    <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s1">&#39;response has an unexpected type: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="nb">type</span><span class="p">(</span><span class="n">resp</span><span class="p">))</span>
 </pre></div>
 
   </div>
@@ -1880,22 +1885,14 @@ table {
     <span class="k">def</span> <span class="nf">login_required</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">f</span><span class="p">):</span>
         <span class="nd">@wraps</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
         <span class="k">def</span> <span class="nf">decorated</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-            <span class="n">selected_auth</span> <span class="o">=</span> <span class="bp">None</span>
-            <span class="k">if</span> <span class="s1">&#39;Authorization&#39;</span> <span class="ow">in</span> <span class="n">request</span><span class="o">.</span><span class="n">headers</span><span class="p">:</span>
-                <span class="k">try</span><span class="p">:</span>
-                    <span class="n">scheme</span><span class="p">,</span> <span class="n">creds</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">headers</span><span class="p">[</span><span class="s1">&#39;Authorization&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span>
-                        <span class="bp">None</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-                <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
-                    <span class="c1"># malformed Authorization header</span>
-                    <span class="k">pass</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="k">for</span> <span class="n">auth</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">additional_auth</span><span class="p">:</span>
-                        <span class="k">if</span> <span class="n">auth</span><span class="o">.</span><span class="n">scheme</span> <span class="o">==</span> <span class="n">scheme</span><span class="p">:</span>
-                            <span class="n">selected_auth</span> <span class="o">=</span> <span class="n">auth</span>
-                            <span class="k">break</span>
-            <span class="k">if</span> <span class="n">selected_auth</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
-                <span class="n">selected_auth</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">main_auth</span>
-            <span class="k">return</span> <span class="n">selected_auth</span><span class="o">.</span><span class="n">login_required</span><span class="p">(</span><span class="n">f</span><span class="p">)(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="c1"># try if one of the authentication scheme works</span>
+            <span class="k">for</span> <span class="n">auth</span> <span class="ow">in</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">main_auth</span><span class="p">,</span> <span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">additional_auth</span><span class="p">]:</span>
+                <span class="n">resp</span> <span class="o">=</span> <span class="n">auth</span><span class="o">.</span><span class="n">login_required</span><span class="p">(</span><span class="n">f</span><span class="p">)(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+                <span class="n">status_code</span> <span class="o">=</span> <span class="n">_extract_status_code</span><span class="p">(</span><span class="n">resp</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">status_code</span> <span class="o">&lt;</span> <span class="mi">400</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="n">resp</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">main_auth</span><span class="o">.</span><span class="n">auth_error_callback</span><span class="p">()</span>
+
         <span class="k">return</span> <span class="n">decorated</span>
 </pre></div>
 
@@ -1948,22 +1945,13 @@ table {
     <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">login_required</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">f</span><span class="p">):</span>
     <span class="nd">@wraps</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
     <span class="k">def</span> <span class="nf">decorated</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="n">selected_auth</span> <span class="o">=</span> <span class="bp">None</span>
-        <span class="k">if</span> <span class="s1">&#39;Authorization&#39;</span> <span class="ow">in</span> <span class="n">request</span><span class="o">.</span><span class="n">headers</span><span class="p">:</span>
-            <span class="k">try</span><span class="p">:</span>
-                <span class="n">scheme</span><span class="p">,</span> <span class="n">creds</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">headers</span><span class="p">[</span><span class="s1">&#39;Authorization&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span>
-                    <span class="bp">None</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-            <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
-                <span class="c1"># malformed Authorization header</span>
-                <span class="k">pass</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="k">for</span> <span class="n">auth</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">additional_auth</span><span class="p">:</span>
-                    <span class="k">if</span> <span class="n">auth</span><span class="o">.</span><span class="n">scheme</span> <span class="o">==</span> <span class="n">scheme</span><span class="p">:</span>
-                        <span class="n">selected_auth</span> <span class="o">=</span> <span class="n">auth</span>
-                        <span class="k">break</span>
-        <span class="k">if</span> <span class="n">selected_auth</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
-            <span class="n">selected_auth</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">main_auth</span>
-        <span class="k">return</span> <span class="n">selected_auth</span><span class="o">.</span><span class="n">login_required</span><span class="p">(</span><span class="n">f</span><span class="p">)(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="c1"># try if one of the authentication scheme works</span>
+        <span class="k">for</span> <span class="n">auth</span> <span class="ow">in</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">main_auth</span><span class="p">,</span> <span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">additional_auth</span><span class="p">]:</span>
+            <span class="n">resp</span> <span class="o">=</span> <span class="n">auth</span><span class="o">.</span><span class="n">login_required</span><span class="p">(</span><span class="n">f</span><span class="p">)(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="n">status_code</span> <span class="o">=</span> <span class="n">_extract_status_code</span><span class="p">(</span><span class="n">resp</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">status_code</span> <span class="o">&lt;</span> <span class="mi">400</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">resp</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">main_auth</span><span class="o">.</span><span class="n">auth_error_callback</span><span class="p">()</span>
     <span class="k">return</span> <span class="n">decorated</span>
 </pre></div>
 

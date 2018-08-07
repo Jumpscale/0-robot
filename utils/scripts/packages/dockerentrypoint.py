@@ -2,7 +2,7 @@
 import os
 import time
 import subprocess
-from js9 import j
+from jumpscale import j
 
 STANDARD_CONFIG_DIR = '/opt/code/local/stdorg/config'
 
@@ -25,14 +25,14 @@ j.tools.prefab.local.core.run("js9_config init -s -k /root/.ssh/id_rsa -p %s" % 
 
 cmd_line = "zrobot server start"
 args = [
-    "listen", 
-    "data_repo", 
-    "template_repo", 
-    "config_repo", 
-    "debug", 
-    "telegram_bot_token", 
-    "telegram_chat_id", 
-    "auto_push", 
+    "listen",
+    "data_repo",
+    "template_repo",
+    "config_repo",
+    "debug",
+    "telegram_bot_token",
+    "telegram_chat_id",
+    "auto_push",
     "auto_push_interval"
 ]
 for arg in args:
@@ -43,7 +43,7 @@ for arg in args:
             cmd_line += " --%s" % arg
         elif arg == "template-repo":
             for val in val.split(','):
-                cmd_line += " --%s '%s'" % (arg, val.strip())    
+                cmd_line += " --%s '%s'" % (arg, val.strip())
         else:
             cmd_line += " --%s '%s'" % (arg, val.strip())
 

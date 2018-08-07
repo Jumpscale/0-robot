@@ -15,7 +15,7 @@ You can inspect different properties of a task:
 
 ## Customize actions behavior
 It is possible to add some special behavior to an actions using decorators
-See the API documentation for more detail: https://zero-os.github.io/0-robot/api/zerorobot/template/decorator.m.html
+See the API documentation for more detail: https://threefoldtech.github.io/0-robot/api/zerorobot/template/decorator.m.html
 
 ### Retry decorator
 This decorator allows to define retry policy for the action. 

@@ -3,7 +3,7 @@ from zerorobot.task.utils import _instantiate_task
 import os
 import sqlite3
 import msgpack
-from js9 import j
+from jumpscale import j
 
 _create_table_stmt = """
 CREATE TABLE IF NOT EXISTS tasks (

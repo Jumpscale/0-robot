@@ -1,4 +1,4 @@
-from js9 import j
+from jumpscale import j
 from zerorobot.errors import ExpectedError
 
 SERVICE_STATE_OK = 'ok'

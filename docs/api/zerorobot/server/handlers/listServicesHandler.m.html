@@ -1044,7 +1044,6 @@ table {
     <li class="set"><h3><a href="#header-functions">Functions</a></h3>
       
   <ul>
-    <li class="mono"><a href="#zerorobot.server.handlers.listServicesHandler.extract_guid_from_headers">extract_guid_from_headers</a></li>
     <li class="mono"><a href="#zerorobot.server.handlers.listServicesHandler.listServicesHandler">listServicesHandler</a></li>
   </ul>
 
@@ -1076,9 +1075,9 @@ table {
 <span class="kn">from</span> <span class="nn">zerorobot</span> <span class="kn">import</span> <span class="n">service_collection</span> <span class="k">as</span> <span class="n">scol</span>
 <span class="kn">from</span> <span class="nn">zerorobot.server.handlers.views</span> <span class="kn">import</span> <span class="n">service_view</span>
 <span class="kn">from</span> <span class="nn">zerorobot.server</span> <span class="kn">import</span> <span class="n">auth</span>
+<span class="kn">from</span> <span class="nn">zerorobot</span> <span class="kn">import</span> <span class="n">config</span>
 
 
-<span class="nd">@auth.all.login_required</span>
 <span class="k">def</span> <span class="nf">listServicesHandler</span><span class="p">():</span>
     <span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    List all the services known by the ZeroRobot.</span>
@@ -1090,35 +1089,15 @@ table {
         <span class="k">if</span> <span class="n">val</span><span class="p">:</span>
             <span class="n">kwargs</span><span class="p">[</span><span class="n">x</span><span class="p">]</span> <span class="o">=</span> <span class="n">val</span>
 
-    <span class="n">allowed_services</span> <span class="o">=</span> <span class="n">extract_guid_from_headers</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">headers</span><span class="p">)</span>
-    <span class="n">services</span> <span class="o">=</span> <span class="p">[</span><span class="n">service_view</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">scol</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="k">if</span> <span class="n">s</span><span class="o">.</span><span class="n">guid</span> <span class="ow">in</span> <span class="n">allowed_services</span> <span class="ow">or</span> <span class="n">scol</span><span class="o">.</span><span class="n">is_service_public</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">guid</span><span class="p">)</span> <span class="ow">is</span> <span class="bp">True</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">auth</span><span class="o">.</span><span class="n">god_jwt</span><span class="o">.</span><span class="n">check_god_token</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+        <span class="c1"># god token passed, we list all the services</span>
+        <span class="n">services</span> <span class="o">=</span> <span class="p">[</span><span class="n">service_view</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">scol</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># normal flow, only return service for which the user has the secret</span>
+        <span class="n">allowed_services</span> <span class="o">=</span> <span class="n">auth</span><span class="o">.</span><span class="n">user_jwt</span><span class="o">.</span><span class="n">extract_service_guid</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
+        <span class="n">services</span> <span class="o">=</span> <span class="p">[</span><span class="n">service_view</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">scol</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="k">if</span> <span class="n">s</span><span class="o">.</span><span class="n">guid</span> <span class="ow">in</span> <span class="n">allowed_services</span> <span class="ow">or</span> <span class="n">scol</span><span class="o">.</span><span class="n">is_service_public</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">guid</span><span class="p">)</span> <span class="ow">is</span> <span class="bp">True</span><span class="p">]</span>
+
     <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">services</span><span class="p">),</span> <span class="mi">200</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;Content-type&quot;</span><span class="p">:</span> <span class="s1">&#39;application/json&#39;</span><span class="p">}</span>
-
-
-<span class="k">def</span> <span class="nf">extract_guid_from_headers</span><span class="p">(</span><span class="n">headers</span><span class="p">):</span>
-    <span class="k">if</span> <span class="s1">&#39;ZrobotSecret&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">request</span><span class="o">.</span><span class="n">headers</span><span class="p">:</span>
-        <span class="k">return</span> <span class="p">[]</span>
-
-    <span class="n">services_guids</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="n">ss</span> <span class="o">=</span> <span class="n">headers</span><span class="p">[</span><span class="s1">&#39;ZrobotSecret&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="bp">None</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ss</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
-        <span class="k">return</span> <span class="p">[]</span>
-
-    <span class="n">auth_type</span> <span class="o">=</span> <span class="n">ss</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-    <span class="n">tokens</span> <span class="o">=</span> <span class="n">ss</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
-    <span class="k">if</span> <span class="n">auth_type</span> <span class="o">!=</span> <span class="s1">&#39;Bearer&#39;</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">tokens</span><span class="p">:</span>
-        <span class="k">return</span> <span class="p">[]</span>
-
-    <span class="k">for</span> <span class="n">token</span> <span class="ow">in</span> <span class="n">tokens</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">):</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="n">claims</span> <span class="o">=</span> <span class="n">auth</span><span class="o">.</span><span class="n">user_jwt</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">token</span><span class="p">)</span>
-            <span class="n">guid</span> <span class="o">=</span> <span class="n">claims</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;service_guid&#39;</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">guid</span><span class="p">:</span>
-                <span class="n">services_guids</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">guid</span><span class="p">)</span>
-        <span class="k">except</span><span class="p">:</span>
-            <span class="k">continue</span>
-
-    <span class="k">return</span> <span class="n">services_guids</span>
 </pre></div>
 
   </div>
@@ -1130,51 +1109,8 @@ table {
     <h2 class="section-title" id="header-functions">Functions</h2>
       
   <div class="item">
-    <div class="name def" id="zerorobot.server.handlers.listServicesHandler.extract_guid_from_headers">
-    <p>def <span class="ident">extract_guid_from_headers</span>(</p><p>headers)</p>
-    </div>
-    
-
-    
-  
-  <div class="source_cont">
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.server.handlers.listServicesHandler.extract_guid_from_headers', this);">Show source &equiv;</a></p>
-  <div id="source-zerorobot.server.handlers.listServicesHandler.extract_guid_from_headers" class="source">
-    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">extract_guid_from_headers</span><span class="p">(</span><span class="n">headers</span><span class="p">):</span>
-    <span class="k">if</span> <span class="s1">&#39;ZrobotSecret&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">request</span><span class="o">.</span><span class="n">headers</span><span class="p">:</span>
-        <span class="k">return</span> <span class="p">[]</span>
-
-    <span class="n">services_guids</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="n">ss</span> <span class="o">=</span> <span class="n">headers</span><span class="p">[</span><span class="s1">&#39;ZrobotSecret&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="bp">None</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ss</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
-        <span class="k">return</span> <span class="p">[]</span>
-
-    <span class="n">auth_type</span> <span class="o">=</span> <span class="n">ss</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-    <span class="n">tokens</span> <span class="o">=</span> <span class="n">ss</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
-    <span class="k">if</span> <span class="n">auth_type</span> <span class="o">!=</span> <span class="s1">&#39;Bearer&#39;</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">tokens</span><span class="p">:</span>
-        <span class="k">return</span> <span class="p">[]</span>
-
-    <span class="k">for</span> <span class="n">token</span> <span class="ow">in</span> <span class="n">tokens</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">):</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="n">claims</span> <span class="o">=</span> <span class="n">auth</span><span class="o">.</span><span class="n">user_jwt</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">token</span><span class="p">)</span>
-            <span class="n">guid</span> <span class="o">=</span> <span class="n">claims</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;service_guid&#39;</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">guid</span><span class="p">:</span>
-                <span class="n">services_guids</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">guid</span><span class="p">)</span>
-        <span class="k">except</span><span class="p">:</span>
-            <span class="k">continue</span>
-
-    <span class="k">return</span> <span class="n">services_guids</span>
-</pre></div>
-
-  </div>
-</div>
-
-  </div>
-  
-      
-  <div class="item">
     <div class="name def" id="zerorobot.server.handlers.listServicesHandler.listServicesHandler">
-    <p>def <span class="ident">listServicesHandler</span>(</p><p>*args, **kwargs)</p>
+    <p>def <span class="ident">listServicesHandler</span>(</p><p>)</p>
     </div>
     
 
@@ -1185,8 +1121,7 @@ It is handler for GET /services</p></div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.server.handlers.listServicesHandler.listServicesHandler', this);">Show source &equiv;</a></p>
   <div id="source-zerorobot.server.handlers.listServicesHandler.listServicesHandler" class="source">
-    <div class="codehilite"><pre><span></span><span class="nd">@auth.all.login_required</span>
-<span class="k">def</span> <span class="nf">listServicesHandler</span><span class="p">():</span>
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">listServicesHandler</span><span class="p">():</span>
     <span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    List all the services known by the ZeroRobot.</span>
 <span class="sd">    It is handler for GET /services</span>
@@ -1197,8 +1132,14 @@ It is handler for GET /services</p></div>
         <span class="k">if</span> <span class="n">val</span><span class="p">:</span>
             <span class="n">kwargs</span><span class="p">[</span><span class="n">x</span><span class="p">]</span> <span class="o">=</span> <span class="n">val</span>
 
-    <span class="n">allowed_services</span> <span class="o">=</span> <span class="n">extract_guid_from_headers</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">headers</span><span class="p">)</span>
-    <span class="n">services</span> <span class="o">=</span> <span class="p">[</span><span class="n">service_view</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">scol</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="k">if</span> <span class="n">s</span><span class="o">.</span><span class="n">guid</span> <span class="ow">in</span> <span class="n">allowed_services</span> <span class="ow">or</span> <span class="n">scol</span><span class="o">.</span><span class="n">is_service_public</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">guid</span><span class="p">)</span> <span class="ow">is</span> <span class="bp">True</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">auth</span><span class="o">.</span><span class="n">god_jwt</span><span class="o">.</span><span class="n">check_god_token</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+        <span class="c1"># god token passed, we list all the services</span>
+        <span class="n">services</span> <span class="o">=</span> <span class="p">[</span><span class="n">service_view</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">scol</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># normal flow, only return service for which the user has the secret</span>
+        <span class="n">allowed_services</span> <span class="o">=</span> <span class="n">auth</span><span class="o">.</span><span class="n">user_jwt</span><span class="o">.</span><span class="n">extract_service_guid</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
+        <span class="n">services</span> <span class="o">=</span> <span class="p">[</span><span class="n">service_view</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">scol</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="k">if</span> <span class="n">s</span><span class="o">.</span><span class="n">guid</span> <span class="ow">in</span> <span class="n">allowed_services</span> <span class="ow">or</span> <span class="n">scol</span><span class="o">.</span><span class="n">is_service_public</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">guid</span><span class="p">)</span> <span class="ow">is</span> <span class="bp">True</span><span class="p">]</span>
+
     <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">services</span><span class="p">),</span> <span class="mi">200</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;Content-type&quot;</span><span class="p">:</span> <span class="s1">&#39;application/json&#39;</span><span class="p">}</span>
 </pre></div>
 

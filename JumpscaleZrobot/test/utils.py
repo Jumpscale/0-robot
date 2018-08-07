@@ -13,9 +13,9 @@ class ZrobotBaseTest(TestCase):
     @classmethod
     def preTest(cls, path, template):
         config.data_repo = config.DataRepo(tempfile.mkdtemp(prefix='0-templates_'))
-        template_collection._load_template('https://github.com/zero-os/0-templates', path)
+        template_collection._load_template('https://github.com/threefoldtech/0-templates', path)
         template.template_uid = TemplateUID.parse(
-            'github.com/zero-os/0-templates/%s/%s' % (template.template_name, template.version))
+            'github.com/threefoldtech/0-templates/%s/%s' % (template.template_name, template.version))
 
     @classmethod
     def tearDownClass(cls):

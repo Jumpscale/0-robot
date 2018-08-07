@@ -2,7 +2,7 @@ from functools import wraps
 import os
 
 from jose import jwt
-from js9 import j
+from jumpscale import j
 
 logger = j.logger.get('zrobot')
 _token_prefix = "Bearer "

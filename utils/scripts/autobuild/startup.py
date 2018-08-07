@@ -2,7 +2,7 @@ import shlex
 import os
 from jose import jwt
 
-from js9 import j
+from jumpscale import j
 
 iyo_pub_key = """-----BEGIN PUBLIC KEY-----
 MHYwEAYHKoZIzj0CAQYFK4EEACIDYgAES5X8XrfKdx9gYayFITc89wad4usrk0n2

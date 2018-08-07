@@ -1069,11 +1069,11 @@ table {
     <div class="codehilite"><pre><span></span><span class="n">rom</span> <span class="n">gevent</span> <span class="kn">import</span> <span class="nn">monkey</span>
  <span class="n">need</span> <span class="n">to</span> <span class="n">patch</span> <span class="n">sockets</span> <span class="n">to</span> <span class="n">make</span> <span class="n">requests</span> <span class="n">async</span>
 <span class="n">onkey</span><span class="o">.</span><span class="n">patch_all</span><span class="p">(</span><span class="n">subprocess</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
-<span class="n">rom</span> <span class="n">js9</span> <span class="kn">import</span> <span class="nn">j</span>
+<span class="n">rom</span> <span class="n">jumpscale</span> <span class="kn">import</span> <span class="nn">j</span>
 <span class="n">mport</span> <span class="n">click</span>
 <span class="n">mport</span> <span class="n">logging</span>
-<span class="n">rom</span> <span class="n">JumpScale9</span><span class="o">.</span><span class="n">logging</span><span class="o">.</span><span class="n">Handlers</span> <span class="kn">import</span> <span class="nn">TelegramHandler</span>
-<span class="n">rom</span> <span class="n">JumpScale9</span><span class="o">.</span><span class="n">logging</span><span class="o">.</span><span class="n">Handlers</span> <span class="kn">import</span> <span class="nn">TelegramFormatter</span>
+<span class="n">rom</span> <span class="n">Jumpscale</span><span class="o">.</span><span class="n">logging</span><span class="o">.</span><span class="n">Handlers</span> <span class="kn">import</span> <span class="nn">TelegramHandler</span>
+<span class="n">rom</span> <span class="n">Jumpscale</span><span class="o">.</span><span class="n">logging</span><span class="o">.</span><span class="n">Handlers</span> <span class="kn">import</span> <span class="nn">TelegramFormatter</span>
 <span class="n">rom</span> <span class="n">zerorobot</span><span class="o">.</span><span class="n">robot</span> <span class="kn">import</span> <span class="nn">Robot</span>
 <span class="n">elegram_logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;telegram_logger&#39;</span><span class="p">)</span>
 <span class="n">elegram_logger</span><span class="o">.</span><span class="n">disabled</span> <span class="o">=</span> <span class="bp">True</span>
@@ -1095,10 +1095,11 @@ table {
 <span class="n">click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span><span class="s1">&#39;--admin-organization&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;if specified, use this organization to protect the admin API endpoint.&#39;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
 <span class="n">click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span><span class="s1">&#39;--user-organization&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;if specified, use this organization to protect the user API endpoint.&#39;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
 <span class="n">click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span><span class="s1">&#39;--mode&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;mode of 0-robot&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="n">click</span><span class="o">.</span><span class="n">Choice</span><span class="p">([</span><span class="s1">&#39;node&#39;</span><span class="p">]),</span> <span class="n">required</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+<span class="n">click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span><span class="s1">&#39;--god&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;enable god mode (use ONLY for development !!)&#39;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">is_flag</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
 <span class="n">ef</span> <span class="n">start</span><span class="p">(</span><span class="n">listen</span><span class="p">,</span> <span class="n">data_repo</span><span class="p">,</span> <span class="n">template_repo</span><span class="p">,</span> <span class="n">config_repo</span><span class="p">,</span> <span class="n">config_key</span><span class="p">,</span> <span class="n">debug</span><span class="p">,</span>
          <span class="n">telegram_bot_token</span><span class="p">,</span> <span class="n">telegram_chat_id</span><span class="p">,</span>
          <span class="n">auto_push</span><span class="p">,</span> <span class="n">auto_push_interval</span><span class="p">,</span>
-         <span class="n">admin_organization</span><span class="p">,</span> <span class="n">user_organization</span><span class="p">,</span> <span class="n">mode</span><span class="p">):</span>
+         <span class="n">admin_organization</span><span class="p">,</span> <span class="n">user_organization</span><span class="p">,</span> <span class="n">mode</span><span class="p">,</span> <span class="n">god</span><span class="p">):</span>
    <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">   start the 0-robot daemon.</span>
 <span class="sd">   this will start the REST API on address and port specified by --listen and block</span>
@@ -1127,7 +1128,8 @@ table {
                <span class="n">auto_push_interval</span><span class="o">=</span><span class="n">auto_push_interval</span><span class="p">,</span>
                <span class="n">admin_organization</span><span class="o">=</span><span class="n">admin_organization</span><span class="p">,</span>
                <span class="n">user_organization</span><span class="o">=</span><span class="n">user_organization</span><span class="p">,</span>
-               <span class="n">mode</span><span class="o">=</span><span class="n">mode</span><span class="p">)</span>
+               <span class="n">mode</span><span class="o">=</span><span class="n">mode</span><span class="p">,</span>
+               <span class="n">god</span><span class="o">=</span><span class="n">god</span><span class="p">)</span>
 </pre></div>
 
   </div>

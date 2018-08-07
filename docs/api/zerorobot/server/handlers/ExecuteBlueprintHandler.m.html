@@ -1055,6 +1055,7 @@ table {
       
   <ul>
     <li class="mono"><a href="#zerorobot.server.handlers.ExecuteBlueprintHandler.ExecuteBlueprintHandler">ExecuteBlueprintHandler</a></li>
+    <li class="mono"><a href="#zerorobot.server.handlers.ExecuteBlueprintHandler.instantiate_services">instantiate_services</a></li>
   </ul>
 
     </li>
@@ -1085,7 +1086,7 @@ table {
 <span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">request</span><span class="p">,</span> <span class="n">jsonify</span>
 <span class="kn">from</span> <span class="nn">jsonschema</span> <span class="kn">import</span> <span class="n">Draft4Validator</span>
 
-<span class="kn">from</span> <span class="nn">js9</span> <span class="kn">import</span> <span class="n">j</span>
+<span class="kn">from</span> <span class="nn">jumpscale</span> <span class="kn">import</span> <span class="n">j</span>
 <span class="kn">from</span> <span class="nn">zerorobot</span> <span class="kn">import</span> <span class="n">service_collection</span> <span class="k">as</span> <span class="n">scol</span>
 <span class="kn">from</span> <span class="nn">zerorobot</span> <span class="kn">import</span> <span class="n">template_collection</span> <span class="k">as</span> <span class="n">tcol</span>
 <span class="kn">from</span> <span class="nn">zerorobot</span> <span class="kn">import</span> <span class="n">blueprint</span>
@@ -1122,28 +1123,12 @@ table {
     <span class="k">except</span> <span class="p">(</span><span class="n">blueprint</span><span class="o">.</span><span class="n">BadBlueprintFormatError</span><span class="p">,</span> <span class="n">TemplateConflictError</span><span class="p">,</span> <span class="n">TemplateNotFoundError</span><span class="p">)</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">jsonify</span><span class="p">(</span><span class="n">code</span><span class="o">=</span><span class="mi">400</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">err</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">])),</span> <span class="mi">400</span>
 
-    <span class="n">services_created</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">service</span> <span class="ow">in</span> <span class="n">services</span><span class="p">:</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="n">service</span> <span class="o">=</span> <span class="n">_instanciate_services</span><span class="p">(</span><span class="n">service</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">service</span><span class="p">:</span>
-                <span class="c1"># add secret to new created service</span>
-                <span class="n">view</span> <span class="o">=</span> <span class="n">service_view</span><span class="p">(</span><span class="n">service</span><span class="p">)</span>
-                <span class="k">try</span><span class="p">:</span>
-                    <span class="n">view</span><span class="p">[</span><span class="s1">&#39;secret&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">auth</span><span class="o">.</span><span class="n">user_jwt</span><span class="o">.</span><span class="n">create</span><span class="p">({</span><span class="s1">&#39;service_guid&#39;</span><span class="p">:</span> <span class="n">service</span><span class="o">.</span><span class="n">guid</span><span class="p">})</span>
-                    <span class="n">services_created</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">view</span><span class="p">)</span>
-                <span class="k">except</span> <span class="n">auth</span><span class="o">.</span><span class="n">user_jwt</span><span class="o">.</span><span class="n">SigningKeyNotFoundError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
-                    <span class="k">return</span> <span class="n">jsonify</span><span class="p">(</span><span class="n">code</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="s1">&#39;error creating user secret: no signing key available&#39;</span><span class="p">),</span> <span class="mi">500</span>
-                <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
-                    <span class="k">return</span> <span class="n">jsonify</span><span class="p">(</span><span class="n">code</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="s1">&#39;error creating user secret: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">err</span><span class="p">)),</span> <span class="mi">500</span>
-
-        <span class="k">except</span> <span class="n">TemplateNotFoundError</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">jsonify</span><span class="p">(</span><span class="n">code</span><span class="o">=</span><span class="mi">404</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="s2">&quot;template &#39;</span><span class="si">%s</span><span class="s2">&#39; not found&quot;</span> <span class="o">%</span> <span class="n">service</span><span class="p">[</span><span class="s1">&#39;template&#39;</span><span class="p">]),</span> <span class="mi">404</span>
-        <span class="k">except</span> <span class="n">TemplateConflictError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">jsonify</span><span class="p">(</span><span class="n">code</span><span class="o">=</span><span class="mi">400</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="n">err</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="mi">404</span>
+    <span class="n">services_created</span><span class="p">,</span> <span class="n">err_code</span><span class="p">,</span> <span class="n">err_msg</span> <span class="o">=</span> <span class="n">instantiate_services</span><span class="p">(</span><span class="n">services</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">err_code</span> <span class="ow">or</span> <span class="n">err_msg</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">jsonify</span><span class="p">(</span><span class="n">code</span><span class="o">=</span><span class="n">err_code</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="n">err_msg</span><span class="p">),</span> <span class="n">err_code</span>
 
     <span class="n">services_2b_schedules</span> <span class="o">=</span> <span class="n">_find_services_to_be_scheduled</span><span class="p">(</span><span class="n">actions</span><span class="p">)</span>
-    <span class="n">allowed_services</span> <span class="o">=</span> <span class="n">_extract_user_secrets</span><span class="p">(</span><span class="n">request</span><span class="p">)</span> <span class="o">+</span> <span class="p">[</span><span class="n">s</span><span class="p">[</span><span class="s1">&#39;guid&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">services_created</span><span class="p">]</span>
+    <span class="n">allowed_services</span> <span class="o">=</span> <span class="n">auth</span><span class="o">.</span><span class="n">user_jwt</span><span class="o">.</span><span class="n">extract_service_guid</span><span class="p">(</span><span class="n">request</span><span class="p">)</span> <span class="o">+</span> <span class="p">[</span><span class="n">s</span><span class="p">[</span><span class="s1">&#39;guid&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">services_created</span><span class="p">]</span>
     <span class="n">not_allowed</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">services_2b_schedules</span><span class="p">)</span> <span class="o">-</span> <span class="nb">set</span><span class="p">(</span><span class="n">allowed_services</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">not_allowed</span><span class="p">:</span>
         <span class="n">error_msg</span> <span class="o">=</span> <span class="s2">&quot;you are trying to schedule action on some services on which you don&#39;t have rights.&quot;</span>
@@ -1164,7 +1149,52 @@ table {
     <span class="k">return</span> <span class="n">jsonify</span><span class="p">(</span><span class="n">response</span><span class="p">),</span> <span class="mi">200</span>
 
 
-<span class="k">def</span> <span class="nf">_instanciate_services</span><span class="p">(</span><span class="n">service_descr</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">instantiate_services</span><span class="p">(</span><span class="n">services</span><span class="p">):</span>
+    <span class="n">services_created</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">err_msg</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="n">err_code</span> <span class="o">=</span> <span class="bp">None</span>
+
+    <span class="k">for</span> <span class="n">service</span> <span class="ow">in</span> <span class="n">services</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">service</span> <span class="o">=</span> <span class="n">_instantiate_service</span><span class="p">(</span><span class="n">service</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">service</span><span class="p">:</span>
+                <span class="c1"># add secret to new created service</span>
+                <span class="n">view</span> <span class="o">=</span> <span class="n">service_view</span><span class="p">(</span><span class="n">service</span><span class="p">)</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">view</span><span class="p">[</span><span class="s1">&#39;secret&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">auth</span><span class="o">.</span><span class="n">user_jwt</span><span class="o">.</span><span class="n">create</span><span class="p">({</span><span class="s1">&#39;service_guid&#39;</span><span class="p">:</span> <span class="n">service</span><span class="o">.</span><span class="n">guid</span><span class="p">})</span>
+                    <span class="n">services_created</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">view</span><span class="p">)</span>
+                <span class="k">except</span> <span class="n">auth</span><span class="o">.</span><span class="n">user_jwt</span><span class="o">.</span><span class="n">SigningKeyNotFoundError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+                    <span class="n">err_code</span> <span class="o">=</span> <span class="mi">500</span>
+                    <span class="n">err_msg</span> <span class="o">=</span> <span class="s1">&#39;error creating user secret: no signing key available&#39;</span>
+                    <span class="k">break</span>
+                <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+                    <span class="n">err_code</span> <span class="o">=</span> <span class="mi">500</span>
+                    <span class="n">err_msg</span> <span class="o">=</span> <span class="s1">&#39;error creating user secret: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">err</span><span class="p">)</span>
+                    <span class="k">break</span>
+
+        <span class="k">except</span> <span class="n">TemplateNotFoundError</span><span class="p">:</span>
+            <span class="n">err_code</span> <span class="o">=</span> <span class="mi">404</span>
+            <span class="n">err_msg</span> <span class="o">=</span> <span class="s2">&quot;template &#39;</span><span class="si">%s</span><span class="s2">&#39; not found&quot;</span> <span class="o">%</span> <span class="n">service</span><span class="p">[</span><span class="s1">&#39;template&#39;</span><span class="p">]</span>
+            <span class="k">break</span>
+        <span class="k">except</span> <span class="n">TemplateConflictError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+            <span class="n">err_code</span> <span class="o">=</span> <span class="mi">400</span>
+            <span class="n">err_msg</span> <span class="o">=</span> <span class="n">err</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">break</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+            <span class="n">err_code</span> <span class="o">=</span> <span class="mi">500</span>
+            <span class="n">err_msg</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">err</span><span class="p">)</span>
+            <span class="k">break</span>
+
+    <span class="k">if</span> <span class="n">err_code</span> <span class="ow">or</span> <span class="n">err_msg</span><span class="p">:</span>
+        <span class="c1"># means we had an error during the creation of services</span>
+        <span class="c1"># clean up all created service in this blueprint</span>
+        <span class="k">for</span> <span class="n">service</span> <span class="ow">in</span> <span class="n">services_created</span><span class="p">:</span>
+            <span class="n">scol</span><span class="o">.</span><span class="n">get_by_guid</span><span class="p">(</span><span class="n">service</span><span class="p">[</span><span class="s1">&#39;guid&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">delete</span><span class="p">()</span>
+
+    <span class="k">return</span> <span class="n">services_created</span><span class="p">,</span> <span class="n">err_code</span><span class="p">,</span> <span class="n">err_msg</span>
+
+
+<span class="k">def</span> <span class="nf">_instantiate_service</span><span class="p">(</span><span class="n">service_descr</span><span class="p">):</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="n">srv</span> <span class="o">=</span> <span class="n">tcol</span><span class="o">.</span><span class="n">instantiate_service</span><span class="p">(</span><span class="n">service_descr</span><span class="p">[</span><span class="s1">&#39;template&#39;</span><span class="p">],</span> <span class="n">service_descr</span><span class="p">[</span><span class="s1">&#39;service&#39;</span><span class="p">],</span> <span class="n">service_descr</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;data&#39;</span><span class="p">,</span> <span class="bp">None</span><span class="p">))</span>
         <span class="k">return</span> <span class="n">srv</span>
@@ -1247,32 +1277,6 @@ table {
         <span class="n">t</span> <span class="o">=</span> <span class="n">service</span><span class="o">.</span><span class="n">schedule_action</span><span class="p">(</span><span class="n">action</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="n">args</span><span class="p">)</span>
         <span class="n">tasks</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">t</span><span class="p">,</span> <span class="n">service</span><span class="p">))</span>
     <span class="k">return</span> <span class="n">tasks</span>
-
-
-<span class="k">def</span> <span class="nf">_extract_user_secrets</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
-    <span class="k">if</span> <span class="s1">&#39;ZrobotSecret&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">request</span><span class="o">.</span><span class="n">headers</span><span class="p">:</span>
-        <span class="k">return</span> <span class="p">[]</span>
-
-    <span class="n">ss</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">headers</span><span class="p">[</span><span class="s1">&#39;ZrobotSecret&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="bp">None</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ss</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
-        <span class="k">return</span> <span class="p">[]</span>
-
-    <span class="n">auth_type</span> <span class="o">=</span> <span class="n">ss</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-    <span class="n">tokens</span> <span class="o">=</span> <span class="n">ss</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
-    <span class="k">if</span> <span class="n">auth_type</span> <span class="o">!=</span> <span class="s1">&#39;Bearer&#39;</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">tokens</span><span class="p">:</span>
-        <span class="k">return</span> <span class="p">[]</span>
-
-    <span class="n">services_guids</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">token</span> <span class="ow">in</span> <span class="n">tokens</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">):</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="n">claims</span> <span class="o">=</span> <span class="n">auth</span><span class="o">.</span><span class="n">user_jwt</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">token</span><span class="p">)</span>
-            <span class="n">guid</span> <span class="o">=</span> <span class="n">claims</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;service_guid&#39;</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">guid</span><span class="p">:</span>
-                <span class="n">services_guids</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">guid</span><span class="p">)</span>
-        <span class="k">except</span><span class="p">:</span>
-            <span class="k">continue</span>
-
-    <span class="k">return</span> <span class="n">services_guids</span>
 </pre></div>
 
   </div>
@@ -1346,28 +1350,12 @@ It is handler for POST /blueprints</p></div>
     <span class="k">except</span> <span class="p">(</span><span class="n">blueprint</span><span class="o">.</span><span class="n">BadBlueprintFormatError</span><span class="p">,</span> <span class="n">TemplateConflictError</span><span class="p">,</span> <span class="n">TemplateNotFoundError</span><span class="p">)</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">jsonify</span><span class="p">(</span><span class="n">code</span><span class="o">=</span><span class="mi">400</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">err</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">])),</span> <span class="mi">400</span>
 
-    <span class="n">services_created</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">service</span> <span class="ow">in</span> <span class="n">services</span><span class="p">:</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="n">service</span> <span class="o">=</span> <span class="n">_instanciate_services</span><span class="p">(</span><span class="n">service</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">service</span><span class="p">:</span>
-                <span class="c1"># add secret to new created service</span>
-                <span class="n">view</span> <span class="o">=</span> <span class="n">service_view</span><span class="p">(</span><span class="n">service</span><span class="p">)</span>
-                <span class="k">try</span><span class="p">:</span>
-                    <span class="n">view</span><span class="p">[</span><span class="s1">&#39;secret&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">auth</span><span class="o">.</span><span class="n">user_jwt</span><span class="o">.</span><span class="n">create</span><span class="p">({</span><span class="s1">&#39;service_guid&#39;</span><span class="p">:</span> <span class="n">service</span><span class="o">.</span><span class="n">guid</span><span class="p">})</span>
-                    <span class="n">services_created</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">view</span><span class="p">)</span>
-                <span class="k">except</span> <span class="n">auth</span><span class="o">.</span><span class="n">user_jwt</span><span class="o">.</span><span class="n">SigningKeyNotFoundError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
-                    <span class="k">return</span> <span class="n">jsonify</span><span class="p">(</span><span class="n">code</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="s1">&#39;error creating user secret: no signing key available&#39;</span><span class="p">),</span> <span class="mi">500</span>
-                <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
-                    <span class="k">return</span> <span class="n">jsonify</span><span class="p">(</span><span class="n">code</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="s1">&#39;error creating user secret: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">err</span><span class="p">)),</span> <span class="mi">500</span>
-
-        <span class="k">except</span> <span class="n">TemplateNotFoundError</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">jsonify</span><span class="p">(</span><span class="n">code</span><span class="o">=</span><span class="mi">404</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="s2">&quot;template &#39;</span><span class="si">%s</span><span class="s2">&#39; not found&quot;</span> <span class="o">%</span> <span class="n">service</span><span class="p">[</span><span class="s1">&#39;template&#39;</span><span class="p">]),</span> <span class="mi">404</span>
-        <span class="k">except</span> <span class="n">TemplateConflictError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">jsonify</span><span class="p">(</span><span class="n">code</span><span class="o">=</span><span class="mi">400</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="n">err</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="mi">404</span>
+    <span class="n">services_created</span><span class="p">,</span> <span class="n">err_code</span><span class="p">,</span> <span class="n">err_msg</span> <span class="o">=</span> <span class="n">instantiate_services</span><span class="p">(</span><span class="n">services</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">err_code</span> <span class="ow">or</span> <span class="n">err_msg</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">jsonify</span><span class="p">(</span><span class="n">code</span><span class="o">=</span><span class="n">err_code</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="n">err_msg</span><span class="p">),</span> <span class="n">err_code</span>
 
     <span class="n">services_2b_schedules</span> <span class="o">=</span> <span class="n">_find_services_to_be_scheduled</span><span class="p">(</span><span class="n">actions</span><span class="p">)</span>
-    <span class="n">allowed_services</span> <span class="o">=</span> <span class="n">_extract_user_secrets</span><span class="p">(</span><span class="n">request</span><span class="p">)</span> <span class="o">+</span> <span class="p">[</span><span class="n">s</span><span class="p">[</span><span class="s1">&#39;guid&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">services_created</span><span class="p">]</span>
+    <span class="n">allowed_services</span> <span class="o">=</span> <span class="n">auth</span><span class="o">.</span><span class="n">user_jwt</span><span class="o">.</span><span class="n">extract_service_guid</span><span class="p">(</span><span class="n">request</span><span class="p">)</span> <span class="o">+</span> <span class="p">[</span><span class="n">s</span><span class="p">[</span><span class="s1">&#39;guid&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">services_created</span><span class="p">]</span>
     <span class="n">not_allowed</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">services_2b_schedules</span><span class="p">)</span> <span class="o">-</span> <span class="nb">set</span><span class="p">(</span><span class="n">allowed_services</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">not_allowed</span><span class="p">:</span>
         <span class="n">error_msg</span> <span class="o">=</span> <span class="s2">&quot;you are trying to schedule action on some services on which you don&#39;t have rights.&quot;</span>
@@ -1386,6 +1374,68 @@ It is handler for POST /blueprints</p></div>
         <span class="n">response</span><span class="p">[</span><span class="s1">&#39;tasks&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">task_view</span><span class="p">(</span><span class="n">task</span><span class="p">,</span> <span class="n">service</span><span class="p">))</span>
 
     <span class="k">return</span> <span class="n">jsonify</span><span class="p">(</span><span class="n">response</span><span class="p">),</span> <span class="mi">200</span>
+</pre></div>
+
+  </div>
+</div>
+
+  </div>
+  
+      
+  <div class="item">
+    <div class="name def" id="zerorobot.server.handlers.ExecuteBlueprintHandler.instantiate_services">
+    <p>def <span class="ident">instantiate_services</span>(</p><p>services)</p>
+    </div>
+    
+
+    
+  
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-zerorobot.server.handlers.ExecuteBlueprintHandler.instantiate_services', this);">Show source &equiv;</a></p>
+  <div id="source-zerorobot.server.handlers.ExecuteBlueprintHandler.instantiate_services" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">instantiate_services</span><span class="p">(</span><span class="n">services</span><span class="p">):</span>
+    <span class="n">services_created</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">err_msg</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="n">err_code</span> <span class="o">=</span> <span class="bp">None</span>
+
+    <span class="k">for</span> <span class="n">service</span> <span class="ow">in</span> <span class="n">services</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">service</span> <span class="o">=</span> <span class="n">_instantiate_service</span><span class="p">(</span><span class="n">service</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">service</span><span class="p">:</span>
+                <span class="c1"># add secret to new created service</span>
+                <span class="n">view</span> <span class="o">=</span> <span class="n">service_view</span><span class="p">(</span><span class="n">service</span><span class="p">)</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">view</span><span class="p">[</span><span class="s1">&#39;secret&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">auth</span><span class="o">.</span><span class="n">user_jwt</span><span class="o">.</span><span class="n">create</span><span class="p">({</span><span class="s1">&#39;service_guid&#39;</span><span class="p">:</span> <span class="n">service</span><span class="o">.</span><span class="n">guid</span><span class="p">})</span>
+                    <span class="n">services_created</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">view</span><span class="p">)</span>
+                <span class="k">except</span> <span class="n">auth</span><span class="o">.</span><span class="n">user_jwt</span><span class="o">.</span><span class="n">SigningKeyNotFoundError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+                    <span class="n">err_code</span> <span class="o">=</span> <span class="mi">500</span>
+                    <span class="n">err_msg</span> <span class="o">=</span> <span class="s1">&#39;error creating user secret: no signing key available&#39;</span>
+                    <span class="k">break</span>
+                <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+                    <span class="n">err_code</span> <span class="o">=</span> <span class="mi">500</span>
+                    <span class="n">err_msg</span> <span class="o">=</span> <span class="s1">&#39;error creating user secret: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">err</span><span class="p">)</span>
+                    <span class="k">break</span>
+
+        <span class="k">except</span> <span class="n">TemplateNotFoundError</span><span class="p">:</span>
+            <span class="n">err_code</span> <span class="o">=</span> <span class="mi">404</span>
+            <span class="n">err_msg</span> <span class="o">=</span> <span class="s2">&quot;template &#39;</span><span class="si">%s</span><span class="s2">&#39; not found&quot;</span> <span class="o">%</span> <span class="n">service</span><span class="p">[</span><span class="s1">&#39;template&#39;</span><span class="p">]</span>
+            <span class="k">break</span>
+        <span class="k">except</span> <span class="n">TemplateConflictError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+            <span class="n">err_code</span> <span class="o">=</span> <span class="mi">400</span>
+            <span class="n">err_msg</span> <span class="o">=</span> <span class="n">err</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">break</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+            <span class="n">err_code</span> <span class="o">=</span> <span class="mi">500</span>
+            <span class="n">err_msg</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">err</span><span class="p">)</span>
+            <span class="k">break</span>
+
+    <span class="k">if</span> <span class="n">err_code</span> <span class="ow">or</span> <span class="n">err_msg</span><span class="p">:</span>
+        <span class="c1"># means we had an error during the creation of services</span>
+        <span class="c1"># clean up all created service in this blueprint</span>
+        <span class="k">for</span> <span class="n">service</span> <span class="ow">in</span> <span class="n">services_created</span><span class="p">:</span>
+            <span class="n">scol</span><span class="o">.</span><span class="n">get_by_guid</span><span class="p">(</span><span class="n">service</span><span class="p">[</span><span class="s1">&#39;guid&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">delete</span><span class="p">()</span>
+
+    <span class="k">return</span> <span class="n">services_created</span><span class="p">,</span> <span class="n">err_code</span><span class="p">,</span> <span class="n">err_msg</span>
 </pre></div>
 
   </div>

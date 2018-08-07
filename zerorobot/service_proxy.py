@@ -11,7 +11,7 @@ import urllib
 from requests.exceptions import HTTPError
 
 from jose import jwt
-from js9 import j
+from jumpscale import j
 from zerorobot.task import (TASK_STATE_ERROR, TASK_STATE_NEW, TASK_STATE_OK,
                             TASK_STATE_RUNNING, Task, TaskNotFoundError)
 from zerorobot.template.state import ServiceState

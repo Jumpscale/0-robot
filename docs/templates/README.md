@@ -12,10 +12,10 @@ There is different information extracted from the URL:
 - the name of the template itself
 - a version
 
-e.g: github.com/zero-os/0-robot/node/1.0.0 would result into
+e.g: github.com/threefoldtech/0-robot/node/1.0.0 would result into
 ```
 host: github.com
-account: zero-os
+account: threefoldtech
 repository name: 0-robot
 template name: node
 version: 1.0.0
@@ -27,7 +27,7 @@ This snippet of code show how to create a new service using a template UID:
 ```python
 from zerorobot import template_collection as tcol
 
-template_uid = "github.com/zero-os/0-robot/node/1.0.0"
+template_uid = "github.com/threefoldtech/0-robot/node/1.0.0"
 name = "container1"
 args = {'foo': 'bar'}
 container = tcol.instantiate_service(template_uid, name, args)

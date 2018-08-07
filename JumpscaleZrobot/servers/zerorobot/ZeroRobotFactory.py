@@ -1,4 +1,4 @@
-from js9 import j
+from jumpscale import j
 
 from .ZeroRobotServer import ZeroRobotServer
 
