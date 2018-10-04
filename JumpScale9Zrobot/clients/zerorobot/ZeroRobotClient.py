@@ -9,6 +9,7 @@ JSConfigClientBase = j.tools.configmanager.base_class_config
 
 _template = """
 url = "http://localhost:6600"
+username = ""
 jwt_ = ""
 secrets_ = []
 god_token_ = ""
